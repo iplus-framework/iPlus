@@ -903,7 +903,7 @@ namespace gip.core.autocomponent
                 gip.core.datamodel.ACClassConfig[] allConfigs =
                      customValueListClass
                     .ACClassConfig_ACClass
-                    .Where(c => c.LocalConfigACUrl != null && c.LocalConfigACUrl.StartsWith($"{nameof(ACValueItem)}("))
+                    .Where(c => c.LocalConfigACUrl != null && c.LocalConfigACUrl.StartsWith($"{nameof(ACValueItem)}_"))
                     .ToArray();
 
                 gip.core.datamodel.ACClassConfig config =
@@ -918,11 +918,8 @@ namespace gip.core.autocomponent
                     config.ValueTypeACClass = db.GetACType(typeof(String)) as gip.core.datamodel.ACClass;
                     config.Value = value;
                     string keyValue = value.ToString();
-                    keyValue = keyValue.Replace("*", "_");
-                    keyValue = keyValue.Replace("?", "_");
-                    keyValue = keyValue.Replace(".", "_");
-                    keyValue = keyValue.Replace("\\", "_");
-                    config.LocalConfigACUrl = $"{nameof(ACValueItem)}({keyValue})";
+                    keyValue = ACUrlHelper.GetTrimmedName(keyValue);
+                    config.LocalConfigACUrl = $"{nameof(ACValueItem)}_{keyValue}";
                     customValueListClass.ACClassConfig_ACClass.Add(config);
                 }
                 if(config.ACCaption != desc)

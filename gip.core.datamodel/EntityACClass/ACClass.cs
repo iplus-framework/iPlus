@@ -230,7 +230,7 @@ namespace gip.core.datamodel
 
 
             var properties = ACClassProperty_ACClass.ToList();
-            foreach(var property in properties)
+            foreach (var property in properties)
             {
                 List<ACClassProperty> basedProperties = database.ContextIPlus.ACClassProperty.Where(c => c.BasedOnACClassPropertyID == property.ACClassPropertyID).ToList();
                 foreach (var item in basedProperties)
@@ -943,7 +943,7 @@ namespace gip.core.datamodel
 
             //using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             //{
-                resultDB = baseClass.IsBaseClassFromLocked(this);
+            resultDB = baseClass.IsBaseClassFromLocked(this);
             //}
             this.Database.RegisterDerivedClass(baseClass.ACClassID, this.ACClassID, resultDB);
             return resultDB;
@@ -972,7 +972,7 @@ namespace gip.core.datamodel
 
             //using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             //{
-                return IsBaseClassFromLocked(this, baseClassACIdentifier);
+            return IsBaseClassFromLocked(this, baseClassACIdentifier);
             //}
         }
 
@@ -1127,7 +1127,7 @@ namespace gip.core.datamodel
                 List<ACClass> acClassList = new List<ACClass>();
                 //using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                 //{
-                    FillClassHierarchyList(ref acClassList);
+                FillClassHierarchyList(ref acClassList);
                 //}
                 return acClassList;
             }
@@ -1198,7 +1198,7 @@ namespace gip.core.datamodel
                 List<ACClass> acClassList = new List<ACClass>();
                 //using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                 //{
-                    FillListWithChildsInHierarchy(ref acClassList);
+                FillListWithChildsInHierarchy(ref acClassList);
                 //}
                 return acClassList.OrderBy(c => c.ACIdentifier);
             }
@@ -2322,7 +2322,7 @@ namespace gip.core.datamodel
         private void BuildInheritedDesignList(ref List<ACClassDesign> acClassDesignList, bool forceRefreshFromDB, bool withOverrides)
         {
             ACClassDesign[] allDesigns = LoadDesignListWithRelations(forceRefreshFromDB);
-            if(allDesigns != null)
+            if (allDesigns != null)
             {
                 foreach (var acClassDesign in allDesigns.OrderBy(c => c.ACKindIndex).ThenBy(c => c.SortIndex).ThenBy(c => c.ACIdentifier))
                 {
@@ -2681,7 +2681,7 @@ namespace gip.core.datamodel
                     var baseClass = BaseClass;
                     if (baseClass != null)
                     {
-                        _PrimaryNavigationquery =  baseClass.PrimaryNavigationquery();
+                        _PrimaryNavigationquery = baseClass.PrimaryNavigationquery();
                         return _PrimaryNavigationquery;
                     }
                 }
@@ -2768,7 +2768,7 @@ namespace gip.core.datamodel
                     _ACValueListForEnum = Activator.CreateInstance(classForEnumList.ObjectType, false) as ACValueItemList;
                     foreach (ACClassText aCClassText in classForEnumList.ACClassText_ACClass.ToArray())
                     {
-                        ACValueItem aCValueItem = _ACValueListForEnum.FirstOrDefault(c=>c.Value.ToString() == aCClassText.ACIdentifier);
+                        ACValueItem aCValueItem = _ACValueListForEnum.FirstOrDefault(c => c.Value.ToString() == aCClassText.ACIdentifier);
                         if (aCValueItem != null)
                             aCValueItem.ACCaptionTranslation = aCClassText.ACCaptionTranslation;
                     }
@@ -2793,7 +2793,7 @@ namespace gip.core.datamodel
 
                 _ACValueListFromDatabase = new ACValueItemList(nameof(ACValueListFromDatabase));
                 //ACClassText[] translations = null;
-                foreach (var acConfig in ConfigurationEntries.Where(c => c.LocalConfigACUrl != null && c.LocalConfigACUrl.StartsWith($"{nameof(ACValueItem)}(")))
+                foreach (var acConfig in ConfigurationEntries.Where(c => c.LocalConfigACUrl != null && c.LocalConfigACUrl.StartsWith($"{nameof(ACValueItem)}_")))
                 {
                     // if (translations == null)
                     //     translations = ACClassText_ACClass.ToArray();
@@ -2803,6 +2803,15 @@ namespace gip.core.datamodel
                     //     acClassText = translations.Where(c => c.ACIdentifier == key).FirstOrDefault();
                     //_ACValueListFromDatabase.AddEntry(acConfig.Value, acClassText != null ? acClassText.ACCaption : acConfig.ACCaption);
                     _ACValueListFromDatabase.AddEntry(acConfig.Value, acConfig.ACCaption);
+                }
+                if (_ACValueListFromDatabase != null)
+                {
+                    var items = _ACValueListFromDatabase.OrderBy(c => c.ACCaption).ToList();
+                    _ACValueListFromDatabase = new ACValueItemList(nameof(ACValueListFromDatabase));
+                    foreach(var item in items)
+                    {
+                        _ACValueListFromDatabase.AddEntry(item);
+                    }
                 }
                 return _ACValueListFromDatabase;
             }
@@ -3083,7 +3092,7 @@ namespace gip.core.datamodel
                     if (_ObjectType != null)
                         return _ObjectType;
                 }
-                
+
                 ACClass myAssemblyClass = BaseClassWithASQN;
                 if (myAssemblyClass == null)
                     return null;
@@ -3629,7 +3638,7 @@ namespace gip.core.datamodel
                     if (query.Any())
                         return false;
                 }
-                else if (   mode == ConfigEntriesValidationMode.CompareCount
+                else if (mode == ConfigEntriesValidationMode.CompareCount
                          || mode == ConfigEntriesValidationMode.CompareContent)
                     return query.Count() == ConfigurationEntries.Count();
             }

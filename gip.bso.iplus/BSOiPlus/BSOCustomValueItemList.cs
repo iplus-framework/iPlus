@@ -230,13 +230,36 @@ namespace gip.bso.iplus
             }
             set
             {
-
+                if (_CurrentPointConfig != null)
+                {
+                    _CurrentPointConfig.PropertyChanged -= CurrentPointConfig_PropertyChanged;
+                }
                 _CurrentPointConfig = value;
+                if (_CurrentPointConfig != null)
+                {
+                    _CurrentPointConfig.PropertyChanged += CurrentPointConfig_PropertyChanged;
+                }
                 OnPropertyChanged();
             }
         }
 
-
+        private void CurrentPointConfig_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ACClassConfig.Value))
+            {
+                if (sender is ACClassConfig config)
+                {
+                    string localConfigACUrl = config.Value != null ? config.Value.ToString() : string.Empty;
+                    if (!string.IsNullOrEmpty(localConfigACUrl))
+                    {
+                        localConfigACUrl = ACUrlHelper.GetTrimmedName(localConfigACUrl);
+                    }
+                    config.LocalConfigACUrl = $"{nameof(ACValueItem)}_{localConfigACUrl}";
+                    config.ACCaption = config.Value != null ? config.Value.ToString() : " ";
+                }
+            }
+        }
+         
 
         /// <summary>
         /// Gets the point config list.
@@ -413,15 +436,15 @@ namespace gip.bso.iplus
             if (otherConfig != null)
             {
                 acConfig.ValueTypeACClass = otherConfig.ValueTypeACClass;
-                acConfig.Value = Activator.CreateInstance(otherConfig.ValueTypeACClass.ObjectFullType);
             }
             else
             {
                 acConfig.ValueTypeACClass = database.GetACType(typeof(Int32)) as ACClass;
                 acConfig.Value = 0;
             }
-            acConfig.LocalConfigACUrl = $"{nameof(ACValueItem)}()";
-
+            acConfig.LocalConfigACUrl = $"{nameof(ACValueItem)}_";
+            acConfig.Comment = "";
+            acConfig.ACCaption = " ";
             OnPropertyChanged(nameof(PointConfigList));
             CurrentPointConfig = acConfig;
             PostExecute(nameof(NewPointConfig));
@@ -463,6 +486,26 @@ namespace gip.bso.iplus
             if (ConfigPointACClassProperty == null || !(ConfigPointACClassProperty is IACConfigStore))
                 return false;
             return CurrentCustomList != null && CurrentPointConfig != null;
+        }
+
+        protected override Msg OnPreSave()
+        {
+            Msg baseResult = base.OnPreSave();
+            if (CurrentCustomList != null)
+            {
+                var duplicates = PointConfigList.GroupBy(c => c.LocalConfigACUrl).Where(c => c.Count() > 1);
+                if(duplicates.Any())
+                {
+                    string duplicateUrls = string.Join(", ", duplicates.Select(g => g.Key));
+                    // Error50758
+                    // BSOCustomValueItemList
+                    // Not allowed to have multiple configurations with the same name. Duplicated configuration names: {0}
+                    // Nicht erlaubt, mehrere Konfigurationen mit demselben Namen zu haben. Doppelte Konfigurationsnamen: {0}
+                    baseResult = new Msg { ACIdentifier = this.ACCaption, Message = Root.Environment.TranslateMessage(this, "Error50758"), MessageLevel = eMsgLevel.Error };
+                }
+
+            }
+            return baseResult;
         }
 
         public void UpdateConfigPointACClassPropertyLayout()
@@ -528,7 +571,7 @@ namespace gip.bso.iplus
                     // BSOCustomValueItemList
                     // The ACIdentifier (Designname) mustn't contain special characters, which are used for ACURLCommand
                     // Der ACIdentifier (Designname) darf keine Sonder- und Leerzeichen enthalten, die für die ACURLCommand verwendet werden
-                 Msg msg = new Msg { ACIdentifier = this.ACCaption, Message = Root.Environment.TranslateMessage(this, "Warning50095"), MessageLevel = eMsgLevel.Error };
+                    Msg msg = new Msg { ACIdentifier = this.ACCaption, Message = Root.Environment.TranslateMessage(this, "Warning50095"), MessageLevel = eMsgLevel.Warning };
                     return msg;
                 }
             }
