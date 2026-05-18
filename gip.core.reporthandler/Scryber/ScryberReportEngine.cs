@@ -22,6 +22,9 @@ namespace gip.core.reporthandler
     {
         private static readonly Regex EachBlockRegex = new Regex(@"\{\{#each\s+([^}]+)\}\}(.*?)\{\{/each\}\}", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex ValueExpressionRegex = new Regex(@"\{\{\s*([^#/][^}]*)\s*\}\}", RegexOptions.Singleline | RegexOptions.Compiled);
+        private static readonly Regex LegacyVbGetRegex = new Regex(@"\bvb\.Get\(\s*(?<arg>[^)]*?)\s*\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex DataResourceKeyRegex = new Regex(@"data-resource-key\s*=\s*(?:\""(?<dq>[^\""\r\n]+)\""|'(?<sq>[^'\r\n]+)')", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex DesignIdentifierRegex = new Regex(@"ACClassDesign\((?<id>[^)]+)\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private const string DefaultScryberHtmlTemplate = "<!doctype html>\n"
             + "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n"
             + "<head>\n"
@@ -31,9 +34,9 @@ namespace gip.core.reporthandler
             + "</head>\n"
             + "<body>\n"
             + "  <h1>New Scryber Report</h1>\n"
-            + "  <p>Default model convention: {{vb.Get(\"model\\\\FieldName\")}}</p>\n"
-            + "  <p>Named value convention: {{vb.Get(\"values\\\\Document\\\\FieldName\")}}</p>\n"
-            + "  <p>Legacy root-key convention: {{vb.Get(\"Document\\\\FieldName\")}}</p>\n"
+            + "  <p>Default model convention: {{model.FieldName}}</p>\n"
+            + "  <p>Named value convention: {{values.Document.FieldName}}</p>\n"
+            + "  <p>Legacy root-key convention: {{Document.FieldName}}</p>\n"
             + "</body>\n"
             + "</html>";
 
@@ -68,12 +71,15 @@ namespace gip.core.reporthandler
             if (reportData == null)
                 throw new ArgumentNullException(nameof(reportData));
 
+            template = NormalizeLegacyVbGetExpressions(template, reportData);
+            IDictionary<string, object> resolvedTemplateParams = ResolveTemplateResourceParams(template, reportData);
+
             using (TextReader reader = new StringReader(template))
             using (Document document = IsScryberTemplate(template)
                 ? Document.ParseHtmlDocument(reader)
                 : Document.ParseDocument(reader))
             {
-                BindReportData(document, reportData);
+                BindReportData(document, reportData, resolvedTemplateParams);
 
                 reportData.InformComponents(document, ACPrintingPhase.Started);
                 try
@@ -130,12 +136,15 @@ namespace gip.core.reporthandler
             if (output == null)
                 throw new ArgumentNullException(nameof(output));
 
+            template = NormalizeLegacyVbGetExpressions(template, reportData);
+            IDictionary<string, object> resolvedTemplateParams = ResolveTemplateResourceParams(template, reportData);
+
             using (TextReader reader = new StringReader(template))
             using (Document document = IsScryberTemplate(template)
                 ? Document.ParseHtmlDocument(reader)
                 : Document.ParseDocument(reader))
             {
-                BindReportData(document, reportData);
+                BindReportData(document, reportData, resolvedTemplateParams);
 
                 reportData.InformComponents(document, ACPrintingPhase.Started);
                 try
@@ -180,7 +189,7 @@ namespace gip.core.reporthandler
             return ExpandTemplateForPreview(template, reportData, model, model, 0);
         }
 
-        public static void BindReportData(Document document, ReportData reportData)
+        public static void BindReportData(Document document, ReportData reportData, IDictionary<string, object> additionalParams = null)
         {
             if (document == null)
                 throw new ArgumentNullException(nameof(document));
@@ -200,6 +209,15 @@ namespace gip.core.reporthandler
             document.Params["reportData"] = reportData;
             document.Params["values"] = reportData.ReportDocumentValues;
             document.Params["vb"] = new VBContentValueResolver(reportData);
+
+            if (additionalParams != null)
+            {
+                foreach (KeyValuePair<string, object> entry in additionalParams)
+                {
+                    if (!String.IsNullOrWhiteSpace(entry.Key) && entry.Value != null)
+                        document.Params[entry.Key] = entry.Value;
+                }
+            }
         }
 
         /// <summary>
@@ -310,12 +328,201 @@ namespace gip.core.reporthandler
 
         private static void ExecuteScryberPipeline(string template, ReportData reportData)
         {
+            template = NormalizeLegacyVbGetExpressions(template, reportData);
+            IDictionary<string, object> resolvedTemplateParams = ResolveTemplateResourceParams(template, reportData);
+
             using (TextReader reader = new StringReader(template))
             using (Document document = Document.ParseHtmlDocument(reader))
             {
-                BindReportData(document, reportData);
+                BindReportData(document, reportData, resolvedTemplateParams);
                 document.SaveAsPDF(Stream.Null);
             }
+        }
+
+        private static IDictionary<string, object> ResolveTemplateResourceParams(string template, ReportData reportData)
+        {
+            Dictionary<string, object> resolved = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+            if (String.IsNullOrWhiteSpace(template) || reportData == null)
+                return resolved;
+
+            IACObject resolver = GetPrimaryAcResolver(reportData);
+            if (resolver == null)
+                return resolved;
+
+            foreach (Match match in DataResourceKeyRegex.Matches(template))
+            {
+                string resourceKey = match.Groups["dq"].Success ? match.Groups["dq"].Value : match.Groups["sq"].Value;
+                if (String.IsNullOrWhiteSpace(resourceKey))
+                    continue;
+
+                Match designMatch = DesignIdentifierRegex.Match(resourceKey);
+                if (!designMatch.Success)
+                    continue;
+
+                string identifier = (designMatch.Groups["id"].Value ?? String.Empty).Trim();
+                if (String.IsNullOrWhiteSpace(identifier) || resolved.ContainsKey(identifier))
+                    continue;
+
+                string dataUrl = TryResolveDesignImageDataUrl(resolver, resourceKey);
+                if (!String.IsNullOrWhiteSpace(dataUrl))
+                    resolved[identifier] = dataUrl;
+            }
+
+            return resolved;
+        }
+
+        private static IACObject GetPrimaryAcResolver(ReportData reportData)
+        {
+            object model = GetDefaultModel(reportData);
+            if (model is IACObject modelAcObject)
+                return modelAcObject;
+
+            if (reportData?.ReportDocumentValues != null)
+            {
+                foreach (KeyValuePair<string, object> entry in reportData.ReportDocumentValues)
+                {
+                    if (entry.Value is IACObject acObject)
+                        return acObject;
+                }
+            }
+
+            return null;
+        }
+
+        private static string TryResolveDesignImageDataUrl(IACObject resolver, string resourceKey)
+        {
+            try
+            {
+                if (resolver == null || String.IsNullOrWhiteSpace(resourceKey))
+                    return null;
+
+                object resolved = resolver.ACUrlCommand(resourceKey);
+                if (resolved is ACClassDesign design && design.DesignBinary != null && design.DesignBinary.Length > 0)
+                    return BuildImageDataUrl(design.DesignBinary);
+            }
+            catch
+            {
+                // Intentionally ignored: unresolved static resources should stay optional in templates.
+            }
+
+            return null;
+        }
+
+        private static string BuildImageDataUrl(byte[] imageBinary)
+        {
+            if (imageBinary == null || imageBinary.Length == 0)
+                return null;
+
+            string mimeType = GuessImageMimeType(imageBinary);
+            return "data:" + mimeType + ";base64," + Convert.ToBase64String(imageBinary);
+        }
+
+        private static string GuessImageMimeType(byte[] imageBinary)
+        {
+            if (imageBinary == null || imageBinary.Length < 4)
+                return "application/octet-stream";
+
+            if (imageBinary.Length >= 8
+                && imageBinary[0] == 0x89 && imageBinary[1] == 0x50 && imageBinary[2] == 0x4E && imageBinary[3] == 0x47)
+                return "image/png";
+
+            if (imageBinary[0] == 0xFF && imageBinary[1] == 0xD8)
+                return "image/jpeg";
+
+            if (imageBinary[0] == 0x47 && imageBinary[1] == 0x49 && imageBinary[2] == 0x46)
+                return "image/gif";
+
+            if (imageBinary[0] == 0x42 && imageBinary[1] == 0x4D)
+                return "image/bmp";
+
+            if ((imageBinary[0] == 0x49 && imageBinary[1] == 0x49 && imageBinary[2] == 0x2A && imageBinary[3] == 0x00)
+                || (imageBinary[0] == 0x4D && imageBinary[1] == 0x4D && imageBinary[2] == 0x00 && imageBinary[3] == 0x2A))
+                return "image/tiff";
+
+            return "application/octet-stream";
+        }
+
+        private static string NormalizeLegacyVbGetExpressions(string template, ReportData reportData)
+        {
+            if (String.IsNullOrWhiteSpace(template))
+                return template;
+
+            return LegacyVbGetRegex.Replace(template, m =>
+            {
+                if (!TryExtractLegacyVbPath(m.Groups["arg"].Value, out string vbPath))
+                    return m.Value;
+
+                string expression = ConvertLegacyVbPathToExpression(vbPath, reportData);
+                return String.IsNullOrWhiteSpace(expression) ? m.Value : expression;
+            });
+        }
+
+        private static bool TryExtractLegacyVbPath(string argument, out string vbPath)
+        {
+            vbPath = null;
+            if (String.IsNullOrWhiteSpace(argument))
+                return false;
+
+            string inner = argument.Trim();
+            if (inner.Length < 2)
+                return false;
+
+            bool hasEscapedDoubleQuotes = inner.StartsWith("\\\"", StringComparison.Ordinal)
+                                           && inner.EndsWith("\\\"", StringComparison.Ordinal)
+                                           && inner.Length >= 4;
+            bool hasEscapedSingleQuotes = inner.StartsWith("\\'", StringComparison.Ordinal)
+                                           && inner.EndsWith("\\'", StringComparison.Ordinal)
+                                           && inner.Length >= 4;
+            bool hasRawDoubleQuotes = inner.StartsWith("\"", StringComparison.Ordinal)
+                                      && inner.EndsWith("\"", StringComparison.Ordinal);
+            bool hasRawSingleQuotes = inner.StartsWith("'", StringComparison.Ordinal)
+                                      && inner.EndsWith("'", StringComparison.Ordinal);
+
+            if (hasEscapedDoubleQuotes || hasEscapedSingleQuotes)
+            {
+                inner = inner.Substring(2, inner.Length - 4);
+            }
+            else if (hasRawDoubleQuotes || hasRawSingleQuotes)
+            {
+                inner = inner.Substring(1, inner.Length - 2);
+            }
+            else
+            {
+                return false;
+            }
+
+            inner = inner.Replace("\\\"", "\"").Replace("\\'", "'");
+            if (String.IsNullOrWhiteSpace(inner))
+                return false;
+
+            vbPath = inner;
+            return true;
+        }
+
+        private static string ConvertLegacyVbPathToExpression(string vbPath, ReportData reportData)
+        {
+            string[] segments = SplitVBContentSegments(vbPath);
+            if (segments.Length == 0)
+                return String.Empty;
+
+            // Preserve explicit roots exactly.
+            if (segments[0].Equals("model", StringComparison.OrdinalIgnoreCase)
+                || segments[0].Equals("values", StringComparison.OrdinalIgnoreCase)
+                || segments[0].Equals("reportData", StringComparison.OrdinalIgnoreCase))
+            {
+                return String.Join(".", segments);
+            }
+
+            // Legacy root-key mode: if first segment matches document values, keep as-is.
+            if (reportData?.ReportDocumentValues != null
+                && TryGetValueCaseInsensitive(reportData.ReportDocumentValues, segments[0], out _))
+            {
+                return String.Join(".", segments);
+            }
+
+            // Otherwise preserve legacy fallback-to-model behavior.
+            return "model." + String.Join(".", segments);
         }
 
         private static string ExpandTemplateForPreview(string template, ReportData reportData, object model, object currentItem, int index)
@@ -418,17 +625,10 @@ namespace gip.core.reporthandler
                 return false;
             }
 
-            string inner = expression.Substring(7, expression.Length - 8).Trim();
-            if (inner.Length < 2)
+            string inner = expression.Substring(7, expression.Length - 8);
+            if (!TryExtractLegacyVbPath(inner, out string vbPath))
                 return false;
 
-            bool isQuoted = (inner.StartsWith("\"", StringComparison.Ordinal) && inner.EndsWith("\"", StringComparison.Ordinal))
-                || (inner.StartsWith("'", StringComparison.Ordinal) && inner.EndsWith("'", StringComparison.Ordinal));
-
-            if (!isQuoted)
-                return false;
-
-            string vbPath = inner.Substring(1, inner.Length - 2);
             value = ResolveVBContent(reportData, vbPath);
             return true;
         }

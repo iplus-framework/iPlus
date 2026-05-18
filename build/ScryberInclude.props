@@ -29,5 +29,7 @@
   <ItemGroup>
     <!-- Scryber.Components loads OpenType support dynamically for non-standard fonts. -->
     <PackageReference Include="Scryber.Core.OpenType" />
+    <!-- Scryber.Imaging decodes PNG/JPEG/GIF data URLs via ImageSharp; explicit reference is required when using DLL references. -->
+    <PackageReference Include="SixLabors.ImageSharp" />
   </ItemGroup>
 </Project> 

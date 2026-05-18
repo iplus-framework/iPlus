@@ -1489,6 +1489,7 @@ namespace gip.core.reporthandler.avui
                 #region Neu anlegen, Löschen, Speichern
                 case nameof(ReportNew):
                 case nameof(IsEnabledReportNew):
+                case nameof(ReportNewReportDlg):
                     return new string[] { nameof(InitState) };
                 case nameof(ReportDelete):
                 case nameof(IsEnabledReportDelete):
