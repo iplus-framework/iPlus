@@ -232,7 +232,6 @@ namespace gip.core.layoutengine.avui
         /// Handles the OnMouseRightButtonDown event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-
         protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
             if (e.InitialPressMouseButton == MouseButton.Right)
@@ -244,6 +243,25 @@ namespace gip.core.layoutengine.avui
                 }
             }
             base.OnPointerReleased(e);
+        }
+
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
+        {
+            if (e.Properties.IsLeftButtonPressed)
+            {
+                VBTreeView treeView = FindParentTreeView(this) as VBTreeView;
+                if (treeView != null && (treeView.DragEnabled == DragMode.Enabled || (e.KeyModifiers == KeyModifiers.Control && treeView.DragEnabled == DragMode.EnabledMove)))
+                {
+                    try
+                    {
+                        VBDragDrop.VBDoDragDrop(e, this);
+                    }
+                    catch (Exception) 
+                    {
+                    }
+                }
+            }
+           base.OnPointerPressed(e);
         }
 
         /// <summary>
