@@ -9,6 +9,7 @@ using System.Linq;
 using System.Printing;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Documents;
@@ -30,6 +31,14 @@ namespace gip.core.reporthandlerwpf
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Baseclass Reports'}de{'Basisklasse Berichte'}", Global.ACKinds.TACBSOReport, Global.ACStorableTypes.NotStorable, true, false)]
     public class VBBSOReport : ACBSO, IReportHandler
     {
+        private static readonly Regex PrintMediaAttributeRegex = new Regex(
+            @"\bdata-(?:cups|print)-media\s*=\s*(?:\""(?<dq>[^\""\r\n]+)\""|'(?<sq>[^'\r\n]+)')",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private static readonly Regex PageSizeCssRegex = new Regex(
+            @"@page\s*[^\{]*\{[^\}]*\bsize\s*:\s*(?<size>[^;\}\r\n]+)",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+
         #region c´tors
         public VBBSOReport(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
@@ -214,7 +223,7 @@ namespace gip.core.reporthandlerwpf
             PrinterName = printerName;
             if (acClassDesign.ACUsage == Global.ACUsages.DUReport)
             {
-                if (ScryberReportEngine.IsScryberTemplate(acClassDesign.XAMLDesign))
+                if (ScryberReportEngine.IsScryberTemplate(acClassDesign.XMLDesign))
                     return PdfPrint(acClassDesign, withDialog, printerName, data, copies);
 
                 return FlowPrint(acClassDesign, withDialog, printerName, data, copies, maxPrintJobsInSpooler);
@@ -240,7 +249,7 @@ namespace gip.core.reporthandlerwpf
             PrinterName = printerName;
             if (acClassDesign.ACUsage == Global.ACUsages.DUReport)
             {
-                if (ScryberReportEngine.IsScryberTemplate(acClassDesign.XAMLDesign))
+                if (ScryberReportEngine.IsScryberTemplate(acClassDesign.XMLDesign))
                 {
                     await PreviewScryberReportAsync(acClassDesign, data);
                     return;
@@ -490,7 +499,7 @@ namespace gip.core.reporthandlerwpf
 
             try
             {
-                byte[] pdfBytes = ScryberReportEngine.RenderPdf(acClassDesign.XAMLDesign, data);
+                byte[] pdfBytes = ScryberReportEngine.RenderPdf(acClassDesign.XMLDesign, data);
                 if (pdfBytes == null || pdfBytes.Length == 0)
                     return;
 
@@ -513,9 +522,13 @@ namespace gip.core.reporthandlerwpf
 
             try
             {
-                byte[] pdfBytes = ScryberReportEngine.RenderPdf(acClassDesign.XAMLDesign, data);
+                byte[] pdfBytes = ScryberReportEngine.RenderPdf(acClassDesign.XMLDesign, data);
                 if (pdfBytes == null || pdfBytes.Length == 0)
                     return null;
+
+                string printMedia = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                    ? ResolveLinuxPrintMedia(acClassDesign.XMLDesign)
+                    : null;
 
                 if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://", StringComparison.OrdinalIgnoreCase))
                 {
@@ -529,7 +542,7 @@ namespace gip.core.reporthandlerwpf
                 string tempPdfPath = Path.Combine(Path.GetTempPath(), $"iplus_{Guid.NewGuid():N}.pdf");
                 File.WriteAllBytes(tempPdfPath, pdfBytes);
 
-                bool sentToPrinter = !withDialog && TryPrintPdfWithShell(tempPdfPath, printerName, copies);
+                bool sentToPrinter = !withDialog && TryPrintPdfWithShell(tempPdfPath, printerName, copies, printMedia);
                 if (!sentToPrinter)
                     OpenWithDefaultApplication(tempPdfPath);
             }
@@ -552,7 +565,7 @@ namespace gip.core.reporthandlerwpf
             });
         }
 
-        private bool TryPrintPdfWithShell(string pdfPath, string printerName, int copies)
+        private bool TryPrintPdfWithShell(string pdfPath, string printerName, int copies, string printMedia = null)
         {
             if (String.IsNullOrWhiteSpace(pdfPath) || String.IsNullOrWhiteSpace(printerName))
                 return false;
@@ -578,10 +591,15 @@ namespace gip.core.reporthandlerwpf
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
+                    string lpArguments = $"-d \"{printerName}\" -n {copies}";
+                    if (!String.IsNullOrWhiteSpace(printMedia))
+                        lpArguments += $" -o media={printMedia}";
+                    lpArguments += $" \"{pdfPath}\"";
+
                     Process process = Process.Start(new ProcessStartInfo
                     {
                         FileName = "lp",
-                        Arguments = $"-d \"{printerName}\" -n {copies} \"{pdfPath}\"",
+                        Arguments = lpArguments,
                         UseShellExecute = false,
                         CreateNoWindow = true
                     });
@@ -598,6 +616,53 @@ namespace gip.core.reporthandlerwpf
             }
 
             return false;
+        }
+
+        private static string ResolveLinuxPrintMedia(string template)
+        {
+            if (String.IsNullOrWhiteSpace(template))
+                return null;
+
+            Match mediaMatch = PrintMediaAttributeRegex.Match(template);
+            if (mediaMatch.Success)
+            {
+                string explicitMedia = mediaMatch.Groups["dq"].Success
+                    ? mediaMatch.Groups["dq"].Value
+                    : mediaMatch.Groups["sq"].Value;
+
+                string normalizedExplicit = NormalizeCupsMedia(explicitMedia);
+                if (!String.IsNullOrWhiteSpace(normalizedExplicit))
+                    return normalizedExplicit;
+            }
+
+            Match pageSizeMatch = PageSizeCssRegex.Match(template);
+            if (!pageSizeMatch.Success)
+                return null;
+
+            string pageSize = pageSizeMatch.Groups["size"].Value;
+            return NormalizeCupsMedia(pageSize);
+        }
+
+        private static string NormalizeCupsMedia(string value)
+        {
+            if (String.IsNullOrWhiteSpace(value))
+                return null;
+
+            string normalized = value.Trim().ToUpperInvariant();
+            if (normalized.Contains("A3"))
+                return "A3";
+            if (normalized.Contains("A4"))
+                return "A4";
+            if (normalized.Contains("A5"))
+                return "A5";
+            if (normalized.Contains("A6"))
+                return "A6";
+            if (normalized.Contains("LETTER"))
+                return "Letter";
+            if (normalized.Contains("LEGAL"))
+                return "Legal";
+
+            return null;
         }
 
         public Msg FlowPrint(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies, int maxPrintJobsInSpooler = 0)

@@ -2,6 +2,9 @@
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 using gip.core.autocomponent;
 using gip.core.datamodel;
+using BarcodeStandard;
+using QRCoder;
+using SkiaSharp;
 using Scryber.Components;
 using System;
 using System.Collections;
@@ -12,6 +15,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace gip.core.reporthandler
 {
@@ -25,6 +29,9 @@ namespace gip.core.reporthandler
         private static readonly Regex LegacyVbGetRegex = new Regex(@"\bvb\.Get\(\s*(?<arg>[^)]*?)\s*\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex DataResourceKeyRegex = new Regex(@"data-resource-key\s*=\s*(?:\""(?<dq>[^\""\r\n]+)\""|'(?<sq>[^'\r\n]+)')", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex DesignIdentifierRegex = new Regex(@"ACClassDesign\((?<id>[^)]+)\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex XmlDeclarationRegex = new Regex(@"<\?xml[^>]*\?>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex DoctypeRegex = new Regex(@"<!DOCTYPE[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex DoctypeTokenRegex = new Regex(@"<!\s*doctype", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private const string DefaultScryberHtmlTemplate = "<!doctype html>\n"
             + "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n"
             + "<head>\n"
@@ -72,6 +79,7 @@ namespace gip.core.reporthandler
                 throw new ArgumentNullException(nameof(reportData));
 
             template = NormalizeLegacyVbGetExpressions(template, reportData);
+            template = NormalizeBarcodeElementsForPdf(template, reportData);
             IDictionary<string, object> resolvedTemplateParams = ResolveTemplateResourceParams(template, reportData);
 
             using (TextReader reader = new StringReader(template))
@@ -397,9 +405,12 @@ namespace gip.core.reporthandler
                 if (resolver == null || String.IsNullOrWhiteSpace(resourceKey))
                     return null;
 
-                object resolved = resolver.ACUrlCommand(resourceKey);
-                if (resolved is ACClassDesign design && design.DesignBinary != null && design.DesignBinary.Length > 0)
-                    return BuildImageDataUrl(design.DesignBinary);
+                foreach (string candidateKey in GetResourceKeyCandidates(resourceKey))
+                {
+                    object resolved = resolver.ACUrlCommand(candidateKey);
+                    if (resolved is ACClassDesign design && design.DesignBinary != null && design.DesignBinary.Length > 0)
+                        return BuildImageDataUrl(design.DesignBinary);
+                }
             }
             catch
             {
@@ -407,6 +418,18 @@ namespace gip.core.reporthandler
             }
 
             return null;
+        }
+
+        private static IEnumerable<string> GetResourceKeyCandidates(string resourceKey)
+        {
+            if (String.IsNullOrWhiteSpace(resourceKey))
+                yield break;
+
+            string trimmed = resourceKey.Trim();
+            yield return trimmed;
+
+            if (!trimmed.StartsWith("Database\\", StringComparison.OrdinalIgnoreCase))
+                yield return "Database\\" + trimmed;
         }
 
         private static string BuildImageDataUrl(byte[] imageBinary)
@@ -456,6 +479,366 @@ namespace gip.core.reporthandler
                 string expression = ConvertLegacyVbPathToExpression(vbPath, reportData);
                 return String.IsNullOrWhiteSpace(expression) ? m.Value : expression;
             });
+        }
+
+        private static string NormalizeBarcodeElementsForPdf(string template, ReportData reportData)
+        {
+            if (String.IsNullOrWhiteSpace(template) || reportData == null)
+                return template;
+
+            bool hasBarcode = template.IndexOf("barcode-type", StringComparison.OrdinalIgnoreCase) >= 0;
+            bool hasDataResource = template.IndexOf("data-resource-key", StringComparison.OrdinalIgnoreCase) >= 0;
+            if (!hasBarcode && !hasDataResource)
+                return template;
+
+            try
+            {
+                string normalizedTemplate = NormalizeTemplateForXmlMutation(template);
+                string leadingDoctype = ExtractLeadingDoctype(normalizedTemplate);
+                string fragment = StripXmlPreambleForFragment(normalizedTemplate);
+
+                // Parse as XML fragment wrapped into a synthetic root so we can handle multiple top-level elements.
+                XElement root = XElement.Parse("<root>" + fragment + "</root>", LoadOptions.PreserveWhitespace);
+                object model = GetDefaultModel(reportData);
+                bool changed = false;
+                IACObject resolver = hasDataResource ? GetPrimaryAcResolver(reportData) : null;
+
+                foreach (XElement element in root.Descendants().ToList())
+                {
+                    if (resolver != null)
+                    {
+                        string resourceKey = GetAttributeValue(element, "data-resource-key");
+                        if (!String.IsNullOrWhiteSpace(resourceKey))
+                        {
+                            string dataUrl = TryResolveDesignImageDataUrl(resolver, resourceKey);
+                            if (!String.IsNullOrWhiteSpace(dataUrl))
+                            {
+                                string src = GetAttributeValue(element, "src");
+                                if (!String.Equals(src, dataUrl, StringComparison.Ordinal))
+                                {
+                                    element.SetAttributeValue("src", dataUrl);
+                                    changed = true;
+                                }
+                            }
+                        }
+                    }
+
+                    string barcodeType = GetAttributeValue(element,
+                        "data-barcode-type", "barcode-type",
+                        "data-zpl-barcode-type", "zpl-barcode-type",
+                        "data-escpos-barcode-type", "escpos-barcode-type");
+
+                    if (String.IsNullOrWhiteSpace(barcodeType))
+                        continue;
+
+                    bool isQrCode = barcodeType.Equals("QRCODE", StringComparison.OrdinalIgnoreCase)
+                        || barcodeType.Equals("QR", StringComparison.OrdinalIgnoreCase);
+
+                    string barcodeValue = ResolveBarcodeValue(element, reportData, model);
+                    if (String.IsNullOrWhiteSpace(barcodeValue))
+                        continue;
+
+                    byte[] imageData = BuildBarcodeImageData(element, barcodeType, barcodeValue);
+                    if (imageData == null || imageData.Length == 0)
+                        continue;
+
+                    XElement img = new XElement(element.Name.Namespace + "img",
+                        new XAttribute("src", "data:image/png;base64," + Convert.ToBase64String(imageData)),
+                        new XAttribute("alt", "barcode"));
+
+                    int barcodeWidth = GetIntAttributeValue(element, 0,
+                        "data-barcode-width", "barcode-width");
+                    int barcodeHeight = GetIntAttributeValue(element, 0,
+                        "data-barcode-height", "barcode-height");
+
+                    if (!isQrCode && barcodeWidth > 0)
+                        img.SetAttributeValue("width", barcodeWidth);
+                    if (!isQrCode && barcodeHeight > 0)
+                        img.SetAttributeValue("height", barcodeHeight);
+
+                    element.RemoveNodes();
+                    element.Add(img);
+                    changed = true;
+                }
+
+                if (!changed)
+                    return template;
+
+                StringBuilder sb = new StringBuilder();
+                if (!String.IsNullOrWhiteSpace(leadingDoctype))
+                {
+                    sb.Append(leadingDoctype);
+                    sb.Append(System.Environment.NewLine);
+                }
+
+                foreach (XNode node in root.Nodes())
+                {
+                    sb.Append(node.ToString(SaveOptions.DisableFormatting));
+                }
+
+                return sb.ToString();
+            }
+            catch
+            {
+                // Keep original template if barcode normalization fails for any reason.
+                return template;
+            }
+        }
+
+        private static string NormalizeTemplateForXmlMutation(string template)
+        {
+            if (String.IsNullOrWhiteSpace(template))
+                return template;
+
+            // XDocument cannot parse multiple XML declarations or multiple DOCTYPE declarations.
+            string normalized = DoctypeTokenRegex.Replace(template, "<!DOCTYPE");
+            normalized = XmlDeclarationRegex.Replace(normalized, String.Empty);
+
+            Match firstDoctype = DoctypeRegex.Match(normalized);
+            if (!firstDoctype.Success)
+                return normalized;
+
+            string allDoctypesRemoved = DoctypeRegex.Replace(normalized, String.Empty);
+            return firstDoctype.Value + System.Environment.NewLine + allDoctypesRemoved;
+        }
+
+        private static string ExtractLeadingDoctype(string template)
+        {
+            if (String.IsNullOrWhiteSpace(template))
+                return null;
+
+            Match match = DoctypeRegex.Match(template);
+            return match.Success ? match.Value : null;
+        }
+
+        private static string StripXmlPreambleForFragment(string template)
+        {
+            if (String.IsNullOrWhiteSpace(template))
+                return template;
+
+            string fragment = XmlDeclarationRegex.Replace(template, String.Empty);
+            fragment = DoctypeRegex.Replace(fragment, String.Empty);
+            return fragment;
+        }
+
+        private static string ResolveBarcodeValue(XElement element, ReportData reportData, object model)
+        {
+            if (element == null || reportData == null)
+                return null;
+
+            string explicitValue = GetAttributeValue(element,
+                "data-barcode-value", "barcode-value",
+                "data-value", "value");
+
+            if (!String.IsNullOrWhiteSpace(explicitValue))
+            {
+                object resolvedExplicit = ResolvePotentialExpression(explicitValue, reportData, model);
+                if (resolvedExplicit != null)
+                    return resolvedExplicit.ToString();
+            }
+
+            string vbShowColumns = GetAttributeValue(element, "data-vb-show-columns", "vb-show-columns");
+            string vbShowColumnsKeys = GetAttributeValue(element, "data-vb-show-columns-keys", "vb-show-columns-keys");
+            string vbContent = GetAttributeValue(element, "data-vb-content", "vb-content");
+
+            if (!String.IsNullOrWhiteSpace(vbShowColumns)
+                && !String.IsNullOrWhiteSpace(vbShowColumnsKeys)
+                && !String.IsNullOrWhiteSpace(vbContent))
+            {
+                object gs1Source = ResolveVBContent(reportData, vbContent);
+                if (gs1Source != null)
+                {
+                    string[] columnKeys = vbShowColumnsKeys
+                        .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(c => c.Trim())
+                        .Where(c => !String.IsNullOrWhiteSpace(c))
+                        .ToArray();
+
+                    string[] valueIdentifiers = vbShowColumns
+                        .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(c => c.Trim())
+                        .Where(c => !String.IsNullOrWhiteSpace(c))
+                        .ToArray();
+
+                    if (columnKeys.Length > 0 && columnKeys.Length == valueIdentifiers.Length)
+                    {
+                        List<(string ai, string val, bool variable)> input = GS1.GetGS1Data(gs1Source, columnKeys, valueIdentifiers);
+                        GS1Model modelValue = GS1.GetGS1Model(columnKeys, input);
+                        if (!String.IsNullOrWhiteSpace(modelValue?.RawGs1Value))
+                            return modelValue.RawGs1Value;
+                    }
+                }
+            }
+
+            string innerText = element.Value?.Trim();
+            if (String.IsNullOrWhiteSpace(innerText))
+                return null;
+
+            object resolved = ResolvePotentialExpression(innerText, reportData, model);
+            return resolved?.ToString();
+        }
+
+        private static object ResolvePotentialExpression(string rawValue, ReportData reportData, object model)
+        {
+            if (String.IsNullOrWhiteSpace(rawValue))
+                return null;
+
+            string trimmed = rawValue.Trim();
+            Match match = ValueExpressionRegex.Match(trimmed);
+            if (match.Success)
+            {
+                string expression = (match.Groups[1].Value ?? String.Empty).Trim();
+                if (!String.IsNullOrWhiteSpace(expression))
+                {
+                    object resolvedExpression = ResolveTemplateExpression(expression, reportData, model, model, 0);
+                    if (resolvedExpression != null)
+                        return resolvedExpression;
+                }
+            }
+
+            return ResolveTemplateExpression(trimmed, reportData, model, model, 0) ?? trimmed;
+        }
+
+        private static byte[] BuildBarcodeImageData(XElement element, string barcodeTypeRaw, string barcodeValue)
+        {
+            if (String.IsNullOrWhiteSpace(barcodeTypeRaw) || String.IsNullOrWhiteSpace(barcodeValue))
+                return null;
+
+            if (barcodeTypeRaw.Equals("QRCODE", StringComparison.OrdinalIgnoreCase)
+                || barcodeTypeRaw.Equals("QR", StringComparison.OrdinalIgnoreCase))
+            {
+                int pixelsPerModule = GetIntAttributeValue(element, 20,
+                    "data-qr-pixels-per-module", "qr-pixels-per-module");
+                bool drawQuietZones = GetBoolAttributeValue(element, true,
+                    "data-draw-quiet-zones", "draw-quiet-zones");
+
+                using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
+                using (QRCodeData qrData = qrGenerator.CreateQrCode(barcodeValue, QRCodeGenerator.ECCLevel.Q))
+                using (PngByteQRCode qrCode = new PngByteQRCode(qrData))
+                {
+                    return qrCode.GetGraphic(Math.Max(1, pixelsPerModule), drawQuietZones: drawQuietZones);
+                }
+            }
+
+            if (!TryMapBarcodeType(barcodeTypeRaw, out BarcodeStandard.Type barcodeType))
+                return null;
+
+            int barcodeWidth = GetIntAttributeValue(element, 250,
+                "data-barcode-width", "barcode-width");
+            int barcodeHeight = GetIntAttributeValue(element, 100,
+                "data-barcode-height", "barcode-height");
+
+            using (Barcode barcode = new Barcode())
+            using (SKImage image = barcode.Encode(barcodeType, barcodeValue,
+                SKColorF.FromHsv(0, 0, 0),
+                SKColorF.FromHsv(0, 0, 100),
+                Math.Max(1, barcodeWidth),
+                Math.Max(1, barcodeHeight)))
+            using (SKData encoded = image.Encode(SKEncodedImageFormat.Png, 100))
+            {
+                return encoded?.ToArray();
+            }
+        }
+
+        private static bool TryMapBarcodeType(string rawType, out BarcodeStandard.Type barcodeType)
+        {
+            barcodeType = default;
+            if (String.IsNullOrWhiteSpace(rawType))
+                return false;
+
+            string trimmed = rawType.Trim();
+            if (Int32.TryParse(trimmed, out int numericValue))
+            {
+                if (Enum.IsDefined(typeof(BarcodeStandard.Type), numericValue))
+                {
+                    barcodeType = (BarcodeStandard.Type)numericValue;
+                    return true;
+                }
+            }
+
+            if (Enum.TryParse(trimmed, true, out barcodeType))
+                return true;
+
+            string normalizedRaw = NormalizeEnumToken(trimmed);
+            foreach (string name in Enum.GetNames(typeof(BarcodeStandard.Type)))
+            {
+                if (String.Equals(NormalizeEnumToken(name), normalizedRaw, StringComparison.OrdinalIgnoreCase))
+                {
+                    barcodeType = (BarcodeStandard.Type)Enum.Parse(typeof(BarcodeStandard.Type), name, true);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static string NormalizeEnumToken(string value)
+        {
+            if (String.IsNullOrWhiteSpace(value))
+                return String.Empty;
+
+            StringBuilder sb = new StringBuilder(value.Length);
+            foreach (char c in value)
+            {
+                if (Char.IsLetterOrDigit(c))
+                    sb.Append(Char.ToUpperInvariant(c));
+            }
+
+            return sb.ToString();
+        }
+
+        private static string GetAttributeValue(XElement element, params string[] keys)
+        {
+            if (element == null || keys == null || keys.Length == 0)
+                return null;
+
+            foreach (string key in keys)
+            {
+                if (String.IsNullOrWhiteSpace(key))
+                    continue;
+
+                XAttribute attribute = element.Attributes()
+                    .FirstOrDefault(a => String.Equals(a.Name.LocalName, key, StringComparison.OrdinalIgnoreCase));
+
+                string value = attribute?.Value?.Trim();
+                if (!String.IsNullOrWhiteSpace(value))
+                    return value;
+            }
+
+            return null;
+        }
+
+        private static int GetIntAttributeValue(XElement element, int defaultValue, params string[] keys)
+        {
+            string raw = GetAttributeValue(element, keys);
+            if (String.IsNullOrWhiteSpace(raw))
+                return defaultValue;
+
+            return Int32.TryParse(raw, out int value) ? value : defaultValue;
+        }
+
+        private static bool GetBoolAttributeValue(XElement element, bool defaultValue, params string[] keys)
+        {
+            string raw = GetAttributeValue(element, keys);
+            if (String.IsNullOrWhiteSpace(raw))
+                return defaultValue;
+
+            if (Boolean.TryParse(raw, out bool parsedBool))
+                return parsedBool;
+
+            if (raw.Equals("1", StringComparison.OrdinalIgnoreCase)
+                || raw.Equals("yes", StringComparison.OrdinalIgnoreCase)
+                || raw.Equals("on", StringComparison.OrdinalIgnoreCase)
+                || raw.Equals("true", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (raw.Equals("0", StringComparison.OrdinalIgnoreCase)
+                || raw.Equals("no", StringComparison.OrdinalIgnoreCase)
+                || raw.Equals("off", StringComparison.OrdinalIgnoreCase)
+                || raw.Equals("false", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            return defaultValue;
         }
 
         private static bool TryExtractLegacyVbPath(string argument, out string vbPath)
@@ -703,7 +1086,7 @@ namespace gip.core.reporthandler
                 }
             }
 
-            Type type = source.GetType();
+            System.Type type = source.GetType();
             PropertyInfo property = type.GetProperty(segment, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
             if (property != null)
                 return property.GetValue(source, null);

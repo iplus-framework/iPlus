@@ -108,6 +108,7 @@
     <PackageReference Include="DocumentFormat.OpenXml" VersionOverride="$(DocumentFormatOpenXmlVersion)" />
     <PackageReference Include="DocumentFormat.OpenXml.Framework" VersionOverride="$(DocumentFormatOpenXmlVersion)" />
     <PackageReference Include="ESCPOS"  />
+    <PackageReference Include="QRCoder" />
     <PackageReference Include="System.Data.DataSetExtensions"  />
     <PackageReference Include="System.Reflection.Context"  />
   </ItemGroup>

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace gip.core.reporthandler.avui
@@ -20,6 +21,14 @@ namespace gip.core.reporthandler.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Baseclass Reports'}de{'Basisklasse Berichte'}", Global.ACKinds.TACBSOReport, Global.ACStorableTypes.NotStorable, true, false)]
     public class VBBSOReport : ACBSO, IReportHandler
     {
+        private static readonly Regex PrintMediaAttributeRegex = new Regex(
+            @"\bdata-(?:cups|print)-media\s*=\s*(?:\""(?<dq>[^\""\r\n]+)\""|'(?<sq>[^'\r\n]+)')",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private static readonly Regex PageSizeCssRegex = new Regex(
+            @"@page\s*[^\{]*\{[^\}]*\bsize\s*:\s*(?<size>[^;\}\r\n]+)",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+
         #region c´tors
         public VBBSOReport(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
@@ -256,7 +265,7 @@ namespace gip.core.reporthandler.avui
             PrinterName = printerName;
             if (acClassDesign.ACUsage == Global.ACUsages.DUReport)
             {
-                if (ScryberReportEngine.IsScryberTemplate(acClassDesign?.XAMLDesign))
+                if (ScryberReportEngine.IsScryberTemplate(acClassDesign?.XMLDesign))
                 {
                     await PreviewScryberReportAsync(acClassDesign, data);
                     return;
@@ -627,7 +636,7 @@ namespace gip.core.reporthandler.avui
 
             try
             {
-                byte[] pdfBytes = ScryberReportEngine.RenderPdf(acClassDesign.XAMLDesign, data);
+                byte[] pdfBytes = ScryberReportEngine.RenderPdf(acClassDesign.XMLDesign, data);
                 if (pdfBytes == null || pdfBytes.Length == 0)
                     return;
 
@@ -656,11 +665,13 @@ namespace gip.core.reporthandler.avui
 
         private string _PendingDesktopPrintPdfPath;
         private int _PendingDesktopPrintCopies = 1;
+        private string _PendingDesktopPrintMedia;
 
-        private void PrepareDesktopPrinterSelection(string pdfPath, string printerName, int copies)
+        private void PrepareDesktopPrinterSelection(string pdfPath, string printerName, int copies, string printMedia)
         {
             _PendingDesktopPrintPdfPath = pdfPath;
             _PendingDesktopPrintCopies = copies <= 0 ? 1 : copies;
+            _PendingDesktopPrintMedia = printMedia;
 
             _WindowsPrinterList = null;
             OnPropertyChanged("WindowsPrinterList");
@@ -681,6 +692,7 @@ namespace gip.core.reporthandler.avui
         {
             _PendingDesktopPrintPdfPath = null;
             _PendingDesktopPrintCopies = 1;
+            _PendingDesktopPrintMedia = null;
         }
 
         private async Task ShowDesktopPrinterSelectionAsync()
@@ -695,7 +707,7 @@ namespace gip.core.reporthandler.avui
             }
         }
 
-        private bool TryPrintPdf(string pdfPath, string printerName, int copies)
+        private bool TryPrintPdf(string pdfPath, string printerName, int copies, string printMedia = null)
         {
             if (String.IsNullOrWhiteSpace(pdfPath) || String.IsNullOrWhiteSpace(printerName))
                 return false;
@@ -720,10 +732,15 @@ namespace gip.core.reporthandler.avui
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
+                    string lpArguments = $"-d \"{printerName}\" -n {copies}";
+                    if (!String.IsNullOrWhiteSpace(printMedia))
+                        lpArguments += $" -o media={printMedia}";
+                    lpArguments += $" \"{pdfPath}\"";
+
                     Process process = Process.Start(new ProcessStartInfo
                     {
                         FileName = "lp",
-                        Arguments = $"-d \"{printerName}\" -n {copies} \"{pdfPath}\"",
+                        Arguments = lpArguments,
                         UseShellExecute = false,
                         CreateNoWindow = true,
                     });
@@ -742,6 +759,53 @@ namespace gip.core.reporthandler.avui
             return false;
         }
 
+        private static string ResolveLinuxPrintMedia(string template)
+        {
+            if (String.IsNullOrWhiteSpace(template))
+                return null;
+
+            Match mediaMatch = PrintMediaAttributeRegex.Match(template);
+            if (mediaMatch.Success)
+            {
+                string explicitMedia = mediaMatch.Groups["dq"].Success
+                    ? mediaMatch.Groups["dq"].Value
+                    : mediaMatch.Groups["sq"].Value;
+
+                string normalizedExplicit = NormalizeCupsMedia(explicitMedia);
+                if (!String.IsNullOrWhiteSpace(normalizedExplicit))
+                    return normalizedExplicit;
+            }
+
+            Match pageSizeMatch = PageSizeCssRegex.Match(template);
+            if (!pageSizeMatch.Success)
+                return null;
+
+            string pageSize = pageSizeMatch.Groups["size"].Value;
+            return NormalizeCupsMedia(pageSize);
+        }
+
+        private static string NormalizeCupsMedia(string value)
+        {
+            if (String.IsNullOrWhiteSpace(value))
+                return null;
+
+            string normalized = value.Trim().ToUpperInvariant();
+            if (normalized.Contains("A3"))
+                return "A3";
+            if (normalized.Contains("A4"))
+                return "A4";
+            if (normalized.Contains("A5"))
+                return "A5";
+            if (normalized.Contains("A6"))
+                return "A6";
+            if (normalized.Contains("LETTER"))
+                return "Letter";
+            if (normalized.Contains("LEGAL"))
+                return "Legal";
+
+            return null;
+        }
+
         public Msg FlowPrint(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies, int maxPrintJobsInSpooler = 0)
         {
             _ = FlowPrintAsync(acClassDesign, withDialog, printerName, data, copies, maxPrintJobsInSpooler);
@@ -753,7 +817,7 @@ namespace gip.core.reporthandler.avui
             if (acClassDesign == null || data == null)
                 return null;
 
-            if (!ScryberReportEngine.IsScryberTemplate(acClassDesign.XAMLDesign))
+            if (!ScryberReportEngine.IsScryberTemplate(acClassDesign.XMLDesign))
             {
                 this.Root().Messages.LogException("VBBSOReport", "FlowPrint(5)", "Avalonia report printing currently supports only Scryber HTML templates.");
                 return null;
@@ -761,9 +825,13 @@ namespace gip.core.reporthandler.avui
 
             try
             {
-                byte[] pdfBytes = ScryberReportEngine.RenderPdf(acClassDesign.XAMLDesign, data);
+                byte[] pdfBytes = ScryberReportEngine.RenderPdf(acClassDesign.XMLDesign, data);
                 if (pdfBytes == null || pdfBytes.Length == 0)
                     return null;
+
+                string printMedia = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                    ? ResolveLinuxPrintMedia(acClassDesign.XMLDesign)
+                    : null;
 
                 if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://", StringComparison.OrdinalIgnoreCase))
                 {
@@ -779,12 +847,12 @@ namespace gip.core.reporthandler.avui
 
                 if (withDialog)
                 {
-                    PrepareDesktopPrinterSelection(tempPdfPath, printerName, copies);
+                    PrepareDesktopPrinterSelection(tempPdfPath, printerName, copies, printMedia);
                     await ShowDesktopPrinterSelectionAsync();
                     return null;
                 }
 
-                bool sentToPrinter = TryPrintPdf(tempPdfPath, printerName, copies);
+                bool sentToPrinter = TryPrintPdf(tempPdfPath, printerName, copies, printMedia);
                 if (!sentToPrinter)
                     OpenWithDefaultApplication(tempPdfPath);
             }
@@ -834,12 +902,12 @@ namespace gip.core.reporthandler.avui
             string pendingPdfPath = _PendingDesktopPrintPdfPath;
             int pendingCopies = _PendingDesktopPrintCopies;
             string selectedPrinterName = SelectedWindowsPrinter?.PrinterName;
-
+            string printMedia = _PendingDesktopPrintMedia;
             ClearDesktopPrinterSelection();
             CloseTopDialog();
 
             PrinterName = selectedPrinterName;
-            bool sentToPrinter = TryPrintPdf(pendingPdfPath, selectedPrinterName, pendingCopies);
+            bool sentToPrinter = TryPrintPdf(pendingPdfPath, selectedPrinterName, pendingCopies, printMedia);
             if (!sentToPrinter)
                 OpenWithDefaultApplication(pendingPdfPath);
         }
@@ -1234,7 +1302,7 @@ namespace gip.core.reporthandler.avui
             //    try
             //    {
             //        CurrentReportConfiguration = null;
-            //        ResourceDictionary rd = AvaloniaRuntimeXamlLoader.Load(GlobalReportConfig.XAMLDesign) as ResourceDictionary;
+            //        ResourceDictionary rd = AvaloniaRuntimeXamlLoader.Load(GlobalReportConfig.XMLDesign) as ResourceDictionary;
             //        if (rd != null && rd.Contains("Config"))
             //            CurrentReportConfiguration = rd["Config"] as ReportConfiguration;
             //    }
@@ -1257,7 +1325,7 @@ namespace gip.core.reporthandler.avui
             //    ResourceDictionary rd = new ResourceDictionary();
             //    rd.Add("Config", CurrentReportConfiguration);
             //    string xaml = XamlWriter.Save(rd);
-            //    GlobalReportConfig.XAMLDesign = xaml;
+            //    GlobalReportConfig.XMLDesign = xaml;
             //    SaveFlowDoc();
             //}
         }

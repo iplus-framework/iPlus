@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @page {
+        size: 420pt 595pt;
+        margin: 20pt;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 12pt;
+        width: 367pt;
+        margin: 0;
+        padding: 0;
+      }
+
+      .header-table,
+      .content-table,
+      .inner-table,
+      .details-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .header-logo {
+        width: 40pt;
+      }
+
+      .header-date {
+        width: 340pt;
+        text-align: right;
+        font-size: 8pt;
+      }
+
+      .title-box {
+        border: 0.2pt solid #000000;
+        padding: 0.5pt;
+      }
+
+      .title-text {
+        text-align: center;
+        font-size: 20pt;
+        font-weight: bold;
+        margin: 0;
+      }
+
+      .details-label {
+        width: 120pt;
+        vertical-align: top;
+        padding: 2pt;
+      }
+
+      .details-value {
+        width: 300pt;
+        vertical-align: top;
+        padding: 2pt;
+        font-size: 16pt;
+        font-weight: bold;
+      }
+
+      .qr-cell {
+        text-align: center;
+        padding-top: 8pt;
+      }
+    </style>
+  </head>
+
+  <body id="linx-settings" data-custom-01="35 STD LIN" data-custom-02="OneLine" data-custom-int-01="10" data-custom-int-02="2" data-custom-int-03="23">
+    <table class="header-table">
+      <tr>
+        <td class="header-logo">
+          <img
+            data-resource-key="ACProject(Root)\ACClass(ACRoot)\ACClass(Environment)\ACClassDesign(iPlusLogoPNG)"
+            src="{{iPlusLogoPNG}}"
+            width="40"
+            height="40"
+            alt="iPlus" />
+        </td>
+        <td class="header-date">{{PrintingDate}}</td>
+        <td></td>
+      </tr>
+    </table>
+
+    <table class="content-table" style="margin-top: 6pt;">
+      <tr>
+        <td class="title-box">
+          <table class="inner-table">
+            <tr>
+              <td></td>
+              <td style="width: 360pt;">
+                <p class="title-text">{{vb.Get('CurrentFacilityCharge/Material/MaterialName1')}}</p>
+              </td>
+              <td></td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <tr>
+        <td>
+          <table class="details-table" style="margin-top: 6pt;">
+            <tr>
+              <td class="details-label">Ablaufdatum:</td>
+              <td class="details-value">{{vb.Get('CurrentFacilityCharge/ExpirationDate')}}</td>
+            </tr>
+            <tr>
+              <td class="details-label">Material-Nr.:</td>
+              <td class="details-value">{{vb.Get('CurrentFacilityCharge/Material/MaterialNo')}}</td>
+            </tr>
+            <tr>
+              <td class="details-label">Chargennummer:</td>
+              <td class="details-value">{{vb.Get('CurrentFacilityCharge/FacilityLot/LotNo')}}</td>
+            </tr>
+            <tr>
+              <td class="details-label">Lagerplatz:</td>
+              <td class="details-value">{{vb.Get('CurrentFacilityCharge/Facility/FacilityName')}}</td>
+            </tr>
+            <tr>
+              <td class="details-label">Splitnummer:</td>
+              <td class="details-value">{{vb.Get('CurrentFacilityCharge/SplitNo')}}</td>
+            </tr>
+            <tr>
+              <td colspan="2" class="qr-cell">
+                <span
+                  data-barcode-type="QRCODE"
+                  data-zpl-barcode-type="QRCODE"
+                  data-escpos-barcode-type="QRCODE"
+                  data-qr-pixels-per-module="20"
+                  data-vb-content="CurrentFacilityCharge/FacilityChargeID">{{vb.Get('CurrentFacilityCharge/FacilityChargeID')}}</span>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

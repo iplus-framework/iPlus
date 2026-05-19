@@ -345,18 +345,8 @@ namespace gip.core.reporthandler
             if (aCClassDesign == null)
                 return null;
 
-            bool isAvaloniaUi = gip.core.datamodel.Database.Root?.IsAvaloniaUI ?? false;
-            string primaryDesign = isAvaloniaUi ? aCClassDesign.XMLDesign2 : aCClassDesign.XMLDesign;
-            string secondaryDesign = isAvaloniaUi ? aCClassDesign.XMLDesign : aCClassDesign.XMLDesign2;
-
-            if (ScryberReportEngine.IsScryberTemplate(primaryDesign))
-                return primaryDesign;
-
-            if (ScryberReportEngine.IsScryberTemplate(secondaryDesign))
-                return secondaryDesign;
-
-            if (ScryberReportEngine.IsScryberTemplate(aCClassDesign.XAMLDesign))
-                return aCClassDesign.XAMLDesign;
+            if (ScryberReportEngine.IsScryberTemplate(aCClassDesign.XMLDesign))
+                return aCClassDesign.XMLDesign;
 
             return null;
         }
