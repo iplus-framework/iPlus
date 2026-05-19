@@ -1,0 +1,82 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="gip.core.layoutengine.avui.VBPdfViewer">
+    <DockPanel>
+        <Grid ColumnDefinitions="Auto, *, Auto" DockPanel.Dock="Top">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="5" Spacing="5">
+                <ToggleButton x:Name="ExpandSidebarButton" IsChecked="True">
+                    <ToggleButton.Styles>
+                        <Style Selector="PathIcon.open">
+                            <Setter Property="Data">
+                                <Setter.Value>
+                                    <StreamGeometry>M660-320v-320L500-480l160 160ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm120-80v-560H200v560h120Zm80 0h360v-560H400v560Zm-80 0H200h120Z</StreamGeometry>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                        <Style Selector="PathIcon.closed">
+                            <Setter Property="Data">
+                                <Setter.Value>
+                                    <StreamGeometry>M500-640v320l160-160-160-160ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm120-80v-560H200v560h120Zm80 0h360v-560H400v560Zm-80 0H200h120Z</StreamGeometry>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ToggleButton.Styles>
+                    <PathIcon Classes.open="{Binding #ExpandSidebarButton.IsChecked}" Classes.closed="{Binding !#ExpandSidebarButton.IsChecked}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </ToggleButton>
+                <NumericUpDown x:Name="PageSelector" FormatString="0" Minimum="1" MinWidth="130" VerticalAlignment="Center" ValueChanged="PageSelector_OnValueChanged"/>
+                <TextBlock VerticalAlignment="Center">
+                    <Run>of</Run>
+                    <Run x:Name="PageCount"/>
+                </TextBlock>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5" Spacing="5">
+                <Button Click="ZoomOutButton_OnClick">
+                    <PathIcon Foreground="White" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <PathIcon.Data>
+                            <StreamGeometry>M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400ZM280-540v-80h200v80H280Z</StreamGeometry>
+                        </PathIcon.Data>
+                    </PathIcon>
+                </Button>
+                <Button Click="ZoomInButton_OnClick">
+                    <PathIcon Foreground="White" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <PathIcon.Data>
+                            <StreamGeometry>M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Zm-40-60v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80Z</StreamGeometry>
+                        </PathIcon.Data>
+                    </PathIcon>
+                </Button>
+                <ComboBox x:Name="ZoomCombobox" ItemsSource="{Binding $parent[local:VBPdfViewer].ZoomLevels}" SelectionChanged="ZoomCombobox_OnSelectionChanged" SelectedIndex="0" VerticalAlignment="Center" Width="160"/>
+            </StackPanel>
+        </Grid>
+        <ListBox x:Name="ThumbnailListBox" DockPanel.Dock="Left" SelectionChanged="ThumbnailListBox_SelectionChanged" ItemsSource="{Binding $parent[local:VBPdfViewer].ThumbnailImages}" Classes.open="{Binding #ExpandSidebarButton.IsChecked}" Classes.closed="{Binding !#ExpandSidebarButton.IsChecked}">
+            <ListBox.Styles> 
+                <Style Selector="ListBoxItem">
+                    <Setter Property="Padding" Value="10" />
+                    <Setter Property="Margin" Value="10" />
+                </Style>
+                <Style Selector="ListBox.open">
+                    <Setter Property="IsVisible" Value="True"/>
+                </Style>
+                <Style Selector="ListBox.closed">
+                    <Setter Property="IsVisible" Value="False"/>
+                </Style>
+            </ListBox.Styles>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Panel>
+                        <Image Source="{Binding .}" Stretch="Uniform" Width="180" MaxHeight="220"/>
+                        <Border HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10" CornerRadius="10" Padding="5, 2.5" Background="Gray">
+                            <TextBlock Text="{Binding PageNumberText}" HorizontalAlignment="Center" Foreground="White"/>
+                        </Border>
+                    </Panel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <ScrollViewer x:Name="MainImageScrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" SizeChanged="MainImageScrollViewer_OnSizeChanged" PointerPressed="MainImageScrollViewer_OnPointerPressed" PointerReleased="MainImageScrollViewer_OnPointerReleased" PointerMoved="MainImageScrollViewer_OnPointerMoved">
+            <Image x:Name="MainImage" Stretch="Uniform"/>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>

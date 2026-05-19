@@ -13,7 +13,7 @@
             <vb:VBXMLEditor x:Name="ucXMLEditor" CodeCompletionSchema="VBReportEditor.xsd"/>
         </vb:VBTabItem>
         <vb:VBTabItem Header="Preview" x:Name="PreviewTab">
-            <local:VBWebBrowser x:Name="ucHtmlViewer"/>
+            <vb:VBPdfViewer x:Name="ucPdfViewer"/>
         </vb:VBTabItem>
         <vb:VBTabItem Header="Configuration" x:Name="ConfigurationTab">
             <!--<vb:VBTabItem.Style>

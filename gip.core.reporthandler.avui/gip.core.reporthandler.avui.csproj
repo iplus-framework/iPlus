@@ -90,11 +90,14 @@
 		<PackageReference Include="QRCoder"  />-->
 		<PackageReference Include="System.Data.DataSetExtensions"  />
 		<PackageReference Include="System.Reflection.Context"  />
+		<PackageReference Include="TextMateSharp" />
+		<PackageReference Include="TextMateSharp.Grammars" />
   </ItemGroup>
 
   <!-- Use Avalonia Nuget -->
   <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
     <PackageReference Include="Avalonia"  />
+	<PackageReference Include="AvaloniaEdit.TextMate"  />
     <PackageReference Include="Simplecto.Avalonia.RichTextBox"  />
 	<PackageReference Include="Avalonia.HtmlRenderer"/>
   </ItemGroup>

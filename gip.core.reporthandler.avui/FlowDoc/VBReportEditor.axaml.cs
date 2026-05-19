@@ -12,8 +12,8 @@ using gip.core.reporthandler;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
-using System.Net;
 //using Document.Editor;
 
 namespace gip.core.reporthandler.avui
@@ -25,6 +25,7 @@ namespace gip.core.reporthandler.avui
     public partial class VBReportEditor : UserControl, IVBContent, IACMenuBuilder, IACObject
     {
         private bool _HtmlBindingsInitialized = false;
+        private string _PreviewPdfPath;
 
         public VBReportEditor()
         {
@@ -274,6 +275,8 @@ namespace gip.core.reporthandler.avui
                 _HtmlBindingsInitialized = false;
             }
 
+            ClearPdfPreview();
+
             if (bso == null && BSOACComponent != null)
             {
                 bso = BSOACComponent;
@@ -426,34 +429,51 @@ namespace gip.core.reporthandler.avui
             ApplyTemplateMode();
             if (IsHtmlTemplate)
             {
-                if (ucHtmlViewer == null)
+                if (ucPdfViewer == null)
                     return;
 
                 try
                 {
                     if (String.IsNullOrWhiteSpace(XMLText))
                     {
-                        ucHtmlViewer.HtmlText = String.Empty;
+                        ClearPdfPreview();
                         _WrongXAML = false;
                         return;
                     }
 
                     if (DesignerReportData == null)
                     {
-                        ucHtmlViewer.HtmlText = XMLText;
+                        ClearPdfPreview();
                         _WrongXAML = false;
                         return;
                     }
 
-                    ucHtmlViewer.HtmlText = ScryberReportEngine.RenderHtmlPreview(XMLText, DesignerReportData);
+                    byte[] pdfBytes = ScryberReportEngine.RenderPdf(XMLText, DesignerReportData);
+                    if (pdfBytes == null || pdfBytes.Length == 0)
+                    {
+                        ClearPdfPreview();
+                        _WrongXAML = false;
+                        return;
+                    }
+
+                    string tempPdfPath = Path.Combine(Path.GetTempPath(), $"iplus_preview_{Guid.NewGuid():N}.pdf");
+                    File.WriteAllBytes(tempPdfPath, pdfBytes);
+
+                    if (!String.IsNullOrWhiteSpace(_PreviewPdfPath)
+                        && !String.Equals(_PreviewPdfPath, tempPdfPath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        TryDeleteFile(_PreviewPdfPath);
+                    }
+
+                    _PreviewPdfPath = tempPdfPath;
+                    ucPdfViewer.Source = _PreviewPdfPath;
                     _WrongXAML = false;
                 }
                 catch (Exception ex)
                 {
                     _WrongXAML = true;
-                    ucHtmlViewer.HtmlText = "<html><body><pre>Preview error: "
-                        + WebUtility.HtmlEncode(ex.Message)
-                        + "</pre></body></html>";
+                    ClearPdfPreview();
+                    this.Root().Messages.LogException("VBReportEditor", nameof(RefreshViewerFromXAML), ex);
                 }
                 return;
             }
@@ -548,11 +568,38 @@ namespace gip.core.reporthandler.avui
             if (ucHtmlEditor != null)
                 ucHtmlEditor.IsVisible = isHtmlTemplate;
 
-            if (ucHtmlViewer != null)
-                ucHtmlViewer.IsVisible = isHtmlTemplate;
+            if (ucPdfViewer != null)
+                ucPdfViewer.IsVisible = isHtmlTemplate;
 
             if (isHtmlTemplate && ucTabControl != null && ucTabControl.SelectedItem == XAMLTab)
                 ucTabControl.SelectedItem = DesignTab;
+        }
+
+        private void ClearPdfPreview()
+        {
+            if (ucPdfViewer != null)
+                ucPdfViewer.Source = null;
+
+            if (!String.IsNullOrWhiteSpace(_PreviewPdfPath))
+            {
+                TryDeleteFile(_PreviewPdfPath);
+                _PreviewPdfPath = null;
+            }
+        }
+
+        private static void TryDeleteFile(string path)
+        {
+            if (String.IsNullOrWhiteSpace(path))
+                return;
+
+            try
+            {
+                if (File.Exists(path))
+                    File.Delete(path);
+            }
+            catch
+            {
+            }
         }
 
         #region IDataField Members

@@ -37,7 +37,7 @@
 
 		<!-- Other directories with consistent path separators -->
 		<AvaloniaDialogHostIncludeDir>$(MSBuildThisFileDirectory)../../AvDialogHost.Avalonia/DialogHost.Avalonia/bin</AvaloniaDialogHostIncludeDir>
-		<AvaloniaEditIncludeDir>$(MSBuildThisFileDirectory)../../AvaloniaEdit/src/AvaloniaEdit/bin</AvaloniaEditIncludeDir>
+		<AvaloniaEditIncludeDir>$(MSBuildThisFileDirectory)../../AvaloniaEdit/src</AvaloniaEditIncludeDir>
 		<AvaloniaDockIncludeDir>$(MSBuildThisFileDirectory)../../Avalonia.Dock/src</AvaloniaDockIncludeDir>
 		<AvaloniaRoslynPadIncludeDir>$(MSBuildThisFileDirectory)../../roslynpad/src</AvaloniaRoslynPadIncludeDir>
 		<AvaloniaLabsIncludeDir>$(MSBuildThisFileDirectory)../../Avalonia.Labs/src</AvaloniaLabsIncludeDir>
