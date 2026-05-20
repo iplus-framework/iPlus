@@ -60,20 +60,13 @@ namespace gip.core.reporthandlerwpf
 
         public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            //if (_LL != null)
-            //{
-            //    UnSubscribeToLLEvents();
-            //    _LL.Dispose();
-            //    _LL = null;
-            //}
             _PrintServerList = null;
-            //if (_SR != null)
-            //{
-            //    _SR.Dispose();
-            //    _SR = null;
-            //}
+            _WindowsPrinterList = null;
+
             this._CurrentACClassDesign = null;
             this._CurrentReportData = null;
+            this._SelectedWindowsPrinter = null;
+            this._PendingDesktopPrintPdfPath = null;
 
             if (_VarioConfigManager != null)
                 ConfigManagerIPlus.DetachACRefFromServiceInstance(this, _VarioConfigManager);
@@ -223,9 +216,6 @@ namespace gip.core.reporthandlerwpf
             PrinterName = printerName;
             if (acClassDesign.ACUsage == Global.ACUsages.DUReport)
             {
-                if (ScryberReportEngine.IsScryberTemplate(acClassDesign.XMLDesign))
-                    return PdfPrint(acClassDesign, withDialog, printerName, data, copies);
-
                 return FlowPrint(acClassDesign, withDialog, printerName, data, copies, maxPrintJobsInSpooler);
             }
             else if (acClassDesign.ACUsageIndex >= (short)Global.ACUsages.DULLReport && acClassDesign.ACUsageIndex <= (short)Global.ACUsages.DULLFilecard)
@@ -239,6 +229,32 @@ namespace gip.core.reporthandlerwpf
 
             return null;
         }
+
+        public async Task<Msg> PrintAsync(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies = 1, int maxPrintJobsInSpooler = 0)
+        {
+            if (acClassDesign == null || data == null)
+                return null;
+
+            CurrentACClassDesign = acClassDesign;
+            CurrentReportData = data;
+            WithDialog = withDialog;
+            PrinterName = printerName;
+
+            if (acClassDesign.ACUsage == Global.ACUsages.DUReport)
+            {
+                return await FlowPrintAsync(acClassDesign, withDialog, printerName, data, copies, maxPrintJobsInSpooler);
+            }
+            else if (acClassDesign.ACUsageIndex >= (short)Global.ACUsages.DULLReport && acClassDesign.ACUsageIndex <= (short)Global.ACUsages.DULLFilecard)
+            {
+                //RunLL(false, LlPrintMode.Export);
+            }
+            else if (acClassDesign.ACUsage == Global.ACUsages.DUReportPrintServer)
+            {
+                await DoPrintComponent(acClassDesign, withDialog, copies, ReloadOnServer);
+            }
+
+            return null;
+        }        
 
         [ACMethodInfo("Report", "en{'Preview'}de{'Vorschau'}", 9999, false)]
         public async Task Preview(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data)
@@ -289,6 +305,128 @@ namespace gip.core.reporthandlerwpf
         }
 
         #endregion
+
+        #endregion
+
+        #region Desktop printer selection
+
+        private PrinterInfo _SelectedWindowsPrinter;
+        /// <summary>
+        /// Selected property for PrinterInfo
+        /// </summary>
+        /// <value>The selected system printer</value>
+        [ACPropertySelected(9999, "WindowsPrinter", "en{'Selected system printer'}de{'Ausgewaehlter Systemdrucker'}")]
+        public PrinterInfo SelectedWindowsPrinter
+        {
+            get
+            {
+                return _SelectedWindowsPrinter;
+            }
+            set
+            {
+                if (_SelectedWindowsPrinter != value)
+                {
+                    _SelectedWindowsPrinter = value;
+                    if (value != null)
+                        PrinterName = value.PrinterName;
+                    OnPropertyChanged("SelectedWindowsPrinter");
+                }
+            }
+        }
+
+        private List<PrinterInfo> _WindowsPrinterList;
+        /// <summary>
+        /// List property for PrinterInfo
+        /// </summary>
+        /// <value>The system printer list</value>
+        [ACPropertyList(9999, "WindowsPrinter", "en{'System printers'}de{'Systemdrucker'}")]
+        public List<PrinterInfo> WindowsPrinterList
+        {
+            get
+            {
+                if (_WindowsPrinterList == null)
+                    _WindowsPrinterList = LoadWindowsPrinterList();
+                return _WindowsPrinterList;
+            }
+        }
+
+        private List<PrinterInfo> LoadWindowsPrinterList()
+        {
+            var printers = GetDesktopPrinters();
+            if (printers == null)
+                return new List<PrinterInfo>();
+
+            return ACPrintManager.GetPrinters(printers)
+                                 .OrderBy(c => c.PrinterName)
+                                 .ToList();
+        }
+
+        private IEnumerable<string> GetDesktopPrinters()
+        {
+            var windowsPrinters = Root?.WPFServices?.VBMediaControllerService?.GetWindowsPrinters();
+            if (windowsPrinters != null && windowsPrinters.Any())
+                return windowsPrinters;
+
+            return GetCupsPrinters();
+        }
+
+        private IEnumerable<string> GetCupsPrinters()
+        {
+            var result = new List<string>();
+            result.AddRange(RunLpstatAndParse("-a", ""));
+            if (!result.Any())
+                result.AddRange(RunLpstatAndParse("-p", "printer "));
+
+            return result.Where(c => !String.IsNullOrWhiteSpace(c))
+                         .Distinct(StringComparer.OrdinalIgnoreCase)
+                         .OrderBy(c => c)
+                         .ToList();
+        }
+
+        private IEnumerable<string> RunLpstatAndParse(string arguments, string requiredPrefix)
+        {
+            try
+            {
+                using (Process process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "lpstat",
+                    Arguments = arguments,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
+                }))
+                {
+                    if (process == null)
+                        return Enumerable.Empty<string>();
+
+                    string output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit(2000);
+
+                    if (String.IsNullOrWhiteSpace(output))
+                        return Enumerable.Empty<string>();
+
+                    return output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                                 .Select(line => line.Trim())
+                                 .Where(line => String.IsNullOrEmpty(requiredPrefix)
+                                     || line.StartsWith(requiredPrefix, StringComparison.OrdinalIgnoreCase))
+                                 .Select(line => String.IsNullOrEmpty(requiredPrefix)
+                                     ? line
+                                     : line.Substring(requiredPrefix.Length).TrimStart())
+                                 .Select(line =>
+                                 {
+                                     int separator = line.IndexOf(' ');
+                                     return separator > 0 ? line.Substring(0, separator) : line;
+                                 })
+                                 .Where(line => !String.IsNullOrWhiteSpace(line))
+                                 .ToList();
+                }
+            }
+            catch
+            {
+                return Enumerable.Empty<string>();
+            }
+        }
 
         #endregion
 
@@ -515,45 +653,6 @@ namespace gip.core.reporthandlerwpf
             await Task.CompletedTask;
         }
 
-        private Msg PdfPrint(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies)
-        {
-            if (acClassDesign == null || data == null)
-                return null;
-
-            try
-            {
-                byte[] pdfBytes = ScryberReportEngine.RenderPdf(acClassDesign.XMLDesign, data);
-                if (pdfBytes == null || pdfBytes.Length == 0)
-                    return null;
-
-                string printMedia = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                    ? ResolveLinuxPrintMedia(acClassDesign.XMLDesign)
-                    : null;
-
-                if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://", StringComparison.OrdinalIgnoreCase))
-                {
-                    string fileName = printerName.Substring(7);
-                    if (!String.IsNullOrWhiteSpace(Path.GetDirectoryName(fileName)))
-                        Directory.CreateDirectory(Path.GetDirectoryName(fileName));
-                    File.WriteAllBytes(fileName, pdfBytes);
-                    return null;
-                }
-
-                string tempPdfPath = Path.Combine(Path.GetTempPath(), $"iplus_{Guid.NewGuid():N}.pdf");
-                File.WriteAllBytes(tempPdfPath, pdfBytes);
-
-                bool sentToPrinter = !withDialog && TryPrintPdfWithShell(tempPdfPath, printerName, copies, printMedia);
-                if (!sentToPrinter)
-                    OpenWithDefaultApplication(tempPdfPath);
-            }
-            catch (Exception e)
-            {
-                this.Root().Messages.LogException("VBBSOReport", "PdfPrint(10)", e);
-            }
-
-            return null;
-        }
-
         private static void OpenWithDefaultApplication(string filePath)
         {
             if (String.IsNullOrWhiteSpace(filePath))
@@ -565,7 +664,51 @@ namespace gip.core.reporthandlerwpf
             });
         }
 
-        private bool TryPrintPdfWithShell(string pdfPath, string printerName, int copies, string printMedia = null)
+        private string _PendingDesktopPrintPdfPath;
+        private int _PendingDesktopPrintCopies = 1;
+        private string _PendingDesktopPrintMedia;
+
+        private void PrepareDesktopPrinterSelection(string pdfPath, string printerName, int copies, string printMedia)
+        {
+            _PendingDesktopPrintPdfPath = pdfPath;
+            _PendingDesktopPrintCopies = copies <= 0 ? 1 : copies;
+            _PendingDesktopPrintMedia = printMedia;
+
+            _WindowsPrinterList = null;
+            OnPropertyChanged("WindowsPrinterList");
+
+            PrinterInfo preferredPrinter = null;
+            if (!String.IsNullOrWhiteSpace(printerName))
+            {
+                preferredPrinter = WindowsPrinterList.FirstOrDefault(c => String.Equals(c.PrinterName, printerName, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (preferredPrinter == null)
+                preferredPrinter = WindowsPrinterList.FirstOrDefault(c => c.IsDefault) ?? WindowsPrinterList.FirstOrDefault();
+
+            SelectedWindowsPrinter = preferredPrinter;
+        }
+
+        private void ClearDesktopPrinterSelection()
+        {
+            _PendingDesktopPrintPdfPath = null;
+            _PendingDesktopPrintCopies = 1;
+            _PendingDesktopPrintMedia = null;
+        }
+
+        private async Task ShowDesktopPrinterSelectionAsync()
+        {
+            try
+            {
+                await ShowDialogAsync(this, "PrinterSelection");
+            }
+            catch (Exception e)
+            {
+                this.Root().Messages.LogException("VBBSOReport", nameof(ShowDesktopPrinterSelectionAsync), e);
+            }
+        }
+
+        private bool TryPrintPdf(string pdfPath, string printerName, int copies, string printMedia = null)
         {
             if (String.IsNullOrWhiteSpace(pdfPath) || String.IsNullOrWhiteSpace(printerName))
                 return false;
@@ -575,7 +718,7 @@ namespace gip.core.reporthandlerwpf
 
             try
             {
-                if (OperatingSystem.IsWindows())
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     Process process = Process.Start(new ProcessStartInfo
                     {
@@ -583,9 +726,8 @@ namespace gip.core.reporthandlerwpf
                         Verb = "printto",
                         Arguments = $"\"{printerName}\"",
                         UseShellExecute = true,
-                        CreateNoWindow = true
+                        CreateNoWindow = true,
                     });
-
                     return process != null;
                 }
 
@@ -601,7 +743,7 @@ namespace gip.core.reporthandlerwpf
                         FileName = "lp",
                         Arguments = lpArguments,
                         UseShellExecute = false,
-                        CreateNoWindow = true
+                        CreateNoWindow = true,
                     });
 
                     if (process == null)
@@ -667,129 +809,137 @@ namespace gip.core.reporthandlerwpf
 
         public Msg FlowPrint(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies, int maxPrintJobsInSpooler = 0)
         {
+            _ = FlowPrintAsync(acClassDesign, withDialog, printerName, data, copies, maxPrintJobsInSpooler);
+            return null;
+        }
+
+        public async Task<Msg> FlowPrintAsync(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies, int maxPrintJobsInSpooler = 0)
+        {
             if (acClassDesign == null || data == null)
                 return null;
 
-            EnsureWineLegacySerializationPath();
+            if (ScryberReportEngine.IsScryberTemplate(acClassDesign.XMLDesign))
+            {
+                try
+                {
+                    byte[] pdfBytes = ScryberReportEngine.RenderPdf(acClassDesign.XMLDesign, data);
+                    if (pdfBytes == null || pdfBytes.Length == 0)
+                        return null;
 
-            using (ReportDocument reportDoc = new ReportDocument(CurrentACClassDesign.XMLDesign))
-            { 
-                if (reportDoc == null)
-                    return null;
-                XpsDocument xps = null;
-                string _wineXpsPath = null; // temp XPS file path used on Wine (file-based creation)
-                if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://"))
-                {
-                    string fileName = printerName.Substring(7);
-                    xps = reportDoc.CreateXpsDocument(data, fileName);
-                    return null;
-                }
-                else if (IsRunningUnderWine())
-                {
-                    // File-based creation: commits + closes the zip package and reopens it in
-                    // FileAccess.Read mode.  This is required because the memory-based overload
-                    // opens the package in ZipArchiveMode.Update, which forbids opening the same
-                    // zip entry more than once — the XPS image serializer does exactly that when
-                    // the same bitmap brush appears on multiple pages or multiple elements.
-                    // The file-based path also gives us the XPS directly on disk so xpstopdf can
-                    // consume it without any re-serialization.
-                    string uid = Guid.NewGuid().ToString("N").Substring(0, 8);
-                    _wineXpsPath = $@"Z:\tmp\iplus_{uid}.xps";
-                    xps = reportDoc.CreateXpsDocument(data, _wineXpsPath);
-                }
-                else
-                    xps = reportDoc.CreateXpsDocument(data);
-                if (xps == null)
-                    return null;
+                    string printMedia = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                        ? ResolveLinuxPrintMedia(acClassDesign.XMLDesign)
+                        : null;
 
-                // Do NOT use a using(xps) block here: xps is owned by reportDoc and will be
-                // closed exactly once by reportDoc.Dispose() when the outer using ends.
-                // A second manual Close/Dispose call causes ObjectDisposedException because
-                // XpsDocument.Dispose does not guard against repeated invocations.
-                {
-                    FixedDocumentSequence fDocSeq = null;
-                    try
+                    if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://", StringComparison.OrdinalIgnoreCase))
                     {
-                        fDocSeq = xps.GetFixedDocumentSequence();
-                        if (fDocSeq == null)
-                            return null;
-                        // Fix for leaking memory
-                        // https://social.msdn.microsoft.com/Forums/vstudio/en-US/c6511918-17f6-42be-ac4c-459eeac676fd/memory-leak-when-launching-new-sta-thread-to-convert-xps-to-images?forum=wpf
-                        //var docpage = fDocSeq.DocumentPaginator.GetPage(0);
-                        //if (docpage != null && docpage.Visual != null)
-                        //{
-                        //    FixedPage fixedPage = docpage.Visual as FixedPage;
-                        //    if (fixedPage != null)
-                        //        fixedPage.UpdateLayout();
-                        //}
+                        string fileName = printerName.Substring(7);
+                        if (!String.IsNullOrWhiteSpace(Path.GetDirectoryName(fileName)))
+                            Directory.CreateDirectory(Path.GetDirectoryName(fileName));
+                        File.WriteAllBytes(fileName, pdfBytes);
+                        return null;
+                    }
 
-                        if (copies <= 0)
-                            copies = 1;
+                    string tempPdfPath = Path.Combine(Path.GetTempPath(), $"iplus_{Guid.NewGuid():N}.pdf");
+                    File.WriteAllBytes(tempPdfPath, pdfBytes);
 
-                        if (withDialog)
+                    if (withDialog)
+                    {
+                        var printDialog = new System.Windows.Controls.PrintDialog();
+                        if (printDialog.ShowDialog() == true)
                         {
-                            try
+                            PrintQueue pQ = printDialog.PrintQueue;
+                            var printTicket = printDialog.PrintTicket;
+                            if (pQ != null && printTicket != null)
                             {
-                                var printDialog = new System.Windows.Controls.PrintDialog();
-                                if (printDialog.ShowDialog() == true)
-                                {
-                                    PrintQueue pQ = printDialog.PrintQueue;
-                                    XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
-                                    if (writer != null)
-                                    {
-                                        PrintTicket pt = new PrintTicket();
-                                        pt.CopyCount = printDialog.PrintTicket != null && printDialog.PrintTicket.CopyCount.HasValue ? printDialog.PrintTicket.CopyCount : copies;
-                                        if (reportDoc.AutoSelectPageOrientation.HasValue)
-                                        {
-                                            pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
-                                        }
-                                        else
-                                        {
-                                            if (reportDoc.PageWidth > reportDoc.PageHeight)
-                                                pt.PageOrientation = PageOrientation.Landscape;
-                                            else
-                                                pt.PageOrientation = PageOrientation.Portrait;
-                                        }
-
-                                        if (reportDoc.AutoPageMediaSize != null)
-                                            pt.PageMediaSize = reportDoc.AutoPageMediaSize;
-
-                                        // example of calling above code
-                                        if (reportDoc.AutoSelectTray.HasValue)
-                                        {
-                                            string nameSpaceURI = string.Empty;
-                                            string selectedtray = XpsPrinterUtils.GetInputBinName(pQ.Name, reportDoc.AutoSelectTray.Value, out nameSpaceURI);
-                                            pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
-                                        }
-
-                                        if (IsRunningUnderWine())
-                                            PrintFixedDocumentSequenceToQueue(pQ, fDocSeq, pt, _wineXpsPath);
-                                        else
-                                            writer.Write(fDocSeq, pt);
-                                    }
-                                }
+                                printerName = pQ.Name;
+                                printMedia = printTicket.PageMediaSize?.PageMediaSizeName.ToString();
                             }
-                            catch (Exception e)
+                        }                        
+                        // PrepareDesktopPrinterSelection(tempPdfPath, printerName, copies, printMedia);
+                        // await ShowDesktopPrinterSelectionAsync();
+                        // return null;
+                    }
+
+                    bool sentToPrinter = TryPrintPdf(tempPdfPath, printerName, copies, printMedia);
+                    if (!sentToPrinter)
+                        OpenWithDefaultApplication(tempPdfPath);
+                }
+                catch (Exception e)
+                {
+                    this.Root().Messages.LogException("VBBSOReport", "FlowPrint(10)", e);
+                }
+            }
+            else
+            {
+                EnsureWineLegacySerializationPath();
+
+                using (ReportDocument reportDoc = new ReportDocument(CurrentACClassDesign.XMLDesign))
+                { 
+                    if (reportDoc == null)
+                        return null;
+                    XpsDocument xps = null;
+                    string _wineXpsPath = null; // temp XPS file path used on Wine (file-based creation)
+                    if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://"))
+                    {
+                        string fileName = printerName.Substring(7);
+                        xps = reportDoc.CreateXpsDocument(data, fileName);
+                        return null;
+                    }
+                    else if (IsRunningUnderWine())
+                    {
+                        // File-based creation: commits + closes the zip package and reopens it in
+                        // FileAccess.Read mode.  This is required because the memory-based overload
+                        // opens the package in ZipArchiveMode.Update, which forbids opening the same
+                        // zip entry more than once — the XPS image serializer does exactly that when
+                        // the same bitmap brush appears on multiple pages or multiple elements.
+                        // The file-based path also gives us the XPS directly on disk so xpstopdf can
+                        // consume it without any re-serialization.
+                        string uid = Guid.NewGuid().ToString("N").Substring(0, 8);
+                        _wineXpsPath = $@"Z:\tmp\iplus_{uid}.xps";
+                        xps = reportDoc.CreateXpsDocument(data, _wineXpsPath);
+                    }
+                    else
+                        xps = reportDoc.CreateXpsDocument(data);
+                    if (xps == null)
+                        return null;
+
+                    // Do NOT use a using(xps) block here: xps is owned by reportDoc and will be
+                    // closed exactly once by reportDoc.Dispose() when the outer using ends.
+                    // A second manual Close/Dispose call causes ObjectDisposedException because
+                    // XpsDocument.Dispose does not guard against repeated invocations.
+                    {
+                        FixedDocumentSequence fDocSeq = null;
+                        try
+                        {
+                            fDocSeq = xps.GetFixedDocumentSequence();
+                            if (fDocSeq == null)
+                                return null;
+                            // Fix for leaking memory
+                            // https://social.msdn.microsoft.com/Forums/vstudio/en-US/c6511918-17f6-42be-ac4c-459eeac676fd/memory-leak-when-launching-new-sta-thread-to-convert-xps-to-images?forum=wpf
+                            //var docpage = fDocSeq.DocumentPaginator.GetPage(0);
+                            //if (docpage != null && docpage.Visual != null)
+                            //{
+                            //    FixedPage fixedPage = docpage.Visual as FixedPage;
+                            //    if (fixedPage != null)
+                            //        fixedPage.UpdateLayout();
+                            //}
+
+                            if (copies <= 0)
+                                copies = 1;
+
+                            if (withDialog)
                             {
-                                this.Root().Messages.LogException("VBBSOReport", "FlowPrint(10)", e.Message);
-                                // On Wine the dialog path should never fall back to writer.Write —
-                                // that would submit a raw XPS job through Wine's PS driver, producing
-                                // the garbled "System.Windows.Documents.FixedDocumentSequence.pdf".
-                                if (IsRunningUnderWine())
+                                try
                                 {
-                                    // Wine 11.x can throw PrintQueueException from PrintDialog after the
-                                    // user picks a printer (PTProvider ConvertDevModeToPrintTicket path).
-                                    // Fall back to a direct queue-based print so PDF generation still works.
-                                    try
+                                    var printDialog = new System.Windows.Controls.PrintDialog();
+                                    if (printDialog.ShowDialog() == true)
                                     {
-                                        string fallbackPrinterName = !String.IsNullOrEmpty(reportDoc.AutoSelectPrinterName)
-                                            ? reportDoc.AutoSelectPrinterName
-                                            : printerName;
-                                        PrintQueue pQ = ResolvePrintQueue(fallbackPrinterName) ?? LocalPrintServer.GetDefaultPrintQueue();
-                                        if (pQ != null)
+                                        PrintQueue pQ = printDialog.PrintQueue;
+                                        XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
+                                        if (writer != null)
                                         {
                                             PrintTicket pt = new PrintTicket();
-                                            pt.CopyCount = copies;
+                                            pt.CopyCount = printDialog.PrintTicket != null && printDialog.PrintTicket.CopyCount.HasValue ? printDialog.PrintTicket.CopyCount : copies;
                                             if (reportDoc.AutoSelectPageOrientation.HasValue)
                                             {
                                                 pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
@@ -805,6 +955,7 @@ namespace gip.core.reporthandlerwpf
                                             if (reportDoc.AutoPageMediaSize != null)
                                                 pt.PageMediaSize = reportDoc.AutoPageMediaSize;
 
+                                            // example of calling above code
                                             if (reportDoc.AutoSelectTray.HasValue)
                                             {
                                                 string nameSpaceURI = string.Empty;
@@ -812,155 +963,206 @@ namespace gip.core.reporthandlerwpf
                                                 pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
                                             }
 
-                                            PrintFixedDocumentSequenceToQueue(pQ, fDocSeq, pt, _wineXpsPath);
+                                            if (IsRunningUnderWine())
+                                                PrintFixedDocumentSequenceToQueue(pQ, fDocSeq, pt, _wineXpsPath);
+                                            else
+                                                writer.Write(fDocSeq, pt);
                                         }
                                     }
-                                    catch (Exception exFallback)
+                                }
+                                catch (Exception e)
+                                {
+                                    this.Root().Messages.LogException("VBBSOReport", "FlowPrint(10)", e.Message);
+                                    // On Wine the dialog path should never fall back to writer.Write —
+                                    // that would submit a raw XPS job through Wine's PS driver, producing
+                                    // the garbled "System.Windows.Documents.FixedDocumentSequence.pdf".
+                                    if (IsRunningUnderWine())
                                     {
-                                        this.Root().Messages.LogException("VBBSOReport", "FlowPrint(10-WineFallback)",
-                                            exFallback.InnerException?.Message ?? exFallback.Message);
+                                        // Wine 11.x can throw PrintQueueException from PrintDialog after the
+                                        // user picks a printer (PTProvider ConvertDevModeToPrintTicket path).
+                                        // Fall back to a direct queue-based print so PDF generation still works.
+                                        try
+                                        {
+                                            string fallbackPrinterName = !String.IsNullOrEmpty(reportDoc.AutoSelectPrinterName)
+                                                ? reportDoc.AutoSelectPrinterName
+                                                : printerName;
+                                            PrintQueue pQ = ResolvePrintQueue(fallbackPrinterName) ?? LocalPrintServer.GetDefaultPrintQueue();
+                                            if (pQ != null)
+                                            {
+                                                PrintTicket pt = new PrintTicket();
+                                                pt.CopyCount = copies;
+                                                if (reportDoc.AutoSelectPageOrientation.HasValue)
+                                                {
+                                                    pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
+                                                }
+                                                else
+                                                {
+                                                    if (reportDoc.PageWidth > reportDoc.PageHeight)
+                                                        pt.PageOrientation = PageOrientation.Landscape;
+                                                    else
+                                                        pt.PageOrientation = PageOrientation.Portrait;
+                                                }
+
+                                                if (reportDoc.AutoPageMediaSize != null)
+                                                    pt.PageMediaSize = reportDoc.AutoPageMediaSize;
+
+                                                if (reportDoc.AutoSelectTray.HasValue)
+                                                {
+                                                    string nameSpaceURI = string.Empty;
+                                                    string selectedtray = XpsPrinterUtils.GetInputBinName(pQ.Name, reportDoc.AutoSelectTray.Value, out nameSpaceURI);
+                                                    pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
+                                                }
+
+                                                PrintFixedDocumentSequenceToQueue(pQ, fDocSeq, pt, _wineXpsPath);
+                                            }
+                                        }
+                                        catch (Exception exFallback)
+                                        {
+                                            this.Root().Messages.LogException("VBBSOReport", "FlowPrint(10-WineFallback)",
+                                                exFallback.InnerException?.Message ?? exFallback.Message);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        PrintDocumentImageableArea area = null;
+                                        XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(ref area);
+                                        if (writer != null)
+                                            writer.Write(fDocSeq);
                                     }
                                 }
-                                else
-                                {
-                                    PrintDocumentImageableArea area = null;
-                                    XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(ref area);
-                                    if (writer != null)
-                                        writer.Write(fDocSeq);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            PrintQueue pQ = null;
-                            if (!String.IsNullOrEmpty(reportDoc.AutoSelectPrinterName))
-                                printerName = reportDoc.AutoSelectPrinterName;
-                            if (String.IsNullOrEmpty(printerName))
-                            {
-                                pQ = LocalPrintServer.GetDefaultPrintQueue();
                             }
                             else
                             {
-                                if (printerName.StartsWith("\\\\"))
+                                PrintQueue pQ = null;
+                                if (!String.IsNullOrEmpty(reportDoc.AutoSelectPrinterName))
+                                    printerName = reportDoc.AutoSelectPrinterName;
+                                if (String.IsNullOrEmpty(printerName))
                                 {
-                                    int index = printerName.LastIndexOf("\\");
-                                    if (index > 0)
+                                    pQ = LocalPrintServer.GetDefaultPrintQueue();
+                                }
+                                else
+                                {
+                                    if (printerName.StartsWith("\\\\"))
                                     {
-                                        string server = printerName.Substring(0, index);
-                                        string printerName2 = printerName.Substring(index + 1);
-                                        PrintServer pServer = new PrintServer(server);
+                                        int index = printerName.LastIndexOf("\\");
+                                        if (index > 0)
+                                        {
+                                            string server = printerName.Substring(0, index);
+                                            string printerName2 = printerName.Substring(index + 1);
+                                            PrintServer pServer = new PrintServer(server);
+                                            if (pServer != null)
+                                            {
+                                                pQ = pServer.GetPrintQueues().Where(c => c.Name == printerName2).FirstOrDefault();
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        PrintServer pServer = new LocalPrintServer();
                                         if (pServer != null)
                                         {
-                                            pQ = pServer.GetPrintQueues().Where(c => c.Name == printerName2).FirstOrDefault();
+                                            pQ = pServer.GetPrintQueues().Where(c => c.Name == printerName).FirstOrDefault();
                                         }
-                                    }
-                                }
-                                else
-                                {
-                                    PrintServer pServer = new LocalPrintServer();
-                                    if (pServer != null)
-                                    {
-                                        pQ = pServer.GetPrintQueues().Where(c => c.Name == printerName).FirstOrDefault();
-                                    }
-                                    if (pQ == null)
-                                    {
-                                        pServer = new PrintServer();
-                                        PrintQueueCollection printQueues = pServer.GetPrintQueues(new[] { EnumeratedPrintQueueTypes.Local, EnumeratedPrintQueueTypes.Connections, EnumeratedPrintQueueTypes.Shared });
-                                        pQ = printQueues.Where(c => c.Name == printerName).FirstOrDefault();
-                                    }
-                                }
-                            }
-                            if (pQ == null)
-                                return null;
-
-                            if (maxPrintJobsInSpooler > 0
-                                && (pQ.IsInError || pQ.NumberOfJobs >= maxPrintJobsInSpooler))
-                            {
-                                return new Msg(this, eMsgLevel.Question, "VBBSOReport", "FlowPrint", 947, "Question50078", eMsgButton.YesNo);
-                            }
-
-                            XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
-                            if (writer != null)
-                            {
-                                PrintTicket pt = new PrintTicket();
-                                pt.CopyCount = copies;
-                                if (reportDoc.AutoSelectPageOrientation.HasValue)
-                                {
-                                    pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
-                                }
-                                else
-                                {
-                                    if (reportDoc.PageWidth > reportDoc.PageHeight)
-                                        pt.PageOrientation = PageOrientation.Landscape;
-                                    else
-                                        pt.PageOrientation = PageOrientation.Portrait;
-                                }
-
-                                if (reportDoc.AutoPageMediaSize != null)
-                                    pt.PageMediaSize = reportDoc.AutoPageMediaSize;
-
-                                // example of calling above code
-                                if (reportDoc.AutoSelectTray.HasValue)
-                                {
-                                    string nameSpaceURI = string.Empty;
-                                    string selectedtray = XpsPrinterUtils.GetInputBinName(pQ.Name, reportDoc.AutoSelectTray.Value, out nameSpaceURI);
-                                    pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
-                                }
-
-                                try
-                                {
-                                    if (IsRunningUnderWine())
-                                        PrintFixedDocumentSequenceToQueue(pQ, fDocSeq, pt, _wineXpsPath);
-                                    else
-                                        writer.Write(fDocSeq, pt);
-                                }
-                                catch (Exception ex2)
-                                {
-                                    this.Root().Messages.LogException("VBBSOReport", "FlowPrint(50)", ex2.Message);
-                                }
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        // xps.Close() is intentionally NOT called here — reportDoc.Dispose() (outer using)
-                        // closes it exactly once. Calling it here too would cause ObjectDisposedException.
-                        // On Linux/Wine, File.Delete works on open files (POSIX unlink semantics), so
-                        // we can safely remove _wineXpsPath while xps still holds the file handle.
-                        if (_wineXpsPath != null)
-                            TryDeleteFileWithRetries(_wineXpsPath);
-                        try
-                        {
-                            // https://stackoverflow.com/questions/8742454/saving-a-fixeddocument-to-an-xps-file-causes-memory-leak
-                            if (fDocSeq != null)
-                            {
-                                for (int i = 0; i < fDocSeq.DocumentPaginator.PageCount; i++)
-                                {
-                                    var docpage = fDocSeq.DocumentPaginator.GetPage(i);
-                                    if (docpage != null && docpage.Visual != null)
-                                    {
-                                        FixedPage fixedPage = docpage.Visual as FixedPage;
-                                        if (fixedPage != null)
+                                        if (pQ == null)
                                         {
-                                            fixedPage.Children.Clear();
-                                            fixedPage.UpdateLayout();
-                                            //var dispatcher = fixedPage.Dispatcher;
-                                            //if (dispatcher != null
-                                            //    && dispatcher.Thread != null
-                                            //    && !String.IsNullOrEmpty(dispatcher.Thread.Name)
-                                            //    && (dispatcher.Thread.Name.Contains(RootDbOpQueue.ClassName)
-                                            //        || dispatcher.Thread.Name.Contains(ACUrlHelper.Delimiter_DirSeperator)))
-                                            //{
-                                            //    fixedPage.DetachFromDispatcherExt();
-                                            //}
+                                            pServer = new PrintServer();
+                                            PrintQueueCollection printQueues = pServer.GetPrintQueues(new[] { EnumeratedPrintQueueTypes.Local, EnumeratedPrintQueueTypes.Connections, EnumeratedPrintQueueTypes.Shared });
+                                            pQ = printQueues.Where(c => c.Name == printerName).FirstOrDefault();
                                         }
+                                    }
+                                }
+                                if (pQ == null)
+                                    return null;
+
+                                if (maxPrintJobsInSpooler > 0
+                                    && (pQ.IsInError || pQ.NumberOfJobs >= maxPrintJobsInSpooler))
+                                {
+                                    return new Msg(this, eMsgLevel.Question, "VBBSOReport", "FlowPrint", 947, "Question50078", eMsgButton.YesNo);
+                                }
+
+                                XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
+                                if (writer != null)
+                                {
+                                    PrintTicket pt = new PrintTicket();
+                                    pt.CopyCount = copies;
+                                    if (reportDoc.AutoSelectPageOrientation.HasValue)
+                                    {
+                                        pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
+                                    }
+                                    else
+                                    {
+                                        if (reportDoc.PageWidth > reportDoc.PageHeight)
+                                            pt.PageOrientation = PageOrientation.Landscape;
+                                        else
+                                            pt.PageOrientation = PageOrientation.Portrait;
+                                    }
+
+                                    if (reportDoc.AutoPageMediaSize != null)
+                                        pt.PageMediaSize = reportDoc.AutoPageMediaSize;
+
+                                    // example of calling above code
+                                    if (reportDoc.AutoSelectTray.HasValue)
+                                    {
+                                        string nameSpaceURI = string.Empty;
+                                        string selectedtray = XpsPrinterUtils.GetInputBinName(pQ.Name, reportDoc.AutoSelectTray.Value, out nameSpaceURI);
+                                        pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
+                                    }
+
+                                    try
+                                    {
+                                        if (IsRunningUnderWine())
+                                            PrintFixedDocumentSequenceToQueue(pQ, fDocSeq, pt, _wineXpsPath);
+                                        else
+                                            writer.Write(fDocSeq, pt);
+                                    }
+                                    catch (Exception ex2)
+                                    {
+                                        this.Root().Messages.LogException("VBBSOReport", "FlowPrint(50)", ex2.Message);
                                     }
                                 }
                             }
                         }
-                        catch (Exception ex2)
+                        finally
                         {
-                            this.Root().Messages.LogException("VBBSOReport", "FlowPrint(99)", ex2.Message);
+                            // xps.Close() is intentionally NOT called here — reportDoc.Dispose() (outer using)
+                            // closes it exactly once. Calling it here too would cause ObjectDisposedException.
+                            // On Linux/Wine, File.Delete works on open files (POSIX unlink semantics), so
+                            // we can safely remove _wineXpsPath while xps still holds the file handle.
+                            if (_wineXpsPath != null)
+                                TryDeleteFileWithRetries(_wineXpsPath);
+                            try
+                            {
+                                // https://stackoverflow.com/questions/8742454/saving-a-fixeddocument-to-an-xps-file-causes-memory-leak
+                                if (fDocSeq != null)
+                                {
+                                    for (int i = 0; i < fDocSeq.DocumentPaginator.PageCount; i++)
+                                    {
+                                        var docpage = fDocSeq.DocumentPaginator.GetPage(i);
+                                        if (docpage != null && docpage.Visual != null)
+                                        {
+                                            FixedPage fixedPage = docpage.Visual as FixedPage;
+                                            if (fixedPage != null)
+                                            {
+                                                fixedPage.Children.Clear();
+                                                fixedPage.UpdateLayout();
+                                                //var dispatcher = fixedPage.Dispatcher;
+                                                //if (dispatcher != null
+                                                //    && dispatcher.Thread != null
+                                                //    && !String.IsNullOrEmpty(dispatcher.Thread.Name)
+                                                //    && (dispatcher.Thread.Name.Contains(RootDbOpQueue.ClassName)
+                                                //        || dispatcher.Thread.Name.Contains(ACUrlHelper.Delimiter_DirSeperator)))
+                                                //{
+                                                //    fixedPage.DetachFromDispatcherExt();
+                                                //}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception ex2)
+                            {
+                                this.Root().Messages.LogException("VBBSOReport", "FlowPrint(99)", ex2.Message);
+                            }
                         }
                     }
                 }
@@ -1486,10 +1688,42 @@ namespace gip.core.reporthandlerwpf
             return SelectedPrintServer != null;
         }
 
-        private void DoPrintComponent(ACClassDesign acClassDesign, bool withDialog, int copies, bool reloadReport)
+        [ACMethodCommand("Report", "en{'Print'}de{'Drucken'}", (short)MISort.Okay)]
+        public void PrinterSelectionOk()
+        {
+            if (!IsEnabledPrinterSelectionOk())
+                return;
+
+            string pendingPdfPath = _PendingDesktopPrintPdfPath;
+            int pendingCopies = _PendingDesktopPrintCopies;
+            string selectedPrinterName = SelectedWindowsPrinter?.PrinterName;
+            string printMedia = _PendingDesktopPrintMedia;
+            ClearDesktopPrinterSelection();
+            CloseTopDialog();
+
+            PrinterName = selectedPrinterName;
+            bool sentToPrinter = TryPrintPdf(pendingPdfPath, selectedPrinterName, pendingCopies, printMedia);
+            if (!sentToPrinter)
+                OpenWithDefaultApplication(pendingPdfPath);
+        }
+
+        [ACMethodInfo("", "en{'Is enabled print'}de{'Drucken aktiviert'}", 9999)]
+        public bool IsEnabledPrinterSelectionOk()
+        {
+            return !String.IsNullOrWhiteSpace(_PendingDesktopPrintPdfPath) && SelectedWindowsPrinter != null;
+        }
+
+        [ACMethodCommand("Report", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
+        public void PrinterSelectionCancel()
+        {
+            ClearDesktopPrinterSelection();
+            CloseTopDialog();
+        }        
+
+        private async Task DoPrintComponent(ACClassDesign acClassDesign, bool withDialog, int copies, bool reloadReport)
         {
             if (withDialog)
-                PrintComponent();
+                await PrintComponent();
             else
             {
                 string acPrintServerACUrl = PrintServerList.Where(c => c.IsDefault).Select(c => c.PrinterACUrl).FirstOrDefault();
@@ -1909,6 +2143,15 @@ namespace gip.core.reporthandlerwpf
                 case nameof(FlowDialogOk):
                     FlowDialogOk();
                     return true;
+                case nameof(PrinterSelectionOk):
+                    PrinterSelectionOk();
+                    return true;
+                case nameof(IsEnabledPrinterSelectionOk):
+                    result = IsEnabledPrinterSelectionOk();
+                    return true;
+                case nameof(PrinterSelectionCancel):
+                    PrinterSelectionCancel();
+                    return true;
                 case nameof(ApplyConfig):
                     ApplyConfig();
                     return true;
@@ -1934,6 +2177,14 @@ namespace gip.core.reporthandlerwpf
                 #region FlowDoc Dialog
                 case nameof(FlowDialogCancel):
                 case nameof(FlowDialogOk):
+                    return new string[] { nameof(InitState) };
+                #endregion
+
+                #region PrinterSelection Dialog
+                case nameof(PrinterSelectionOk):
+                case nameof(IsEnabledPrinterSelectionOk):
+                    return new string[] { nameof(SelectedWindowsPrinter) };
+                case nameof(PrinterSelectionCancel):
                     return new string[] { nameof(InitState) };
                 #endregion
 
