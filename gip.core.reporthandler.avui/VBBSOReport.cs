@@ -5,13 +5,17 @@ using gip.core.autocomponent;
 using gip.core.datamodel;
 using gip.core.reporthandler.avui.Flowdoc;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using PdfConvert = PDFtoImage.Conversion;
 
 namespace gip.core.reporthandler.avui
 {
@@ -34,6 +38,7 @@ namespace gip.core.reporthandler.avui
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
             _MaxRecursionDepthConfig = new ACPropertyConfigValue<int>(this, "MaxRecursionDepthConfig", 3);
+            _WindowsPdfPrintDpiConfig = new ACPropertyConfigValue<int>(this, "WindowsPdfPrintDpi", 300);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -142,6 +147,21 @@ namespace gip.core.reporthandler.avui
         {
             get;
             set;
+        }
+
+        private ACPropertyConfigValue<int> _WindowsPdfPrintDpiConfig;
+        [ACPropertyConfig("en{'Windows PDF print DPI'}de{'Windows PDF-Druck DPI'}")]
+        public int WindowsPdfPrintDpi
+        {
+            get
+            {
+                return _WindowsPdfPrintDpiConfig.ValueT;
+            }
+            set
+            {
+                int clamped = Math.Max(72, Math.Min(1200, value));
+                _WindowsPdfPrintDpiConfig.ValueT = clamped;
+            }
         }
 
         bool _ReloadOnServer;
@@ -657,10 +677,16 @@ namespace gip.core.reporthandler.avui
             if (String.IsNullOrWhiteSpace(filePath))
                 return;
 
-            Process.Start(new ProcessStartInfo(filePath)
+            try
             {
-                UseShellExecute = true
-            });
+                Process.Start(new ProcessStartInfo(filePath)
+                {
+                    UseShellExecute = true
+                });
+            }
+            catch
+            {
+            }
         }
 
         private string _PendingDesktopPrintPdfPath;
@@ -719,15 +745,10 @@ namespace gip.core.reporthandler.avui
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    Process process = Process.Start(new ProcessStartInfo
-                    {
-                        FileName = pdfPath,
-                        Verb = "printto",
-                        Arguments = $"\"{printerName}\"",
-                        UseShellExecute = true,
-                        CreateNoWindow = true,
-                    });
-                    return process != null;
+                    if (TryPrintPdfViaShellOnWindows(pdfPath, printerName))
+                        return true;
+
+                    return TryPrintPdfViaGdiOnWindows(pdfPath, printerName, copies);
                 }
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -757,6 +778,107 @@ namespace gip.core.reporthandler.avui
             }
 
             return false;
+        }
+
+        private static bool TryPrintPdfViaShellOnWindows(string pdfPath, string printerName)
+        {
+            try
+            {
+                Process process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = pdfPath,
+                    Verb = "printto",
+                    Arguments = $"\"{printerName}\"",
+                    UseShellExecute = true,
+                    CreateNoWindow = true,
+                });
+
+                return process != null;
+            }
+            catch (Win32Exception)
+            {
+                // No shell print association for PDFs (or no printto verb) on this machine.
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool TryPrintPdfViaGdiOnWindows(string pdfPath, string printerName, int copies)
+        {
+            try
+            {
+                using (FileStream pdfStream = File.OpenRead(pdfPath))
+                {
+                    int pageCount = PdfConvert.GetPageCount(pdfStream, leaveOpen: true, password: null);
+                    if (pageCount <= 0)
+                        return false;
+
+                    int currentPage = 0;
+                    int renderDpi = Math.Max(72, Math.Min(1200, WindowsPdfPrintDpi));
+                    PDFtoImage.RenderOptions renderOptions = new PDFtoImage.RenderOptions
+                    {
+                        Dpi = renderDpi,
+                        WithAnnotations = true,
+                        WithFormFill = true,
+                        WithAspectRatio = true,
+                    };
+
+                    using (PrintDocument printDocument = new PrintDocument())
+                    {
+                        printDocument.PrinterSettings.PrinterName = printerName;
+                        printDocument.PrinterSettings.Copies = (short)Math.Max(1, Math.Min(short.MaxValue, copies));
+                        if (!printDocument.PrinterSettings.IsValid)
+                            return false;
+
+                        printDocument.PrintController = new StandardPrintController();
+
+                        printDocument.PrintPage += (_, e) =>
+                        {
+                            pdfStream.Position = 0;
+
+                            using (MemoryStream pngStream = new MemoryStream())
+                            {
+                                PdfConvert.SavePng(pngStream, pdfStream, new Index(currentPage), leaveOpen: true, password: null, options: renderOptions);
+                                pngStream.Position = 0;
+
+                                using (Image image = Image.FromStream(pngStream, useEmbeddedColorManagement: false, validateImageData: false))
+                                {
+                                    Rectangle targetRectangle = GetCenteredFitRectangle(e.MarginBounds, image.Width, image.Height);
+                                    e.Graphics.DrawImage(image, targetRectangle);
+                                }
+                            }
+
+                            currentPage++;
+                            e.HasMorePages = currentPage < pageCount;
+                        };
+
+                        printDocument.Print();
+                        return currentPage > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                this.Root().Messages.LogException("VBBSOReport", nameof(TryPrintPdfViaGdiOnWindows), ex);
+                return false;
+            }
+        }
+
+        private static Rectangle GetCenteredFitRectangle(Rectangle bounds, int imageWidth, int imageHeight)
+        {
+            if (bounds.Width <= 0 || bounds.Height <= 0 || imageWidth <= 0 || imageHeight <= 0)
+                return bounds;
+
+            double scale = Math.Min((double)bounds.Width / imageWidth, (double)bounds.Height / imageHeight);
+            int scaledWidth = Math.Max(1, (int)Math.Round(imageWidth * scale));
+            int scaledHeight = Math.Max(1, (int)Math.Round(imageHeight * scale));
+            int offsetX = bounds.X + ((bounds.Width - scaledWidth) / 2);
+            int offsetY = bounds.Y + ((bounds.Height - scaledHeight) / 2);
+
+            return new Rectangle(offsetX, offsetY, scaledWidth, scaledHeight);
         }
 
         private static string ResolveLinuxPrintMedia(string template)
@@ -829,9 +951,7 @@ namespace gip.core.reporthandler.avui
                 if (pdfBytes == null || pdfBytes.Length == 0)
                     return null;
 
-                string printMedia = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                    ? ResolveLinuxPrintMedia(acClassDesign.XMLDesign)
-                    : null;
+                string printMedia = ResolveLinuxPrintMedia(acClassDesign.XMLDesign);
 
                 if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://", StringComparison.OrdinalIgnoreCase))
                 {

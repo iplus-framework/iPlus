@@ -84,10 +84,7 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <!--<PackageReference Include="BarcodeLib"  />
-    <PackageReference Include="BinaryKits.Zpl.Label"  />
-		<PackageReference Include="ESCPOS"  />
-		<PackageReference Include="QRCoder"  />-->
+		<PackageReference Include="PDFtoImage"  />
 		<PackageReference Include="System.Data.DataSetExtensions"  />
 		<PackageReference Include="System.Reflection.Context"  />
 		<PackageReference Include="TextMateSharp" />
