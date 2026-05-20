@@ -25,8 +25,8 @@
 		<RoslynVersion Condition="'$(UseAvaloniaFork)' == 'True'">5.0.0</RoslynVersion>
 		<RoslynVersion Condition="'$(UseAvaloniaFork)' == 'False'">5.0.0</RoslynVersion>
 		<RoslynVersionIPlus>5.0.1</RoslynVersionIPlus>
-		<DotNetExtensionsVersion>10.0.5</DotNetExtensionsVersion>
-		<SystemCompositionVersion>10.0.5</SystemCompositionVersion>
+		<DotNetExtensionsVersion>10.0.6</DotNetExtensionsVersion>
+		<SystemCompositionVersion>10.0.6</SystemCompositionVersion>
 		<NuGetVersion>7.0.3</NuGetVersion>
 		<CoreWCFVersion>1.8.0</CoreWCFVersion>
 		<ASPNetVersion>2.3.9</ASPNetVersion>
