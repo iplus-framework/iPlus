@@ -8,7 +8,7 @@ namespace gip.core.reporthandlerwpf.Flowdoc
     /// Simple HTML template editor used by the report editor when a Scryber template is loaded.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBHtmlEditor'}de{'VBHtmlEditor'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBHtmlEditor : gip.core.layoutengine.VBTextEditor
+    public class VBHtmlEditor : gip.core.layoutengine.VBXMLEditor
     {
     }
 }
