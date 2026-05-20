@@ -846,7 +846,8 @@ namespace gip.core.reporthandler.avui
 
                                 using (Image image = Image.FromStream(pngStream, useEmbeddedColorManagement: false, validateImageData: false))
                                 {
-                                    Rectangle targetRectangle = GetCenteredFitRectangle(e.MarginBounds, image.Width, image.Height);
+                                    Rectangle contentBounds = GetPrintContentBounds(e);
+                                    Rectangle targetRectangle = GetCenteredFitRectangle(contentBounds, image.Width, image.Height);
                                     e.Graphics.DrawImage(image, targetRectangle);
                                 }
                             }
@@ -865,6 +866,24 @@ namespace gip.core.reporthandler.avui
                 this.Root().Messages.LogException("VBBSOReport", nameof(TryPrintPdfViaGdiOnWindows), ex);
                 return false;
             }
+        }
+
+        private static Rectangle GetPrintContentBounds(PrintPageEventArgs e)
+        {
+            RectangleF printableArea = e.PageSettings?.PrintableArea ?? RectangleF.Empty;
+            if (printableArea.Width > 0 && printableArea.Height > 0)
+            {
+                return new Rectangle(
+                    (int)Math.Floor(printableArea.X),
+                    (int)Math.Floor(printableArea.Y),
+                    Math.Max(1, (int)Math.Ceiling(printableArea.Width)),
+                    Math.Max(1, (int)Math.Ceiling(printableArea.Height)));
+            }
+
+            if (e.PageBounds.Width > 0 && e.PageBounds.Height > 0)
+                return e.PageBounds;
+
+            return e.MarginBounds;
         }
 
         private static Rectangle GetCenteredFitRectangle(Rectangle bounds, int imageWidth, int imageHeight)
