@@ -18,6 +18,7 @@ namespace gip.core.webservices
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
             _UseCustomHttpListener = new ACPropertyConfigValue<bool>(this, nameof(UseCustomHttpListener), false);
+            _UseHTTPS = new ACPropertyConfigValue<bool>(this, nameof(UseHTTPS), false);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -36,6 +37,14 @@ namespace gip.core.webservices
             get => _UseCustomHttpListener.ValueT;
             set => _UseCustomHttpListener.ValueT = value;
         }
+
+        private ACPropertyConfigValue<bool> _UseHTTPS;
+        [ACPropertyConfig("en{'Use HTTPS'}de{'Verwende HTTPS'}")]
+        public bool UseHTTPS
+        {
+            get => _UseHTTPS.ValueT;
+            set => _UseHTTPS.ValueT = value;
+        }
         #endregion
 
 
@@ -50,7 +59,7 @@ namespace gip.core.webservices
                 oAuthTokenValidator = searchOAuth.FirstOrDefault();
             }
 
-            if(oAuthTokenValidator != null)
+            if(oAuthTokenValidator != null && oAuthTokenValidator.ConnectionState != ACObjectConnectionState.DisConnected)
             {
                 return CreateWCFHttpServiceOAuth(oAuthTokenValidator);
             }
@@ -72,7 +81,8 @@ namespace gip.core.webservices
                 ServicePort = servicePort;
             }
 
-            string strUri = String.Format("http://{0}:{1}/", this.Root.Environment.UserInstance.Hostname, servicePort);
+            string scheme = UseHTTPS ? "https" : "http";
+            string strUri = String.Format("{0}://{1}:{2}/", scheme, this.Root.Environment.UserInstance.Hostname, servicePort);
             Uri uri = new Uri(strUri);
             WebServiceHost serviceHost = new WebServiceHost(ServiceType, uri);
             serviceHost.Authorization.ServiceAuthorizationManager = new WSRestAuthorizationManager();
@@ -81,6 +91,7 @@ namespace gip.core.webservices
                 ContentTypeMapper = GetContentTypeMapper(),
                 AllowCookies = true
             };
+            httpBinding.Security.Mode = UseHTTPS ? WebHttpSecurityMode.Transport : WebHttpSecurityMode.None;
             httpBinding.MaxReceivedMessageSize = int.MaxValue;
             httpBinding.ReaderQuotas.MaxStringContentLength = 1000000;
             httpBinding.MaxBufferSize = int.MaxValue;
@@ -97,7 +108,8 @@ namespace gip.core.webservices
                 metad = new ServiceMetadataBehavior();
                 serviceHost.Description.Behaviors.Add(metad);
             }
-            metad.HttpGetEnabled = true;
+            metad.HttpGetEnabled = !UseHTTPS;
+            metad.HttpsGetEnabled = UseHTTPS;
 
             foreach (ServiceEndpoint endpoint in serviceHost.Description.Endpoints)
             {
@@ -119,7 +131,8 @@ namespace gip.core.webservices
                 ServicePort = servicePort;
             }
 
-            string strUri = String.Format("http://{0}:{1}/", this.Root.Environment.UserInstance.Hostname, servicePort);
+            string scheme = UseHTTPS ? "https" : "http";
+            string strUri = String.Format("{0}://{1}:{2}/", scheme, this.Root.Environment.UserInstance.Hostname, servicePort);
             Uri uri = new Uri(strUri);
             WebServiceHost serviceHost = new WebServiceHost(ServiceType, uri);
             serviceHost.Authorization.ServiceAuthorizationManager = new OAuthBearerAuthorizationManager(oAuthTokenValidator.ValidatePrincipalFromBearerToken);
@@ -130,6 +143,7 @@ namespace gip.core.webservices
                 ContentTypeMapper = GetContentTypeMapper(),
                 AllowCookies = false
             };
+            httpBinding.Security.Mode = UseHTTPS ? WebHttpSecurityMode.Transport : WebHttpSecurityMode.None;
             httpBinding.MaxReceivedMessageSize = int.MaxValue;
             httpBinding.ReaderQuotas.MaxStringContentLength = 1000000;
             httpBinding.MaxBufferSize = int.MaxValue;
@@ -151,7 +165,8 @@ namespace gip.core.webservices
                 metad = new ServiceMetadataBehavior();
                 serviceHost.Description.Behaviors.Add(metad);
             }
-            metad.HttpGetEnabled = true;
+            metad.HttpGetEnabled = !UseHTTPS;
+            metad.HttpsGetEnabled = UseHTTPS;
 
             foreach (ServiceEndpoint endpoint in serviceHost.Description.Endpoints)
             {
