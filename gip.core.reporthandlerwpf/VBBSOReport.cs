@@ -2,6 +2,7 @@
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Packaging;
@@ -22,6 +23,7 @@ using gip.core.datamodel;
 using gip.core.reporthandler;
 using gip.core.reporthandlerwpf.Flowdoc;
 using Microsoft.Win32;
+using PdfConvert = PDFtoImage.Conversion;
 
 namespace gip.core.reporthandlerwpf
 {
@@ -658,10 +660,16 @@ namespace gip.core.reporthandlerwpf
             if (String.IsNullOrWhiteSpace(filePath))
                 return;
 
-            Process.Start(new ProcessStartInfo(filePath)
+            try
             {
-                UseShellExecute = true
-            });
+                Process.Start(new ProcessStartInfo(filePath)
+                {
+                    UseShellExecute = true
+                });
+            }
+            catch
+            {
+            }
         }
 
         private string _PendingDesktopPrintPdfPath;
@@ -708,7 +716,7 @@ namespace gip.core.reporthandlerwpf
             }
         }
 
-        private bool TryPrintPdf(string pdfPath, string printerName, int copies, string printMedia = null)
+        private bool TryPrintPdf(string pdfPath, string printerName, int copies, string printMedia = null, PrintTicket printTicket = null)
         {
             if (String.IsNullOrWhiteSpace(pdfPath) || String.IsNullOrWhiteSpace(printerName))
                 return false;
@@ -718,17 +726,29 @@ namespace gip.core.reporthandlerwpf
 
             try
             {
+                if (IsRunningUnderWine())
+                {
+                    string linuxPdfPath = ConvertWinePathToLinuxPath(pdfPath);
+                    if (String.IsNullOrWhiteSpace(linuxPdfPath))
+                        return false;
+
+                    printMedia = NormalizeCupsMedia(printMedia);
+
+                    string lpArguments = $"-d \"{printerName}\" -n {copies}";
+                    if (!String.IsNullOrWhiteSpace(printMedia))
+                        lpArguments += $" -o media={printMedia}";
+                    lpArguments += $" \"{linuxPdfPath}\"";
+
+                    return RunLinuxProcess("/usr/bin/lp", lpArguments,
+                        out _, out _, out _, out _);
+                }
+
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    Process process = Process.Start(new ProcessStartInfo
-                    {
-                        FileName = pdfPath,
-                        Verb = "printto",
-                        Arguments = $"\"{printerName}\"",
-                        UseShellExecute = true,
-                        CreateNoWindow = true,
-                    });
-                    return process != null;
+                    if (TryPrintPdfViaShellOnWindows(pdfPath, printerName))
+                        return true;
+
+                    return TryPrintPdfViaQueueOnWindows(pdfPath, printerName, copies, printTicket);
                 }
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -758,6 +778,161 @@ namespace gip.core.reporthandlerwpf
             }
 
             return false;
+        }
+
+        private static bool TryPrintPdfViaShellOnWindows(string pdfPath, string printerName)
+        {
+            try
+            {
+                Process process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = pdfPath,
+                    Verb = "printto",
+                    Arguments = $"\"{printerName}\"",
+                    UseShellExecute = true,
+                    CreateNoWindow = true,
+                });
+
+                return process != null;
+            }
+            catch (Win32Exception)
+            {
+                // No shell print association for PDFs (or no printto verb) on this machine.
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool TryPrintPdfViaQueueOnWindows(string pdfPath, string printerName, int copies, PrintTicket printTicket)
+        {
+            try
+            {
+                PrintQueue pQ = ResolvePrintQueue(printerName) ?? LocalPrintServer.GetDefaultPrintQueue();
+                if (pQ == null)
+                    return false;
+
+                PrintTicket ticket = printTicket ?? pQ.DefaultPrintTicket ?? new PrintTicket();
+                if (!ticket.CopyCount.HasValue || ticket.CopyCount <= 0)
+                    ticket.CopyCount = copies > 0 ? copies : 1;
+
+                ValidationResult validation = pQ.MergeAndValidatePrintTicket(pQ.DefaultPrintTicket, ticket);
+                PrintTicket validatedTicket = validation.ValidatedPrintTicket ?? ticket;
+
+                System.Windows.Size pageSize = GetWindowsPrintPageSize(validatedTicket, pQ);
+
+                FixedDocument fixedDocument = new FixedDocument();
+                fixedDocument.DocumentPaginator.PageSize = pageSize;
+
+                using (FileStream pdfStream = File.OpenRead(pdfPath))
+                {
+                    int pageCount = PdfConvert.GetPageCount(pdfStream, leaveOpen: true, password: null);
+                    if (pageCount <= 0)
+                        return false;
+
+                    PDFtoImage.RenderOptions renderOptions = new PDFtoImage.RenderOptions
+                    {
+                        Dpi = 300,
+                        WithAnnotations = true,
+                        WithFormFill = true,
+                        WithAspectRatio = true,
+                    };
+
+                    for (int pageIndex = 0; pageIndex < pageCount; pageIndex++)
+                    {
+                        pdfStream.Position = 0;
+
+                        using (MemoryStream pngStream = new MemoryStream())
+                        {
+                            PdfConvert.SavePng(pngStream, pdfStream, new Index(pageIndex), leaveOpen: true, password: null, options: renderOptions);
+                            pngStream.Position = 0;
+
+                            var bitmap = new System.Windows.Media.Imaging.BitmapImage();
+                            bitmap.BeginInit();
+                            bitmap.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                            bitmap.StreamSource = pngStream;
+                            bitmap.EndInit();
+                            bitmap.Freeze();
+
+                            var image = new System.Windows.Controls.Image
+                            {
+                                Source = bitmap,
+                                Stretch = System.Windows.Media.Stretch.Uniform,
+                                Width = pageSize.Width,
+                                Height = pageSize.Height,
+                            };
+
+                            FixedPage fixedPage = new FixedPage
+                            {
+                                Width = pageSize.Width,
+                                Height = pageSize.Height,
+                            };
+                            FixedPage.SetLeft(image, 0);
+                            FixedPage.SetTop(image, 0);
+                            fixedPage.Children.Add(image);
+
+                            PageContent pageContent = new PageContent();
+                            ((IAddChild)pageContent).AddChild(fixedPage);
+                            fixedDocument.Pages.Add(pageContent);
+                        }
+                    }
+                }
+
+                XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
+                if (writer == null)
+                    return false;
+
+                writer.Write(((IDocumentPaginatorSource)fixedDocument).DocumentPaginator, validatedTicket);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this.Root().Messages.LogException("VBBSOReport", nameof(TryPrintPdfViaQueueOnWindows), ex);
+                return false;
+            }
+        }
+
+        private static System.Windows.Size GetWindowsPrintPageSize(PrintTicket printTicket, PrintQueue pQ)
+        {
+            if (printTicket?.PageMediaSize != null
+                && printTicket.PageMediaSize.Width.HasValue
+                && printTicket.PageMediaSize.Height.HasValue
+                && printTicket.PageMediaSize.Width.Value > 0
+                && printTicket.PageMediaSize.Height.Value > 0)
+            {
+                return new System.Windows.Size(printTicket.PageMediaSize.Width.Value, printTicket.PageMediaSize.Height.Value);
+            }
+
+            try
+            {
+                PrintCapabilities capabilities = pQ.GetPrintCapabilities(printTicket);
+                PageImageableArea pageImageableArea = capabilities?.PageImageableArea;
+                if (pageImageableArea != null
+                    && pageImageableArea.ExtentWidth > 0
+                    && pageImageableArea.ExtentHeight > 0)
+                {
+                    return new System.Windows.Size(pageImageableArea.ExtentWidth, pageImageableArea.ExtentHeight);
+                }
+            }
+            catch
+            {
+            }
+
+            // Fallback to A4 in WPF units (1/96 inch).
+            return new System.Windows.Size(793.7, 1122.5);
+        }
+
+        private static string ConvertWinePathToLinuxPath(string winPath)
+        {
+            if (String.IsNullOrWhiteSpace(winPath))
+                return null;
+
+            if (winPath.StartsWith(@"Z:\", StringComparison.OrdinalIgnoreCase))
+                return "/" + winPath.Substring(3).Replace('\\', '/');
+
+            return winPath;
         }
 
         private static string ResolveLinuxPrintMedia(string template)
@@ -826,9 +1001,7 @@ namespace gip.core.reporthandlerwpf
                     if (pdfBytes == null || pdfBytes.Length == 0)
                         return null;
 
-                    string printMedia = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                        ? ResolveLinuxPrintMedia(acClassDesign.XMLDesign)
-                        : null;
+                    string printMedia = ResolveLinuxPrintMedia(acClassDesign.XMLDesign);
 
                     if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://", StringComparison.OrdinalIgnoreCase))
                     {
@@ -839,9 +1012,20 @@ namespace gip.core.reporthandlerwpf
                         return null;
                     }
 
-                    string tempPdfPath = Path.Combine(Path.GetTempPath(), $"iplus_{Guid.NewGuid():N}.pdf");
+                    string tempPdfPath;
+                    if (IsRunningUnderWine())
+                    {
+                        string uid = Guid.NewGuid().ToString("N").Substring(0, 8);
+                        tempPdfPath = $@"Z:\tmp\iplus_{uid}.pdf";
+                    }
+                    else
+                    {
+                        tempPdfPath = Path.Combine(Path.GetTempPath(), $"iplus_{Guid.NewGuid():N}.pdf");
+                    }
+
                     File.WriteAllBytes(tempPdfPath, pdfBytes);
 
+                    PrintTicket selectedPrintTicket = null;
                     if (withDialog)
                     {
                         var printDialog = new System.Windows.Controls.PrintDialog();
@@ -853,6 +1037,7 @@ namespace gip.core.reporthandlerwpf
                             {
                                 printerName = pQ.Name;
                                 printMedia = printTicket.PageMediaSize?.PageMediaSizeName.ToString();
+                                selectedPrintTicket = printTicket;
                             }
                         }                        
                         // PrepareDesktopPrinterSelection(tempPdfPath, printerName, copies, printMedia);
@@ -860,7 +1045,7 @@ namespace gip.core.reporthandlerwpf
                         // return null;
                     }
 
-                    bool sentToPrinter = TryPrintPdf(tempPdfPath, printerName, copies, printMedia);
+                    bool sentToPrinter = TryPrintPdf(tempPdfPath, printerName, copies, printMedia, selectedPrintTicket);
                     if (!sentToPrinter)
                         OpenWithDefaultApplication(tempPdfPath);
                 }

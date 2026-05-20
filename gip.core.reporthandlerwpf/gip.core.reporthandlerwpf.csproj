@@ -89,6 +89,7 @@
       <PackagePath>\</PackagePath>
     </None>
     	<PackageReference Include="BarcodeLib"  />
+								<PackageReference Include="PDFtoImage"  />
 		<PackageReference Include="QRCoder"  />
 		<PackageReference Include="QRCoder.Xaml"  />
 		<PackageReference Include="System.Data.DataSetExtensions"  />
