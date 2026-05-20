@@ -102,7 +102,7 @@ Invoke-WebRequest https://localhost:8740/ -UseBasicParsing
 - `127.0.0.1` is different from `localhost` and should also be included in SAN if you use it as URL host.
 - For OAuth/JWT, HTTPS is strongly recommended in all environments.
 - **HTTP ↔ HTTPS URL ACL conflict**: If a previous (non-HTTPS) setup registered `http://+:<port>/`, WCF will fail to start with `HttpListenerException: Failed to listen on prefix 'https://+:<port>/' because it conflicts with an existing registration`. The `generate-certificate.ps1` script automatically removes old `http://` URL ACLs before creating `https://` ones. If you encounter this manually, delete the stale entry: `netsh http delete urlacl url=http://+:<port>/`.
-- WCF `WebServiceHost` internally converts a hostname-based BaseAddress (e.g. `https://mypc:8740/`) into a strong wildcard `https://+:8740/` when registering with HTTP.sys. That is why the `+` wildcard SSL binding and URL ACL are needed.
+- **Localized account names**: `netsh http add urlacl user=Everyone` fails silently on non-English Windows (e.g. German: `Jeder`). The scripts auto-resolve the correct name from the well-known SID `S-1-1-0`. Use `-AclUser` to override if needed.
 
 ## Cleanup (optional)
 
@@ -142,6 +142,7 @@ Optional parameters:
 - `-ValidYears 5`
 - `-SkipUrlAcl` (if URL ACL entries are not needed)
 - `-IncludeWildcardPlus` — also creates a wildcard SSL binding (`ipport=0.0.0.0:<port>`) and URL ACL for `https://+:<port>/`, useful when the service listens on all interfaces
+- `-AclUser "Everyone"` — account name for URL ACL entries (default: `Everyone`). The script auto-resolves the localized name from SID `S-1-1-0` (e.g. `Jeder` on German Windows). Override manually if needed.
 
 The script will:
 
@@ -181,6 +182,7 @@ Optional parameters:
 - `-SkipUrlAcl` (skip URL ACL removal)
 - `-IncludeWildcardPlus` — also removes the wildcard SSL binding (`ipport=0.0.0.0:<port>`) and URL ACL for `https://+:<port>/`
 - `-WhatIf` — preview changes without actually removing anything
+- `-AclUser "Everyone"` — account name used when looking up URL ACL entries (default: `Everyone`, auto-resolved to localized name)
 
 The script removes URL ACL entries for **both** `https://` and `http://` schemes (cleans up legacy non-HTTPS registrations).
 

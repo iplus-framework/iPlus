@@ -18,10 +18,22 @@ param(
 	[switch]$SkipUrlAcl,
 
 	[Parameter(Mandatory = $false)]
-	[switch]$IncludeWildcardPlus
+	[switch]$IncludeWildcardPlus,
+
+	[Parameter(Mandatory = $false)]
+	[string]$AclUser = "Everyone"
 )
 
 $ErrorActionPreference = "Stop"
+
+# Resolve localized account name from well-known SID (e.g. "Jeder" on German Windows)
+try {
+	$resolvedName = ([System.Security.Principal.SecurityIdentifier]::new("S-1-1-0")).Translate([System.Security.Principal.NTAccount]).Value
+	if ($AclUser -eq "Everyone" -and $resolvedName -ne "Everyone") {
+		Write-Host "Resolved 'Everyone' to localized name: $resolvedName"
+		$AclUser = $resolvedName
+	}
+} catch { }
 
 function Test-IsAdministrator {
 	$currentIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -105,7 +117,7 @@ if ($IncludeWildcardPlus) {
 		try { & netsh http delete urlacl "url=$wildcardUrl" 2>&1 | Out-Null } catch { }
 		try { & netsh http delete urlacl "url=$wildcardUrlHttp" 2>&1 | Out-Null } catch { }
 
-		& netsh http add urlacl "url=$wildcardUrl" "user=Everyone" | Out-Null
+		& netsh http add urlacl "url=$wildcardUrl" "user=$AclUser" | Out-Null
 	}
 }
 
@@ -128,7 +140,7 @@ foreach ($hostName in $Hosts) {
 		try { & netsh http delete urlacl "url=$url" 2>&1 | Out-Null } catch { }
 		try { & netsh http delete urlacl "url=$urlHttp" 2>&1 | Out-Null } catch { }
 
-		& netsh http add urlacl "url=$url" "user=Everyone" | Out-Null
+		& netsh http add urlacl "url=$url" "user=$AclUser" | Out-Null
 	}
 }
 

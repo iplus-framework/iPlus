@@ -16,10 +16,22 @@ param(
 	[switch]$SkipUrlAcl,
 
 	[Parameter(Mandatory = $false)]
-	[switch]$IncludeWildcardPlus
+	[switch]$IncludeWildcardPlus,
+
+	[Parameter(Mandatory = $false)]
+	[string]$AclUser = "Everyone"
 )
 
 $ErrorActionPreference = "Stop"
+
+# Resolve localized account name from well-known SID (e.g. "Jeder" on German Windows)
+try {
+	$resolvedName = ([System.Security.Principal.SecurityIdentifier]::new("S-1-1-0")).Translate([System.Security.Principal.NTAccount]).Value
+	if ($AclUser -eq "Everyone" -and $resolvedName -ne "Everyone") {
+		Write-Host "Resolved 'Everyone' to localized name: $resolvedName"
+		$AclUser = $resolvedName
+	}
+} catch { }
 
 function Test-IsAdministrator {
 	$currentIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
