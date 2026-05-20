@@ -214,8 +214,6 @@
     <PackageReference Include="OxyPlot.Avalonia" />
     <PackageReference Include="Markdown.Avalonia" />
     <PackageReference Include="MessageBox.Avalonia" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
     <PackageReference Include="iPlus.RoslynPad.Editor.Avalonia" />
     <PackageReference Include="iPlus.RoslynPad.Roslyn.Avalonia" />
   </ItemGroup>

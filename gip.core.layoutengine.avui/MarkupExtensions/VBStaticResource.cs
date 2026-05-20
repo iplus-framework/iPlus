@@ -16,6 +16,19 @@ using System.Reflection;
 
 namespace gip.core.layoutengine.avui
 {
+    public class VBStaticResource : VBStaticResourceExtension
+    {
+        public VBStaticResource()
+            : base()
+        {
+        }
+
+        public VBStaticResource(object resourceKey)
+            : base(resourceKey)
+        {
+        }
+    }
+
     public class VBStaticResourceExtension : MarkupExtension
     {
         public static object DataTemplateContext
