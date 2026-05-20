@@ -16,6 +16,7 @@
 		<!-- Settings for entity framework main and DOT-NET 10.0 and higher -->
 		<DefaultNetCoreTargetFramework>net10.0</DefaultNetCoreTargetFramework>
 		<UITargetFramework>net10.0-windows</UITargetFramework>
+       <EnableEFDesignTime>False</EnableEFDesignTime>
 		<NetCorePackageVersion>10.0.0</NetCorePackageVersion>
 		<EFCoreBuildFramework>net10.0</EFCoreBuildFramework>
 		<!-- <EFCoreRootDir>../../../ef_main_iPlus</EFCoreRootDir> -->

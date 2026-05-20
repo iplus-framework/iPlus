@@ -1,6 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks Condition="'$(RuntimeIdentifier)' == '' or !$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('win-'))">$(DefaultNetCoreTargetFramework);$(DefaultNetCoreTargetFramework)-android</TargetFrameworks>
+    <BuildAndroidTargetFramework Condition="'$(BuildAndroidTargetFramework)' == '' and !$([MSBuild]::IsOSPlatform('Windows'))">true</BuildAndroidTargetFramework>
+    <BuildAndroidTargetFramework Condition="'$(BuildAndroidTargetFramework)' == ''">false</BuildAndroidTargetFramework>
+    <AndroidTargetFrameworkSuffix Condition="'$(BuildAndroidTargetFramework)' == 'true'">;$(DefaultNetCoreTargetFramework)-android</AndroidTargetFrameworkSuffix>
+    <TargetFrameworks Condition="'$(RuntimeIdentifier)' == '' or !$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('win-'))">$(DefaultNetCoreTargetFramework)$(AndroidTargetFrameworkSuffix)</TargetFrameworks>
     <TargetFramework Condition="'$(RuntimeIdentifier)' != '' and $([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('win-'))">$(DefaultNetCoreTargetFramework)</TargetFramework>
     <OutputType>Library</OutputType>
     <SccProjectName>SAK</SccProjectName>
