@@ -402,6 +402,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>iPlusV4.cs</LastGenOutput>
     </None>
+    <None Include="_doc\improve-import.md" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
