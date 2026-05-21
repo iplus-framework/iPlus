@@ -49,7 +49,7 @@ namespace gip.core.datamodel
         #endregion
 
         #region Properties
-        private bool _IsSerializing = false;
+        private short _IsSerializing = 0;
         private readonly object _Lock = new object();
 
         /// <summary>
@@ -150,7 +150,7 @@ namespace gip.core.datamodel
             string xmlConfig = null;
             lock (_Lock)
             {
-                if (_IsSerializing)
+                if (_IsSerializing > 0)
                     return;
                 xmlConfig = _EntityProperty.XMLConfig;
             }
@@ -173,11 +173,16 @@ namespace gip.core.datamodel
                     {
                         var obj = Serializer.ReadObject(xmlReader2);
                         propertyList = obj as List<ACPropertyExt>;
+                        _IsSerializing = 0;
                     }
                 }
                 catch (Exception e)
                 {
-                    propertyList = new List<ACPropertyExt>();
+                    lock (_Lock)
+                    {
+                        _IsSerializing = -1; // Deserializing-Error => Prevent serializing because configuration in Database could be get lost.
+                        propertyList = new List<ACPropertyExt>();
+                    }
 
                     string msg = e.Message;
                     if (e.InnerException != null && e.InnerException.Message != null)
@@ -231,6 +236,8 @@ namespace gip.core.datamodel
             List<ACPropertyExt> propertyList = null;
             lock (_Lock)
             {
+                if (_IsSerializing < 0)
+                    return; // Deserializing-Error => Prevent serializing because configuration in Database could be get lost.
                 if (_Properties != null)
                     propertyList = _Properties.ToList();
             }
@@ -254,13 +261,13 @@ namespace gip.core.datamodel
                         Serializer.WriteObject(xmlWriter1, propertyList);
                         try
                         {
-                            _IsSerializing = true;
+                            _IsSerializing = 1;
                             _EntityProperty.XMLConfig = sw1.ToString();
-                            _IsSerializing = false;
+                            _IsSerializing = 0;
                         }
                         finally
                         {
-                            _IsSerializing = false;
+                            _IsSerializing = 0;
                         }
                     }
                 }
