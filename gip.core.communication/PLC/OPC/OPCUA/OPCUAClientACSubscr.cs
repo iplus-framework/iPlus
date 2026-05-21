@@ -85,18 +85,30 @@ namespace gip.core.communication
                     Messages.LogDebug(this.GetACUrl(), "OPCUAClientACSubscr.InitSubscription(3)", String.Format("Count OPCProperties: {0}", OPCProperties.Count()));
                     foreach (IACPropertyNetServer opcProperty in OPCProperties)
                     {
-                        OPCItemConfig opcConfig = (OPCItemConfig)(opcProperty.ACType as ACClassProperty)["OPCItemConfig"];
-                        if ((opcConfig != null) && !String.IsNullOrEmpty(opcConfig.OPCAddr))
+                        try
                         {
-                            OPCUAClientMonitoredItem monitoredItem = new OPCUAClientMonitoredItem(opcProperty, opcConfig.OPCAddr, this);
-                            //IACPropertyNetSource opcSourceProperty = opcProperty as IACPropertyNetSource;
-                            //if (opcSourceProperty != null)
-                            //    opcSourceProperty.AdditionalRefs.Add(daItem);
+                            OPCItemConfig opcConfig = (OPCItemConfig)(opcProperty.ACType as ACClassProperty)["OPCItemConfig"];
+                            if ((opcConfig != null) && !String.IsNullOrEmpty(opcConfig.OPCAddr))
+                            {
+                                OPCUAClientMonitoredItem monitoredItem = new OPCUAClientMonitoredItem(opcProperty, opcConfig.OPCAddr, this);
+                                //IACPropertyNetSource opcSourceProperty = opcProperty as IACPropertyNetSource;
+                                //if (opcSourceProperty != null)
+                                //    opcSourceProperty.AdditionalRefs.Add(daItem);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            string msg = e.Message;
+                            if (e.InnerException != null && e.InnerException.Message != null)
+                                msg += " Inner:" + e.InnerException.Message;
+
+                            if (Messages != null)
+                                Messages.LogException(this.GetACUrl(), "InitSubscription(6) " + opcProperty.GetACUrl(), msg);
                         }
                     }
                 }
             }
-            Messages.LogDebug(this.GetACUrl(), "OPCClientSACSubscr.InitSubscription(5)", "Monitored items (OPCProperties) are created.");
+            Messages.LogDebug(this.GetACUrl(), "OPCClientSACSubscr.InitSubscription(7)", "Monitored items (OPCProperties) are created.");
 
             return true;
         }

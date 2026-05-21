@@ -136,21 +136,33 @@ namespace gip.core.communication
                     Messages.LogDebug(this.GetACUrl(), "OPCClientSACSubscr.InitSubscription(3)", String.Format("Count OPCProperties: {0}", OPCProperties.Count()));
                     foreach (IACPropertyNetServer opcProperty in OPCProperties)
                     {
-                        // TODO: Abfrage zweite ACClass-Spalte
-                        OPCItemConfig opcConfig = (OPCItemConfig)(opcProperty.ACType as ACClassProperty)["OPCItemConfig"];
-                        if ((opcConfig != null) && !String.IsNullOrEmpty(opcConfig.OPCAddr))
+                        try
                         {
-                            //Messages.LogDebug(this.GetACUrl(), "OPCClientSACSubscr.InitSubscription(4)", String.Format("Addr: {0}", opcConfig.OPCAddr));
-                            OPCClientSoftingDaItem daItem = new OPCClientSoftingDaItem(opcProperty, opcConfig.OPCAddr, _DaSubscription);
-                            _ItemsCount++;
-                            IACPropertyNetSource opcSourceProperty = opcProperty as IACPropertyNetSource;
-                            if (opcSourceProperty != null)
-                                opcSourceProperty.AdditionalRefs.Add(daItem);
+                            // TODO: Abfrage zweite ACClass-Spalte
+                            OPCItemConfig opcConfig = (OPCItemConfig)(opcProperty.ACType as ACClassProperty)["OPCItemConfig"];
+                            if ((opcConfig != null) && !String.IsNullOrEmpty(opcConfig.OPCAddr))
+                            {
+                                //Messages.LogDebug(this.GetACUrl(), "OPCClientSACSubscr.InitSubscription(4)", String.Format("Addr: {0}", opcConfig.OPCAddr));
+                                OPCClientSoftingDaItem daItem = new OPCClientSoftingDaItem(opcProperty, opcConfig.OPCAddr, _DaSubscription);
+                                _ItemsCount++;
+                                IACPropertyNetSource opcSourceProperty = opcProperty as IACPropertyNetSource;
+                                if (opcSourceProperty != null)
+                                    opcSourceProperty.AdditionalRefs.Add(daItem);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            string msg = e.Message;
+                            if (e.InnerException != null && e.InnerException.Message != null)
+                                msg += " Inner:" + e.InnerException.Message;
+
+                            if (Messages != null)
+                                Messages.LogException(this.GetACUrl(), "InitSubscription(6) " + opcProperty.GetACUrl(), msg);
                         }
                     }
                 }
             }
-            Messages.LogDebug(this.GetACUrl(), "OPCClientSACSubscr.InitSubscription(5)", "");
+            Messages.LogDebug(this.GetACUrl(), "OPCClientSACSubscr.InitSubscription(7)", "");
             _DaSubscription.DataChanged += new DataChangedEventHandler(OnDataChanged);
             _DaSubscription.StateChangeCompleted += OnStateChanged;
             if (IsWriteOnly)

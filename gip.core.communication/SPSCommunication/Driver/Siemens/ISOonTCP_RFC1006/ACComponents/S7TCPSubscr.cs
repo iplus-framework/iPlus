@@ -194,36 +194,48 @@ namespace gip.core.communication
                 Messages.LogDebug(this.GetACUrl(), "S7TCPSubscr.InitSubscription(3)", String.Format("Count S7Properties: {0}", s7Properties.Count()));
                 foreach (IACPropertyNetServer opcProperty in s7Properties)
                 {
-                    OPCItemConfig opcConfig = (OPCItemConfig)(opcProperty.ACType as ACClassProperty)["OPCItemConfig"];
-                    if ((opcConfig != null) && !String.IsNullOrEmpty(opcConfig.OPCAddr))
+                    try
                     {
-                        //Messages.LogDebug(this.GetACUrl(), "S7TCPSubscr.InitSubscription(4)", String.Format("Addr: {0}", opcConfig.OPCAddr));
-                        S7TCPItem daItem = new S7TCPItem(opcProperty, opcConfig.OPCAddr, this);
-                        if (daItem.IsValidItemSyntax)
+                        OPCItemConfig opcConfig = (OPCItemConfig)(opcProperty.ACType as ACClassProperty)["OPCItemConfig"];
+                        if ((opcConfig != null) && !String.IsNullOrEmpty(opcConfig.OPCAddr))
                         {
-                            switch (daItem.ItemDataType)
+                            //Messages.LogDebug(this.GetACUrl(), "S7TCPSubscr.InitSubscription(4)", String.Format("Addr: {0}", opcConfig.OPCAddr));
+                            S7TCPItem daItem = new S7TCPItem(opcProperty, opcConfig.OPCAddr, this);
+                            if (daItem.IsValidItemSyntax)
                             {
-                                case ISOonTCP.DataTypeEnum.DataBlock:
-                                    PLCRAMOfDataBlocks.Add(daItem);
-                                    break;
-                                case ISOonTCP.DataTypeEnum.Input:
-                                case ISOonTCP.DataTypeEnum.Output:
-                                case ISOonTCP.DataTypeEnum.Marker:
-                                case ISOonTCP.DataTypeEnum.Timer:
-                                case ISOonTCP.DataTypeEnum.Counter:
-                                    PLCRAMOfDataBlocks.Add(daItem);
-                                    break;
+                                switch (daItem.ItemDataType)
+                                {
+                                    case ISOonTCP.DataTypeEnum.DataBlock:
+                                        PLCRAMOfDataBlocks.Add(daItem);
+                                        break;
+                                    case ISOonTCP.DataTypeEnum.Input:
+                                    case ISOonTCP.DataTypeEnum.Output:
+                                    case ISOonTCP.DataTypeEnum.Marker:
+                                    case ISOonTCP.DataTypeEnum.Timer:
+                                    case ISOonTCP.DataTypeEnum.Counter:
+                                        PLCRAMOfDataBlocks.Add(daItem);
+                                        break;
+                                }
                             }
+                            else
+                                Messages.LogError(this.GetACUrl(), "S7TCPSubscr.InitSubscription(5)", String.Format("Invalid Item-Syntax: {0}", opcConfig.OPCAddr));
+
+
+                            //_ItemsStartIndexMap.Where(c => c.Key >= 1 && c.Key < 30).Select(c => c.Value).ToList();
                         }
-                        else
-                            Messages.LogError(this.GetACUrl(), "S7TCPSubscr.InitSubscription(5)", String.Format("Invalid Item-Syntax: {0}", opcConfig.OPCAddr));
+                    }
+                    catch (Exception e)
+                    {
+                        string msg = e.Message;
+                        if (e.InnerException != null && e.InnerException.Message != null)
+                            msg += " Inner:" + e.InnerException.Message;
 
-
-                        //_ItemsStartIndexMap.Where(c => c.Key >= 1 && c.Key < 30).Select(c => c.Value).ToList();
+                        if (Messages != null)
+                            Messages.LogException(this.GetACUrl(), "InitSubscription(6) " + opcProperty.GetACUrl(), msg);
                     }
                 }
             }
-            Messages.LogDebug(this.GetACUrl(), "S7TCPSubscr.InitSubscription(5)", "");
+            Messages.LogDebug(this.GetACUrl(), "S7TCPSubscr.InitSubscription(7)", "");
 
             //_DaSubscription.StateChangeCompleted += OnStateChanged;
 
