@@ -47,13 +47,13 @@
                             </local:VBGrid>
                         </local:VBTabItem>
                         <local:VBTabItem Header="Setter">
-                            <local:VBSettersCollectionEditor x:Name="PART_SetterEditor" DockPanel.Dock="Bottom" Visibility="Hidden"/>
+                            <local:VBSettersCollectionEditor x:Name="PART_SetterEditor" DockPanel.Dock="Bottom" />
                         </local:VBTabItem>
                         <local:VBTabItem Header="Enter Actions">
-                            <local:VBActionCollectionEditor x:Name="PART_EnterActionsEditor" Visibility="Hidden" Margin="0,5,0,0"/>
+                            <local:VBActionCollectionEditor x:Name="PART_EnterActionsEditor" Margin="0,5,0,0"/>
                         </local:VBTabItem>
                         <local:VBTabItem Header="Exit Actions">
-                            <local:VBActionCollectionEditor x:Name="PART_ExitActionsEditor" Visibility="Hidden" Margin="0,5,0,0"/>
+                            <local:VBActionCollectionEditor x:Name="PART_ExitActionsEditor" Margin="0,5,0,0"/>
                         </local:VBTabItem>
                     </local:VBTabControl>
                     <ControlTemplate.Triggers>

@@ -39,22 +39,15 @@
                             </local:VBGrid>
                         </local:VBTabItem>
                         <local:VBTabItem Header="Setter">
-                            <local:VBSettersCollectionEditor x:Name="PART_SetterEditor" Visibility="Hidden" Margin="0,5,0,0"/>
+                            <local:VBSettersCollectionEditor x:Name="PART_SetterEditor" Margin="0,5,0,0"/>
                         </local:VBTabItem>
                         <local:VBTabItem Header="Enter Actions">
-                            <local:VBActionCollectionEditor x:Name="PART_EnterActionsEditor" Visibility="Hidden" Margin="0,5,0,0"/>
+                            <local:VBActionCollectionEditor x:Name="PART_EnterActionsEditor" Margin="0,5,0,0"/>
                         </local:VBTabItem>
                         <local:VBTabItem Header="Exit Actions">
-                            <local:VBActionCollectionEditor x:Name="PART_ExitActionsEditor" Visibility="Hidden" Margin="0,5,0,0"/>
+                            <local:VBActionCollectionEditor x:Name="PART_ExitActionsEditor" Margin="0,5,0,0"/>
                         </local:VBTabItem>
                     </local:VBTabControl>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="AreTriggerValuesValid" Value="True">
-                            <Setter TargetName="PART_SetterEditor" Property="Visibility" Value="Visible" />
-                            <Setter TargetName="PART_EnterActionsEditor" Property="Visibility" Value="Visible" />
-                            <Setter TargetName="PART_ExitActionsEditor" Property="Visibility" Value="Visible" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
