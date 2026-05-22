@@ -282,10 +282,20 @@ namespace gip.ext.xamldom
                     AddMappingToNamespace(ns, mapping);
                     if (withPrefixes)
                     {
+                        string selectedXmlNamespace;
+                        bool hasSelectedNamespace = reverseDict.TryGetValue(mapping, out selectedXmlNamespace);
                         foreach (XmlnsPrefixAttribute xmlnsPrefix in assembly.GetCustomAttributes(typeof(XmlnsPrefixAttribute), true))
                         {
                             if (xmlnsPrefix.XmlNamespace == xmlnsDef.XmlNamespace)
                             {
+                                if (!hasSelectedNamespace || selectedXmlNamespace != xmlnsDef.XmlNamespace)
+                                {
+                                    continue;
+                                }
+                                if (xmlnsPrefix.XmlNamespace == XamlConstants.PresentationNamespace)
+                                {
+                                    continue;
+                                }
                                 if (!String.IsNullOrEmpty(xmlnsPrefix.Prefix))
                                 {
                                     string hasPrefix;
@@ -307,10 +317,20 @@ namespace gip.ext.xamldom
                         AddMappingToNamespace(ns, mapping);
                         if (withPrefixes)
                         {
+                            string selectedXmlNamespace;
+                            bool hasSelectedNamespace = reverseDict.TryGetValue(mapping, out selectedXmlNamespace);
                             foreach (XmlnsPrefixAttribute xmlnsPrefix in asm.GetCustomAttributes(typeof(XmlnsPrefixAttribute), true))
                             {
                                 if (xmlnsPrefix.XmlNamespace == xmlnsDef.XmlNamespace)
                                 {
+                                    if (!hasSelectedNamespace || selectedXmlNamespace != xmlnsDef.XmlNamespace)
+                                    {
+                                        continue;
+                                    }
+                                    if (xmlnsPrefix.XmlNamespace == XamlConstants.PresentationNamespace)
+                                    {
+                                        continue;
+                                    }
                                     if (!String.IsNullOrEmpty(xmlnsPrefix.Prefix))
                                     {
                                         string hasPrefix;
