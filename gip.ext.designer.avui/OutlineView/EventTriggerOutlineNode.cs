@@ -48,7 +48,10 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return TriggerItem.Properties["RoutedEvent"];
+                var eventNameProperty = TriggerItem.Properties.HasProperty("EventName");
+                if (eventNameProperty != null)
+                    return eventNameProperty;
+                return TriggerItem.Properties.HasProperty("RoutedEvent");
             }
         }
 
@@ -56,7 +59,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                if (RoutedEventProperty.ValueOnInstance == null)
+                if (RoutedEventProperty == null || RoutedEventProperty.ValueOnInstance == null)
                     return "";
                 return RoutedEventProperty.ValueOnInstance.ToString();
             }
@@ -76,7 +79,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                if (RoutedEventProperty.IsSet)
+                if (RoutedEventProperty != null && RoutedEventProperty.IsSet)
                     return true;
                 return false;
             }
@@ -95,7 +98,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                if (RoutedEventProperty.ValueOnInstance == null)
+                if (RoutedEventProperty == null || RoutedEventProperty.ValueOnInstance == null)
                     return null;
                 return RoutedEventProperty.ValueOnInstance.ToString();
             }

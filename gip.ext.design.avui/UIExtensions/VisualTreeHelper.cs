@@ -341,7 +341,7 @@ namespace gip.ext.design.avui
                 if (transform != null)
                 {
                     visualGeometry = visualGeometry.Clone();
-                    visualGeometry.Transform = (Transform)transform;
+                    visualGeometry.Transform = new MatrixTransform(transform.Value);
                 }
 
                 // Check if the visual bounds are fully inside the test geometry

@@ -6,7 +6,7 @@
    xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid;assembly=gip.ext.designer.avui"
    xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls;assembly=gip.ext.designer.avui">
 
-  <ControlTheme x:Key="{x:Type local:VBBindingEditor}" TargetType="{x:Type local:VBBindingEditor}">
+  <ControlTheme x:Key="{x:Type local:VBBindingEditor}" TargetType="local:VBBindingEditor">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -73,6 +73,20 @@
             <Expander MaxHeight="200" Header="Additional" Margin="0,2,0,0">
               <local:VBScrollViewer>
                 <StackPanel>
+                  <!-- Path row -->
+                  <Grid Margin="0,0,0,2">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="120" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <local:VBTextBlock Grid.Column="0" 
+                                       Text="{Binding Path=Path.Name}" 
+                                       TextTrimming="CharacterEllipsis" 
+                                       VerticalAlignment="Center" />
+                    <ContentControl Grid.Column="1" 
+                                    Content="{Binding Path=Path.Editor}" />
+                  </Grid>
+
                   <!-- ElementName row -->
                   <Grid Margin="0,0,0,2">
                     <Grid.ColumnDefinitions>
@@ -128,74 +142,75 @@
                     <ContentControl Grid.Column="1" 
                                     Content="{Binding Path=UpdateSourceTrigger.Editor}" />
                   </Grid>
-                  
-                  <!-- NotifyOnSourceUpdated row -->
+
+                  <!-- Delay row -->
                   <Grid Margin="0,0,0,2">
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="120" />
                       <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <local:VBTextBlock Grid.Column="0" 
-                                       Text="{Binding Path=NotifyOnSourceUpdated.Name}" 
+                                       Text="{Binding Path=Delay.Name}" 
                                        TextTrimming="CharacterEllipsis" 
                                        VerticalAlignment="Center" />
                     <ContentControl Grid.Column="1" 
-                                    Content="{Binding Path=NotifyOnSourceUpdated.Editor}" />
+                                    Content="{Binding Path=Delay.Editor}" />
                   </Grid>
-                  
-                  <!-- NotifyOnTargetUpdated row -->
+
+                  <!-- Priority row -->
                   <Grid Margin="0,0,0,2">
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="120" />
                       <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <local:VBTextBlock Grid.Column="0" 
-                                       Text="{Binding Path=NotifyOnTargetUpdated.Name}" 
+                                       Text="{Binding Path=Priority.Name}" 
                                        TextTrimming="CharacterEllipsis" 
                                        VerticalAlignment="Center" />
                     <ContentControl Grid.Column="1" 
-                                    Content="{Binding Path=NotifyOnTargetUpdated.Editor}" />
+                                    Content="{Binding Path=Priority.Editor}" />
                   </Grid>
-                  
-                  <!-- NotifyOnValidationError row -->
+
+                  <!-- ConverterCulture row -->
                   <Grid Margin="0,0,0,2">
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="120" />
                       <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <local:VBTextBlock Grid.Column="0" 
-                                       Text="{Binding Path=NotifyOnValidationError.Name}" 
+                                       Text="{Binding Path=ConverterCulture.Name}" 
                                        TextTrimming="CharacterEllipsis" 
                                        VerticalAlignment="Center" />
                     <ContentControl Grid.Column="1" 
-                                    Content="{Binding Path=NotifyOnValidationError.Editor}" />
+                                    Content="{Binding Path=ConverterCulture.Editor}" />
                   </Grid>
-                  
-                  <!--<Grid Margin="0,0,0,2">
-                    <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="120" />
-                      <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <local:VBTextBlock Grid.Column="0" 
-                                       Text="{Binding Path=ValidationRules.Name}" 
-                                       TextTrimming="CharacterEllipsis" 
-                                       VerticalAlignment="Center" />
-                    <ContentControl Grid.Column="1" 
-                                    Content="{Binding Path=ValidationRules.Editor}" />
-                  </Grid>-->
-                  
-                  <!-- BindingGroupName row -->
+
+                  <!-- ConverterParameter row -->
                   <Grid Margin="0,0,0,2">
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="120" />
                       <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <local:VBTextBlock Grid.Column="0" 
-                                       Text="{Binding Path=BindingGroupName.Name}" 
+                                       Text="{Binding Path=ConverterParameter.Name}" 
                                        TextTrimming="CharacterEllipsis" 
                                        VerticalAlignment="Center" />
                     <ContentControl Grid.Column="1" 
-                                    Content="{Binding Path=BindingGroupName.Editor}" />
+                                    Content="{Binding Path=ConverterParameter.Editor}" />
+                  </Grid>
+
+                  <!-- TypeResolver row -->
+                  <Grid Margin="0,0,0,2">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="120" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <local:VBTextBlock Grid.Column="0" 
+                                       Text="{Binding Path=TypeResolver.Name}" 
+                                       TextTrimming="CharacterEllipsis" 
+                                       VerticalAlignment="Center" />
+                    <ContentControl Grid.Column="1" 
+                                    Content="{Binding Path=TypeResolver.Editor}" />
                   </Grid>
                   
                   <!-- FallbackValue row -->
@@ -224,62 +239,6 @@
                                        VerticalAlignment="Center" />
                     <ContentControl Grid.Column="1" 
                                     Content="{Binding Path=TargetNullValue.Editor}" />
-                  </Grid>
-                  
-                  <!-- IsAsync row -->
-                  <Grid Margin="0,0,0,2">
-                    <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="120" />
-                      <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <local:VBTextBlock Grid.Column="0" 
-                                       Text="{Binding Path=IsAsync.Name}" 
-                                       TextTrimming="CharacterEllipsis" 
-                                       VerticalAlignment="Center" />
-                    <ContentControl Grid.Column="1" 
-                                    Content="{Binding Path=IsAsync.Editor}" />
-                  </Grid>
-                  
-                  <!-- ValidatesOnDataErrors row -->
-                  <Grid Margin="0,0,0,2">
-                    <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="120" />
-                      <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <local:VBTextBlock Grid.Column="0" 
-                                       Text="{Binding Path=ValidatesOnDataErrors.Name}" 
-                                       TextTrimming="CharacterEllipsis" 
-                                       VerticalAlignment="Center" />
-                    <ContentControl Grid.Column="1" 
-                                    Content="{Binding Path=ValidatesOnDataErrors.Editor}" />
-                  </Grid>
-                  
-                  <!-- ValidatesOnExceptions row -->
-                  <Grid Margin="0,0,0,2">
-                    <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="120" />
-                      <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <local:VBTextBlock Grid.Column="0" 
-                                       Text="{Binding Path=ValidatesOnExceptions.Name}" 
-                                       TextTrimming="CharacterEllipsis" 
-                                       VerticalAlignment="Center" />
-                    <ContentControl Grid.Column="1" 
-                                    Content="{Binding Path=ValidatesOnExceptions.Editor}" />
-                  </Grid>
-                  
-                  <!-- XPath row -->
-                  <Grid Margin="0,0,0,2">
-                    <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="120" />
-                      <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <local:VBTextBlock Grid.Column="0" 
-                                       Text="{Binding Path=XPath.Name}" 
-                                       TextTrimming="CharacterEllipsis" 
-                                       VerticalAlignment="Center" />
-                    <ContentControl Grid.Column="1" 
-                                    Content="{Binding Path=XPath.Editor}" />
                   </Grid>
                 </StackPanel>
               </local:VBScrollViewer>

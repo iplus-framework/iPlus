@@ -7,6 +7,7 @@ using System.Collections;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Metadata;
 using Avalonia.Styling;
@@ -22,6 +23,11 @@ namespace gip.ext.xamldom.avui
     /// </summary>
     public static class CollectionSupport
     {
+        static bool IsMissingCollectionInstance(object collectionInstance)
+        {
+            return collectionInstance == null || collectionInstance == AvaloniaProperty.UnsetValue;
+        }
+
         /// <summary>
         /// Gets if the type is considered a collection in XAML.
         /// </summary>
@@ -70,7 +76,7 @@ namespace gip.ext.xamldom.avui
         /// </summary>
         public static void AddToCollection(Type collectionType, object collectionInstance, XamlPropertyValue newElement)
         {
-            if (collectionInstance == null)
+            if (IsMissingCollectionInstance(collectionInstance))
                 return;
 
             object value = newElement.GetValueFor(null);
@@ -136,7 +142,7 @@ namespace gip.ext.xamldom.avui
                     return;
                 }
 
-                collectionType.InvokeMember(
+                runtimeType.InvokeMember(
                     "Add", BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Instance,
                     null, collectionInstance,
                     new[] { value },
@@ -149,6 +155,9 @@ namespace gip.ext.xamldom.avui
         /// </summary>
         public static bool Insert(Type collectionType, object collectionInstance, XamlPropertyValue newElement, int index)
         {
+            if (IsMissingCollectionInstance(collectionInstance))
+                return false;
+
             object value = newElement.GetValueFor(null);
 
             // Using IList, with possible Add instead of Insert, was primarily added as a workaround
@@ -169,11 +178,13 @@ namespace gip.ext.xamldom.avui
             }
             else
             {
-                var hasInsert = collectionType.GetMethods().Any(x => x.Name == "Insert");
+                var runtimeType = collectionInstance.GetType();
+                var hasInsert = runtimeType.GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                    .Any(x => x.Name == "Insert");
 
                 if (hasInsert)
                 {
-                    collectionType.InvokeMember(
+                    runtimeType.InvokeMember(
                         "Insert", BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Instance,
                         null, collectionInstance,
                         new object[] { index, value },

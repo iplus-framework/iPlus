@@ -11,6 +11,7 @@ using gip.ext.design.avui;
 using gip.ext.design.avui.PropertyGrid;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.Xaml.Interactivity;
 
 namespace gip.ext.designer.avui.OutlineView
 {
@@ -27,12 +28,23 @@ namespace gip.ext.designer.avui.OutlineView
             if (designObject == null)
                 return;
             _DesignObject = designObject;
-            if ((designObject.View == null) || (designObject.Style == null))
+            if (designObject.View == null)
                 return;
-            DesignItemProperty styleProp = designObject.Properties.GetProperty(Control.ThemeProperty);
-            if (styleProp == null)
+
+            DesignItemProperty triggersProp = designObject.Properties.GetAttachedProperty(Interaction.BehaviorsProperty);
+
+            if (triggersProp == null)
+            {
+                DesignItemProperty styleProp = designObject.Properties.GetProperty(Control.ThemeProperty);
+                if (styleProp != null && styleProp.Value != null)
+                {
+                    triggersProp = styleProp.Value.Properties.GetProperty("Triggers");
+                }
+            }
+
+            if (triggersProp == null)
                 return;
-            DesignItemProperty triggersProp = styleProp.Value.Properties.GetProperty("Triggers");
+
             var triggerEditor = this.FindControl<TriggersCollectionEditor>("TriggerEditor");
             triggerEditor.InitEditor(designObject, triggersProp);
         }

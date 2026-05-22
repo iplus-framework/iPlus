@@ -2,6 +2,8 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.VisualTree;
+using Avalonia.Xaml.Interactivity;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.ext.design.avui;
@@ -40,7 +42,16 @@ namespace gip.core.layoutengine.avui
 
         public static void MainHeaderClick(object sender, RoutedEventArgs e, DesignItem extendedItem, QuickOperationMenu _menu, VBDockingManager DockingManager, string WindowTitle)
         {
-            var clickedOn = e.Source as MenuItem;
+            MenuItem clickedOn = e.Source as MenuItem;
+            if (clickedOn == null && e.Source is Visual sourceVisual)
+            {
+                clickedOn = sourceVisual.FindAncestorOfType<MenuItem>();
+            }
+            if (clickedOn == null)
+            {
+                clickedOn = sender as MenuItem;
+            }
+
             if (clickedOn != null)
             {
                 var parent = clickedOn.Parent as MenuItem;
@@ -50,13 +61,17 @@ namespace gip.core.layoutengine.avui
                     {
                         if (DockingManager != null)
                         {
-                            // TODO:
-                            //var editor = new VBStyleSetterWindow(DockingManager);
-                            //editor.LoadItemsCollection(extendedItem);
-                            //editor.Title = "Style Setter: " + WindowTitle;
-                            //editor.Show(e);
-                            //Rect wndRect = new Rect(DockingManager.PointToScreen(e.GetPosition(DockingManager)).ToPoint(1.0), new Size(750, 400));
-                            //(editor.VBDockingPanel as VBDockingPanelToolWindow).FloatingWindow(wndRect);
+                            var styleProp = extendedItem.Properties.GetProperty(Control.ThemeProperty);
+                            var settersProp = styleProp?.Value?.Properties.GetProperty("Setters");
+                            if (settersProp != null)
+                            {
+                                var editor = new VBSettersCollectionEditor();
+                                editor.InitEditor(extendedItem, settersProp);
+                                _ = DockingManager.ShowFloatingWindowAsync(
+                                    editor,
+                                    "Style Setter: " + WindowTitle,
+                                    new Size(750, 400));
+                            }
                         }
                         return;
                     }
@@ -64,13 +79,25 @@ namespace gip.core.layoutengine.avui
                     {
                         if (DockingManager != null)
                         {
-                            // TODO:
-                            //var editor = new VBStyleTriggerWindow(DockingManager);
-                            //editor.LoadItemsCollection(extendedItem);
-                            //editor.Title = "Style Trigger: " + WindowTitle;
-                            //editor.Show(e);
-                            //Rect wndRect = new Rect(DockingManager.PointToScreen(e.GetPosition(DockingManager)).ToPoint(1.0), new Size(750, 500));
-                            //(editor.VBDockingPanel as VBDockingPanelToolWindow).FloatingWindow(wndRect);
+                            DesignItemProperty triggersProp = extendedItem.Properties.GetAttachedProperty(Interaction.BehaviorsProperty);
+                            if (triggersProp == null)
+                            {
+                                var styleProp = extendedItem.Properties.GetProperty(Control.ThemeProperty);
+                                if (styleProp != null && styleProp.Value != null)
+                                {
+                                    triggersProp = styleProp.Value.Properties.GetProperty("Triggers");
+                                }
+                            }
+
+                            if (triggersProp != null)
+                            {
+                                var editor = new VBTriggersCollectionEditor();
+                                editor.InitEditor(extendedItem, triggersProp);
+                                _ = DockingManager.ShowFloatingWindowAsync(
+                                    editor,
+                                    "Style Trigger: " + WindowTitle,
+                                    new Size(750, 500));
+                            }
                         }
                         return;
                     }

@@ -129,7 +129,10 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return SetterItem.Properties["Property"];
+                var property = SetterItem.Properties.HasProperty("Property");
+                if (property != null)
+                    return property;
+                return SetterItem.Properties.HasProperty("PropertyName");
             }
         }
 
@@ -137,7 +140,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return SetterItem.Properties["Value"];
+                return SetterItem.Properties.HasProperty("Value");
             }
         }
 
@@ -187,8 +190,13 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                if (SetterProperty.ValueOnInstance == null)
+                if (SetterProperty == null || SetterProperty.ValueOnInstance == null)
                     return null;
+
+                var avaloniaProperty = SetterProperty.ValueOnInstance as AvaloniaProperty;
+                if (avaloniaProperty != null)
+                    return avaloniaProperty.Name;
+
                 return SetterProperty.ValueOnInstance.ToString();
             }
         }
@@ -273,7 +281,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get 
             {
-                return SetterTargetProperty;
+                return SetterTargetProperty ?? SetterValue;
             }
         }
 
@@ -397,7 +405,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                if (SetterProperty.IsSet && SetterValue.IsSet)
+                if (SetterProperty != null && SetterValue != null && SetterProperty.IsSet && SetterValue.IsSet)
                     return true;
                 return false;
             }

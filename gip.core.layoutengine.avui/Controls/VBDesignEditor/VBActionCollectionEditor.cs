@@ -1,3 +1,4 @@
+using System;
 using gip.ext.designer.avui.OutlineView;
 
 namespace gip.core.layoutengine.avui
@@ -7,5 +8,7 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBActionCollectionEditor : ActionCollectionEditor
     {
+        protected override Type StyleKeyOverride => typeof(VBActionCollectionEditor);
+
     }
 }

@@ -15,6 +15,8 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Interactivity;
 using Avalonia;
 using Avalonia.Styling;
+using Avalonia.Data;
+using Avalonia.Xaml.Interactions.Core;
 
 namespace gip.ext.designer.avui.OutlineView
 {
@@ -29,6 +31,15 @@ namespace gip.ext.designer.avui.OutlineView
     [CLSCompliant(false)]
     public class TriggersCollectionEditor : TemplatedControl, ITypeEditorInitCollection
     {
+        protected enum TriggerKind
+        {
+            Property,
+            Data,
+            Event,
+            Multi,
+            MultiData
+        }
+
         private static readonly Dictionary<Type, Type> TypeMappings = new Dictionary<Type, Type>();
 
         private DesignItem _DesignObject;
@@ -99,18 +110,107 @@ namespace gip.ext.designer.avui.OutlineView
 
         protected virtual TriggerOutlineNodeBase CreateOutlineNode(DesignItem child, DesignItem designObject)
         {
-            // Note: These trigger types are placeholders for the future BehaviorCollection implementation
-            // In AvaloniaUI, we'll use Xaml Behaviors instead of WPF triggers
-            if (child.ComponentType.Name.Contains("MultiDataTrigger"))
-                return new MultiDataTriggerOutlineNode(child, designObject);
-            else if (child.ComponentType.Name.Contains("MultiTrigger"))
-                return new MultiTriggerOutlineNode(child, designObject);
-            else if (child.ComponentType.Name.Contains("DataTrigger"))
-                return new DataTriggerOutlineNode(child, designObject);
-            else if (child.ComponentType.Name.Contains("EventTrigger"))
-                return new EventTriggerOutlineNode(child, designObject);
-            else if (child.ComponentType.Name.Contains("Trigger"))
-                return new PropertyTriggerOutlineNode(child, designObject);
+            switch (DetermineTriggerKind(child))
+            {
+                case TriggerKind.Property:
+                    return new PropertyTriggerOutlineNode(child, designObject);
+                case TriggerKind.Data:
+                    return new DataTriggerOutlineNode(child, designObject);
+                case TriggerKind.Event:
+                    return new EventTriggerOutlineNode(child, designObject);
+                case TriggerKind.Multi:
+                    return new MultiTriggerOutlineNode(child, designObject);
+                case TriggerKind.MultiData:
+                    return new MultiDataTriggerOutlineNode(child, designObject);
+                default:
+                    return null;
+            }
+        }
+
+        protected virtual TriggerKind DetermineTriggerKind(DesignItem child)
+        {
+            if (child == null || child.ComponentType == null)
+                return TriggerKind.Data;
+
+            if (typeof(EventTriggerBehavior).IsAssignableFrom(child.ComponentType))
+                return TriggerKind.Event;
+
+            if (typeof(MultiDataTriggerBehavior).IsAssignableFrom(child.ComponentType))
+                return IsPropertyBasedMultiTrigger(child) ? TriggerKind.Multi : TriggerKind.MultiData;
+
+            if (typeof(DataTriggerBehavior).IsAssignableFrom(child.ComponentType))
+                return IsPropertyBasedDataTrigger(child) ? TriggerKind.Property : TriggerKind.Data;
+
+            var typeName = child.ComponentType.Name;
+            if (typeName.Contains("EventTrigger"))
+                return TriggerKind.Event;
+            if (typeName.Contains("MultiDataTrigger"))
+                return TriggerKind.MultiData;
+            if (typeName.Contains("MultiTrigger"))
+                return TriggerKind.Multi;
+            if (typeName.Contains("DataTrigger"))
+                return TriggerKind.Data;
+            if (typeName.Contains("Trigger"))
+                return TriggerKind.Property;
+
+            return TriggerKind.Data;
+        }
+
+        protected virtual object CreateNewTrigger(TriggerKind kind)
+        {
+            switch (kind)
+            {
+                case TriggerKind.Property:
+                case TriggerKind.Data:
+                    return new DataTrigger();
+                case TriggerKind.Event:
+                    return new EventTrigger();
+                case TriggerKind.Multi:
+                case TriggerKind.MultiData:
+                    return new MultiDataTrigger();
+                default:
+                    return new DataTrigger();
+            }
+        }
+
+        protected virtual bool IsPropertyBasedDataTrigger(DesignItem child)
+        {
+            var bindingProp = GetProperty(child, "Binding");
+            var binding = bindingProp != null ? bindingProp.ValueOnInstance as Binding : null;
+            return binding != null
+                && binding.RelativeSource != null
+                && binding.RelativeSource.Mode == RelativeSourceMode.Self
+                && !string.IsNullOrWhiteSpace(binding.Path);
+        }
+
+        protected virtual bool IsPropertyBasedMultiTrigger(DesignItem child)
+        {
+            var conditionsProp = GetProperty(child, "Conditions");
+            if (conditionsProp == null || conditionsProp.CollectionElements == null)
+                return false;
+
+            foreach (var condition in conditionsProp.CollectionElements)
+            {
+                var propertyProp = GetProperty(condition, "Property");
+                if (propertyProp != null && propertyProp.ValueOnInstance != null)
+                    return true;
+            }
+
+            return false;
+        }
+
+        protected DesignItemProperty GetProperty(DesignItem item, params string[] names)
+        {
+            if (item == null || item.Properties == null || names == null)
+                return null;
+
+            foreach (string name in names)
+            {
+                var property = item.Properties.HasProperty(name);
+                if (property != null)
+                    return property;
+            }
+
             return null;
         }
 
@@ -122,52 +222,32 @@ namespace gip.ext.designer.avui.OutlineView
 
         private void OnAddPropertyTriggerClicked(object sender, RoutedEventArgs e)
         {
-            // TODO: Replace with appropriate Xaml Behavior when implementing BehaviorCollection
-            // For now, keeping the structure for future adaptation
-            var newTrigger = CreateNewTriggerPlaceholder("PropertyTrigger");
-            DesignItem newTriggerItem = _DesignObject.Services.Component.RegisterComponentForDesigner(newTrigger);
-            _TriggerCollectionProp.CollectionElements.Add(newTriggerItem);
-            
-            TriggerOutlineNodeBase node = CreateOutlineNode(newTriggerItem, _DesignObject);
-            if (node != null)
-            {
-                OutlineNodeCollection.Add(node);
-                if (PART_OutlineList != null)
-                    PART_OutlineList.SelectedItem = node;
-            }
+            AddTrigger(TriggerKind.Property);
         }
 
         private void OnAddDataTriggerClicked(object sender, RoutedEventArgs e)
         {
-            AddTrigger(CreateNewTriggerPlaceholder("DataTrigger"));
+            AddTrigger(TriggerKind.Data);
         }
 
         private void OnAddEventTriggerClicked(object sender, RoutedEventArgs e)
         {
-            AddTrigger(CreateNewTriggerPlaceholder("EventTrigger"));
+            AddTrigger(TriggerKind.Event);
         }
 
         private void OnAddMultiTriggerClicked(object sender, RoutedEventArgs e)
         {
-            AddTrigger(CreateNewTriggerPlaceholder("MultiTrigger"));
+            AddTrigger(TriggerKind.Multi);
         }
 
         private void OnAddMultiDataTriggerClicked(object sender, RoutedEventArgs e)
         {
-            AddTrigger(CreateNewTriggerPlaceholder("MultiDataTrigger"));
+            AddTrigger(TriggerKind.MultiData);
         }
 
-        // Placeholder method for creating trigger objects
-        // This will be replaced with appropriate Xaml Behavior objects in the future
-        private object CreateNewTriggerPlaceholder(string triggerType)
+        private void AddTrigger(TriggerKind kind)
         {
-            // Return a placeholder object that can be registered with the designer
-            // In the final implementation, this will create appropriate Xaml Behavior objects
-            return new TriggerPlaceholder { TriggerType = triggerType };
-        }
-
-        private void AddTrigger(object newTrigger)
-        {
+            var newTrigger = CreateNewTrigger(kind);
             DesignItem newTriggerItem = _DesignObject.Services.Component.RegisterComponentForDesigner(newTrigger);
             _TriggerCollectionProp.CollectionElements.Add(newTriggerItem);
             TriggerOutlineNodeBase node = CreateOutlineNode(newTriggerItem, _DesignObject);
@@ -188,11 +268,5 @@ namespace gip.ext.designer.avui.OutlineView
             selectedNode.Reset();
             _TriggerCollectionProp.CollectionElements.Remove(selectedNode.TriggerItem);
         }
-    }
-
-    // Placeholder class for trigger objects until Xaml Behaviors are implemented
-    public class TriggerPlaceholder
-    {
-        public string TriggerType { get; set; }
     }
 }

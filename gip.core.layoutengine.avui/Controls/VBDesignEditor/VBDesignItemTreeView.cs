@@ -28,6 +28,8 @@ namespace gip.core.layoutengine.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBDesignItemTreeView'}de{'VBDesignItemTreeView'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBDesignItemTreeView : DesignItemTreeView
     {
+        protected override Type StyleKeyOverride => typeof(VBDesignItemTreeView);
+
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>

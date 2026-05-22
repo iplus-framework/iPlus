@@ -32,6 +32,8 @@ namespace gip.core.layoutengine.avui
             AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
         }
 
+        protected override Type StyleKeyOverride => typeof(VBMultiBindingEditor);
+
         #endregion
 
         protected override void CreateWrapper()

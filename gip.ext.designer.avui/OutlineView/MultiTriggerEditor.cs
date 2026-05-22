@@ -14,6 +14,7 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia;
+using Avalonia.Xaml.Interactivity;
 
 namespace gip.ext.designer.avui.OutlineView
 {
@@ -93,7 +94,7 @@ namespace gip.ext.designer.avui.OutlineView
             PART_SetterEditor = e.NameScope.Find("PART_SetterEditor") as SettersCollectionEditor;
             if (PART_SetterEditor != null && _DesignObject != null && _NodeMultiTrigger?.TriggerItem?.Properties != null)
             {
-                var settersProperty = _NodeMultiTrigger.TriggerItem.Properties.GetProperty("Setters");
+                var settersProperty = GetTriggerCollectionProperty("Setters", "Actions");
                 if (settersProperty != null)
                 {
                     PART_SetterEditor.InitEditor(_DesignObject, settersProperty);
@@ -103,7 +104,7 @@ namespace gip.ext.designer.avui.OutlineView
             PART_EnterActionsEditor = e.NameScope.Find("PART_EnterActionsEditor") as ActionCollectionEditor;
             if (PART_EnterActionsEditor != null && _DesignObject != null && _NodeMultiTrigger?.TriggerItem?.Properties != null)
             {
-                var enterActionsProperty = _NodeMultiTrigger.TriggerItem.Properties.GetProperty("EnterActions");
+                var enterActionsProperty = GetTriggerCollectionProperty("EnterActions", "IfActions");
                 if (enterActionsProperty != null)
                 {
                     PART_EnterActionsEditor.InitEditor(_DesignObject, enterActionsProperty);
@@ -113,12 +114,27 @@ namespace gip.ext.designer.avui.OutlineView
             PART_ExitActionsEditor = e.NameScope.Find("PART_ExitActionsEditor") as ActionCollectionEditor;
             if (PART_ExitActionsEditor != null && _DesignObject != null && _NodeMultiTrigger?.TriggerItem?.Properties != null)
             {
-                var exitActionsProperty = _NodeMultiTrigger.TriggerItem.Properties.GetProperty("ExitActions");
+                var exitActionsProperty = GetTriggerCollectionProperty("ExitActions", "ElseActions");
                 if (exitActionsProperty != null)
                 {
                     PART_ExitActionsEditor.InitEditor(_DesignObject, exitActionsProperty);
                 }
             }
+        }
+
+        protected DesignItemProperty GetTriggerCollectionProperty(params string[] names)
+        {
+            if (_NodeMultiTrigger?.TriggerItem?.Properties == null || names == null)
+                return null;
+
+            foreach (var name in names)
+            {
+                var prop = _NodeMultiTrigger.TriggerItem.Properties.HasProperty(name);
+                if (prop != null)
+                    return prop;
+            }
+
+            return null;
         }
 
         private bool _Loaded = false;
@@ -218,9 +234,7 @@ namespace gip.ext.designer.avui.OutlineView
 
             try
             {
-                // Note: Condition class needs to be defined or replaced with appropriate trigger condition type
-                // For now, using a placeholder - this will need to be adapted for StyledElementTrigger
-                var newCondition = new object(); // Replace with actual condition type
+                var newCondition = new Condition();
                 DesignItem newConditionItem = _DesignObject.Services.Component.RegisterComponentForDesigner(newCondition);
                 _NodeMultiTrigger.ConditionsProperty.CollectionElements.Add(newConditionItem);
                 ConditionWrapper newWrapper = OnCreateConditionWrapper(newConditionItem);

@@ -51,14 +51,33 @@ namespace gip.ext.designer.avui.OutlineView
             PART_EnterActionsEditor = e.NameScope.Find<ActionCollectionEditor>("PART_EnterActionsEditor");
             if (PART_EnterActionsEditor != null && _DesignObject != null && _NodeEventTrigger != null)
             {
-                PART_EnterActionsEditor.InitEditor(_DesignObject, _NodeEventTrigger.TriggerItem.Properties["EnterActions"]);
+                var enterActionsProperty = GetTriggerCollectionProperty("Actions", "EnterActions", "IfActions");
+                if (enterActionsProperty != null)
+                    PART_EnterActionsEditor.InitEditor(_DesignObject, enterActionsProperty);
             }
 
             PART_ExitActionsEditor = e.NameScope.Find<ActionCollectionEditor>("PART_ExitActionsEditor");
             if (PART_ExitActionsEditor != null && _DesignObject != null && _NodeEventTrigger != null)
             {
-                PART_ExitActionsEditor.InitEditor(_DesignObject, _NodeEventTrigger.TriggerItem.Properties["ExitActions"]);
+                var exitActionsProperty = GetTriggerCollectionProperty("ExitActions", "ElseActions");
+                if (exitActionsProperty != null)
+                    PART_ExitActionsEditor.InitEditor(_DesignObject, exitActionsProperty);
             }
+        }
+
+        protected DesignItemProperty GetTriggerCollectionProperty(params string[] names)
+        {
+            if (_NodeEventTrigger?.TriggerItem?.Properties == null || names == null)
+                return null;
+
+            foreach (var name in names)
+            {
+                var prop = _NodeEventTrigger.TriggerItem.Properties.HasProperty(name);
+                if (prop != null)
+                    return prop;
+            }
+
+            return null;
         }
 
         private bool _Loaded = false;

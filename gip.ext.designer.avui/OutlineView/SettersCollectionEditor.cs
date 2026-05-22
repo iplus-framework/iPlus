@@ -15,6 +15,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
+using Avalonia.Xaml.Interactions.Core;
 
 namespace gip.ext.designer.avui.OutlineView
 {
@@ -89,11 +90,23 @@ namespace gip.ext.designer.avui.OutlineView
             _DesignObject = designObject;
             _SettersCollectionProp = collectionProperty;
 
+            _OutlineNodeCollection.Clear();
+
             foreach (DesignItem child in _SettersCollectionProp.CollectionElements)
             {
                 _OutlineNodeCollection.Add(new SetterOutlineNode(child, designObject));
             }
             _componentService = designObject.Services.Component;
+        }
+
+        private bool IsBehaviorActionCollection
+        {
+            get
+            {
+                return _SettersCollectionProp != null
+                    && _SettersCollectionProp.Name != null
+                    && _SettersCollectionProp.Name.EndsWith("Actions", StringComparison.Ordinal);
+            }
         }
 
         ObservableCollection<SetterOutlineNode> _OutlineNodeCollection = new ObservableCollection<SetterOutlineNode>();
@@ -104,21 +117,56 @@ namespace gip.ext.designer.avui.OutlineView
 
         private void OnAddItemClicked(object sender, RoutedEventArgs e)
         {
-            if (PART_PropertyGridView.PropertyGrid.SelectedNode != null)
+            if (PART_PropertyGridView == null || PART_PropertyGridView.PropertyGrid == null)
+                return;
+
+            var selectedNode = PART_PropertyGridView.PropertyGrid.SelectedNode;
+            if (selectedNode != null)
             {
-                if (PART_PropertyGridView.PropertyGrid.SelectedNode.IsDependencyProperty)
+                if (selectedNode.IsDependencyProperty)
                 {
-                    if (OutlineNodeCollection.Where(c => (c.SetterTargetProperty != null) && (c.SetterTargetProperty.Name == PART_PropertyGridView.PropertyGrid.SelectedNode.Name)).Any())
+                    if (OutlineNodeCollection.Any(c => string.Equals(c.SetterTargetPropertyName, selectedNode.Name, StringComparison.Ordinal)))
                         return;
-                    Setter newSetter = new Setter();
-                    DesignItem newSetterItem = _DesignObject.Services.Component.RegisterComponentForDesigner(newSetter);
+
+                    DesignItem newSetterItem;
+                    object valueOnInstance = selectedNode.FirstProperty != null
+                        ? selectedNode.FirstProperty.NewClonedValueOnInstance
+                        : null;
+
+                    if (IsBehaviorActionCollection)
+                    {
+                        var newAction = new ChangePropertyAction();
+                        newSetterItem = _DesignObject.Services.Component.RegisterComponentForDesigner(newAction);
+                    }
+                    else
+                    {
+                        Setter newSetter = new Setter();
+                        newSetterItem = _DesignObject.Services.Component.RegisterComponentForDesigner(newSetter);
+                    }
+
                     _SettersCollectionProp.CollectionElements.Add(newSetterItem);
-                    newSetterItem.Properties["Property"].SetValue(PART_PropertyGridView.PropertyGrid.SelectedNode.FirstProperty.DependencyProperty);
-                    object valueOnInstance = PART_PropertyGridView.PropertyGrid.SelectedNode.FirstProperty.NewClonedValueOnInstance;
-                    newSetterItem.Properties["Value"].SetValue(valueOnInstance);
+
+                    if (IsBehaviorActionCollection)
+                    {
+                        var propertyNameProperty = newSetterItem.Properties.HasProperty("PropertyName");
+                        if (propertyNameProperty != null)
+                            propertyNameProperty.SetValue(selectedNode.Name);
+                    }
+                    else
+                    {
+                        var propertyProperty = newSetterItem.Properties.HasProperty("Property");
+                        if (propertyProperty != null && selectedNode.FirstProperty != null)
+                            propertyProperty.SetValue(selectedNode.FirstProperty.DependencyProperty);
+                    }
+
+                    var valueProperty = newSetterItem.Properties.HasProperty("Value");
+                    if (valueProperty != null)
+                        valueProperty.SetValue(valueOnInstance);
+
                     SetterOutlineNode node = new SetterOutlineNode(newSetterItem, _DesignObject);
                     OutlineNodeCollection.Add(node);
-                    PART_PropertyGridView.PropertyGrid.SelectedNode.FirstProperty.Reset();
+                    if (selectedNode.FirstProperty != null)
+                        selectedNode.FirstProperty.Reset();
                     if (node.SetterTargetProperty != null)
                         node.SetterTargetProperty.SetValueOnInstance(valueOnInstance);
                 }

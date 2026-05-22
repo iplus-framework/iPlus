@@ -128,7 +128,7 @@
               </StackPanel>
             </Grid>
             <Border Grid.Row="1" BorderBrush="Black" BorderThickness="0.75" Margin="10">
-              <ContentControl Content="{Binding Editor}" />
+              <ContentControl Content="{ReflectionBinding SelectedItem.Editor, ElementName=PART_OutlineList}" />
             </Border>
           </local:VBGrid>
         </ControlTemplate>

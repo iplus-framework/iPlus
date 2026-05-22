@@ -14,24 +14,29 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBDataTriggerEditor : DataTriggerEditor
     {
+        protected override Type StyleKeyOverride => typeof(VBDataTriggerEditor);
+        
         public override Control TriggerBindingEditor
         {
             get
             {
                 if (_NodeDataTrigger == null)
                     return null;
-                if (_NodeDataTrigger.BindingProperty.ValueOnInstance != null)
+
+                var bindingDesignItem = CurrentBindingDesignItem;
+                var bindingDefinition = CurrentBindingDefinition;
+                if (bindingDefinition != null && bindingDesignItem != null)
                 {
-                    if (_NodeDataTrigger.BindingProperty.ValueOnInstance is MultiBinding)
+                    if (bindingDefinition is MultiBinding)
                     {
                         VBMultiBindingEditor editor = new VBMultiBindingEditor();
-                        editor.InitEditor(_NodeDataTrigger.BindingProperty.Value, _NodeDataTrigger);
+                        editor.InitEditor(bindingDesignItem, _NodeDataTrigger);
                         return editor;
                     }
-                    else if ((_NodeDataTrigger.BindingProperty.ValueOnInstance is Binding) || (_NodeDataTrigger.BindingProperty.ValueOnInstance is VBBindingExt))
+                    else if ((bindingDefinition is Binding) || (bindingDefinition is VBBindingExt))
                     {
                         VBBindingEditor editor = new VBBindingEditor();
-                        editor.InitEditor(_NodeDataTrigger.BindingProperty.Value, _NodeDataTrigger);
+                        editor.InitEditor(bindingDesignItem, _NodeDataTrigger);
                         return editor;
                     }
                 }

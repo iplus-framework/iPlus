@@ -59,20 +59,41 @@ namespace gip.ext.designer.avui.OutlineView
             PART_SetterEditor = e.NameScope.Find<SettersCollectionEditor>("PART_SetterEditor");
             if (PART_SetterEditor != null)
             {
-                PART_SetterEditor.InitEditor(_DesignObject, _NodePropertyTrigger.TriggerItem.Properties["Setters"]);
+                var settersProperty = GetTriggerCollectionProperty("Setters", "Actions");
+                if (settersProperty != null)
+                    PART_SetterEditor.InitEditor(_DesignObject, settersProperty);
             }
 
             PART_EnterActionsEditor = e.NameScope.Find<ActionCollectionEditor>("PART_EnterActionsEditor");
             if (PART_EnterActionsEditor != null)
             {
-                PART_EnterActionsEditor.InitEditor(_DesignObject, _NodePropertyTrigger.TriggerItem.Properties["EnterActions"]);
+                var enterActionsProperty = GetTriggerCollectionProperty("EnterActions", "IfActions");
+                if (enterActionsProperty != null)
+                    PART_EnterActionsEditor.InitEditor(_DesignObject, enterActionsProperty);
             }
 
             PART_ExitActionsEditor = e.NameScope.Find<ActionCollectionEditor>("PART_ExitActionsEditor");
             if (PART_ExitActionsEditor != null)
             {
-                PART_ExitActionsEditor.InitEditor(_DesignObject, _NodePropertyTrigger.TriggerItem.Properties["ExitActions"]);
+                var exitActionsProperty = GetTriggerCollectionProperty("ExitActions", "ElseActions");
+                if (exitActionsProperty != null)
+                    PART_ExitActionsEditor.InitEditor(_DesignObject, exitActionsProperty);
             }
+        }
+
+        protected DesignItemProperty GetTriggerCollectionProperty(params string[] names)
+        {
+            if (_NodePropertyTrigger?.TriggerItem?.Properties == null || names == null)
+                return null;
+
+            foreach (var name in names)
+            {
+                var prop = _NodePropertyTrigger.TriggerItem.Properties.HasProperty(name);
+                if (prop != null)
+                    return prop;
+            }
+
+            return null;
         }
 
         private bool _Loaded = false;

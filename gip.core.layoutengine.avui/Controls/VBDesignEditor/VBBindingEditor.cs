@@ -27,6 +27,8 @@ namespace gip.core.layoutengine.avui
             AddHandler(DragDrop.DropEvent, OnDrop);
             AddHandler(DragDrop.DragOverEvent, OnDragOver);
         }
+
+        protected override Type StyleKeyOverride => typeof(VBBindingEditor);
         #endregion
 
         protected override void CreateWrapper()
@@ -92,24 +94,24 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                if (_DesignObjectBinding == null)
+                IACComponentDesignManager designManager = ResolveDesignManager();
+                if (designManager == null)
                     return null;
-                var foundEditor = VBVisualTreeHelper.FindParentObjectInVisualTree(_DesignObjectBinding.Context.Services.DesignPanel as Control, typeof(VBDesignEditor));
-                // Use direct cast check instead of 'as' operator  
-                if (foundEditor != null && foundEditor.GetType().Name == "VBDesignEditor")
-                {
-                    // Use reflection to call GetDesignManager since we can't directly cast
-                    var getDesignManagerMethod = foundEditor.GetType().GetMethod("GetDesignManager");
-                    if (getDesignManagerMethod != null)
-                    {
-                        var designManager = getDesignManagerMethod.Invoke(foundEditor, new object[] { }) as IACComponentDesignManager;
-                        if (designManager == null)
-                            return null;
-                        return designManager.CurrentDesignContext;
-                    }
-                }
-                return null;
+                return designManager.CurrentDesignContext;
             }
+        }
+
+        private IACComponentDesignManager ResolveDesignManager()
+        {
+            if (_DesignObjectBinding == null)
+                return null;
+
+            Control designPanel = _DesignObjectBinding.Context.Services.DesignPanel as Control;
+            VBDesignEditor foundEditor = VBVisualTreeHelper.FindParentObjectInVisualTree(designPanel, typeof(VBDesignEditor)) as VBDesignEditor;
+            if (foundEditor == null)
+                return null;
+
+            return foundEditor.GetDesignManager(false);
         }
 
         #region DragAndDrop
@@ -344,20 +346,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                if (_DesignObjectBinding == null)
-                    return null;
-                var foundEditor = VBVisualTreeHelper.FindParentObjectInVisualTree(_DesignObjectBinding.Context.Services.DesignPanel as Control, typeof(VBDesignEditor));
-                // Use direct cast check instead of 'as' operator  
-                if (foundEditor != null && foundEditor.GetType().Name == "VBDesignEditor")
-                {
-                    // Use reflection to call GetDesignManager since we can't directly cast
-                    var getDesignManagerMethod = foundEditor.GetType().GetMethod("GetDesignManager");
-                    if (getDesignManagerMethod != null)
-                    {
-                        return getDesignManagerMethod.Invoke(foundEditor, new object[] { }) as IACComponentDesignManager;
-                    }
-                }
-                return null;
+                return ResolveDesignManager();
             }
         }
         #endregion

@@ -18,19 +18,25 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBTriggersCollectionEditor : TriggersCollectionEditor
     {
+        protected override Type StyleKeyOverride => typeof(VBTriggersCollectionEditor);
+
         protected override TriggerOutlineNodeBase CreateOutlineNode(DesignItem child, DesignItem designObject)
         {
-            if (child.ComponentType.Name.Contains("MultiDataTrigger"))
-                return new VBMultiDataTriggerOutlineNode(child, designObject);
-            else if (child.ComponentType.Name.Contains("MultiTrigger"))
-                return new VBMultiTriggerOutlineNode(child, designObject);
-            else if (child.ComponentType.Name.Contains("DataTrigger"))
-                return new VBDataTriggerOutlineNode(child, designObject);
-            else if (child.ComponentType.Name.Contains("EventTrigger"))
-                return new VBEventTriggerOutlineNode(child, designObject);
-            else if (child.ComponentType.Name.Contains("Trigger"))
-                return new VBPropertyTriggerOutlineNode(child, designObject);
-            return null;
+            switch (DetermineTriggerKind(child))
+            {
+                case TriggerKind.Property:
+                    return new VBPropertyTriggerOutlineNode(child, designObject);
+                case TriggerKind.Data:
+                    return new VBDataTriggerOutlineNode(child, designObject);
+                case TriggerKind.Event:
+                    return new VBEventTriggerOutlineNode(child, designObject);
+                case TriggerKind.Multi:
+                    return new VBMultiTriggerOutlineNode(child, designObject);
+                case TriggerKind.MultiData:
+                    return new VBMultiDataTriggerOutlineNode(child, designObject);
+                default:
+                    return null;
+            }
         }
 
     }

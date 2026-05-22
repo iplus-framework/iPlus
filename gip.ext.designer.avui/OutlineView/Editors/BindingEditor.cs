@@ -14,7 +14,6 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
 using Avalonia.Data;
-using Avalonia.Markup.Xaml;
 using Avalonia;
 
 namespace gip.ext.designer.avui.OutlineView
@@ -32,12 +31,7 @@ namespace gip.ext.designer.avui.OutlineView
 
         public BindingEditor() : base()
         {
-            this.InitializeComponent();
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
+            // TemplatedControl uses ControlTheme resources; no per-control XAML load is required.
         }
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)

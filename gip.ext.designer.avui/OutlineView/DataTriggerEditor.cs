@@ -69,20 +69,41 @@ namespace gip.ext.designer.avui.OutlineView
             PART_SetterEditor = e.NameScope.Find("PART_SetterEditor") as SettersCollectionEditor;
             if (PART_SetterEditor != null && _DesignObject != null && _NodeDataTrigger != null)
             {
-                PART_SetterEditor.InitEditor(_DesignObject, _NodeDataTrigger.TriggerItem.Properties["Setters"]);
+                var settersProperty = GetTriggerCollectionProperty("Setters", "Actions");
+                if (settersProperty != null)
+                    PART_SetterEditor.InitEditor(_DesignObject, settersProperty);
             }
 
             PART_EnterActionsEditor = e.NameScope.Find("PART_EnterActionsEditor") as ActionCollectionEditor;
             if (PART_EnterActionsEditor != null && _DesignObject != null && _NodeDataTrigger != null)
             {
-                PART_EnterActionsEditor.InitEditor(_DesignObject, _NodeDataTrigger.TriggerItem.Properties["EnterActions"]);
+                var enterActionsProperty = GetTriggerCollectionProperty("EnterActions", "IfActions");
+                if (enterActionsProperty != null)
+                    PART_EnterActionsEditor.InitEditor(_DesignObject, enterActionsProperty);
             }
 
             PART_ExitActionsEditor = e.NameScope.Find("PART_ExitActionsEditor") as ActionCollectionEditor;
             if (PART_ExitActionsEditor != null && _DesignObject != null && _NodeDataTrigger != null)
             {
-                PART_ExitActionsEditor.InitEditor(_DesignObject, _NodeDataTrigger.TriggerItem.Properties["ExitActions"]);
+                var exitActionsProperty = GetTriggerCollectionProperty("ExitActions", "ElseActions");
+                if (exitActionsProperty != null)
+                    PART_ExitActionsEditor.InitEditor(_DesignObject, exitActionsProperty);
             }
+        }
+
+        protected DesignItemProperty GetTriggerCollectionProperty(params string[] names)
+        {
+            if (_NodeDataTrigger?.TriggerItem?.Properties == null || names == null)
+                return null;
+
+            foreach (var name in names)
+            {
+                var prop = _NodeDataTrigger.TriggerItem.Properties.HasProperty(name);
+                if (prop != null)
+                    return prop;
+            }
+
+            return null;
         }
 
         private bool _Loaded = false;
@@ -158,24 +179,43 @@ namespace gip.ext.designer.avui.OutlineView
             set { SetValue(AreTriggerValuesValidProperty, value); }
         }
 
+        protected DesignItem CurrentBindingDesignItem
+        {
+            get
+            {
+                return _NodeDataTrigger?.BindingProperty?.Value;
+            }
+        }
+
+        protected object CurrentBindingDefinition
+        {
+            get
+            {
+                return CurrentBindingDesignItem?.Component ?? _NodeDataTrigger?.BindingProperty?.ValueOnInstance;
+            }
+        }
+
         public virtual Control TriggerBindingEditor
         {
             get
             {
                 if (_NodeDataTrigger == null)
                     return null;
-                if (_NodeDataTrigger.BindingProperty.ValueOnInstance != null)
+
+                var bindingDesignItem = CurrentBindingDesignItem;
+                var bindingDefinition = CurrentBindingDefinition;
+                if (bindingDefinition != null && bindingDesignItem != null)
                 {
-                    if (_NodeDataTrigger.BindingProperty.ValueOnInstance is MultiBinding)
+                    if (bindingDefinition is MultiBinding)
                     {
                         MultiBindingEditor editor = new MultiBindingEditor();
-                        editor.InitEditor(_NodeDataTrigger.BindingProperty.Value, _NodeDataTrigger);
+                        editor.InitEditor(bindingDesignItem, _NodeDataTrigger);
                         return editor;
                     }
-                    else if (_NodeDataTrigger.BindingProperty.ValueOnInstance is Binding)
+                    else if (bindingDefinition is Binding)
                     {
                         BindingEditor editor = new BindingEditor();
-                        editor.InitEditor(_NodeDataTrigger.BindingProperty.Value, _NodeDataTrigger);
+                        editor.InitEditor(bindingDesignItem, _NodeDataTrigger);
                         return editor;
                     }
                 }
@@ -220,7 +260,7 @@ namespace gip.ext.designer.avui.OutlineView
                 return;
             if (!_NodeDataTrigger.IsEnabled)
                 return;
-            if (_NodeDataTrigger.BindingProperty.ValueOnInstance != null)
+            if (_NodeDataTrigger.BindingProperty.IsSet)
             {
                 UpdatePARTBindingEditor(null);
                 _NodeDataTrigger.BindingProperty.Reset();
@@ -238,7 +278,7 @@ namespace gip.ext.designer.avui.OutlineView
                 return;
             if (!_NodeDataTrigger.IsEnabled)
                 return;
-            if (_NodeDataTrigger.BindingProperty.ValueOnInstance != null)
+            if (_NodeDataTrigger.BindingProperty.IsSet)
             {
                 UpdatePARTBindingEditor(null);
                 _NodeDataTrigger.BindingProperty.Reset();

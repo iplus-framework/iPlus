@@ -399,11 +399,11 @@ namespace gip.ext.design.avui
             while (v != null)
             {
                 var ltctl = v as LayoutTransformControl;
-                if (ltctl != null && ltctl.LayoutTransform != null && ltctl.LayoutTransform is Transform layoutTransform)
-                    retVal.Children.Add(layoutTransform);
+                if (ltctl?.LayoutTransform is { } layoutTransform)
+                    retVal.Children.Add(layoutTransform as Transform ?? new MatrixTransform(layoutTransform.Value));
                 var fe = v as Control;
-                if (fe != null && fe.RenderTransform != null && fe.RenderTransform is Transform renderTransform)
-                    retVal.Children.Add(renderTransform);
+                if (fe?.RenderTransform is { } renderTransform)
+                    retVal.Children.Add(renderTransform as Transform ?? new MatrixTransform(renderTransform.Value));
                 //if (v is CompositionVisual && ((CompositionVisual)v).Transform != null)
                 //{
                 //    retVal.Children.Add(((CompositionVisual)v).Transform);

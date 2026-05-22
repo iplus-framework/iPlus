@@ -1,6 +1,7 @@
 ﻿using Avalonia.Controls;
 using gip.ext.design.avui;
 using gip.ext.design.avui.PropertyGrid;
+using Avalonia.Xaml.Interactivity;
 
 namespace gip.core.layoutengine.avui
 {
@@ -29,12 +30,23 @@ namespace gip.core.layoutengine.avui
             if (designObject == null)
                 return;
             _DesignObject = designObject;
-            if ((designObject.View == null) || (designObject.Style == null))
+            if (designObject.View == null)
                 return;
-            DesignItemProperty styleProp = designObject.Properties.GetProperty(ThemeProperty);
-            if (styleProp == null)
+
+            DesignItemProperty triggersProp = designObject.Properties.GetAttachedProperty(Interaction.BehaviorsProperty);
+
+            if (triggersProp == null)
+            {
+                DesignItemProperty styleProp = designObject.Properties.GetProperty(ThemeProperty);
+                if (styleProp != null && styleProp.Value != null)
+                {
+                    triggersProp = styleProp.Value.Properties.GetProperty("Triggers");
+                }
+            }
+
+            if (triggersProp == null)
                 return;
-            DesignItemProperty triggersProp = styleProp.Value.Properties.GetProperty("Triggers");
+
             TriggerEditor.InitEditor(designObject, triggersProp);
         }
 

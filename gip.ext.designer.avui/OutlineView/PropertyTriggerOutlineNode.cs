@@ -15,6 +15,7 @@ using gip.ext.design.avui.PropertyGrid;
 using System.Reflection;
 using Avalonia.Controls;
 using Avalonia;
+using Avalonia.Data;
 using Avalonia.Markup.Xaml;
 
 namespace gip.ext.designer.avui.OutlineView
@@ -47,7 +48,10 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return TriggerItem.Properties["Property"];
+                var property = TriggerItem.Properties.HasProperty("Property");
+                if (property != null)
+                    return property;
+                return TriggerItem.Properties.HasProperty("Binding");
             }
         }
 
@@ -55,7 +59,15 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return TriggerItem.Properties["Value"];
+                return TriggerItem.Properties.HasProperty("Value");
+            }
+        }
+
+        private bool IsBindingBasedTrigger
+        {
+            get
+            {
+                return TriggerItem.Properties.HasProperty("Property") == null;
             }
         }
 
@@ -97,7 +109,7 @@ namespace gip.ext.designer.avui.OutlineView
             {
                 if (String.IsNullOrEmpty(TriggerTargetPropertyName))
                     return null;
-                return _DesignObject.Properties[TriggerTargetPropertyName];
+                return _DesignObject.Properties.HasProperty(TriggerTargetPropertyName);
             }
         }
 
@@ -107,7 +119,7 @@ namespace gip.ext.designer.avui.OutlineView
             {
                 if (TriggerTargetProperty != null)
                 {
-                    if (TriggerValue.ValueOnInstance != null)
+                    if (TriggerValue != null && TriggerValue.ValueOnInstance != null)
                         return TriggerTargetProperty.Name + " = " + TriggerValue.ValueOnInstance.ToString();
                     return TriggerTargetProperty.Name;
                 }
@@ -119,15 +131,52 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                if (TriggerProperty.ValueOnInstance == null)
+                if (TriggerProperty == null || TriggerProperty.ValueOnInstance == null)
                     return "";
+
+                if (IsBindingBasedTrigger)
+                {
+                    var binding = TriggerProperty.ValueOnInstance as Binding;
+                    if (binding != null)
+                        return binding.Path;
+                }
+
+                var avaloniaProperty = TriggerProperty.ValueOnInstance as AvaloniaProperty;
+                if (avaloniaProperty != null)
+                    return avaloniaProperty.Name;
+
                 return TriggerProperty.ValueOnInstance.ToString();
             }
             set
             {
                 if (!IsEnabled)
                     return;
-                TriggerProperty.SetValue(value);
+
+                if (TriggerProperty == null)
+                    return;
+
+                _TargetPropertyInfo = null;
+
+                if (IsBindingBasedTrigger)
+                {
+                    if (string.IsNullOrWhiteSpace(value))
+                    {
+                        TriggerProperty.Reset();
+                    }
+                    else
+                    {
+                        TriggerProperty.SetValue(new Binding
+                        {
+                            Path = value,
+                            RelativeSource = new RelativeSource(RelativeSourceMode.Self)
+                        });
+                    }
+                }
+                else
+                {
+                    TriggerProperty.SetValue(value);
+                }
+
                 RaisePropertyChanged("TriggerTargetPropertyName");
                 RaisePropertyChanged("TriggerTargetPropertyInfo");
                 RaisePropertyChanged("TriggerTargetProperty");
@@ -139,7 +188,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                if (TriggerProperty.IsSet && TriggerValue.IsSet)
+                if (TriggerProperty != null && TriggerValue != null && TriggerProperty.IsSet && TriggerValue.IsSet)
                     return true;
                 return false;
             }
@@ -218,7 +267,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get 
             {
-                return TriggerValue;
+                return TriggerValue ?? TriggerProperty;
             }
         }
 
@@ -288,6 +337,8 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
+                if (TriggerValue == null)
+                    return null;
                 return TriggerValue.Value;
             }
 

@@ -134,17 +134,24 @@ namespace gip.ext.designer.avui.Controls
 
 		protected override void OnPointerReleased(PointerReleasedEventArgs e)
 		{
-            var pointer = e.GetCurrentPoint(this);
-            if (pan && !pointer.Properties.IsMiddleButtonPressed && !e.KeyModifiers.HasFlag(KeyModifiers.Control))
-            {
-                pan = false;
-                UpdateCursor();
-            }
+			try
+			{
+				if (pan && !e.Properties.IsMiddleButtonPressed && !e.KeyModifiers.HasFlag(KeyModifiers.Control))
+				{
+					pan = false;
+					UpdateCursor();
+				}
 
-            if (isMouseDown) {
-				isMouseDown = false;
-				e.Pointer.Capture(null);
-				UpdateCursor();
+				if (isMouseDown) {
+					isMouseDown = false;
+					e.Pointer.Capture(null);
+					UpdateCursor();
+				}
+			}
+			catch (Exception /*ex*/)
+			{
+				// Log the exception if necessary
+				// For now, we just ignore it to prevent crashes
 			}
 			base.OnPointerReleased(e);
 		}

@@ -9,8 +9,21 @@
     <Setter Property="Template">
       <ControlTemplate TargetType="OutlineView:BindingEditor">
         <StackPanel>
+          <ContentControl Content="{Binding Path.Editor}" />
           <ContentControl Content="{Binding Mode.Editor}" />
           <ContentControl Content="{Binding StringFormat.Editor}" />
+          <ContentControl Content="{Binding ConverterEditor}" />
+          <ContentControl Content="{Binding ConverterParameter.Editor}" />
+          <ContentControl Content="{Binding ConverterCulture.Editor}" />
+          <ContentControl Content="{Binding UpdateSourceTrigger.Editor}" />
+          <ContentControl Content="{Binding Delay.Editor}" />
+          <ContentControl Content="{Binding Priority.Editor}" />
+          <ContentControl Content="{Binding ElementName.Editor}" />
+          <ContentControl Content="{Binding Source.Editor}" />
+          <ContentControl Content="{Binding RelativeSource.Editor}" />
+          <ContentControl Content="{Binding FallbackValue.Editor}" />
+          <ContentControl Content="{Binding TargetNullValue.Editor}" />
+          <ContentControl Content="{Binding TypeResolver.Editor}" />
         </StackPanel>
       </ControlTemplate>
     </Setter>

@@ -66,8 +66,8 @@
 		<PackageVersion Include="Avalonia.Controls.DataGrid" Version="$(AvaloniaVersion)" />
 		<PackageVersion Include="Avalonia.Desktop" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.Diagnostics" Version="11.3.14" />
-		<PackageVersion Include="Avalonia.Headless.XUnit" Version="$(AvaloniaVersion)" />
-		<PackageVersion Include="Avalonia.Headless.NUnit" Version="$(AvaloniaVersion)" />
+		<PackageVersion Include="Avalonia.Headless.XUnit" Version="$(AvaloniaVersionLatest)" />
+		<PackageVersion Include="Avalonia.Headless.NUnit" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.iOS" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.ReactiveUI" Version="11.3.9" />

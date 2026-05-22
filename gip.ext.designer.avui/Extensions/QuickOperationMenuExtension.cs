@@ -9,11 +9,13 @@ using gip.ext.designer.avui.PropertyGrid.Editors;
 using gip.ext.design.avui;
 using gip.ext.designer.avui.OutlineView;
 using gip.core.datamodel;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Interactivity;
+using Avalonia.VisualTree;
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -261,10 +263,15 @@ namespace gip.ext.designer.avui.Extensions
             {
                 if (item is MenuItem mi)
                 {
-                    mi.Click += OnSubMenuItemClick;
+                    mi.AddHandler(InputElement.PointerPressedEvent, OnSubMenuPointerPressed, RoutingStrategies.Bubble, true);
                     AttachClickHandlers(mi);
                 }
             }
+        }
+
+        private void OnSubMenuPointerPressed(object sender, PointerPressedEventArgs e)
+        {
+            OnSubMenuItemClick(sender, e);
         }
 
         public virtual void OnSubMenuItemClick(object sender, RoutedEventArgs e)
@@ -274,7 +281,16 @@ namespace gip.ext.designer.avui.Extensions
 
         public static void MainHeader_PointerPressed(object sender, RoutedEventArgs e, DesignItem extendedItem, QuickOperationMenu _menu)
         {
-            var clickedOn = e.Source as MenuItem;
+            MenuItem clickedOn = e.Source as MenuItem;
+            if (clickedOn == null && e.Source is Visual sourceVisual)
+            {
+                clickedOn = sourceVisual.FindAncestorOfType<MenuItem>();
+            }
+            if (clickedOn == null)
+            {
+                clickedOn = sender as MenuItem;
+            }
+
             if (clickedOn != null)
             {
                 var parent = clickedOn.Parent as MenuItem;

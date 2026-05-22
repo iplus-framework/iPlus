@@ -28,7 +28,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                string result = Path.ValueString + ElementName.ValueString + Source.ValueString;
+                string result = FindPropertyValueString("Path") + FindPropertyValueString("ElementName") + FindPropertyValueString("Source");
                 if (VBContent != null)
                 {
                     if (!String.IsNullOrEmpty(VBContent.ValueString))

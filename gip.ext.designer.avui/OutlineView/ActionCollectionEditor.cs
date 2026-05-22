@@ -14,6 +14,7 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Controls;
 using Avalonia;
 using Avalonia.Interactivity;
+using Avalonia.Xaml.Interactions.Core;
 
 namespace gip.ext.designer.avui.OutlineView
 {
@@ -84,6 +85,8 @@ namespace gip.ext.designer.avui.OutlineView
             _DesignObject = designObject;
             _ActionCollectionProp = collectionProperty;
 
+            _OutlineNodeCollection.Clear();
+
             foreach (DesignItem child in _ActionCollectionProp.CollectionElements)
             {
                 _OutlineNodeCollection.Add(new ActionOutlineNode(child, designObject));
@@ -99,25 +102,18 @@ namespace gip.ext.designer.avui.OutlineView
 
         private void OnAddItemClicked(object sender, RoutedEventArgs e)
         {
-            //if (PART_PropertyGridView.PropertyGrid.SelectedNode != null)
-            //{
-            //    if (PART_PropertyGridView.PropertyGrid.SelectedNode.IsDependencyProperty)
-            //    {
-            //        if (OutlineNodeCollection.Where(c => (c.SetterTargetProperty != null) && (c.SetterTargetProperty.Name == PART_PropertyGridView.PropertyGrid.SelectedNode.Name)).Any())
-            //            return;
-            //        // TODO: In future adaptation, replace Setter with ChangePropertyAction
-            //        Setter newSetter = new Setter();
-            //        DesignItem newSetterItem = _DesignObject.Services.Component.RegisterComponentForDesigner(newSetter);
-            //        _ActionCollectionProp.CollectionElements.Add(newSetterItem);
-            //        newSetterItem.Properties["Property"].SetValue(PART_PropertyGridView.PropertyGrid.SelectedNode.FirstProperty.DependencyProperty);
-            //        object valueOnInstance = PART_PropertyGridView.PropertyGrid.SelectedNode.FirstProperty.NewClonedValueOnInstance;
-            //        newSetterItem.Properties["Value"].SetValue(valueOnInstance);
-            //        ActionOutlineNode node = new ActionOutlineNode(newSetterItem, _DesignObject);
-            //        OutlineNodeCollection.Add(node);
-            //        PART_PropertyGridView.PropertyGrid.SelectedNode.FirstProperty.Reset();
-            //        node.SetterTargetProperty.SetValueOnInstance(valueOnInstance);
-            //    }
-            //}
+            if (_DesignObject == null || _ActionCollectionProp == null)
+                return;
+
+            var newAction = new ChangePropertyAction();
+            DesignItem newActionItem = _DesignObject.Services.Component.RegisterComponentForDesigner(newAction);
+            _ActionCollectionProp.CollectionElements.Add(newActionItem);
+
+            ActionOutlineNode node = new ActionOutlineNode(newActionItem, _DesignObject);
+            OutlineNodeCollection.Add(node);
+
+            if (PART_OutlineList != null)
+                PART_OutlineList.SelectedItem = node;
         }
 
         private void OnRemoveItemClicked(object sender, RoutedEventArgs e)

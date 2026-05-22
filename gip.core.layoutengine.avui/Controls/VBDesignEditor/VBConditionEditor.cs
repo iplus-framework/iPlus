@@ -16,6 +16,8 @@ namespace gip.core.layoutengine.avui
     public class VBConditionEditor : ConditionEditor
     {
 
+        protected override Type StyleKeyOverride => typeof(VBConditionEditor);
+
         protected override void CreateWrapper()
         {
             //if (_DesignObjectCondition.Component is Condition)

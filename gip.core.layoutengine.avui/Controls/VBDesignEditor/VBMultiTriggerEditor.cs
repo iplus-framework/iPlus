@@ -1,3 +1,4 @@
+using System;
 using gip.ext.design.avui;
 using gip.ext.designer.avui.OutlineView;
 
@@ -8,6 +9,8 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBMultiTriggerEditor : MultiTriggerEditor
     {
+        protected override Type StyleKeyOverride => typeof(VBMultiTriggerEditor);
+
         protected override ConditionWrapper OnCreateConditionWrapper(DesignItem designObjectCondition)
         {
             return new VBConditionWrapper(designObjectCondition, _NodeMultiTrigger);

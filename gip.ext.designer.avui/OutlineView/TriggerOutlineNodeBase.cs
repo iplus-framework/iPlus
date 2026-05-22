@@ -206,8 +206,19 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get 
             {
-                if ((TriggerItem.Component != null)) // && (TriggerItem.Component as StyledElementTrigger).IsSealed)
-                    return false;
+                if (TriggerItem?.Component == null)
+                    return true;
+
+                // Keep WPF-era intent (non-editable only when trigger object is sealed)
+                // while supporting Avalonia/Xaml.Behaviors objects that don't expose IsSealed.
+                var isSealedProperty = TriggerItem.Component.GetType().GetProperty("IsSealed", BindingFlags.Public | BindingFlags.Instance);
+                if (isSealedProperty != null && isSealedProperty.PropertyType == typeof(bool))
+                {
+                    var value = isSealedProperty.GetValue(TriggerItem.Component);
+                    if (value is bool sealedValue)
+                        return !sealedValue;
+                }
+
                 return true;
             }
         }

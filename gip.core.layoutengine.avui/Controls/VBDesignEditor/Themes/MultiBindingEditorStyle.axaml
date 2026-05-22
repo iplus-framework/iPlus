@@ -23,7 +23,7 @@
                              ItemsSource="{Binding Path=BindingsCollection}" 
                              ShowCaption="False">
               <ListBox.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate DataType="OutlineView:BindingEditorWrapperSingle">
                   <local:VBTextBlock Text="{Binding Description}" />
                 </DataTemplate>
               </ListBox.ItemTemplate>
@@ -41,6 +41,117 @@
                                    IsVisible="{Binding Path=ConverterEditor, Converter={x:Static ObjectConverters.IsNotNull}}" />
                 <ContentControl x:Name="ConverterEditor" Content="{Binding Path=ConverterEditor}" />
               </StackPanel>
+
+              <Expander Header="Additional" Margin="0,0,0,6">
+                <local:VBScrollViewer MaxHeight="200">
+                  <StackPanel>
+                    <Grid Margin="0,0,0,2">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <local:VBTextBlock Grid.Column="0"
+                                         Text="{Binding Path=Mode.Name}"
+                                         TextTrimming="CharacterEllipsis"
+                                         VerticalAlignment="Center" />
+                      <ContentControl Grid.Column="1"
+                                      Content="{Binding Path=Mode.Editor}" />
+                    </Grid>
+
+                    <Grid Margin="0,0,0,2">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <local:VBTextBlock Grid.Column="0"
+                                         Text="{Binding Path=StringFormat.Name}"
+                                         TextTrimming="CharacterEllipsis"
+                                         VerticalAlignment="Center" />
+                      <ContentControl Grid.Column="1"
+                                      Content="{Binding Path=StringFormat.Editor}" />
+                    </Grid>
+
+                    <Grid Margin="0,0,0,2">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <local:VBTextBlock Grid.Column="0"
+                                         Text="{Binding Path=ConverterParameter.Name}"
+                                         TextTrimming="CharacterEllipsis"
+                                         VerticalAlignment="Center" />
+                      <ContentControl Grid.Column="1"
+                                      Content="{Binding Path=ConverterParameter.Editor}" />
+                    </Grid>
+
+                    <Grid Margin="0,0,0,2">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <local:VBTextBlock Grid.Column="0"
+                                         Text="{Binding Path=ConverterCulture.Name}"
+                                         TextTrimming="CharacterEllipsis"
+                                         VerticalAlignment="Center" />
+                      <ContentControl Grid.Column="1"
+                                      Content="{Binding Path=ConverterCulture.Editor}" />
+                    </Grid>
+
+                    <Grid Margin="0,0,0,2">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <local:VBTextBlock Grid.Column="0"
+                                         Text="{Binding Path=Priority.Name}"
+                                         TextTrimming="CharacterEllipsis"
+                                         VerticalAlignment="Center" />
+                      <ContentControl Grid.Column="1"
+                                      Content="{Binding Path=Priority.Editor}" />
+                    </Grid>
+
+                    <Grid Margin="0,0,0,2">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <local:VBTextBlock Grid.Column="0"
+                                         Text="{Binding Path=RelativeSource.Name}"
+                                         TextTrimming="CharacterEllipsis"
+                                         VerticalAlignment="Center" />
+                      <ContentControl Grid.Column="1"
+                                      Content="{Binding Path=RelativeSource.Editor}" />
+                    </Grid>
+
+                    <Grid Margin="0,0,0,2">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <local:VBTextBlock Grid.Column="0"
+                                         Text="{Binding Path=FallbackValue.Name}"
+                                         TextTrimming="CharacterEllipsis"
+                                         VerticalAlignment="Center" />
+                      <ContentControl Grid.Column="1"
+                                      Content="{Binding Path=FallbackValue.Editor}" />
+                    </Grid>
+
+                    <Grid Margin="0,0,0,2">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <local:VBTextBlock Grid.Column="0"
+                                         Text="{Binding Path=TargetNullValue.Name}"
+                                         TextTrimming="CharacterEllipsis"
+                                         VerticalAlignment="Center" />
+                      <ContentControl Grid.Column="1"
+                                      Content="{Binding Path=TargetNullValue.Editor}" />
+                    </Grid>
+                  </StackPanel>
+                </local:VBScrollViewer>
+              </Expander>
+
               <ContentControl x:Name="PART_BindingEditor" />
             </StackPanel>
           </local:VBGrid>

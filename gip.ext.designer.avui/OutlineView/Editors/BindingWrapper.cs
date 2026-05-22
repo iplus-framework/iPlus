@@ -91,6 +91,17 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get { return _PropertiesOfBinding; }
         }
+
+        protected PropertyNode FindPropertyNode(string propertyName)
+        {
+            return PropertiesOfBinding.FirstOrDefault(c => c.Name == propertyName);
+        }
+
+        protected string FindPropertyValueString(string propertyName)
+        {
+            PropertyNode node = FindPropertyNode(propertyName);
+            return node != null ? node.ValueString : String.Empty;
+        }
         #endregion
 
 
@@ -98,7 +109,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "BindingGroupName").First();
+                return FindPropertyNode("BindingGroupName");
             }
         }
 
@@ -106,7 +117,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "FallbackValue").First();
+                return FindPropertyNode("FallbackValue");
             }
         }
 
@@ -114,7 +125,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "StringFormat").First();
+                return FindPropertyNode("StringFormat");
             }
         }
 
@@ -122,7 +133,23 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "TargetNullValue").First();
+                return FindPropertyNode("TargetNullValue");
+            }
+        }
+
+        public PropertyNode ConverterCulture
+        {
+            get
+            {
+                return FindPropertyNode("ConverterCulture");
+            }
+        }
+
+        public PropertyNode Priority
+        {
+            get
+            {
+                return FindPropertyNode("Priority");
             }
         }
 
@@ -161,7 +188,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                string result = Path.ValueString + ElementName.ValueString + Source.ValueString;
+                string result = FindPropertyValueString("Path") + FindPropertyValueString("ElementName") + FindPropertyValueString("Source");
                 if (String.IsNullOrEmpty(result))
                     result = "---";
                 return result;
@@ -189,6 +216,8 @@ namespace gip.ext.designer.avui.OutlineView
                 }
                 else if (Converter == null)
                     return null;
+                else if (Converter.Editor == null)
+                    return null;
                 else
                 {
                     if (Converter.Editor.DataContext != Converter)
@@ -202,7 +231,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "Converter").First();
+                return FindPropertyNode("Converter");
             }
         }
 
@@ -210,7 +239,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "ConverterParameter").First();
+                return FindPropertyNode("ConverterParameter");
             }
         }
 
@@ -218,7 +247,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "ElementName").First();
+                return FindPropertyNode("ElementName");
             }
         }
 
@@ -226,7 +255,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "IsAsync").First();
+                return FindPropertyNode("IsAsync");
             }
         }
 
@@ -234,7 +263,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "Mode").First();
+                return FindPropertyNode("Mode");
             }
         }
 
@@ -242,7 +271,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "NotifyOnSourceUpdated").First();
+                return FindPropertyNode("NotifyOnSourceUpdated");
             }
         }
 
@@ -250,7 +279,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "NotifyOnTargetUpdated").First();
+                return FindPropertyNode("NotifyOnTargetUpdated");
             }
         }
 
@@ -258,7 +287,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "NotifyOnValidationError").First();
+                return FindPropertyNode("NotifyOnValidationError");
             }
         }
 
@@ -266,7 +295,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "Path").First();
+                return FindPropertyNode("Path");
             }
         }
 
@@ -274,7 +303,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "RelativeSource").First();
+                return FindPropertyNode("RelativeSource");
             }
         }
 
@@ -282,7 +311,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "Source").First();
+                return FindPropertyNode("Source");
             }
         }
 
@@ -290,7 +319,15 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "UpdateSourceTrigger").First();
+                return FindPropertyNode("UpdateSourceTrigger");
+            }
+        }
+
+        public PropertyNode Delay
+        {
+            get
+            {
+                return FindPropertyNode("Delay");
             }
         }
 
@@ -298,7 +335,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "ValidatesOnDataErrors").First();
+                return FindPropertyNode("ValidatesOnDataErrors");
             }
         }
 
@@ -306,7 +343,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "ValidatesOnExceptions").First();
+                return FindPropertyNode("ValidatesOnExceptions");
             }
         }
 
@@ -316,7 +353,15 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "XPath").First();
+                return FindPropertyNode("XPath");
+            }
+        }
+
+        public PropertyNode TypeResolver
+        {
+            get
+            {
+                return FindPropertyNode("TypeResolver");
             }
         }
 
@@ -423,6 +468,8 @@ namespace gip.ext.designer.avui.OutlineView
             {
                 if (Converter == null)
                     return null;
+                if (Converter.Editor == null)
+                    return null;
                 else
                 {
                     if (Converter.Editor.DataContext != Converter)
@@ -436,7 +483,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "Converter").First();
+                return FindPropertyNode("Converter");
             }
         }
 
@@ -444,7 +491,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "ConverterParameter").First();
+                return FindPropertyNode("ConverterParameter");
             }
         }
 
@@ -452,7 +499,15 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "Mode").First();
+                return FindPropertyNode("Mode");
+            }
+        }
+
+        public PropertyNode RelativeSource
+        {
+            get
+            {
+                return FindPropertyNode("RelativeSource");
             }
         }
 
@@ -460,7 +515,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "NotifyOnSourceUpdated").First();
+                return FindPropertyNode("NotifyOnSourceUpdated");
             }
         }
 
@@ -468,7 +523,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "NotifyOnTargetUpdated").First();
+                return FindPropertyNode("NotifyOnTargetUpdated");
             }
         }
 
@@ -476,7 +531,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "NotifyOnValidationError").First();
+                return FindPropertyNode("NotifyOnValidationError");
             }
         }
 
@@ -484,7 +539,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "UpdateSourceTrigger").First();
+                return FindPropertyNode("UpdateSourceTrigger");
             }
         }
 
@@ -492,7 +547,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "ValidatesOnDataErrors").First();
+                return FindPropertyNode("ValidatesOnDataErrors");
             }
         }
 
@@ -500,7 +555,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                return PropertiesOfBinding.Where(c => c.Name == "ValidatesOnExceptions").First();
+                return FindPropertyNode("ValidatesOnExceptions");
             }
         }
 

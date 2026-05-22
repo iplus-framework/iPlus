@@ -20,7 +20,7 @@
             </Grid.ColumnDefinitions>
             <ListBox x:Name="PART_BindingList" ItemsSource="{Binding BindingsCollection}">
               <ListBox.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate DataType="OutlineView:BindingEditorWrapperSingle">
                   <TextBlock Text="{Binding Description}" />
                 </DataTemplate>
               </ListBox.ItemTemplate>
@@ -29,7 +29,18 @@
               <Button x:Name="PART_AddItem" Content="Add" Margin="2,0,1,0" Grid.Column="0" />
               <Button x:Name="PART_RemoveItem" Content="Remove" Margin="1,0,0,0" Grid.Column="1" />
             </Grid>
-            <ContentControl x:Name="PART_BindingEditor" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" />
+            <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2">
+              <ContentControl Content="{Binding ConverterEditor}" />
+              <ContentControl Content="{Binding Mode.Editor}" />
+              <ContentControl Content="{Binding StringFormat.Editor}" />
+              <ContentControl Content="{Binding ConverterParameter.Editor}" />
+              <ContentControl Content="{Binding ConverterCulture.Editor}" />
+              <ContentControl Content="{Binding Priority.Editor}" />
+              <ContentControl Content="{Binding RelativeSource.Editor}" />
+              <ContentControl Content="{Binding FallbackValue.Editor}" />
+              <ContentControl Content="{Binding TargetNullValue.Editor}" />
+              <ContentControl x:Name="PART_BindingEditor" />
+            </StackPanel>
           </Grid>
         </ControlTemplate>
       </Setter.Value>

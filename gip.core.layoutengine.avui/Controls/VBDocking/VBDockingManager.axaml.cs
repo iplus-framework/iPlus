@@ -380,6 +380,112 @@ namespace gip.core.layoutengine.avui
             ShowVBDesign(vbDesign, tools2Unpin, vbDesign.VBContent);
         }
 
+        /// <summary>
+        /// Shows a compiled control instance in the docking manager.
+        /// </summary>
+        public void ShowWindow(Control control, string title, bool isClosableBSORoot, Global.VBDesignContainer containerType, Global.VBDesignDockState dockState,
+            Global.VBDesignDockPosition dockPosition, Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden,
+            Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled, Size? windowSize = null, bool persistInDesignList = false)
+        {
+            if (control == null)
+                return;
+
+            VBDockingManager.SetContainer(control, containerType);
+            VBDockingManager.SetDockState(control, dockState);
+            VBDockingManager.SetDockPosition(control, dockPosition);
+            VBDockingManager.SetIsCloseableBSORoot(control, isClosableBSORoot);
+            VBDockingManager.SetRibbonBarVisibility(control, ribbonVisibility);
+            VBDockingManager.SetCloseButtonVisibility(control, closeButtonVisibility);
+
+            if (!string.IsNullOrEmpty(title))
+                VBDockingManager.SetWindowTitle(control, title);
+
+            if (windowSize.HasValue)
+                VBDockingManager.SetWindowSize(control, windowSize.Value);
+
+            if (persistInDesignList && !VBDesignList.Contains(control))
+                VBDesignList.Add(control);
+
+            List<IDockable> tools2Unpin = new List<IDockable>();
+            ShowVBDesign(control, tools2Unpin, title);
+        }
+
+        /// <summary>
+        /// Shows a compiled control instance in the docking manager.
+        /// </summary>
+        public async Task ShowWindowAsync(Control control, string title, bool isCloseableBSORoot, Global.VBDesignContainer containerType, Global.VBDesignDockState dockState,
+            Global.VBDesignDockPosition dockPosition, Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden,
+            Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled, Size? windowSize = null, bool persistInDesignList = false)
+        {
+            if (control == null)
+                return;
+
+            VBDockingManager.SetContainer(control, containerType);
+            VBDockingManager.SetDockState(control, dockState);
+            VBDockingManager.SetDockPosition(control, dockPosition);
+            VBDockingManager.SetIsCloseableBSORoot(control, isCloseableBSORoot);
+            VBDockingManager.SetRibbonBarVisibility(control, ribbonVisibility);
+            VBDockingManager.SetCloseButtonVisibility(control, closeButtonVisibility);
+
+            if (!string.IsNullOrEmpty(title))
+                VBDockingManager.SetWindowTitle(control, title);
+
+            if (windowSize.HasValue)
+                VBDockingManager.SetWindowSize(control, windowSize.Value);
+
+            if (persistInDesignList && !VBDesignList.Contains(control))
+                VBDesignList.Add(control);
+
+            List<IDockable> tools2Unpin = new List<IDockable>();
+            await ShowVBDesignAsync(control, tools2Unpin, title);
+        }
+
+        /// <summary>
+        /// Shows a compiled control instance as a floating dock tool window.
+        /// </summary>
+        public void ShowFloatingWindow(Control control, string title,
+            Size? windowSize = null,
+            bool isCloseableBSORoot = true,
+            Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden,
+            Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled,
+            bool persistInDesignList = false)
+        {
+            ShowWindow(
+                control,
+                title,
+                isCloseableBSORoot,
+                Global.VBDesignContainer.DockableWindow,
+                Global.VBDesignDockState.FloatingWindow,
+                Global.VBDesignDockPosition.Right,
+                ribbonVisibility,
+                closeButtonVisibility,
+                windowSize,
+                persistInDesignList);
+        }
+
+        /// <summary>
+        /// Shows a compiled control instance as a floating dock tool window.
+        /// </summary>
+        public Task ShowFloatingWindowAsync(Control control, string title,
+            Size? windowSize = null,
+            bool isCloseableBSORoot = true,
+            Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden,
+            Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled,
+            bool persistInDesignList = false)
+        {
+            return ShowWindowAsync(
+                control,
+                title,
+                isCloseableBSORoot,
+                Global.VBDesignContainer.DockableWindow,
+                Global.VBDesignDockState.FloatingWindow,
+                Global.VBDesignDockPosition.Right,
+                ribbonVisibility,
+                closeButtonVisibility,
+                windowSize,
+                persistInDesignList);
+        }
+
         public void StartBusinessobject(string acUrl, ACValueList parameterList, string acCaption, bool ribbonVisibilityOff = false, Global.VBDesignDockState dockState = Global.VBDesignDockState.Tabbed)
         {
             if (IsBSOManager && (ContextACObject != null))

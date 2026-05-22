@@ -5,6 +5,9 @@ using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Collections;
+using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls.Documents;
 using System.Linq;
 
@@ -77,7 +80,7 @@ namespace gip.ext.xamldom.avui
         protected override void InsertItem(int index, XamlPropertyValue item)
         {
             XamlPropertyInfo info = property.propertyInfo;
-            object collection = info.GetValue(property.ParentObject.Instance);
+            object collection = EnsureCollectionInstance(info);
             if (!CollectionSupport.TryInsert(info.ReturnType, collection, item, index))
             {
                 CollectionSupport.AddToCollection(info.ReturnType, collection, item);
@@ -90,6 +93,55 @@ namespace gip.ext.xamldom.avui
 
             if (CollectionChanged != null)
                 CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+        }
+
+        object EnsureCollectionInstance(XamlPropertyInfo info)
+        {
+            object collection = info.GetValue(property.ParentObject.Instance);
+
+            if (collection != null && collection != AvaloniaProperty.UnsetValue)
+                return collection;
+
+            object newCollection = TryCreateCollectionInstance(info.ReturnType);
+            if (newCollection != null)
+            {
+                info.SetValue(property.ParentObject.Instance, newCollection);
+                return newCollection;
+            }
+
+            return collection;
+        }
+
+        static object TryCreateCollectionInstance(Type collectionType)
+        {
+            if (collectionType == null)
+                return null;
+
+            try
+            {
+                if (!collectionType.IsAbstract && !collectionType.IsInterface)
+                    return Activator.CreateInstance(collectionType);
+
+                if (collectionType == typeof(IList))
+                    return new ArrayList();
+
+                if (collectionType.IsGenericType)
+                {
+                    var genericTypeDefinition = collectionType.GetGenericTypeDefinition();
+                    if (genericTypeDefinition == typeof(IList<>) || genericTypeDefinition == typeof(ICollection<>))
+                    {
+                        Type elementType = collectionType.GetGenericArguments()[0];
+                        Type avaloniaListType = typeof(AvaloniaList<>).MakeGenericType(elementType);
+                        return Activator.CreateInstance(avaloniaListType);
+                    }
+                }
+            }
+            catch
+            {
+                return null;
+            }
+
+            return null;
         }
 
         protected override void SetItem(int index, XamlPropertyValue item)

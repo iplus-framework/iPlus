@@ -766,13 +766,13 @@ namespace gip.ext.xamldom.avui
 
         void CreateWrapper()
         {
-            if (Instance is BindingBase)
-            {
-                wrapper = new BindingWrapper(this);
-            }
-            else if (Instance is MultiBinding)
+            if (Instance is MultiBinding)
             {
                 wrapper = new MultiBindingWrapper(this);
+            }
+            else if (Instance is BindingBase)
+            {
+                wrapper = new BindingWrapper(this);
             }
             else if (Instance is StaticResourceExtension)
             {
@@ -878,7 +878,12 @@ namespace gip.ext.xamldom.avui
         public override object GetClonedInstance()
         {
             var target = XamlObject.Instance as Binding;
+            if (target == null)
+                return XamlObject.Instance;
+
             var b = Activator.CreateInstance(target.GetType()) as Binding;
+            if (b == null)
+                return XamlObject.Instance;
             //var b = new Binding();
             foreach (PropertyDescriptor pd in TypeDescriptor.GetProperties(target))
             {
@@ -913,7 +918,13 @@ namespace gip.ext.xamldom.avui
         public override object GetClonedInstance()
         {
             var target = XamlObject.Instance as MultiBinding;
+            if (target == null)
+                return XamlObject.Instance;
+
             var b = Activator.CreateInstance(XamlObject.Instance.GetType()) as MultiBinding;
+            if (b == null)
+                return XamlObject.Instance;
+
             foreach (PropertyDescriptor pd in TypeDescriptor.GetProperties(target))
             {
                 if (pd.IsReadOnly)
@@ -922,9 +933,12 @@ namespace gip.ext.xamldom.avui
                     {
                         Collection<BindingBase> col1 = pd.GetValue(b) as Collection<BindingBase>;
                         Collection<BindingBase> col2 = pd.GetValue(target) as Collection<BindingBase>;
-                        foreach (BindingBase itemBinding in col2)
+                        if (col1 != null && col2 != null)
                         {
-                            col1.Add(itemBinding);
+                            foreach (BindingBase itemBinding in col2)
+                            {
+                                col1.Add(itemBinding);
+                            }
                         }
                     }
                     continue;

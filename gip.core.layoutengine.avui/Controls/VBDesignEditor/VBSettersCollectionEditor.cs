@@ -1,3 +1,4 @@
+using System;
 using gip.ext.designer.avui.OutlineView;
 
 namespace gip.core.layoutengine.avui
@@ -10,5 +11,6 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBSettersCollectionEditor : SettersCollectionEditor
     {
+        protected override Type StyleKeyOverride => typeof(VBSettersCollectionEditor);
     }
 }

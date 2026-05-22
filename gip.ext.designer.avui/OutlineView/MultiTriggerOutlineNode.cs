@@ -104,9 +104,16 @@ namespace gip.ext.designer.avui.OutlineView
                 {
                     foreach (DesignItem condition in conditions.CollectionElements)
                     {
-                        if (condition.Properties["Property"].ValueOnInstance != null)
+                        var property = condition.Properties.HasProperty("Property");
+                        if (property != null && property.ValueOnInstance != null)
                         {
-                            propName += condition.Properties["Property"].ValueOnInstance.ToString() + ", ";
+                            propName += property.ValueOnInstance.ToString() + ", ";
+                        }
+                        else
+                        {
+                            var binding = condition.Properties.HasProperty("Binding");
+                            if (binding != null && binding.ValueOnInstance != null)
+                                propName += binding.ValueOnInstance.ToString() + ", ";
                         }
                     }
                 }
