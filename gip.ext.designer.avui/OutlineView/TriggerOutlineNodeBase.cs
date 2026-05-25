@@ -74,6 +74,14 @@ namespace gip.ext.designer.avui.OutlineView
 
         protected  DesignItem _DesignObject;
 
+        public DesignItem DesignObject
+        {
+            get
+            {
+                return _DesignObject;
+            }
+        }
+
         public DesignItem TriggerItem
         {
             get

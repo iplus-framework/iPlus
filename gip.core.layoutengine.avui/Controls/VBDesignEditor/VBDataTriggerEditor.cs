@@ -4,6 +4,7 @@ using Avalonia.Data;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.layoutengine.avui.PropertyGrid.Editors;
+using gip.ext.design.avui;
 using gip.ext.designer.avui.OutlineView;
 using System;
 
@@ -29,6 +30,7 @@ namespace gip.core.layoutengine.avui
                 {
                     if (bindingDefinition is MultiBinding)
                     {
+                        EnsureBooleanMultiConverter(bindingDesignItem, bindingDefinition as MultiBinding);
                         VBMultiBindingEditor editor = new VBMultiBindingEditor();
                         editor.InitEditor(bindingDesignItem, _NodeDataTrigger);
                         return editor;
@@ -51,7 +53,28 @@ namespace gip.core.layoutengine.avui
 
         public override MultiBinding CreateNewMultiBinding()
         {
-            return new MultiBinding();
+            return new MultiBinding()
+            {
+                Converter = new ConverterBooleanMulti()
+            };
+        }
+
+        private void EnsureBooleanMultiConverter(DesignItem bindingDesignItem, MultiBinding multiBinding)
+        {
+            if (multiBinding == null || multiBinding.Converter != null)
+                return;
+
+            if (bindingDesignItem?.Properties != null)
+            {
+                var converterProperty = bindingDesignItem.Properties.HasProperty("Converter");
+                if (converterProperty != null)
+                {
+                    converterProperty.SetValue(new ConverterBooleanMulti());
+                    return;
+                }
+            }
+
+            multiBinding.Converter = new ConverterBooleanMulti();
         }
 
         public override Control TriggerValueEditor
@@ -61,7 +84,7 @@ namespace gip.core.layoutengine.avui
                 _LockValueEditorRefresh = true;
 
                 IACComponentDesignManager designManager = DesignManager;
-                if (designManager != null && !String.IsNullOrEmpty(TriggerInfoText) && (TriggerBindingEditor is VBBindingEditor))
+                if (designManager != null && !String.IsNullOrEmpty(TriggerInfoText) && CurrentBindingDefinition is VBBinding)
                 {
                     Control editor;
                     String acUrl = TriggerInfoText;
@@ -86,7 +109,11 @@ namespace gip.core.layoutengine.avui
                     return editor;
                 }
                 else
-                    return new VBTextBoxEditor();
+                {
+                    Control editor = new VBTextBoxEditor();
+                    editor.DataContext = _NodeDataTrigger;
+                    return editor;
+                }
             }
         }
 

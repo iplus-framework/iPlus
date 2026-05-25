@@ -52,17 +52,14 @@
             </Grid>
           </TabItem>
           <TabItem Header="Setter">
-            <OutlineView:SettersCollectionEditor x:Name="PART_SetterEditor"
-                                                 IsVisible="{TemplateBinding AreTriggerValuesValid}"/>
+            <OutlineView:SettersCollectionEditor x:Name="PART_SetterEditor"/>
           </TabItem>
           <TabItem Header="Enter Actions">
             <OutlineView:ActionCollectionEditor x:Name="PART_EnterActionsEditor"
-                                               IsVisible="{TemplateBinding AreTriggerValuesValid}"
                                                Margin="0,5,0,0"/>
           </TabItem>
           <TabItem Header="Exit Actions">
             <OutlineView:ActionCollectionEditor x:Name="PART_ExitActionsEditor"
-                                               IsVisible="{TemplateBinding AreTriggerValuesValid}"
                                                Margin="0,5,0,0"/>
           </TabItem>
         </TabControl>

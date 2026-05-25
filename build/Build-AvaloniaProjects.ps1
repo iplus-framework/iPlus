@@ -43,7 +43,8 @@ $SolutionFiles = @(
 	@{ Path = "..\..\AvRichTextBox\iPlusAvalonia.slnx"; Name = "Rich Text Box"; Priority = 1; Critical = $false },
 	@{ Path = "..\..\AvMarkdown.Avalonia\iPlusAvalonia.slnx"; Name = "Markdown Avalonia"; Priority = 1; Critical = $false },
 	@{ Path = "..\..\AvMessageBox.Avalonia\iPlusAvalonia.slnx"; Name = "Message Box"; Priority = 1; Critical = $false },
-	@{ Path = "..\..\avOxyplot-avalonia\Source\iPlusAvalonia.slnx"; Name = "OxyPlot Avalonia"; Priority = 1; Critical = $false }
+	@{ Path = "..\..\avOxyplot-avalonia\Source\iPlusAvalonia.slnx"; Name = "OxyPlot Avalonia"; Priority = 1; Critical = $false },
+	@{ Path = "..\..\scryber.core\Scryber.Core.slnx"; Name = "Scryber Core"; Priority = 1; Critical = $false }
 )
 
 # Build results tracking

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Avalonia.Data;
@@ -91,10 +92,10 @@ namespace gip.ext.xamldom.avui
             bool first = true;
             var properties = obj.Properties.ToList();
 
-            if (obj.ElementType == typeof(Binding))
+            if (typeof(Binding).IsAssignableFrom(obj.ElementType))
             {
                 var p = obj.Properties.FirstOrDefault(x => x.PropertyName == "Path");
-                if (p != null && p.IsSet)
+                if (p != null && ShouldPrintProperty(obj, p))
                 {
                     sb.Append(" ");
                     AppendPropertyValue(sb, p.PropertyValue, false);
@@ -128,7 +129,7 @@ namespace gip.ext.xamldom.avui
 
             foreach (var property in properties)
             {
-                if (!property.IsSet) continue;
+                if (!ShouldPrintProperty(obj, property)) continue;
 
                 if (first)
                     sb.Append(" ");
@@ -143,6 +144,53 @@ namespace gip.ext.xamldom.avui
             }
             sb.Append("}");
             return sb.ToString();
+        }
+
+        private static bool ShouldPrintProperty(XamlObject obj, XamlProperty property)
+        {
+            if (property == null || !property.IsSet)
+                return false;
+
+            // Internal VBBinding state must never be serialized.
+            if (property.PropertyName == "dcRightControlMode" || property.PropertyName == "dcACTypeInfo")
+                return false;
+
+            if (obj?.Instance is Binding)
+            {
+                // Keep binding markup compact and avoid persisting implicit defaults.
+                try
+                {
+                    var currentValue = property.ValueOnInstance;
+                    if (property.PropertyName == "Mode" && currentValue is BindingMode mode && mode == BindingMode.Default)
+                        return false;
+                    if (property.PropertyName == "Priority" && currentValue is BindingPriority priority && priority == BindingPriority.LocalValue)
+                        return false;
+                    if (property.PropertyName == "UpdateSourceTrigger" && currentValue is UpdateSourceTrigger trigger && trigger == UpdateSourceTrigger.Default)
+                        return false;
+                }
+                catch
+                {
+                    // Keep existing behavior if runtime value probing fails.
+                }
+            }
+
+            if (obj?.Instance != null)
+            {
+                try
+                {
+                    PropertyDescriptor descriptor = TypeDescriptor.GetProperties(obj.Instance)[property.PropertyName];
+                    if (descriptor != null)
+                    {
+                        if (!descriptor.IsBrowsable || descriptor.IsReadOnly)
+                            return false;
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            return true;
         }
 
         //public static string Print(XamlObject obj, XamlProperty changedProperty)

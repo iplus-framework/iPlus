@@ -11,6 +11,22 @@
       <Setter.Value>
         <ControlTemplate>
           <StackPanel>
+            <!-- Self property row (for property-style DataTrigger bindings) -->
+            <Grid Margin="0,0,0,2"
+                  IsVisible="{Binding $parent[local:VBBindingEditor].ShowSelfPropertySelector}">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <local:VBTextBlock Grid.Column="0"
+                                 Text="Control Property"
+                                 TextTrimming="CharacterEllipsis"
+                                 VerticalAlignment="Center" />
+              <ComboBox Grid.Column="1"
+                        ItemsSource="{Binding $parent[local:VBBindingEditor].SelfBindableProperties}"
+                        SelectedItem="{Binding $parent[local:VBBindingEditor].SelectedSelfBindableProperty, Mode=TwoWay}" />
+            </Grid>
+
             <!-- VBContent row -->
             <Grid Margin="0,0,0,2">
               <Grid.ColumnDefinitions>

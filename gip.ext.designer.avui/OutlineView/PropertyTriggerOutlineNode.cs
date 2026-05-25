@@ -168,7 +168,12 @@ namespace gip.ext.designer.avui.OutlineView
                         TriggerProperty.SetValue(new Binding
                         {
                             Path = value,
-                            RelativeSource = new RelativeSource(RelativeSourceMode.Self)
+                            RelativeSource = new RelativeSource
+                            {
+                                Mode = RelativeSourceMode.FindAncestor,
+                                AncestorLevel = 1,
+                                Tree = TreeType.Logical
+                            }
                         });
                     }
                 }

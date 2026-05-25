@@ -146,7 +146,7 @@ namespace gip.core.layoutengine.avui
 
             System.Diagnostics.Debug.Assert(VBContent != "");
 
-            if (IsVisible)
+            if (IsVisible || ItemsSource == null)
             {
                 if (_ACTypeInfo == null)
                     return;

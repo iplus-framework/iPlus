@@ -32,8 +32,10 @@ namespace gip.ext.designer.avui.Services
         {
             if (_designPanel != null)
             {
-                _currentTool.Deactivate(_designPanel);
+                // Prevent nested CurrentTool changes from reentering deactivation logic.
+                IDesignPanel designPanel = _designPanel;
                 _designPanel = null;
+                _currentTool.Deactivate(designPanel);
             }
         }
 
@@ -50,13 +52,15 @@ namespace gip.ext.designer.avui.Services
                 if (value == null)
                     throw new ArgumentNullException("value");
                 if (_currentTool == value) return;
-                if (_designPanel != null)
-                {
-                    _currentTool.Deactivate(_designPanel);
-                }
+
+                ITool previousTool = _currentTool;
                 _currentTool = value;
+
                 if (_designPanel != null)
                 {
+                    // Deactivate old tool after updating _currentTool so nested tool switches
+                    // (e.g. from Deactivate/reset paths) do not recurse indefinitely.
+                    previousTool.Deactivate(_designPanel);
                     _currentTool.Activate(_designPanel);
                 }
                 if (CurrentToolChanged != null)

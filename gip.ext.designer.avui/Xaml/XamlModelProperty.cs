@@ -230,25 +230,57 @@ namespace gip.ext.designer.avui.Xaml
         {
             get
             {
-                if (ValueOnInstance == null)
+                object valueOnInstance = ValueOnInstance;
+                if (valueOnInstance == null)
                     return null;
-                var b = Activator.CreateInstance(ValueOnInstance.GetType());
-                foreach (PropertyDescriptor pd in TypeDescriptor.GetProperties(ValueOnInstance))
+
+                // Immutable/value-like instances can be reused safely.
+                if (valueOnInstance is string || valueOnInstance.GetType().IsValueType)
+                    return valueOnInstance;
+
+                if (valueOnInstance is ICloneable cloneable)
+                {
+                    try
+                    {
+                        return cloneable.Clone();
+                    }
+                    catch
+                    {
+                        return valueOnInstance;
+                    }
+                }
+
+                Type valueType = valueOnInstance.GetType();
+                var defaultCtor = valueType.GetConstructor(Type.EmptyTypes);
+                if (defaultCtor == null)
+                    return valueOnInstance;
+
+                object clone;
+                try
+                {
+                    clone = defaultCtor.Invoke(null);
+                }
+                catch
+                {
+                    return valueOnInstance;
+                }
+
+                foreach (PropertyDescriptor pd in TypeDescriptor.GetProperties(valueOnInstance))
                 {
                     if (pd.IsReadOnly) continue;
                     try
                     {
-                        var val1 = pd.GetValue(b);
-                        var val2 = pd.GetValue(ValueOnInstance);
+                        var val1 = pd.GetValue(clone);
+                        var val2 = pd.GetValue(valueOnInstance);
                         if (object.Equals(val1, val2)) continue;
-                        pd.SetValue(b, val2);
+                        pd.SetValue(clone, val2);
                     }
                     catch
                     {
-                        return ValueOnInstance;
+                        return valueOnInstance;
                     }
                 }
-                return b;
+                return clone;
 
             }
         }

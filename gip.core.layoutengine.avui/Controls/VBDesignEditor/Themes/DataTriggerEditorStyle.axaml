@@ -54,17 +54,14 @@
               </local:VBGrid>
             </local:VBTabItem>
             <local:VBTabItem Header="Setter">
-              <local:VBSettersCollectionEditor x:Name="PART_SetterEditor"
-                                               IsVisible="{TemplateBinding AreTriggerValuesValid}"/>
+              <local:VBSettersCollectionEditor x:Name="PART_SetterEditor"/>
             </local:VBTabItem>
             <local:VBTabItem Header="Enter Actions">
               <local:VBActionCollectionEditor x:Name="PART_EnterActionsEditor"
-                                              IsVisible="{TemplateBinding AreTriggerValuesValid}"
                                               Margin="0,5,0,0"/>
             </local:VBTabItem>
             <local:VBTabItem Header="Exit Actions">
               <local:VBActionCollectionEditor x:Name="PART_ExitActionsEditor"
-                                              IsVisible="{TemplateBinding AreTriggerValuesValid}"
                                               Margin="0,5,0,0"/>
             </local:VBTabItem>
           </local:VBTabControl>

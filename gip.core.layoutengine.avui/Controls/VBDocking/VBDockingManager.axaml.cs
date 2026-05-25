@@ -17,7 +17,6 @@ using gip.ext.design.avui;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace gip.core.layoutengine.avui
@@ -575,7 +574,9 @@ namespace gip.core.layoutengine.avui
 
             Global.VBDesignContainer containerType = VBDockingManager.GetContainer(uiElement);
             Global.VBDesignDockState dockState = VBDockingManager.GetDockState(uiElement);
-            bool isCloseable = VBDockingManager.GetIsCloseableBSORoot(uiElement);
+            var closeButtonVisibility = VBDockingManager.GetCloseButtonVisibility(uiElement);
+            bool isCloseable = VBDockingManager.GetIsCloseableBSORoot(uiElement)
+                && closeButtonVisibility == Global.ControlModes.Enabled;
             Size size = VBDockingManager.GetWindowSize(uiElement);
             double toolWidth = 400;
             double toolHeight = 1200;
@@ -745,9 +746,9 @@ namespace gip.core.layoutengine.avui
                             DockGroup = DockGroupId,
                             Alignment = alignment,
                             Proportion = 0.25,
-                            VisibleDockables = _Factory.CreateList<IDockable>(tool),
+                            VisibleDockables = _Factory.CreateList<IDockable>(),
                         };
-                        toolDock.ActiveDockable = tool;
+                        EnableCanCloseLastDockable(toolDock);
                         if (alignment == Alignment.Top)
                         {
                             MainLayout.VisibleDockables.Insert(0, new ProportionalDockSplitter());
@@ -758,10 +759,13 @@ namespace gip.core.layoutengine.avui
                             MainLayout.VisibleDockables.Add(new ProportionalDockSplitter());
                             MainLayout.VisibleDockables.Add(toolDock);
                         }
+
+                        AddAndActivateToolDockable(MainLayout, toolDock, tool);
                     }
                     else
                     {
-                        toolDock.VisibleDockables.Add(tool);
+                        EnableCanCloseLastDockable(toolDock);
+                        AddAndActivateToolDockable(MainLayout, toolDock, tool);
                     }
                     if (dockState == Global.VBDesignDockState.AutoHideButton)
                         tools2Unpin.Add(tool);
@@ -803,9 +807,9 @@ namespace gip.core.layoutengine.avui
                             DockGroup = DockGroupId,
                             Alignment = alignment,
                             Proportion = 0.25,
-                            VisibleDockables = _Factory.CreateList<IDockable>(tool),
+                            VisibleDockables = _Factory.CreateList<IDockable>(),
                         };
-                        toolDock.ActiveDockable = tool;
+                        EnableCanCloseLastDockable(toolDock);
                         if (alignment == Alignment.Left)
                         {
                             horizontalArea.VisibleDockables.Insert(0, new ProportionalDockSplitter());
@@ -816,10 +820,13 @@ namespace gip.core.layoutengine.avui
                             horizontalArea.VisibleDockables.Add(new ProportionalDockSplitter());
                             horizontalArea.VisibleDockables.Add(toolDock);
                         }
+
+                        AddAndActivateToolDockable(horizontalArea, toolDock, tool);
                     }
                     else
                     {
-                        toolDock.VisibleDockables.Add(tool);
+                        EnableCanCloseLastDockable(toolDock);
+                        AddAndActivateToolDockable(horizontalArea, toolDock, tool);
                     }
                     if (dockState == Global.VBDesignDockState.AutoHideButton)
                         tools2Unpin.Add(tool);
@@ -955,7 +962,9 @@ namespace gip.core.layoutengine.avui
 
             Global.VBDesignContainer containerType = VBDockingManager.GetContainer(uiElement);
             Global.VBDesignDockState dockState = VBDockingManager.GetDockState(uiElement);
-            bool isCloseable = VBDockingManager.GetIsCloseableBSORoot(uiElement);
+            var closeButtonVisibility = VBDockingManager.GetCloseButtonVisibility(uiElement);
+            bool isCloseable = VBDockingManager.GetIsCloseableBSORoot(uiElement)
+                && closeButtonVisibility == Global.ControlModes.Enabled;
             Size size = VBDockingManager.GetWindowSize(uiElement);
             double toolWidth = 400;
             double toolHeight = 1200;
@@ -1125,9 +1134,9 @@ namespace gip.core.layoutengine.avui
                             DockGroup = DockGroupId,
                             Alignment = alignment,
                             Proportion = 0.25,
-                            VisibleDockables = _Factory.CreateList<IDockable>(tool),
+                            VisibleDockables = _Factory.CreateList<IDockable>(),
                         };
-                        toolDock.ActiveDockable = tool;
+                        EnableCanCloseLastDockable(toolDock);
                         if (alignment == Alignment.Top)
                         {
                             MainLayout.VisibleDockables.Insert(0, new ProportionalDockSplitter());
@@ -1138,10 +1147,13 @@ namespace gip.core.layoutengine.avui
                             MainLayout.VisibleDockables.Add(new ProportionalDockSplitter());
                             MainLayout.VisibleDockables.Add(toolDock);
                         }
+
+                        AddAndActivateToolDockable(MainLayout, toolDock, tool);
                     }
                     else
                     {
-                        toolDock.VisibleDockables.Add(tool);
+                        EnableCanCloseLastDockable(toolDock);
+                        AddAndActivateToolDockable(MainLayout, toolDock, tool);
                     }
                     if (dockState == Global.VBDesignDockState.AutoHideButton)
                         tools2Unpin.Add(tool);
@@ -1183,9 +1195,9 @@ namespace gip.core.layoutengine.avui
                             DockGroup = DockGroupId,
                             Alignment = alignment,
                             Proportion = 0.25,
-                            VisibleDockables = _Factory.CreateList<IDockable>(tool),
+                            VisibleDockables = _Factory.CreateList<IDockable>(),
                         };
-                        toolDock.ActiveDockable = tool;
+                        EnableCanCloseLastDockable(toolDock);
                         if (alignment == Alignment.Left)
                         {
                             horizontalArea.VisibleDockables.Insert(0, new ProportionalDockSplitter());
@@ -1196,10 +1208,13 @@ namespace gip.core.layoutengine.avui
                             horizontalArea.VisibleDockables.Add(new ProportionalDockSplitter());
                             horizontalArea.VisibleDockables.Add(toolDock);
                         }
+
+                        AddAndActivateToolDockable(horizontalArea, toolDock, tool);
                     }
                     else
                     {
-                        toolDock.VisibleDockables.Add(tool);
+                        EnableCanCloseLastDockable(toolDock);
+                        AddAndActivateToolDockable(horizontalArea, toolDock, tool);
                     }
                     if (dockState == Global.VBDesignDockState.AutoHideButton)
                         tools2Unpin.Add(tool);
@@ -1282,6 +1297,14 @@ namespace gip.core.layoutengine.avui
                     await vbDialogRoot.ShowDialog(classicDesktop.MainWindow);
                 }
             }
+        }
+
+        private static void EnableCanCloseLastDockable(ToolDock toolDock)
+        {
+            if (toolDock == null)
+                return;
+
+            toolDock.CanCloseLastDockable = true;
         }
 
         private void EnsureDocumentDockStructure(out ProportionalDock horizontalArea, out DocumentDock documentDock)
@@ -1423,6 +1446,34 @@ namespace gip.core.layoutengine.avui
                 _Factory.SetActiveDockable(doc);
                 _Factory.SetFocusedDockable(documentDock, doc);
             }
+        }
+
+        private void AddAndActivateToolDockable(IDock ownerDock, ToolDock toolDock, Tool tool)
+        {
+            if (ownerDock == null || toolDock == null || tool == null)
+                return;
+
+            // During initial layout construction DockControl.Layout is not assigned yet,
+            // so we cannot rely on factory activation plumbing.
+            if (DockControl?.Layout == null)
+            {
+                if (toolDock.VisibleDockables == null)
+                    toolDock.VisibleDockables = _Factory.CreateList<IDockable>();
+                if (toolDock.Owner == null)
+                    toolDock.Owner = ownerDock;
+                toolDock.VisibleDockables.Add(tool);
+                toolDock.ActiveDockable = tool;
+                return;
+            }
+
+            // Dynamic ToolDock instances are inserted manually into parent lists.
+            // Ensure owner/factory/root chain is initialized so pin/close operations can resolve FindRoot.
+            if (!ReferenceEquals(toolDock.Factory, _Factory) || !ReferenceEquals(toolDock.Owner, ownerDock))
+                _Factory.InitDockable(toolDock, ownerDock);
+
+            _Factory.AddDockable(toolDock, tool);
+            _Factory.SetActiveDockable(tool);
+            _Factory.SetFocusedDockable(toolDock, tool);
         }
 
         private void RegisterDesignDockable(VBDesign design, DockableBase dockable)
@@ -1577,7 +1628,7 @@ namespace gip.core.layoutengine.avui
                 if (current == null || string.IsNullOrWhiteSpace(part))
                     return null;
 
-                var property = current.GetType().GetProperty(part, BindingFlags.Instance | BindingFlags.Public);
+                var property = current.GetType().GetProperty(part, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
                 if (property == null)
                     return null;
 

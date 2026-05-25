@@ -89,6 +89,8 @@ namespace gip.ext.designer.avui.OutlineView
                 if (exitActionsProperty != null)
                     PART_ExitActionsEditor.InitEditor(_DesignObject, exitActionsProperty);
             }
+
+            EnsureEditorContentInitialized();
         }
 
         protected DesignItemProperty GetTriggerCollectionProperty(params string[] names)
@@ -106,15 +108,21 @@ namespace gip.ext.designer.avui.OutlineView
             return null;
         }
 
-        private bool _Loaded = false;
         void DataTriggerEditor_AttachedToVisualTree(object sender, VisualTreeAttachmentEventArgs e)
         {
-            if (_Loaded)
+            EnsureEditorContentInitialized();
+        }
+
+        private void EnsureEditorContentInitialized()
+        {
+            if (_NodeDataTrigger == null)
                 return;
-            if (PART_TriggerValueEditor != null)
+
+            if (PART_TriggerValueEditor != null && PART_TriggerValueEditor.Content == null)
                 PART_TriggerValueEditor.Content = TriggerValueEditor;
-            UpdatePARTBindingEditor(TriggerBindingEditor);
-            _Loaded = true;
+
+            if (PART_BindingEditor != null && PART_BindingEditor.Content == null)
+                UpdatePARTBindingEditor(TriggerBindingEditor);
         }
 
         public void InitEditor(DesignItem designObject, DataTriggerOutlineNode propertyTrigger)
@@ -136,6 +144,8 @@ namespace gip.ext.designer.avui.OutlineView
             else
                 AreTriggerValuesValid = false;
             _NodeDataTrigger.PropertyChanged += _NodeDataTrigger_PropertyChanged;
+
+            EnsureEditorContentInitialized();
         }
 
         void _NodeDataTrigger_PropertyChanged(object sender, PropertyChangedEventArgs e)

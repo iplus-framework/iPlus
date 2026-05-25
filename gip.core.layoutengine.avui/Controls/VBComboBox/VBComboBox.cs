@@ -307,6 +307,8 @@ namespace gip.core.layoutengine.avui
         protected bool _Initialized = false;
         private TextBox _EditableTextBoxSite2;
         private Control _PART_TakeCount;
+        private INotifyPropertyChanged _ControlModeUpdateSource;
+        private string _ControlModeUpdatePropertyName;
         bool _Loaded = false;
 
         protected virtual void InitVBControl()
@@ -352,7 +354,7 @@ namespace gip.core.layoutengine.avui
 
                 System.Diagnostics.Debug.Assert(VBContent != "");
 
-                if (IsVisible)
+                if (IsVisible || ItemsSource == null)
                 {
                     if (_ACTypeInfo == null)
                         return;
@@ -702,6 +704,8 @@ namespace gip.core.layoutengine.avui
                 {
                     Focus();
                 }
+
+                AttachControlModeUpdateSource(dcSource);
             }
             catch (Exception e)
             {
@@ -836,6 +840,7 @@ namespace gip.core.layoutengine.avui
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
 
             _Initialized = false;
+            DetachControlModeUpdateSource();
             if (_EditableTextBoxSite2 != null)
             {
                 _EditableTextBoxSite2.LostFocus -= _EditableTextBoxSite2_LostFocus;
@@ -935,6 +940,51 @@ namespace gip.core.layoutengine.avui
                     _ACAccessCompositeChanging = false;
                 }
             }
+        }
+
+        private void AttachControlModeUpdateSource(object source)
+        {
+            DetachControlModeUpdateSource();
+            _ControlModeUpdatePropertyName = ResolveControlModeUpdatePropertyName();
+            if (string.IsNullOrEmpty(_ControlModeUpdatePropertyName))
+                return;
+
+            if (source is INotifyPropertyChanged notifySource)
+            {
+                _ControlModeUpdateSource = notifySource;
+                _ControlModeUpdateSource.PropertyChanged += ControlModeUpdateSource_PropertyChanged;
+            }
+        }
+
+        private void DetachControlModeUpdateSource()
+        {
+            if (_ControlModeUpdateSource != null)
+            {
+                _ControlModeUpdateSource.PropertyChanged -= ControlModeUpdateSource_PropertyChanged;
+                _ControlModeUpdateSource = null;
+            }
+            _ControlModeUpdatePropertyName = null;
+        }
+
+        private string ResolveControlModeUpdatePropertyName()
+        {
+            if (string.IsNullOrEmpty(VBContent))
+                return null;
+
+            int separatorIndex = VBContent.IndexOf('\\');
+            return separatorIndex <= 0 ? VBContent : VBContent.Substring(0, separatorIndex);
+        }
+
+        private void ControlModeUpdateSource_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(_ControlModeUpdatePropertyName))
+                return;
+
+            if (!string.IsNullOrEmpty(e.PropertyName)
+                && !string.Equals(e.PropertyName, _ControlModeUpdatePropertyName, StringComparison.Ordinal))
+                return;
+
+            UpdateControlMode();
         }
 
         protected virtual void OnEditableTextBoxTextChanged2()

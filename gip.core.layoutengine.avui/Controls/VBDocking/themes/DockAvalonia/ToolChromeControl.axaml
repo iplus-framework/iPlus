@@ -44,8 +44,7 @@
       </MenuItem.IsVisible>
     </MenuItem>
     <MenuItem Header="{DynamicResource ToolChromeControlCloseString}"
-              Command="{Binding Owner.Factory.CloseDockable}"
-              CommandParameter="{Binding ActiveDockable}">
+              Command="{Binding Close}">
       <MenuItem.IsVisible>
         <MultiBinding Converter="{x:Static BoolConverters.And}">
           <Binding Path="ActiveDockable.CanClose" FallbackValue="{x:False}" />
@@ -154,8 +153,7 @@
                       </Viewbox>
                     </Button>
                     <Button x:Name="PART_CloseButton"
-                            Command="{Binding Owner.Factory.CloseDockable}"
-                            CommandParameter="{Binding ActiveDockable}"
+                          Command="{Binding Close}"
                             Theme="{TemplateBinding CloseButtonTheme}">
                       <Button.IsVisible>
                         <MultiBinding Converter="{x:Static BoolConverters.And}">

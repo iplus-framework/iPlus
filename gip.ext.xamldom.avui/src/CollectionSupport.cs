@@ -166,6 +166,14 @@ namespace gip.ext.xamldom.avui
             var list = collectionInstance as IList;
             if (list != null)
             {
+                // Keep insertion robust when XAML-model and runtime collection counts temporarily diverge.
+                // This can happen with designer-managed collections (e.g. Interaction.Behaviors) and
+                // should behave like appending when index is past the current runtime end.
+                if (index < 0)
+                    index = 0;
+                else if (index > list.Count)
+                    index = list.Count;
+
                 if (list.Count == index)
                 {
                     list.Add(value);
@@ -184,10 +192,17 @@ namespace gip.ext.xamldom.avui
 
                 if (hasInsert)
                 {
+                    int normalizedIndex = index;
+                    if (normalizedIndex < 0)
+                        normalizedIndex = 0;
+
+                    if (collectionInstance is ICollection nonGenericCollection)
+                        normalizedIndex = Math.Min(normalizedIndex, nonGenericCollection.Count);
+
                     runtimeType.InvokeMember(
                         "Insert", BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Instance,
                         null, collectionInstance,
-                        new object[] { index, value },
+                        new object[] { normalizedIndex, value },
                         CultureInfo.InvariantCulture);
 
                     return true;

@@ -137,6 +137,7 @@ declare -a SOLUTION_PATHS=(
     "../../AvMarkdown.Avalonia/iPlusAvalonia.slnx"
     "../../AvMessageBox.Avalonia/iPlusAvalonia.slnx"
     "../../avOxyplot-avalonia/Source/iPlusAvalonia.slnx"
+    "../../scryber.core/Scryber.Core.slnx"
 )
 
 declare -a SOLUTION_NAMES=(
@@ -154,11 +155,12 @@ declare -a SOLUTION_NAMES=(
     "Markdown Avalonia"
     "Message Box"
     "OxyPlot Avalonia"
+    "Scryber Core"
 )
 
-declare -a SOLUTION_PRIORITIES=(1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+declare -a SOLUTION_PRIORITIES=(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
 
-declare -a SOLUTION_CRITICAL=(true false false false false false false false false false false false false false)
+declare -a SOLUTION_CRITICAL=(true false false false false false false false false false false false false false false)
 
 # Build results tracking
 declare -a BUILD_RESULTS_NAMES=()

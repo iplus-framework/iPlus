@@ -11,6 +11,7 @@ using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Controls;
 using gip.ext.designer.avui.Extensions;
 using System;
+using System.Reflection;
 
 namespace gip.core.layoutengine.avui
 {
@@ -61,7 +62,7 @@ namespace gip.core.layoutengine.avui
                     {
                         if (DockingManager != null)
                         {
-                            var styleProp = extendedItem.Properties.GetProperty(Control.ThemeProperty);
+                            var styleProp = EnsureThemeProperty(extendedItem);
                             var settersProp = styleProp?.Value?.Properties.GetProperty("Setters");
                             if (settersProp != null)
                             {
@@ -82,7 +83,7 @@ namespace gip.core.layoutengine.avui
                             DesignItemProperty triggersProp = extendedItem.Properties.GetAttachedProperty(Interaction.BehaviorsProperty);
                             if (triggersProp == null)
                             {
-                                var styleProp = extendedItem.Properties.GetProperty(Control.ThemeProperty);
+                                var styleProp = EnsureThemeProperty(extendedItem);
                                 if (styleProp != null && styleProp.Value != null)
                                 {
                                     triggersProp = styleProp.Value.Properties.GetProperty("Triggers");
@@ -160,6 +161,149 @@ namespace gip.core.layoutengine.avui
         {
             var panel = extendedItem.Services.GetService(typeof(IDesignPanel)) as IDesignPanel;
             return VBVisualTreeHelper.FindParentObjectInVisualTree(panel as AvaloniaObject, typeof(VBDockingManager)) as VBDockingManager;
+        }
+
+        private static DesignItemProperty EnsureThemeProperty(DesignItem extendedItem)
+        {
+            if (extendedItem == null)
+                return null;
+
+            var themeProperty = extendedItem.Properties.GetProperty(Control.ThemeProperty);
+            if (themeProperty == null)
+                return null;
+
+            if (themeProperty.Value == null)
+            {
+                var themeInstance = CreateThemeInstance(themeProperty.ReturnType, extendedItem.ComponentType);
+                if (themeInstance != null)
+                {
+                    var themeItem = extendedItem.Services.Component.RegisterComponentForDesigner(themeInstance);
+                    EnsureThemeTargetType(themeItem, extendedItem.ComponentType);
+                    themeProperty.SetValue(themeItem);
+                }
+            }
+            else
+            {
+                EnsureThemeTargetType(themeProperty.Value, extendedItem.ComponentType);
+            }
+
+            return themeProperty;
+        }
+
+        private static void EnsureThemeTargetType(DesignItem themeItem, Type targetType)
+        {
+            if (themeItem == null || targetType == null)
+                return;
+
+            var targetTypeProperty = themeItem.Properties.HasProperty("TargetType");
+            if (targetTypeProperty == null)
+                return;
+
+            var xamlTypeName = BuildXamlTypeName(themeItem, targetType);
+            if (!string.IsNullOrWhiteSpace(xamlTypeName))
+                targetTypeProperty.SetValue(xamlTypeName);
+        }
+
+        private static string BuildXamlTypeName(DesignItem themeItem, Type targetType)
+        {
+            // Prefer the shortest valid XAML type name so TargetType persists as text
+            // (e.g. "Rectangle" or "local:MyControl") instead of a RuntimeType object node.
+            const BindingFlags nonPublicInstance = BindingFlags.Instance | BindingFlags.NonPublic;
+            const BindingFlags nonPublicInstancePublic = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+
+            try
+            {
+                var xamlObjectProperty = themeItem.GetType().GetProperty("XamlObject", nonPublicInstancePublic);
+                var xamlObject = xamlObjectProperty?.GetValue(themeItem);
+                if (xamlObject == null)
+                    return targetType.Name;
+
+                var ownerDocumentProperty = xamlObject.GetType().GetProperty("OwnerDocument", nonPublicInstancePublic);
+                var ownerDocument = ownerDocumentProperty?.GetValue(xamlObject);
+                if (ownerDocument == null)
+                    return targetType.Name;
+
+                var xmlElementProperty = xamlObject.GetType().GetProperty("XmlElement", nonPublicInstancePublic);
+                var xmlElement = xmlElementProperty?.GetValue(xamlObject);
+
+                var getNamespaceForMethod = ownerDocument.GetType().GetMethod("GetNamespaceFor", nonPublicInstance, null, new[] { typeof(Type), typeof(bool) }, null);
+                var ns = getNamespaceForMethod?.Invoke(ownerDocument, new object[] { targetType, false }) as string;
+                if (string.IsNullOrEmpty(ns))
+                    return targetType.Name;
+
+                string prefix = string.Empty;
+                var getPrefixWithElementMethod = ownerDocument.GetType().GetMethod("GetPrefixForNamespace", nonPublicInstance, null, new[] { xmlElement?.GetType(), typeof(string) }, null);
+                if (getPrefixWithElementMethod != null && xmlElement != null)
+                {
+                    prefix = getPrefixWithElementMethod.Invoke(ownerDocument, new object[] { xmlElement, ns }) as string;
+                }
+                else
+                {
+                    var getPrefixMethod = ownerDocument.GetType().GetMethod("GetPrefixForNamespace", nonPublicInstance, null, new[] { typeof(string) }, null);
+                    prefix = getPrefixMethod?.Invoke(ownerDocument, new object[] { ns }) as string;
+                }
+
+                if (string.IsNullOrEmpty(prefix))
+                    return targetType.Name;
+
+                return prefix + ":" + targetType.Name;
+            }
+            catch
+            {
+                return targetType.Name;
+            }
+        }
+
+        private static object CreateThemeInstance(Type themeType, Type targetType)
+        {
+            if (themeType == null)
+                return null;
+
+            object themeInstance = null;
+
+            var ctorWithTargetType = themeType.GetConstructor(new[] { typeof(Type) });
+            if (ctorWithTargetType != null)
+            {
+                try
+                {
+                    themeInstance = ctorWithTargetType.Invoke(new object[] { targetType });
+                }
+                catch
+                {
+                    themeInstance = null;
+                }
+            }
+
+            if (themeInstance == null)
+            {
+                var defaultCtor = themeType.GetConstructor(Type.EmptyTypes);
+                if (defaultCtor == null)
+                    return null;
+
+                try
+                {
+                    themeInstance = defaultCtor.Invoke(null);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            var targetTypeProperty = themeType.GetProperty("TargetType");
+            if (targetTypeProperty != null && targetTypeProperty.CanWrite)
+            {
+                try
+                {
+                    targetTypeProperty.SetValue(themeInstance, targetType);
+                }
+                catch
+                {
+                    // Ignore if this Avalonia version uses a different theme model.
+                }
+            }
+
+            return themeInstance;
         }
 
         private VBDockingManager _DockingManager;

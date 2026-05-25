@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
@@ -5,6 +6,7 @@ using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.layoutengine.avui.PropertyGrid.Editors;
 using gip.ext.design.avui;
+using gip.ext.design.avui.PropertyGrid;
 using gip.ext.designer.avui.OutlineView;
 using System;
 using System.Collections.Generic;
@@ -17,6 +19,68 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBBindingEditor : BindingEditor, IBindingDropHandler, IACInteractiveObject
     {
+        private bool _isUpdatingSelfBindableProperty;
+        private IReadOnlyList<string> _selfBindableProperties = Array.Empty<string>();
+        private bool _showSelfPropertySelector;
+        private string _selectedSelfBindableProperty;
+
+        public static readonly DirectProperty<VBBindingEditor, IReadOnlyList<string>> SelfBindablePropertiesProperty =
+            AvaloniaProperty.RegisterDirect<VBBindingEditor, IReadOnlyList<string>>(
+                nameof(SelfBindableProperties),
+                o => o.SelfBindableProperties);
+
+        public IReadOnlyList<string> SelfBindableProperties
+        {
+            get
+            {
+                return _selfBindableProperties;
+            }
+            private set
+            {
+                SetAndRaise(SelfBindablePropertiesProperty, ref _selfBindableProperties, value);
+            }
+        }
+
+        public static readonly DirectProperty<VBBindingEditor, bool> ShowSelfPropertySelectorProperty =
+            AvaloniaProperty.RegisterDirect<VBBindingEditor, bool>(
+                nameof(ShowSelfPropertySelector),
+                o => o.ShowSelfPropertySelector);
+
+        public bool ShowSelfPropertySelector
+        {
+            get
+            {
+                return _showSelfPropertySelector;
+            }
+            private set
+            {
+                SetAndRaise(ShowSelfPropertySelectorProperty, ref _showSelfPropertySelector, value);
+            }
+        }
+
+        public static readonly DirectProperty<VBBindingEditor, string> SelectedSelfBindablePropertyProperty =
+            AvaloniaProperty.RegisterDirect<VBBindingEditor, string>(
+                nameof(SelectedSelfBindableProperty),
+                o => o.SelectedSelfBindableProperty,
+                (o, v) => o.SelectedSelfBindableProperty = v,
+                defaultBindingMode: BindingMode.TwoWay);
+
+        public string SelectedSelfBindableProperty
+        {
+            get
+            {
+                return _selectedSelfBindableProperty;
+            }
+            set
+            {
+                if (SetAndRaise(SelectedSelfBindablePropertyProperty, ref _selectedSelfBindableProperty, value))
+                {
+                    if (!_isUpdatingSelfBindableProperty)
+                        ApplySelfBindablePropertySelection(value);
+                }
+            }
+        }
+
         #region c'tors
         public VBBindingEditor()
         {
@@ -31,10 +95,152 @@ namespace gip.core.layoutengine.avui
         protected override Type StyleKeyOverride => typeof(VBBindingEditor);
         #endregion
 
+        public new void InitEditor(DesignItem designObject, TriggerOutlineNodeBase parentTriggerNode)
+        {
+            base.InitEditor(designObject, parentTriggerNode);
+            InitializeSelfPropertySelector();
+        }
+
+        public new void LoadItemsCollection(DesignItem designObject)
+        {
+            base.LoadItemsCollection(designObject);
+            InitializeSelfPropertySelector();
+        }
+
         protected override void CreateWrapper()
         {
             if ((_DesignObjectBinding.Component is Binding) || (_DesignObjectBinding.Component is VBBindingExt))
                 _Wrapper = new VBBindingEditorWrapperSingle(_DesignObjectBinding, null);
+        }
+
+        private void InitializeSelfPropertySelector()
+        {
+            if (!(ParentTriggerNode is DataTriggerOutlineNode) || Wrapper == null || Wrapper.ParentMultiWrapper != null)
+            {
+                ShowSelfPropertySelector = false;
+                SelfBindableProperties = Array.Empty<string>();
+                SetSelectedSelfBindableProperty(null);
+                return;
+            }
+
+            DesignItem triggerTarget = ParentTriggerNode.DesignObject;
+            if (triggerTarget?.Component == null)
+            {
+                ShowSelfPropertySelector = false;
+                SelfBindableProperties = Array.Empty<string>();
+                SetSelectedSelfBindableProperty(null);
+                return;
+            }
+
+            List<string> propertyNames = TypeHelper
+                .GetAvailableProperties(triggerTarget.Component, true)
+                .Where(d => d != null && !String.IsNullOrWhiteSpace(d.Name))
+                .Select(d => d.Name)
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(n => n, StringComparer.Ordinal)
+                .ToList();
+
+            string selectedPath = GetSelectedSelfBindingPath();
+            if (!String.IsNullOrWhiteSpace(selectedPath) && !propertyNames.Contains(selectedPath, StringComparer.Ordinal))
+                propertyNames.Add(selectedPath);
+
+            ShowSelfPropertySelector = propertyNames.Count > 0;
+            SelfBindableProperties = propertyNames;
+            SetSelectedSelfBindableProperty(selectedPath);
+        }
+
+        private void SetSelectedSelfBindableProperty(string propertyName)
+        {
+            _isUpdatingSelfBindableProperty = true;
+            try
+            {
+                SelectedSelfBindableProperty = propertyName;
+            }
+            finally
+            {
+                _isUpdatingSelfBindableProperty = false;
+            }
+        }
+
+        private string GetSelectedSelfBindingPath()
+        {
+            BindingEditorWrapperSingle singleWrapper = Wrapper as BindingEditorWrapperSingle;
+            if (singleWrapper == null || singleWrapper.RelativeSource == null)
+                return null;
+
+            RelativeSource relativeSource = singleWrapper.RelativeSource.Value as RelativeSource;
+            if (relativeSource == null)
+                return null;
+
+            bool isSelf = relativeSource.Mode == RelativeSourceMode.Self;
+            bool isBehaviorAncestor = relativeSource.Mode == RelativeSourceMode.FindAncestor
+                && relativeSource.Tree == TreeType.Logical
+                && relativeSource.AncestorLevel == 1;
+
+            if (!isSelf && !isBehaviorAncestor)
+                return null;
+
+            if (singleWrapper.Path == null)
+                return null;
+
+            string path = singleWrapper.Path.Value as string;
+            if (!String.IsNullOrWhiteSpace(path))
+                return path;
+
+            return singleWrapper.Path.ValueString;
+        }
+
+        private void ApplySelfBindablePropertySelection(string propertyName)
+        {
+            if (String.IsNullOrWhiteSpace(propertyName))
+                return;
+
+            BindingEditorWrapperSingle singleWrapper = Wrapper as BindingEditorWrapperSingle;
+            if (singleWrapper == null)
+                return;
+
+            if (singleWrapper.Path != null)
+                singleWrapper.Path.Value = propertyName;
+
+            if (singleWrapper.RelativeSource != null)
+            {
+                // Property-style trigger bindings live on DataTriggerBehavior (a behavior object),
+                // so RelativeSource=Self would target the behavior instance. Resolve against the
+                // associated control via logical-tree ancestor lookup instead.
+                singleWrapper.RelativeSource.Value = new RelativeSource();
+
+                var relativeSourceItem = singleWrapper.RelativeSource.ValueItem;
+                var relativeSourceModeProperty = relativeSourceItem?.Properties?.HasProperty("Mode");
+                var relativeSourceAncestorLevelProperty = relativeSourceItem?.Properties?.HasProperty("AncestorLevel");
+                var relativeSourceTreeProperty = relativeSourceItem?.Properties?.HasProperty("Tree");
+
+                if (relativeSourceModeProperty != null
+                    && relativeSourceAncestorLevelProperty != null
+                    && relativeSourceTreeProperty != null)
+                {
+                    relativeSourceModeProperty.SetValue(RelativeSourceMode.FindAncestor);
+                    relativeSourceAncestorLevelProperty.SetValue(1);
+                    relativeSourceTreeProperty.SetValue(TreeType.Logical);
+                }
+                else
+                {
+                    singleWrapper.RelativeSource.Value = new RelativeSource
+                    {
+                        Mode = RelativeSourceMode.FindAncestor,
+                        AncestorLevel = 1,
+                        Tree = TreeType.Logical
+                    };
+                }
+            }
+
+            if (singleWrapper.Source != null && singleWrapper.Source.IsSet)
+                singleWrapper.Source.Reset();
+
+            if (singleWrapper.ElementName != null && singleWrapper.ElementName.IsSet)
+                singleWrapper.ElementName.Reset();
+
+            if (singleWrapper is VBBindingEditorWrapperSingle vbWrapper && vbWrapper.VBContent != null && vbWrapper.VBContent.IsSet)
+                vbWrapper.VBContent.Reset();
         }
 
 
@@ -147,7 +353,7 @@ namespace gip.core.layoutengine.avui
         {
             Control uiElement = e.Source as Control;
 
-            if ((uiElement == null) || (Wrapper == null) || (Wrapper.ParentMultiWrapper != null))
+            if ((uiElement == null) || (Wrapper == null))
             {
                 e.DragEffects = DragDropEffects.None;
                 e.Handled = true;
@@ -209,7 +415,7 @@ namespace gip.core.layoutengine.avui
         {
             Control uiElement = e.Source as Control;
 
-            if (uiElement == null || (Wrapper == null) || (Wrapper.ParentMultiWrapper != null))
+            if (uiElement == null || (Wrapper == null))
             {
                 e.DragEffects = DragDropEffects.None;
                 e.Handled = true;
@@ -285,7 +491,7 @@ namespace gip.core.layoutengine.avui
 
         public void AddOrUpdateBindingWithProperty(String VBContent, IACObject acObjectSource)
         {
-            if ((Wrapper == null) || (Wrapper.ParentMultiWrapper != null) || !(Wrapper is VBBindingEditorWrapperSingle))
+            if ((Wrapper == null) || !(Wrapper is VBBindingEditorWrapperSingle))
                 return;
 
             (Wrapper as VBBindingEditorWrapperSingle).VBContent.Value = VBContent;

@@ -64,9 +64,8 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                if (BindingProperty.IsSet && TriggerValue.IsSet)
-                    return true;
-                return false;
+                // For editor workflow, consider the trigger configured as soon as the binding exists.
+                return BindingProperty != null && BindingProperty.IsSet;
             }
         }
 
@@ -77,12 +76,18 @@ namespace gip.ext.designer.avui.OutlineView
                 string InfoText = "";
                 if ((Editor != null) && (Editor is DataTriggerEditor))
                     InfoText = (Editor as DataTriggerEditor).TriggerInfoText;
+
+                object triggerValue = TriggerValue != null ? TriggerValue.ValueOnInstance : null;
+                bool hasTriggerValue = triggerValue != null && triggerValue != AvaloniaProperty.UnsetValue;
+
                 if (!String.IsNullOrEmpty(InfoText))
                 {
-                    return InfoText + " = " + TriggerValue.ValueOnInstance.ToString();
+                    if (hasTriggerValue)
+                        return InfoText + " = " + triggerValue.ToString();
+                    return InfoText;
                 }
-                if (TriggerValue.ValueOnInstance != null)
-                    return PropertyName + " = " + TriggerValue.ValueOnInstance.ToString();
+                if (hasTriggerValue)
+                    return PropertyName + " = " + triggerValue.ToString();
                 return PropertyName;
             }
         }
@@ -91,9 +96,14 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                if (BindingProperty.ValueOnInstance == null)
+                if (BindingProperty == null)
                     return "Binding";
-                return BindingProperty.ValueOnInstance.ToString();
+
+                object bindingValue = BindingProperty.ValueOnInstance;
+                if (bindingValue == null || bindingValue == AvaloniaProperty.UnsetValue)
+                    return "Binding";
+
+                return bindingValue.ToString();
             }
         }
 

@@ -2,6 +2,7 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using Avalonia.Controls;
+using Avalonia.Data;
 using gip.ext.design.avui;
 using gip.ext.designer.avui.OutlineView;
 using System;
@@ -81,6 +82,31 @@ namespace gip.core.layoutengine.avui
         public VBDataTriggerOutlineNode(DesignItem trigger, DesignItem designItem)
             : base(trigger, designItem)
         {
+            UpgradeMissingMultiBindingConverter();
+        }
+
+        private void UpgradeMissingMultiBindingConverter()
+        {
+            var bindingProperty = BindingProperty;
+            if (bindingProperty == null || !bindingProperty.IsSet)
+                return;
+
+            var multiBinding = bindingProperty.ValueOnInstance as MultiBinding;
+            if (multiBinding == null || multiBinding.Converter != null)
+                return;
+
+            var bindingDesignItem = bindingProperty.Value;
+            if (bindingDesignItem?.Properties != null)
+            {
+                var converterProperty = bindingDesignItem.Properties.HasProperty("Converter");
+                if (converterProperty != null)
+                {
+                    converterProperty.SetValue(new ConverterBooleanMulti());
+                    return;
+                }
+            }
+
+            multiBinding.Converter = new ConverterBooleanMulti();
         }
 
         /// <summary>

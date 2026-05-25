@@ -183,6 +183,9 @@ namespace gip.core.layoutengine.avui
         }
 
         private IACType _dcACTypeInfo;
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public IACType dcACTypeInfo
         {
             get
@@ -192,11 +195,19 @@ namespace gip.core.layoutengine.avui
         }
 
         private Global.ControlModes _dcRightControlMode = Global.ControlModes.Hidden;
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Global.ControlModes dcRightControlMode
         {
             get
             {
                 return _dcRightControlMode;
+            }
+
+            set
+            {
+                _dcRightControlMode = value;
             }
         }
 
@@ -211,9 +222,24 @@ namespace gip.core.layoutengine.avui
 
             AvaloniaObject target = service.TargetObject as AvaloniaObject;
             AvaloniaProperty dp = service.TargetProperty as AvaloniaProperty;
-            
-            if (target == null || dp == null)
+
+            // If no ACUrl-based VBContent is configured, behave like a regular Avalonia Binding
+            // so Path/RelativeSource/Source scenarios (e.g. RelativeSource=Self in DataTrigger)
+            // continue to work.
+            bool hasVBContent = !String.IsNullOrWhiteSpace(_VBContent);
+            if (!hasVBContent)
+            {
+                // VBBinding is a custom markup extension path; explicitly attach binding
+                // so Binding-target properties (e.g. DataTriggerBehavior.Binding) receive values,
+                // not the binding object instance itself.
+                if (target != null && dp != null)
+                {
+                    target.Bind(dp, this);
+                    return target.GetValue(dp);
+                }
+
                 return this;
+            }
 
             // Re-resolve against the real target context at apply time.
             // This avoids stale global-context bindings during nested XAML loading.
@@ -228,6 +254,21 @@ namespace gip.core.layoutengine.avui
             object dcSource;
             string dcPath;
             BindingMode resolvedMode;
+
+            // For nested bindings (e.g. VBBinding inside MultiBinding.Bindings), the target
+            // is not always an AvaloniaObject/AvaloniaProperty pair. Still resolve VBContent
+            // against the fallback context so the binding does not evaluate to raw DataContext.
+            if (target == null || dp == null)
+            {
+                if (TryResolveBinding(context, out dcSource, out dcPath, out resolvedMode))
+                {
+                    Source = dcSource;
+                    Path = dcPath;
+                    Mode = resolvedMode;
+                }
+                return this;
+            }
+
             _isDesignFallback = !TryResolveBinding(context, out dcSource, out dcPath, out resolvedMode);
 
             string targetName = (target as StyledElement)?.Name;
@@ -559,6 +600,9 @@ namespace gip.core.layoutengine.avui
         }
 
         private IACType _dcACTypeInfo;
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public IACType dcACTypeInfo
         {
             get
@@ -568,11 +612,19 @@ namespace gip.core.layoutengine.avui
         }
 
         private Global.ControlModes _dcRightControlMode = Global.ControlModes.Hidden;
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Global.ControlModes dcRightControlMode
         {
             get
             {
                 return _dcRightControlMode;
+            }
+
+            set
+            {
+                _dcRightControlMode = value;
             }
         }
     }
