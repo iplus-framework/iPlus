@@ -1,0 +1,10 @@
+<Window x:Class="gip.ext.designer.avui.OutlineView.StyleSelectorWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView"
+        Height="560"
+        Width="980"
+        Title="Edit Styles and Selectors"
+        WindowStartupLocation="CenterScreen">
+  <OutlineView:StylesCollectionEditor x:Name="StylesEditor" />
+</Window>

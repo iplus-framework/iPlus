@@ -112,6 +112,21 @@ namespace gip.core.layoutengine.avui
                         }
                         return;
                     }
+                    else if ((string)clickedOn.Header == "Edit Styles / Selectors")
+                    {
+                        if (DockingManager != null)
+                        {
+                            var editor = new VBStylesCollectionEditor();
+                            editor.LoadItemsCollection(extendedItem);
+                            _ = DockingManager.ShowFloatingWindowAsync(
+                                editor,
+                                "Styles / Selectors: " + WindowTitle,
+                                new Size(980, 560),
+                                true, Global.ControlModes.Hidden, Global.ControlModes.Enabled,
+                                DockingManager.GetOppositeToolDockPosition());
+                        }
+                        return;
+                    }
                     else if ((string)clickedOn.Header == "Delete")
                     {
                         if (extendedItem.Component is VBVisual)

@@ -1,0 +1,60 @@
+<ResourceDictionary 
+    xmlns="https://github.com/avaloniaui" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls"
+    xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid" 
+    xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView">
+
+    <ControlTheme x:Key="{x:Type OutlineView:StylesCollectionEditor}" TargetType="{x:Type OutlineView:StylesCollectionEditor}">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid RowDefinitions="Auto,*" Margin="10">
+                    <TextBlock Grid.Row="0"
+                            Text="Manage local styles, selectors, and setters for the selected control."
+                            Margin="0,0,0,8" />
+
+                    <Grid Grid.Row="1" ColumnDefinitions="280,*">
+                    <Border Grid.Column="0" BorderBrush="Black" BorderThickness="0.75" Margin="0,0,10,0">
+                        <Grid RowDefinitions="Auto,*">
+                        <StackPanel Orientation="Horizontal" Margin="8" Spacing="6">
+                            <Button x:Name="PART_AddStyleButton" Content="Add" MinWidth="56" />
+                            <Button x:Name="PART_RemoveStyleButton" Content="Remove" MinWidth="72" />
+                            <Button x:Name="PART_MoveUpButton" Content="Up" MinWidth="48" />
+                            <Button x:Name="PART_MoveDownButton" Content="Down" MinWidth="58" />
+                        </StackPanel>
+
+                        <ListBox x:Name="PART_StylesList"
+                                Grid.Row="1"
+                                Margin="8,0,8,8"
+                                DisplayMemberBinding="{Binding DisplayName}" />
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Column="1" RowDefinitions="Auto,*">
+                        <Border Grid.Row="0" BorderBrush="Black" BorderThickness="0.75" Margin="0,0,0,10" Padding="10">
+                                <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Selector" VerticalAlignment="Center" Margin="0,0,10,0" />
+                                <AutoCompleteBox x:Name="PART_SelectorTextBox" Grid.Row="0" Grid.Column="1" />
+                                <Button x:Name="PART_ApplySelectorButton" Grid.Row="0" Grid.Column="2" Content="Apply" Margin="8,0,0,0" MinWidth="70" />
+                                <TextBlock Grid.Row="1"
+                                    x:Name="PART_SelectorStatusText"
+                                    Grid.ColumnSpan="3"
+                                    Margin="0,8,0,0"
+                                    Text="Type selector. Suggestions appear while typing." />
+                                <TextBlock Grid.Row="2"
+                                        Grid.ColumnSpan="3"
+                                    Margin="0,4,0,0"
+                                        Text="Use Avalonia selector syntax, e.g. Button:pointerover or :is(local|MyControl)." />
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="1" BorderBrush="Black" BorderThickness="0.75">
+                        <OutlineView:SettersCollectionEditor x:Name="PART_SetterEditor" />
+                        </Border>
+                    </Grid>
+                    </Grid>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>            
+</ResourceDictionary>

@@ -1,0 +1,55 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+   xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView;assembly=gip.ext.designer.avui"
+   xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid;assembly=gip.ext.designer.avui"
+   xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls;assembly=gip.ext.designer.avui">
+
+    <ControlTheme x:Key="{x:Type local:VBStylesCollectionEditor}" TargetType="{x:Type local:VBStylesCollectionEditor}">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <local:VBGrid RowDefinitions="Auto,*" Margin="10">
+                    <local:VBTextBlock Grid.Row="0"
+                            Text="Manage local styles, selectors, and setters for the selected control."
+                            Margin="0,0,0,8" />
+
+                    <local:VBGrid Grid.Row="1" ColumnDefinitions="280,*">
+                        <local:VBGrid Grid.Column="0" RowDefinitions="Auto,*">
+                            <StackPanel Orientation="Horizontal" Margin="8" Spacing="6">
+                                <local:VBButton x:Name="PART_AddStyleButton" Content="Add" MinWidth="56" />
+                                <local:VBButton x:Name="PART_RemoveStyleButton" Content="Remove" MinWidth="72" />
+                                <local:VBButton x:Name="PART_MoveUpButton" Content="Up" MinWidth="48" />
+                                <local:VBButton x:Name="PART_MoveDownButton" Content="Down" MinWidth="58" />
+                            </StackPanel>
+
+                            <local:VBListBox x:Name="PART_StylesList" ShowCaption="False"
+                                    Grid.Row="1"
+                                    Margin="8,0,8,8"
+                                    DisplayMemberBinding="{Binding DisplayName}" />
+                        </local:VBGrid>
+
+                        <local:VBGrid Grid.Column="1" RowDefinitions="Auto,*">
+                                <local:VBGrid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                <local:VBTextBlock Grid.Row="0" Grid.Column="0" Text="Selector" VerticalAlignment="Center" Margin="0,0,10,0" />
+                                <AutoCompleteBox x:Name="PART_SelectorTextBox" Grid.Row="0" Grid.Column="1" />
+                                <local:VBButton x:Name="PART_ApplySelectorButton" Grid.Row="0" Grid.Column="2" Content="Apply" Margin="8,0,0,0" MinWidth="70" />
+                                <local:VBTextBlock Grid.Row="1"
+                                    x:Name="PART_SelectorStatusText"
+                                    Grid.ColumnSpan="3"
+                                    Margin="0,8,0,0"
+                                    Text="Type selector. Suggestions appear while typing." />
+                                <local:VBTextBlock Grid.Row="2"
+                                        Grid.ColumnSpan="3"
+                                    Margin="0,4,0,0"
+                                        Text="Use Avalonia selector syntax, e.g. Button:pointerover or :is(local|MyControl)." />
+                            </local:VBGrid>
+
+                            <local:VBSettersCollectionEditor x:Name="PART_SetterEditor" Grid.Row="1" />
+                        </local:VBGrid>
+                    </local:VBGrid>
+                </local:VBGrid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>            
+</ResourceDictionary>

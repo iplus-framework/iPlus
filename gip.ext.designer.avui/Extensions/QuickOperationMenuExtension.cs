@@ -171,6 +171,8 @@ namespace gip.ext.designer.avui.Extensions
                     menuItemsAdded++;
                     _menu.AddSubMenuInTheHeader(menuBuilder.CreateMenuItem("Edit Style Trigger"));
                     menuItemsAdded++;
+                    _menu.AddSubMenuInTheHeader(menuBuilder.CreateMenuItem("Edit Styles / Selectors"));
+                    menuItemsAdded++;
                 }
 
                 if (view is Grid)
@@ -319,6 +321,15 @@ namespace gip.ext.designer.avui.Extensions
                         if (!e.Handled)
                         {
                             var editor = new StyleTriggerWindow();
+                            editor.LoadItemsCollection(extendedItem);
+                            editor.Show();
+                        }
+                    }
+                    else if ((string)clickedOn.Header == "Edit Styles / Selectors")
+                    {
+                        if (!e.Handled)
+                        {
+                            var editor = new StyleSelectorWindow();
                             editor.LoadItemsCollection(extendedItem);
                             editor.Show();
                         }

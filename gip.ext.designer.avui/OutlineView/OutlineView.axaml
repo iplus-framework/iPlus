@@ -36,7 +36,7 @@
 										<ControlTemplate>
 											<Grid Background="Transparent" IsHitTestVisible="True">
 												<Image Width="16" Height="16" x:Name="locked" Stretch="Uniform" 
-													   Source="pack://application:,,,/gip.ext.designer.avui;component/Images/lock.png" 
+													   Source="/Images/lock.png" 
 													   IsVisible="False" />
 												<Ellipse x:Name="unlocked" Width="6" Height="6" Stroke="Black" StrokeThickness="1" 
 														 IsVisible="True" />
@@ -51,10 +51,10 @@
 										<ControlTemplate>
 											<Grid Background="Transparent" IsHitTestVisible="True">
 												<Image x:Name="eye" Stretch="None" 
-													   Source="pack://application:,,,/gip.ext.designer.avui;component/Images/Icons.16x16.WpfOutline.Eye.png" 
+													   Source="/Images/Icons.16x16.WpfOutline.Eye.png" 
 													   IsVisible="False" />
 												<Image x:Name="closed_eye" Stretch="None" 
-													   Source="pack://application:,,,/gip.ext.designer.avui;component/Images/Icons.16x16.WpfOutline.EyeClose.png" 
+													   Source="/Images/Icons.16x16.WpfOutline.EyeClose.png" 
 													   IsVisible="True" />
 											</Grid>
 										</ControlTemplate>

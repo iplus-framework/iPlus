@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.Reflection;
 using System.Text;
 using System.Xml;
 using Avalonia.Controls;
@@ -120,9 +121,11 @@ namespace gip.ext.xamldom.avui
                 var setterTargetTypeName = obj.XmlElement.GetAttribute("SetterTargetType", XamlConstants.XamlNamespace);
                 if (string.IsNullOrEmpty(setterTargetTypeName))
                     setterTargetTypeName = obj.XmlElement.GetAttribute("SetterTargetType", XamlConstants.Xaml2009Namespace);
+                if (string.IsNullOrEmpty(setterTargetTypeName))
+                    setterTargetTypeName = obj.XmlElement.GetAttribute("SetterTargetType");
                 if (!string.IsNullOrEmpty(setterTargetTypeName))
                 {
-                    var resolvedSetterTargetType = Resolve(setterTargetTypeName);
+                    var resolvedSetterTargetType = TryResolveTypeReference(setterTargetTypeName);
                     if (resolvedSetterTargetType != null)
                     {
                         elementType = resolvedSetterTargetType;
@@ -136,6 +139,25 @@ namespace gip.ext.xamldom.avui
                     elementType = style.TargetType;
                     break;
                 }
+
+                Style normalStyle = obj.Instance as Style;
+                if (normalStyle != null)
+                {
+                    var selectorTargetType = TryGetSelectorTargetType(normalStyle.Selector);
+                    if (selectorTargetType == null)
+                    {
+                        var selectorProperty = obj.FindProperty("Selector");
+                        var selectorText = selectorProperty?.TextValueOnInstance;
+                        selectorTargetType = TryGetSelectorTargetTypeFromText(selectorText);
+                    }
+
+                    if (selectorTargetType != null)
+                    {
+                        elementType = selectorTargetType;
+                        break;
+                    }
+                }
+
                 obj = obj.ParentObject;
             }
             if (propertyName.Contains("."))
@@ -155,6 +177,117 @@ namespace gip.ext.xamldom.avui
                 return info;
             }
             else
+            {
+                return null;
+            }
+        }
+
+        private Type TryResolveTypeReference(string typeReference)
+        {
+            if (string.IsNullOrWhiteSpace(typeReference))
+                return null;
+
+            var normalized = NormalizeTypeReference(typeReference);
+            if (string.IsNullOrWhiteSpace(normalized))
+                return null;
+
+            try
+            {
+                return Resolve(normalized);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static string NormalizeTypeReference(string typeReference)
+        {
+            var normalized = typeReference.Trim();
+            if (normalized.Length == 0)
+                return normalized;
+
+            // Handle markup-extension syntax such as "{x:Type Canvas}".
+            if (normalized.StartsWith("{", StringComparison.Ordinal)
+                && normalized.EndsWith("}", StringComparison.Ordinal)
+                && normalized.IndexOf("x:Type", StringComparison.Ordinal) >= 0)
+            {
+                var markerIndex = normalized.IndexOf("x:Type", StringComparison.Ordinal);
+                if (markerIndex >= 0)
+                {
+                    normalized = normalized.Substring(markerIndex + "x:Type".Length)
+                        .Trim()
+                        .TrimEnd('}')
+                        .Trim();
+                }
+            }
+
+            // Avalonia selector-style type tokens can use prefix|Type.
+            if (normalized.IndexOf('|') >= 0 && normalized.IndexOf(':') < 0)
+                normalized = normalized.Replace('|', ':');
+
+            return normalized;
+        }
+
+        private static Type TryGetSelectorTargetType(Selector selector)
+        {
+            if (selector == null)
+                return null;
+
+            try
+            {
+                var targetTypeProperty = typeof(Selector).GetProperty(
+                    "TargetType",
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                return targetTypeProperty?.GetValue(selector) as Type;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private Type TryGetSelectorTargetTypeFromText(string selectorText)
+        {
+            if (string.IsNullOrWhiteSpace(selectorText))
+                return null;
+
+            var parserType = Type.GetType("Avalonia.Markup.Parsers.SelectorParser, Avalonia.Markup", throwOnError: false);
+            if (parserType == null)
+                return null;
+
+            try
+            {
+                Func<string, string, Type> typeResolver = (xmlNsPrefix, typeName) =>
+                {
+                    var qualifiedName = string.IsNullOrEmpty(xmlNsPrefix)
+                        ? typeName
+                        : xmlNsPrefix + ":" + typeName;
+                    return Resolve(qualifiedName);
+                };
+
+                var ctor = parserType.GetConstructor(
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                    binder: null,
+                    types: new[] { typeof(Func<string, string, Type>) },
+                    modifiers: null);
+                if (ctor == null)
+                    return null;
+
+                var parser = ctor.Invoke(new object[] { typeResolver });
+                var parseMethod = parserType.GetMethod(
+                    "Parse",
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                    binder: null,
+                    types: new[] { typeof(string) },
+                    modifiers: null);
+                if (parseMethod == null)
+                    return null;
+
+                var selector = parseMethod.Invoke(parser, new object[] { selectorText }) as Selector;
+                return TryGetSelectorTargetType(selector);
+            }
+            catch
             {
                 return null;
             }

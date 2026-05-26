@@ -82,6 +82,8 @@ namespace gip.ext.designer.avui.OutlineView
             set { SetValue(FirstColumnWidthProperty, value); }
         }
 
+        public bool TrackDesignerSelection { get; set; } = true;
+
         public void InitEditor(DesignItem designObject, DesignItemProperty collectionProperty)
         {
             Debug.Assert(designObject.View is Control);
@@ -91,7 +93,7 @@ namespace gip.ext.designer.avui.OutlineView
             //    return;
             //DesignItemProperty settersProp = styleProp.Value.Properties.GetProperty("Setters");
 
-            _trackDesignerSelection = ShouldTrackDesignerSelection(collectionProperty);
+            _trackDesignerSelection = TrackDesignerSelection && ShouldTrackDesignerSelection(collectionProperty);
             ApplyEditorContext(designObject, collectionProperty);
             AttachSelectionTracking(designObject);
         }

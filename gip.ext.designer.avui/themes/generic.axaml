@@ -45,6 +45,7 @@
         <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/Themes/PropertyTriggerEditorStyle.axaml" />
         <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/Themes/TriggersCollectionEditorStyle.axaml" />
         <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/Themes/SettersCollectionEditorStyle.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/Themes/StylesCollectionEditorStyle.axaml" />
 
         <MergeResourceInclude Source="avares://gip.ext.designer.avui/PropertyGrid/Themes/DesignItemTreeViewStyle.axaml" />
         <MergeResourceInclude Source="avares://gip.ext.designer.avui/PropertyGrid/Themes/PropertyGridViewStyle.axaml" />

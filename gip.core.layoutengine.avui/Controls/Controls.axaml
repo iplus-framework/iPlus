@@ -65,6 +65,7 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/DesignItemTreeViewStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/SettersCollectionEditorStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/TriggersCollectionEditorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/StylesCollectionEditorStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/DataTriggerEditorStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/PropertyTriggerEditorStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/EventTriggerEditorStyle.axaml"/>
