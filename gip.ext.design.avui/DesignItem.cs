@@ -311,7 +311,9 @@ namespace gip.ext.design.avui
             if (!behaviorInterface.IsInstanceOfType(behaviorImplementation))
                 throw new ArgumentException("behaviorImplementation must implement bevahiorInterface", "behaviorImplementation");
 
-            _behaviorObjects.Add(behaviorInterface, behaviorImplementation);
+            // Extensions can be re-applied; registering behavior for the same
+            // interface must be idempotent instead of throwing duplicate-key.
+            _behaviorObjects[behaviorInterface] = behaviorImplementation;
         }
 
         /// <summary>

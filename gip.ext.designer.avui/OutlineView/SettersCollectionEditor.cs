@@ -17,6 +17,7 @@ using Avalonia.Data;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
 using Avalonia.Xaml.Interactions.Core;
+using Avalonia.Threading;
 
 namespace gip.ext.designer.avui.OutlineView
 {
@@ -32,6 +33,8 @@ namespace gip.ext.designer.avui.OutlineView
         private DesignItem _DesignObject;
         private DesignItemProperty _SettersCollectionProp;
         private IComponentService _componentService;
+        private ISelectionService _selectionService;
+        private bool _trackDesignerSelection;
         public Control PART_OutlineNodesContext { get; set; }
         public Button PART_ButtonAddItem { get; set; }
         public Button PART_ButtonRemoveItem { get; set; }
@@ -88,16 +91,102 @@ namespace gip.ext.designer.avui.OutlineView
             //    return;
             //DesignItemProperty settersProp = styleProp.Value.Properties.GetProperty("Setters");
 
+            _trackDesignerSelection = ShouldTrackDesignerSelection(collectionProperty);
+            ApplyEditorContext(designObject, collectionProperty);
+            AttachSelectionTracking(designObject);
+        }
+
+        protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+        {
+            base.OnDetachedFromVisualTree(e);
+            DetachSelectionTracking();
+        }
+
+        private void ApplyEditorContext(DesignItem designObject, DesignItemProperty collectionProperty)
+        {
             _DesignObject = designObject;
             _SettersCollectionProp = collectionProperty;
+            _componentService = designObject?.Services?.Component;
 
             _OutlineNodeCollection.Clear();
 
-            foreach (DesignItem child in _SettersCollectionProp.CollectionElements)
+            if (_SettersCollectionProp?.CollectionElements != null)
             {
-                _OutlineNodeCollection.Add(new SetterOutlineNode(child, designObject));
+                foreach (DesignItem child in _SettersCollectionProp.CollectionElements)
+                {
+                    _OutlineNodeCollection.Add(new SetterOutlineNode(child, _DesignObject));
+                }
             }
-            _componentService = designObject.Services.Component;
+
+            if (PART_OutlineNodesContext != null)
+                PART_OutlineNodesContext.DataContext = OutlineNodeCollection;
+
+            if (PART_OutlineList != null)
+                PART_OutlineList.SelectedItem = null;
+
+            if (PART_PropertyGridView?.PropertyGrid != null)
+            {
+                if (_DesignObject != null)
+                    PART_PropertyGridView.PropertyGrid.SelectedItems = new[] { _DesignObject };
+                else
+                    PART_PropertyGridView.PropertyGrid.SelectedItems = null;
+            }
+        }
+
+        private static bool ShouldTrackDesignerSelection(DesignItemProperty collectionProperty)
+        {
+            if (collectionProperty == null)
+                return false;
+
+            // Only style-level Setters should follow global selection.
+            if (!string.Equals(collectionProperty.Name, "Setters", StringComparison.Ordinal))
+                return false;
+
+            var ownerTypeName = collectionProperty.DesignItem?.ComponentType?.Name;
+            return !string.IsNullOrWhiteSpace(ownerTypeName)
+                && (ownerTypeName.IndexOf("Style", StringComparison.OrdinalIgnoreCase) >= 0
+                    || ownerTypeName.IndexOf("Theme", StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        private void AttachSelectionTracking(DesignItem designObject)
+        {
+            DetachSelectionTracking();
+
+            if (!_trackDesignerSelection || designObject?.Services == null)
+                return;
+
+            _selectionService = designObject.Services.Selection;
+            if (_selectionService != null)
+                _selectionService.SelectionChanged += OnDesignerSelectionChanged;
+        }
+
+        private void DetachSelectionTracking()
+        {
+            if (_selectionService != null)
+            {
+                _selectionService.SelectionChanged -= OnDesignerSelectionChanged;
+                _selectionService = null;
+            }
+        }
+
+        private void OnDesignerSelectionChanged(object sender, DesignItemCollectionEventArgs e)
+        {
+            if (!_trackDesignerSelection || _selectionService == null)
+                return;
+
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                var selected = _selectionService.SelectedItems?.FirstOrDefault();
+                if (selected == null)
+                {
+                    ApplyEditorContext(null, null);
+                    return;
+                }
+
+                var themeProperty = selected.Properties.GetProperty(Control.ThemeProperty);
+                var settersProperty = themeProperty?.Value?.Properties?.HasProperty("Setters");
+                ApplyEditorContext(selected, settersProperty);
+            }, DispatcherPriority.Background);
         }
 
         private bool IsBehaviorActionCollection
@@ -118,6 +207,9 @@ namespace gip.ext.designer.avui.OutlineView
 
         private void OnAddItemClicked(object sender, RoutedEventArgs e)
         {
+            if (_SettersCollectionProp == null)
+                return;
+
             if (PART_PropertyGridView == null || PART_PropertyGridView.PropertyGrid == null)
                 return;
 
@@ -195,6 +287,9 @@ namespace gip.ext.designer.avui.OutlineView
 
         private void OnRemoveItemClicked(object sender, RoutedEventArgs e)
         {
+            if (_SettersCollectionProp == null)
+                return;
+
             SetterOutlineNode selectedNode = PART_OutlineList?.SelectedItem as SetterOutlineNode;
             if (selectedNode == null)
                 return;

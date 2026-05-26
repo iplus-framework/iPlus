@@ -174,6 +174,9 @@ namespace gip.core.datamodel
         public const string CmdNameDesignModeOff = "DesignModeOff";            // Entwurfmodus beim VBCanvas ausschalten
         public const string CmdDesignModeOff = "!" + CmdNameDesignModeOff;            // Entwurfmodus beim VBCanvas ausschalten
 
+        public const string ToolLogicalTreeWindow = "LogicalTreeWindow";              // Logischer Baum des aktiven VBDesigns anzeigen
+        public const string ToolPropertyWindow = "PropertyWindow";                    // Eigenschaftenfenster des aktiven VBDesigns anzeigen
+        public const string ToolWindow = "ToolWindow";                    // Allgemeines Werkzeugfenster für das aktive VBDesign anzeigen
 
         public const string CmdAssignShapeConfig = "!AssignShapeConfig";          
         public const string CmdPreSetShapeConfig = "!PreSetShapeConfig";          

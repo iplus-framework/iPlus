@@ -215,7 +215,8 @@ namespace gip.ext.design
             if (!behaviorInterface.IsInstanceOfType(behaviorImplementation))
                 throw new ArgumentException("behaviorImplementation must implement bevahiorInterface", "behaviorImplementation");
 
-            _behaviorObjects.Add(behaviorInterface, behaviorImplementation);
+            // Extensions may be re-applied; behavior registration should be idempotent.
+            _behaviorObjects[behaviorInterface] = behaviorImplementation;
         }
 
         /// <summary>

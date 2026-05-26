@@ -4,6 +4,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Interactivity;
 using Avalonia.Styling;
 using System;
 using System.Collections.Generic;
@@ -35,6 +36,16 @@ namespace gip.ext.designer.avui.Controls
         protected virtual MenuItem CreateMenuItem(string header)
         {
             return new MenuItem() { Header = header };
+        }
+
+        protected override void OnLoaded(RoutedEventArgs e)
+        {
+            base.OnLoaded(e);
+        }
+
+        protected override void OnUnloaded(RoutedEventArgs e)
+        {
+            base.OnUnloaded(e);
         }
 
         /// <summary>

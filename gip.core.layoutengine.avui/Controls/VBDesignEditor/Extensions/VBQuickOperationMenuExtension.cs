@@ -11,6 +11,7 @@ using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Controls;
 using gip.ext.designer.avui.Extensions;
 using System;
+using System.Linq;
 using System.Reflection;
 
 namespace gip.core.layoutengine.avui
@@ -20,6 +21,11 @@ namespace gip.core.layoutengine.avui
         protected override MenuItem CreateMenuItem(string header)
         {
             return new VBMenuItem() { Header = header };
+        }
+
+        protected override void OnUnloaded(RoutedEventArgs e)
+        {
+            base.OnUnloaded(e);
         }
     }
 
@@ -71,7 +77,9 @@ namespace gip.core.layoutengine.avui
                                 _ = DockingManager.ShowFloatingWindowAsync(
                                     editor,
                                     "Style Setter: " + WindowTitle,
-                                    new Size(750, 400));
+                                    new Size(750, 400), 
+                                    true, Global.ControlModes.Hidden, Global.ControlModes.Enabled, 
+                                    DockingManager.GetOppositeToolDockPosition());
                             }
                         }
                         return;
@@ -97,7 +105,9 @@ namespace gip.core.layoutengine.avui
                                 _ = DockingManager.ShowFloatingWindowAsync(
                                     editor,
                                     "Style Trigger: " + WindowTitle,
-                                    new Size(750, 500));
+                                    new Size(750, 500),
+                                    true, Global.ControlModes.Hidden, Global.ControlModes.Enabled, 
+                                    DockingManager.GetOppositeToolDockPosition());
                             }
                         }
                         return;

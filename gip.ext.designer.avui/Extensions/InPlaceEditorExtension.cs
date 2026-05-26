@@ -13,6 +13,7 @@ using Avalonia.Layout;
 using Avalonia;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.VisualTree;
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -33,6 +34,7 @@ namespace gip.ext.designer.avui.Extensions
         bool isGettingDragged;   // Flag to get/set whether the extended element is dragged.
         bool isMouseDown;        // Flag to get/set whether left-button is down on the element.
         int numClicks;           // No of left-button clicks on the element.
+        bool pressedOnQuickOperationMenu;
 
         public InPlaceEditorExtension()
         {
@@ -152,11 +154,15 @@ namespace gip.ext.designer.avui.Extensions
         void DesignPanel_PointerPressed(object sender, PointerPressedEventArgs e)
         {
             StoreLastPointerPos(e);
+            pressedOnQuickOperationMenu = false;
 
             // Only preview events
             if (!e.Properties.IsLeftButtonPressed || e.Route != Avalonia.Interactivity.RoutingStrategies.Tunnel)
                 return;
+
             result = designPanel.HitTest(e.GetPosition(designPanel), false, true);
+            pressedOnQuickOperationMenu = IsQuickOperationMenuVisual(result.VisualHit as Visual);
+
             if (result.ModelHit == ExtendedItem && result.VisualHit is TextBlock)
             {
                 Start = e.GetPosition(null);
@@ -195,6 +201,18 @@ namespace gip.ext.designer.avui.Extensions
         void DesignPanel_PointerReleased(object sender, PointerReleasedEventArgs e)
         {
             result = designPanel.HitTest(e.GetPosition(designPanel), true, true, HitTestType.Default);
+
+            // Template parts like the menu triangle can hit a Border, so walk visual/logical/
+            // templated parent chains to detect whether the click belongs to quick-menu UI.
+            bool clickedQuickOperationMenu = pressedOnQuickOperationMenu || IsQuickOperationMenuVisual(result.VisualHit as Visual);
+            pressedOnQuickOperationMenu = false;
+            if (clickedQuickOperationMenu)
+            {
+                isMouseDown = false;
+                isGettingDragged = false;
+                return;
+            }
+
             if (((result.ModelHit == ExtendedItem && result.VisualHit is TextBlock) || (result.VisualHit != null && result.VisualHit.TryFindParent<InPlaceEditor>() == editor)) && numClicks > 0)
             {
                 if (!isGettingDragged)
@@ -212,12 +230,53 @@ namespace gip.ext.designer.avui.Extensions
             }
             else
             { // Clicked outside the Text - > hide the editor and make the actual text visible again
-                RemoveEventsAndShowControl();
-                this.ExtendedItem.ReapplyAllExtensions();
+                // Only tear down/reapply extensions when we are actually leaving an active
+                // in-place edit session. Otherwise this path causes unrelated extensions
+                // (e.g. QuickOperationMenu) to be removed on simple symbol clicks.
+                bool wasEditing = editor != null && editor.IsVisible;
+                if (wasEditing)
+                {
+                    RemoveEventsAndShowControl();
+                    this.ExtendedItem.ReapplyAllExtensions();
+                }
             }
 
             isMouseDown = false;
             isGettingDragged = false;
+        }
+
+        private static bool IsQuickOperationMenuVisual(Visual visual)
+        {
+            var current = visual;
+            var guard = 0;
+
+            while (current != null && guard++ < 128)
+            {
+                if (current is QuickOperationMenu || current is MenuItem)
+                    return true;
+
+                if (current is StyledElement styled)
+                {
+                    if (styled.TemplatedParent is QuickOperationMenu || styled.TemplatedParent is MenuItem)
+                        return true;
+
+                    if (styled.TemplatedParent is Visual templatedParent)
+                    {
+                        current = templatedParent;
+                        continue;
+                    }
+
+                    if (styled.Parent is Visual logicalParent)
+                    {
+                        current = logicalParent;
+                        continue;
+                    }
+                }
+
+                current = current.GetVisualParent();
+            }
+
+            return false;
         }
 
         private void StoreLastPointerPos(PointerEventArgs e)

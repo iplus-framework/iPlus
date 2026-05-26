@@ -1418,9 +1418,9 @@ namespace gip.core.manager
                 }
             }
 
-            if (GetWindow("ToolWindow") == null)
+            if (GetWindow(Const.ToolWindow) == null)
             {
-                ShowWindow(this, "ToolWindow", false, Global.VBDesignContainer.DockableWindow, Global.VBDesignDockState.AutoHideButton, Global.VBDesignDockPosition.Left, Global.ControlModes.Hidden, dockingManagerName, Global.ControlModes.Hidden);
+                ShowWindow(this, Const.ToolWindow, false, Global.VBDesignContainer.DockableWindow, Global.VBDesignDockState.AutoHideButton, Global.VBDesignDockPosition.Left, Global.ControlModes.Hidden, dockingManagerName, Global.ControlModes.Hidden);
                 base.ShowDesignManager(dockingManagerName);
             }
         }
@@ -1430,7 +1430,7 @@ namespace gip.core.manager
         /// </summary>
         public override void HideDesignManager()
         {
-            IACObject window = GetWindow("ToolWindow");
+            IACObject window = GetWindow(Const.ToolWindow);
             if (window != null)
                 CloseDockableWindow(window);
 

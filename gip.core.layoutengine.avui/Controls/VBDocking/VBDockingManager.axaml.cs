@@ -447,6 +447,7 @@ namespace gip.core.layoutengine.avui
             bool isCloseableBSORoot = true,
             Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden,
             Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled,
+            Global.VBDesignDockPosition dockPosition = Global.VBDesignDockPosition.Right,
             bool persistInDesignList = false)
         {
             ShowWindow(
@@ -455,7 +456,7 @@ namespace gip.core.layoutengine.avui
                 isCloseableBSORoot,
                 Global.VBDesignContainer.DockableWindow,
                 Global.VBDesignDockState.FloatingWindow,
-                Global.VBDesignDockPosition.Right,
+                dockPosition,
                 ribbonVisibility,
                 closeButtonVisibility,
                 windowSize,
@@ -470,6 +471,7 @@ namespace gip.core.layoutengine.avui
             bool isCloseableBSORoot = true,
             Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden,
             Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled,
+            Global.VBDesignDockPosition dockPosition = Global.VBDesignDockPosition.Right,
             bool persistInDesignList = false)
         {
             return ShowWindowAsync(
@@ -478,7 +480,7 @@ namespace gip.core.layoutengine.avui
                 isCloseableBSORoot,
                 Global.VBDesignContainer.DockableWindow,
                 Global.VBDesignDockState.FloatingWindow,
-                Global.VBDesignDockPosition.Right,
+                dockPosition,
                 ribbonVisibility,
                 closeButtonVisibility,
                 windowSize,

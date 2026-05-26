@@ -71,17 +71,28 @@ namespace gip.ext.design.avui
         /// </returns>
         public static T TryFindParent<T>(this AvaloniaObject child, bool searchCompleteVisualTree = false) where T : AvaloniaObject
 		{
-			AvaloniaObject parentObject = GetParentObject(child, searchCompleteVisualTree);
+			if (child == null)
+				return null;
 
-			if (parentObject == null) return null;
+			var visited = new HashSet<AvaloniaObject>();
+			var current = child;
 
-			T parent = parentObject as T;
-			if (parent != null)
+			while (current != null)
 			{
-				return parent;
+				AvaloniaObject parentObject = GetParentObject(current, searchCompleteVisualTree);
+				if (parentObject == null)
+					return null;
+
+				if (!visited.Add(parentObject))
+					return null;
+
+				if (parentObject is T parent)
+					return parent;
+
+				current = parentObject;
 			}
 
-			return TryFindParent<T>(parentObject);
+			return null;
 		}
 
 		/// <summary>
@@ -155,14 +166,20 @@ namespace gip.ext.design.avui
 		/// </summary>
 		public static T FindAncestor<T>(AvaloniaObject current) where T : AvaloniaObject
 		{
+			if (current == null)
+				return null;
+
+			var visited = new HashSet<AvaloniaObject>();
 			current = GetVisualOrLogicalParent(current);
 
 			while (current != null)
 			{
-				if (current is T)
-				{
-					return (T)current;
-				}
+				if (!visited.Add(current))
+					return null;
+
+				if (current is T typed)
+					return typed;
+
 				current = GetVisualOrLogicalParent(current);
 			}
 

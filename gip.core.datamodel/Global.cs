@@ -1188,6 +1188,7 @@ namespace gip.core.datamodel
                 return Global._VBDesignDockPositionEnumList;
             }
         }
+        
         #endregion
 
         #region CurrentOrList

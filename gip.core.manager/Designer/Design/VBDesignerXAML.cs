@@ -1093,7 +1093,7 @@ namespace gip.core.manager
         {
             get
             {
-                return GetWindow("ToolWindow");
+                return GetWindow(Const.ToolWindow);
             }
         }
 
@@ -1106,7 +1106,7 @@ namespace gip.core.manager
         {
             get
             {
-                return GetWindow("PropertyWindow");
+                return GetWindow(Const.ToolPropertyWindow);
             }
         }
 
@@ -1119,7 +1119,7 @@ namespace gip.core.manager
         {
             get
             {
-                return GetWindow("LogicalTreeWindow");
+                return GetWindow(Const.ToolLogicalTreeWindow);
             }
         }
 
@@ -1130,9 +1130,12 @@ namespace gip.core.manager
         public override void ShowDesignManager(string dockingManagerName = "")
         {
             ReloadToolService();
-            ShowWindow(this, "ToolWindow", false, Global.VBDesignContainer.DockableWindow, Global.VBDesignDockState.AutoHideButton, Global.VBDesignDockPosition.Left,Global.ControlModes.Hidden, dockingManagerName,Global.ControlModes.Hidden);
-            ShowPropertyWindow(dockingManagerName);
-            ShowLogicalTreeWindow(dockingManagerName);
+            ShowWindow(this, Const.ToolWindow, false, Global.VBDesignContainer.DockableWindow, Global.VBDesignDockState.AutoHideButton, Global.VBDesignDockPosition.Left,Global.ControlModes.Hidden, dockingManagerName,Global.ControlModes.Hidden);
+            if (!Root.IsAvaloniaUI)
+            {
+                ShowPropertyWindow(dockingManagerName);
+                ShowLogicalTreeWindow(dockingManagerName);
+            }
             base.ShowDesignManager(dockingManagerName);
         }
 
@@ -1141,7 +1144,7 @@ namespace gip.core.manager
         /// </summary>
         public override void HideDesignManager()
         {
-            IACObject window = GetWindow("ToolWindow");
+            IACObject window = GetWindow(Const.ToolWindow);
             if(window != null)
                 CloseDockableWindow(window);
 
@@ -1159,7 +1162,7 @@ namespace gip.core.manager
         public override void ShowPropertyWindow(string dockingManagerName = "")
         {
             if (PropertyWindow == null)
-                ShowWindow(this, "PropertyWindow", false, Global.VBDesignContainer.DockableWindow, Global.VBDesignDockState.AutoHideButton, Global.VBDesignDockPosition.Left, Global.ControlModes.Hidden, dockingManagerName, Global.ControlModes.Hidden);
+                ShowWindow(this, Const.ToolPropertyWindow, false, Global.VBDesignContainer.DockableWindow, Global.VBDesignDockState.AutoHideButton, Global.VBDesignDockPosition.Left, Global.ControlModes.Hidden, dockingManagerName, Global.ControlModes.Hidden);
         }
 
 
@@ -1168,7 +1171,7 @@ namespace gip.core.manager
         /// </summary>
         public override void ClosePropertyWindow()
         {
-            IACObject window = GetWindow("PropertyWindow");
+            IACObject window = GetWindow(Const.ToolPropertyWindow);
             if (window != null)
                 CloseDockableWindow(window);
         }
@@ -1181,7 +1184,7 @@ namespace gip.core.manager
         public override void ShowLogicalTreeWindow(string dockingManagerName = "")
         {
             if (LogicalTreeWindow == null)
-                ShowWindow(this, "LogicalTreeWindow", false, Global.VBDesignContainer.DockableWindow, Global.VBDesignDockState.AutoHideButton, Global.VBDesignDockPosition.Left, Global.ControlModes.Hidden, dockingManagerName, Global.ControlModes.Hidden);
+                ShowWindow(this, Const.ToolLogicalTreeWindow, false, Global.VBDesignContainer.DockableWindow, Global.VBDesignDockState.AutoHideButton, Global.VBDesignDockPosition.Left, Global.ControlModes.Hidden, dockingManagerName, Global.ControlModes.Hidden);
         }
 
 
@@ -1190,7 +1193,7 @@ namespace gip.core.manager
         /// </summary>
         public override void CloseLogicalTreeWindow()
         {
-            IACObject window = GetWindow("LogicalTreeWindow");
+            IACObject window = GetWindow(Const.ToolLogicalTreeWindow);
             if (window != null)
                 CloseDockableWindow(window);
         }

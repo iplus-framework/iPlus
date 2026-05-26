@@ -14,7 +14,11 @@ namespace gip.ext.designer.avui.OutlineView
     [CLSCompliant(false)]
     public static class TriggerRevertCompatibility
     {
+#if USE_AVALONIA_FORK
+        public static TriggerRevertCompatibilityMode Mode { get; set; } = TriggerRevertCompatibilityMode.Auto;
+#else
         public static TriggerRevertCompatibilityMode Mode { get; set; } = TriggerRevertCompatibilityMode.ForceLegacyInverseFallback;
+#endif
 
         public static bool UseLegacyInverseFallback(DesignItem triggerItem)
         {

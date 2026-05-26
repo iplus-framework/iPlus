@@ -11,6 +11,7 @@ using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -331,6 +332,43 @@ namespace gip.core.layoutengine.avui
         {
             set { SetValue(TabItemMinHeightProperty, value); }
             get { return GetValue(TabItemMinHeightProperty); }
+        }
+
+        public Global.VBDesignDockPosition? GetToolDockPosition()
+        {
+            Global.VBDesignDockPosition? toolDockPosition = null;
+            Control toolWindow = VBDesignList.OfType<VBDesign>().FirstOrDefault(c => c != null && c.ACIdentifier?.Contains(Const.ToolWindow) == true);
+            if (toolWindow != null)
+                toolDockPosition = GetDockPosition(toolWindow);
+            if (!toolDockPosition.HasValue)
+            {
+                var currentDockPositions = VBDesignList.Select(c => c != null ? GetDockPosition(c) : (Global.VBDesignDockPosition?)null).ToArray();
+                if (currentDockPositions.Any(c => c == Global.VBDesignDockPosition.Left))
+                toolDockPosition = Global.VBDesignDockPosition.Left;
+                else
+                toolDockPosition = Global.VBDesignDockPosition.Right;
+            }
+            return toolDockPosition;
+        }
+
+        public Global.VBDesignDockPosition GetOppositeToolDockPosition()
+        {
+            var toolDockPosition = GetToolDockPosition();
+            if (toolDockPosition.HasValue)
+            {
+                switch (toolDockPosition.Value)
+                {
+                    case Global.VBDesignDockPosition.Left:
+                        return Global.VBDesignDockPosition.Right;
+                    case Global.VBDesignDockPosition.Right:
+                        return Global.VBDesignDockPosition.Left;
+                    case Global.VBDesignDockPosition.Top:
+                        return Global.VBDesignDockPosition.Bottom;
+                    case Global.VBDesignDockPosition.Bottom:
+                        return Global.VBDesignDockPosition.Top;
+                }
+            }
+            return Global.VBDesignDockPosition.Right;
         }
 
         #endregion

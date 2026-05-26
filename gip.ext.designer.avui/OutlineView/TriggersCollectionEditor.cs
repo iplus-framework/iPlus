@@ -17,6 +17,8 @@ using Avalonia;
 using Avalonia.Styling;
 using Avalonia.Data;
 using Avalonia.Xaml.Interactions.Core;
+using Avalonia.Xaml.Interactivity;
+using Avalonia.Threading;
 
 namespace gip.ext.designer.avui.OutlineView
 {
@@ -45,6 +47,8 @@ namespace gip.ext.designer.avui.OutlineView
         private DesignItem _DesignObject;
         private DesignItemProperty _TriggerCollectionProp;
         private IComponentService _componentService;
+        private ISelectionService _selectionService;
+        private bool _trackDesignerSelection;
         private readonly HashSet<DesignItem> _pendingLegacyInverseTriggers = new HashSet<DesignItem>();
         private readonly HashSet<DesignItem> _legacyInverseCreationInProgress = new HashSet<DesignItem>();
         private bool _suppressLegacyInversePropertyChanged;
@@ -104,9 +108,11 @@ namespace gip.ext.designer.avui.OutlineView
 
             _DesignObject = designObject;
             _TriggerCollectionProp = collectionProperty;
+            _trackDesignerSelection = ShouldTrackDesignerSelection(collectionProperty);
             _pendingLegacyInverseTriggers.Clear();
             _legacyInverseCreationInProgress.Clear();
             _suppressLegacyInversePropertyChanged = false;
+            _OutlineNodeCollection.Clear();
 
             foreach (DesignItem child in _TriggerCollectionProp.CollectionElements)
             {
@@ -121,6 +127,112 @@ namespace gip.ext.designer.avui.OutlineView
             _componentService = designObject.Services.Component;
             if (_componentService != null)
                 _componentService.PropertyChanged += ComponentService_PropertyChanged;
+
+            AttachSelectionTracking(designObject);
+        }
+
+        protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+        {
+            base.OnDetachedFromVisualTree(e);
+
+            if (_componentService != null)
+                _componentService.PropertyChanged -= ComponentService_PropertyChanged;
+
+            DetachSelectionTracking();
+        }
+
+        private static bool ShouldTrackDesignerSelection(DesignItemProperty collectionProperty)
+        {
+            if (collectionProperty == null)
+                return false;
+
+            return string.Equals(collectionProperty.Name, "Triggers", StringComparison.Ordinal)
+                || string.Equals(collectionProperty.Name, "Behaviors", StringComparison.Ordinal)
+                || string.Equals(collectionProperty.Name, Interaction.BehaviorsProperty.Name, StringComparison.Ordinal);
+        }
+
+        private void AttachSelectionTracking(DesignItem designObject)
+        {
+            DetachSelectionTracking();
+
+            if (!_trackDesignerSelection || designObject?.Services == null)
+                return;
+
+            _selectionService = designObject.Services.Selection;
+            if (_selectionService != null)
+                _selectionService.SelectionChanged += OnDesignerSelectionChanged;
+        }
+
+        private void DetachSelectionTracking()
+        {
+            if (_selectionService != null)
+            {
+                _selectionService.SelectionChanged -= OnDesignerSelectionChanged;
+                _selectionService = null;
+            }
+        }
+
+        private void OnDesignerSelectionChanged(object sender, DesignItemCollectionEventArgs e)
+        {
+            if (!_trackDesignerSelection || _selectionService == null)
+                return;
+
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                var selected = _selectionService.SelectedItems?.FirstOrDefault();
+                if (selected == null)
+                {
+                    ClearEditorContext(null);
+                    return;
+                }
+
+                var collectionProperty = ResolveCollectionPropertyForSelectedItem(selected);
+                if (collectionProperty == null)
+                {
+                    ClearEditorContext(selected);
+                    return;
+                }
+
+                InitEditor(selected, collectionProperty);
+            }, DispatcherPriority.Background);
+        }
+
+        private void ClearEditorContext(DesignItem selected)
+        {
+            if (_componentService != null)
+                _componentService.PropertyChanged -= ComponentService_PropertyChanged;
+
+            _DesignObject = selected;
+            _TriggerCollectionProp = null;
+            _pendingLegacyInverseTriggers.Clear();
+            _legacyInverseCreationInProgress.Clear();
+            _suppressLegacyInversePropertyChanged = false;
+            _OutlineNodeCollection.Clear();
+
+            if (PART_OutlineList != null)
+                PART_OutlineList.SelectedItem = null;
+
+            _componentService = null;
+        }
+
+        private DesignItemProperty ResolveCollectionPropertyForSelectedItem(DesignItem selected)
+        {
+            if (selected == null || selected.Properties == null || _TriggerCollectionProp == null)
+                return null;
+
+            if (string.Equals(_TriggerCollectionProp.Name, "Triggers", StringComparison.Ordinal))
+            {
+                var themeProperty = selected.Properties.GetProperty(Control.ThemeProperty);
+                return themeProperty?.Value?.Properties?.HasProperty("Triggers");
+            }
+
+            if (string.Equals(_TriggerCollectionProp.Name, "Behaviors", StringComparison.Ordinal)
+                || string.Equals(_TriggerCollectionProp.Name, Interaction.BehaviorsProperty.Name, StringComparison.Ordinal))
+            {
+                return selected.Properties.GetAttachedProperty(Interaction.BehaviorsProperty);
+            }
+
+            return selected.Properties.HasProperty(_TriggerCollectionProp.Name);
         }
 
         protected virtual TriggerOutlineNodeBase CreateOutlineNode(DesignItem child, DesignItem designObject)
@@ -267,6 +379,9 @@ namespace gip.ext.designer.avui.OutlineView
 
         private void AddTrigger(TriggerKind kind)
         {
+            if (_DesignObject == null || _TriggerCollectionProp == null)
+                return;
+
             var newTrigger = CreateNewTrigger(kind);
             DesignItem newTriggerItem = _DesignObject.Services.Component.RegisterComponentForDesigner(newTrigger);
             _TriggerCollectionProp.CollectionElements.Add(newTriggerItem);
@@ -285,6 +400,9 @@ namespace gip.ext.designer.avui.OutlineView
 
         private void OnRemoveItemClicked(object sender, RoutedEventArgs e)
         {
+            if (_TriggerCollectionProp == null)
+                return;
+
             TriggerOutlineNodeBase selectedNode = PART_OutlineList.SelectedItem as TriggerOutlineNodeBase;
             if (selectedNode == null)
                 return;
