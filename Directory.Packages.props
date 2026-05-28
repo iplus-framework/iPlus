@@ -274,6 +274,8 @@
 		<PackageVersion Include="Xunit.StaFact" Version="3.0.13" />
 		<PackageVersion Include="xunit.v3" Version="3.2.2" />
     	<PackageVersion Include="xunit.v3.mtp-v2" Version="3.2.2" />
+    	<PackageVersion Include="xunit.v3.assert" Version="3.2.2" />
+    	<PackageVersion Include="xunit.v3.core" Version="3.2.2" />
 
 		<!-- Additional Packages for Avalonia Dock, Avalonia Behaviours -->
 		<PackageVersion Include="Caliburn.Micro.Core" Version="5.0.258" />
@@ -305,6 +307,7 @@
 		</PackageVersion>
 		<PackageVersion Include="ReactiveUI.SourceGenerators" Version="2.6.1" />
 		<PackageVersion Include="Avalonia.HtmlRenderer" Version="12.0.0" />
+		<PackageVersion Include="Avalonia.HarfBuzz" Version="$(AvaloniaVersionLatest)" />
 
 		<!-- Additional Packages for Avalonia Edit -->
 		<PackageVersion Include="Moq" Version="4.20.72" />
