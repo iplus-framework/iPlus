@@ -973,6 +973,7 @@ namespace gip.core.layoutengine.avui
                     this.ContextMenu = vbContextMenu;
                     if (vbContextMenu.PlacementTarget == null)
                         vbContextMenu.PlacementTarget = this;
+                    vbContextMenu.Closed += (s, args) => { this.ContextMenu = null; };
                     ContextMenu.Open();
                     e.Handled = true;
                 }
@@ -1171,7 +1172,7 @@ namespace gip.core.layoutengine.avui
             IsDesignerActive = true;
 
             string dockingManagerName = "";
-            VBDockingManager parentDockingManager = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBDockingManager)) as VBDockingManager;
+            VBDockingManager parentDockingManager = DockingManager;
             if (parentDockingManager != null)
                 dockingManagerName = parentDockingManager.Name;
 
@@ -1180,35 +1181,15 @@ namespace gip.core.layoutengine.avui
             if (parentDockingManager != null && designEditor != null)
                 parentDockingManager.ConnectDesignerTools(designEditor);
 
-            IACObject propertyWindow = designManager.PropertyWindow;
-            if (propertyWindow != null)
-            {
-                // TODO:
-                //if (propertyWindow is VBDockingContainerBase)
-                //{
-                //    VBDockingContainerBase container = propertyWindow as VBDockingContainerBase;
-                //    if ((container.VBDesignContent != null) && container.VBDesignContent is Control)
-                //    {
-                //        (container.VBDesignContent as Control).Loaded += VBPropertyWindowContent_Loaded;
-                //    }
-                //}
-            }
-
-            IACObject logicalTreeWindow = designManager.LogicalTreeWindow;
-            if (logicalTreeWindow != null)
-            {
-                // TODO:
-                //if (logicalTreeWindow is VBDockingContainerBase)
-                //{
-                //    VBDockingContainerBase container = logicalTreeWindow as VBDockingContainerBase;
-                //    if ((container.VBDesignContent != null) && container.VBDesignContent is Control)
-                //    {
-                //        (container.VBDesignContent as Control).Loaded += VBLogicalTreeWindowContent_Loaded;
-                //    }
-                //}
-            }
-
             this.Root().RootPageWPF.VBDesignEditingActivated(this);
+        }
+
+        public VBDockingManager DockingManager
+        {
+            get
+            {
+                return VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBDockingManager)) as VBDockingManager;
+            }
         }
 
         /// <summary>
@@ -1284,39 +1265,9 @@ namespace gip.core.layoutengine.avui
             if (designManager == null)
                 return;
 
-            IACObject propertyWindow = designManager.PropertyWindow;
-            if (propertyWindow != null)
-            {
-                // TODO:
-                //if (propertyWindow is VBDockingContainerBase)
-                //{
-                //    VBDockingContainerBase container = propertyWindow as VBDockingContainerBase;
-                //    if ((container.VBDesignContent != null) && container.VBDesignContent is Control)
-                //    {
-                //        (container.VBDesignContent as Control).Loaded -= VBPropertyWindowContent_Loaded;
-                //    }
-                //}
-            }
-
-            IACObject logicalTreeWindow = designManager.LogicalTreeWindow;
-            if (logicalTreeWindow != null)
-            {
-                // TODO:
-                //if (logicalTreeWindow is VBDockingContainerBase)
-                //{
-                //    VBDockingContainerBase container = logicalTreeWindow as VBDockingContainerBase;
-                //    if ((container.VBDesignContent != null) && container.VBDesignContent is Control)
-                //    {
-                //        (container.VBDesignContent as Control).Loaded -= VBLogicalTreeWindowContent_Loaded;
-                //    }
-                //}
-            }
-
-
             if (this.Content is VBDesignEditor)
-            {
                 (this.Content as VBDesignEditor).OnCloseAndSaveChanges();
-            }
+
             designManager.HideDesignManager();
             Content = null;
             IsDesignerActive = false;

@@ -16,7 +16,7 @@ namespace gip.core.layoutengine.avui
     /// <summary xml:lang="de">
     /// Repräsentiert den Editor für die Trigger-Sammlung.
     /// </summary>
-    public class VBTriggersCollectionEditor : TriggersCollectionEditor
+    public class VBTriggersCollectionEditor : TriggersCollectionEditor, IDesignEditorWindow
     {
         protected override Type StyleKeyOverride => typeof(VBTriggersCollectionEditor);
 

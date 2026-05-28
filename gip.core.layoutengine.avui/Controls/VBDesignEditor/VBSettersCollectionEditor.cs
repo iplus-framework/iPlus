@@ -9,7 +9,7 @@ namespace gip.core.layoutengine.avui
     /// <summary xml:lang="de">
     /// Stellt einen Editor für die Sammlung von Settern dar.
     /// </summary>
-    public class VBSettersCollectionEditor : SettersCollectionEditor
+    public class VBSettersCollectionEditor : SettersCollectionEditor, IDesignEditorWindow
     {
         protected override Type StyleKeyOverride => typeof(VBSettersCollectionEditor);
     }

@@ -36,15 +36,19 @@
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>$(SolutionDir)bin\Debug\gip.core.layoutengine.avui.xml</DocumentationFile>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-    <NoWarn Condition="'$(UseAvaloniaFork)' == 'False'">1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002</NoWarn>
-    <NoWarn Condition="'$(UseAvaloniaFork)' == 'True'">1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002;MSB3277</NoWarn>
+    <NoWarn Condition="'$(UseAvaloniaFork)' == 'False'">
+      1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002</NoWarn>
+    <NoWarn Condition="'$(UseAvaloniaFork)' == 'True'">
+      1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002;MSB3277</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
     <DocumentationFile>
     </DocumentationFile>
-    <NoWarn Condition="'$(UseAvaloniaFork)' == 'False'">1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002</NoWarn>
-    <NoWarn Condition="'$(UseAvaloniaFork)' == 'True'">1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002;MSB3277</NoWarn>
+    <NoWarn Condition="'$(UseAvaloniaFork)' == 'False'">
+      1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002</NoWarn>
+    <NoWarn Condition="'$(UseAvaloniaFork)' == 'True'">
+      1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002;MSB3277</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -80,8 +84,10 @@
     <None Include="..\GIP-SNKey.snk">
       <Link>GIP-SNKey.snk</Link>
     </None>
-    <EmbeddedResource Include="Controls\VBDesignEditor\Editors\Highlighting\CSharp-ModeStyleAero.xshd" />
-    <EmbeddedResource Include="Controls\VBDesignEditor\Editors\Highlighting\CSharp-ModeStyleGip.xshd" />
+    <EmbeddedResource
+      Include="Controls\VBDesignEditor\Editors\Highlighting\CSharp-ModeStyleAero.xshd" />
+    <EmbeddedResource
+      Include="Controls\VBDesignEditor\Editors\Highlighting\CSharp-ModeStyleGip.xshd" />
     <AppDesigner Include="Properties\" />
     <None Update="VBXMLEditorSchemas\XamlPresentation2006.xsx">
       <DependentUpon>XamlPresentation2006.xsd</DependentUpon>
@@ -164,8 +170,10 @@
   <ItemGroup>
     <PackageReference Include="ClosedXML" />
     <!-- Force package override for DocumentFormat of ClosedXML -->
-    <PackageReference Include="DocumentFormat.OpenXml" VersionOverride="$(DocumentFormatOpenXmlVersion)" />
-    <PackageReference Include="DocumentFormat.OpenXml.Framework" VersionOverride="$(DocumentFormatOpenXmlVersion)" />
+    <PackageReference Include="DocumentFormat.OpenXml"
+      VersionOverride="$(DocumentFormatOpenXmlVersion)" />
+    <PackageReference Include="DocumentFormat.OpenXml.Framework"
+      VersionOverride="$(DocumentFormatOpenXmlVersion)" />
     <PackageReference Include="Microsoft.CodeAnalysis" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
@@ -195,14 +203,19 @@
     <PackageReference Include="System.ServiceModel.NetTcp" />
     <PackageReference Include="System.ServiceModel.Federation" />
     <PackageReference Include="HtmlAgilityPack" />
-   	<PackageReference Include="System.Composition.TypedParts" VersionOverride="$(SystemCompositionVersion)" />
-    <PackageReference Include="System.Composition.AttributedModel" VersionOverride="$(SystemCompositionVersion)" />
-    <PackageReference Include="System.Composition.Convention" VersionOverride="$(SystemCompositionVersion)" />
-    <PackageReference Include="System.Composition.Hosting" VersionOverride="$(SystemCompositionVersion)" />
-    <PackageReference Include="System.Composition.Runtime" VersionOverride="$(SystemCompositionVersion)" />	 
+    <PackageReference Include="System.Composition.TypedParts"
+      VersionOverride="$(SystemCompositionVersion)" />
+    <PackageReference Include="System.Composition.AttributedModel"
+      VersionOverride="$(SystemCompositionVersion)" />
+    <PackageReference Include="System.Composition.Convention"
+      VersionOverride="$(SystemCompositionVersion)" />
+    <PackageReference Include="System.Composition.Hosting"
+      VersionOverride="$(SystemCompositionVersion)" />
+    <PackageReference Include="System.Composition.Runtime"
+      VersionOverride="$(SystemCompositionVersion)" />
     <PackageReference Include="PDFtoImage" />
   </ItemGroup>
-  
+
   <!-- Use Avalonia Nuget -->
   <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
     <PackageReference Include="Avalonia" />
@@ -216,26 +229,36 @@
     <PackageReference Include="MessageBox.Avalonia" />
     <PackageReference Include="iPlus.RoslynPad.Editor.Avalonia" />
     <PackageReference Include="iPlus.RoslynPad.Roslyn.Avalonia" />
+    <PackageReference Include="Avalonia.HtmlRenderer" />
   </ItemGroup>
   <!-- <ItemGroup '$(UseAvaloniaFork)' == 'False'">
     <PackageReference Include="RoslynPad.Editor.Avalonia" />
     <PackageReference Include="RoslynPad.Roslyn.Avalonia" />
   </ItemGroup> -->
 
-  <!-- Use Avalonia Fork -->  
+  <!-- Use Avalonia Fork -->
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaInclude.props" />
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaBehavioursInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'"
+    Project="../build/AvaloniaBehavioursInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaDockInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaEditInclude.props" />
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaRoslynPadInclude.props" />
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaDataGridInclude.props" />
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaDialogHostInclude.props" />
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaMarkdownInclude.props" />
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaMessageBoxInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'"
+    Project="../build/AvaloniaRoslynPadInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'"
+    Project="../build/AvaloniaDataGridInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'"
+    Project="../build/AvaloniaDialogHostInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'"
+    Project="../build/AvaloniaMarkdownInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'"
+    Project="../build/AvaloniaMessageBoxInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaSvgSkiaInclude.props" />
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaCommandManagerInclude.props" />
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaRichTextBoxInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'"
+    Project="../build/AvaloniaCommandManagerInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'"
+    Project="../build/AvaloniaRichTextBoxInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaOxyPlotInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaHtmlRenderer.props" />
 
   <ItemGroup>
     <Compile Remove="CodeCompletionXsdGenerator.cs" />

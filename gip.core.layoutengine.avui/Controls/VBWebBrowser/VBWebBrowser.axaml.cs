@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using TheArtOfDev.HtmlRenderer.Avalonia;
 
 namespace gip.core.layoutengine.avui
 {
@@ -33,6 +34,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
+
             base.OnApplyTemplate(e);
             InitVBControl();
         }
@@ -153,6 +155,15 @@ namespace gip.core.layoutengine.avui
         public static readonly StyledProperty<string> ContentXMLProperty =
             AvaloniaProperty.Register<VBWebBrowser, string>(nameof(ContentXML));
 
+        public static readonly StyledProperty<string> HtmlTextProperty =
+            AvaloniaProperty.Register<VBWebBrowser, string>(nameof(HtmlText));
+
+        public string HtmlText
+        {
+            get => GetValue(HtmlTextProperty);
+            set => SetValue(HtmlTextProperty, value);
+        }
+
 
         /// <summary>
         /// Loads the XML file.
@@ -251,7 +262,11 @@ namespace gip.core.layoutengine.avui
                     return;
                 ACCaptionTrans = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
             }
-        }
+            else if (change.Property == HtmlTextProperty)
+            {
+                nativeWebView.Text = change.NewValue as string ?? string.Empty;
+            }
+       }
 
         /// <summary>
         /// Enables or disables auto focus.

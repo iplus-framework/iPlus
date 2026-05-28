@@ -28,18 +28,18 @@
 		<ImportWindowsDesktopTargets>false</ImportWindowsDesktopTargets>
 		<BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
 	</PropertyGroup>
-  <PropertyGroup>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <Title>iplus-framework report wpf</Title>
-    <Description>Components for rendering reports with flowdocs</Description>
-    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <PackageTags>iplus-framework</PackageTags>
-    <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
-    <PackageIcon>icon.png</PackageIcon>
-    <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>
-    <PackageReadmeFile>readme.md</PackageReadmeFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+		<Title>iplus-framework report wpf</Title>
+		<Description>Components for rendering reports with flowdocs</Description>
+		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+		<PackageTags>iplus-framework</PackageTags>
+		<PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
+		<PackageIcon>icon.png</PackageIcon>
+		<RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
+	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 		<OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
 		<WarningLevel>3</WarningLevel>
@@ -51,8 +51,8 @@
 		<OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
 		<DocumentationFile>
 		</DocumentationFile>
-    <NoWarn>1701;1702;CA1416;1591;VSTHRD100;VSTHRD110;VSTHRD200</NoWarn>
-  </PropertyGroup>
+		<NoWarn>1701;1702;CA1416;1591;VSTHRD100;VSTHRD110;VSTHRD200</NoWarn>
+	</PropertyGroup>
 	<ItemGroup>
 		<AvaloniaXaml Remove="FlowDocEditor\**" />
 		<Compile Remove="FlowDocEditor\**" />
@@ -76,42 +76,41 @@
 	</ItemGroup>
 
 	<ItemGroup>
-    <None Update="readme.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Update="icon.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-		<PackageReference Include="PDFtoImage"  />
-		<PackageReference Include="System.Data.DataSetExtensions"  />
-		<PackageReference Include="System.Reflection.Context"  />
+		<None Update="readme.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Update="icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<PackageReference Include="PDFtoImage" />
+		<PackageReference Include="System.Data.DataSetExtensions" />
+		<PackageReference Include="System.Reflection.Context" />
 		<PackageReference Include="TextMateSharp" />
 		<PackageReference Include="TextMateSharp.Grammars" />
-  </ItemGroup>
+	</ItemGroup>
 
-  <!-- Use Avalonia Nuget -->
-  <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
-    <PackageReference Include="Avalonia"  />
-	<PackageReference Include="AvaloniaEdit.TextMate"  />
-    <PackageReference Include="Simplecto.Avalonia.RichTextBox"  />
-	<PackageReference Include="Avalonia.HtmlRenderer"/>
-  </ItemGroup>
+	<!-- Use Avalonia Nuget -->
+	<ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
+		<PackageReference Include="Avalonia" />
+		<PackageReference Include="AvaloniaEdit.TextMate" />
+		<PackageReference Include="Simplecto.Avalonia.RichTextBox" />
+	</ItemGroup>
 
-  <!-- Use Avalonia Fork -->
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaInclude.props" />
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaRichTextBoxInclude.props" />
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaEditInclude.props" />
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaHtmlRenderer.props" />
+	<!-- Use Avalonia Fork -->
+	<Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaInclude.props" />
+	<Import Condition="'$(UseAvaloniaFork)' == 'True'"
+		Project="../build/AvaloniaRichTextBoxInclude.props" />
+	<Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaEditInclude.props" />
 
-  <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'False'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'True'">
-    <PackageReference Include="iPlus.EntityFrameworkCore" />
-  </ItemGroup>
-  <ItemGroup>
+	<ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'False'">
+		<PackageReference Include="Microsoft.EntityFrameworkCore" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'True'">
+		<PackageReference Include="iPlus.EntityFrameworkCore" />
+	</ItemGroup>
+	<ItemGroup>
 		<ProjectReference Include="..\gip.core.autocomponent\gip.core.autocomponent.csproj" />
 		<ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
 		<ProjectReference Include="..\gip.core.layoutengine.avui\gip.core.layoutengine.avui.csproj" />
@@ -151,14 +150,14 @@
 
 	<ItemGroup>
 		<None Update="VBControlScripts\2026-05-15 16-48_dlisak.zip">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="VBControlScripts\2026-05-18 15-13_dlisak.zip">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="VBControlScripts\" />
+		<Folder Include="VBControlScripts\" />
 	</ItemGroup>
 </Project>

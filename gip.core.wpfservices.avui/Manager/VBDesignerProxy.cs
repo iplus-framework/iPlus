@@ -185,28 +185,51 @@ namespace gip.core.wpfservices.avui
         public virtual void ShowDesignManager(string dockingManagerName = "")
         {
             VBDesigner vbDesigner = Designer<VBDesigner>();
-            if (vbDesigner == null)
-                return;
-
-            if (vbDesigner.VBDesignControl == null || !(vbDesigner.VBDesignControl is VBDesign))
+            VBDesign vbDesign = GetVBDesignOfDesigner(vbDesigner);
+            if (vbDesign == null)
                 return;
 
             vbDesigner._VBDesignEditor = null;
-            ((VBDesign)vbDesigner.VBDesignControl).IsDesignerActive = true;
+            vbDesign.IsDesignerActive = true;
             vbDesigner.IsDesignMode = true;
         }
 
         public virtual void HideDesignManager()
         {
             VBDesigner vbDesigner = Designer<VBDesigner>();
+            VBDesign vbDesign = GetVBDesignOfDesigner(vbDesigner);
+            if (vbDesign == null)
+                return;
+
+            if (vbDesign.DockingManager != null)
+            {
+                foreach (IDesignEditorWindow designEditorWindow in vbDesign.DockingManager.VBDesignList.OfType<IDesignEditorWindow>())
+                {
+                    Control editorControl = designEditorWindow as Control;
+                    if (editorControl != null)
+                        vbDesign.DockingManager.CloseControl(editorControl);
+                }
+
+                vbDesign.IsDesignerActive = false;
+                vbDesigner.IsDesignMode = false;
+            }
+        }
+
+        private VBDesign VBDesignOfDesigner
+        {
+            get
+            {
+                return GetVBDesignOfDesigner(Designer<VBDesigner>());
+            }
+        }
+
+        private VBDesign GetVBDesignOfDesigner(VBDesigner vbDesigner)
+        {
             if (vbDesigner == null)
-                return;
-
-            if (vbDesigner.VBDesignControl == null || !(vbDesigner.VBDesignControl is VBDesign))
-                return;
-
-            ((VBDesign)vbDesigner.VBDesignControl).IsDesignerActive = false;
-            vbDesigner.IsDesignMode = false;
+                return null;
+            if (vbDesigner.VBDesignControl != null && vbDesigner.VBDesignControl is VBDesign)
+                return vbDesigner.VBDesignControl as VBDesign;
+            return null;
         }
 
         #endregion
@@ -363,33 +386,19 @@ namespace gip.core.wpfservices.avui
 
         public void CloseDockableWindow(IACObject window)
         {
-            // TODO:
-            //if (window is VBDockingContainerToolWindowVB)
-            //{
-            //    VBDockingContainerToolWindow vbDockingContainerToolWindow = window as VBDockingContainerToolWindow;
-            //    if (vbDockingContainerToolWindow != null)
-            //    {
-            //        if (vbDockingContainerToolWindow.VBDockingPanel != null)
-            //        {
-            //            if (vbDockingContainerToolWindow.VBDockingPanel is VBDockingPanelToolWindow)
-            //            {
-            //                VBDockingPanelToolWindow VBDockingPanel = vbDockingContainerToolWindow.VBDockingPanel as VBDockingPanelToolWindow;
-            //                if (VBDockingPanel != null && VBDockingPanel.State != VBDockingPanelState.AutoHide)
-            //                    VBDockingPanel.ChangeState(VBDockingPanelState.Hidden);
-            //                window.ACUrlCommand(Const.CmdClose);
-            //            }
-            //            else if (vbDockingContainerToolWindow.VBDockingPanel is VBDockingPanelTabbedDoc)
-            //            {
-            //                VBDockingPanelTabbedDoc VBDockingPanel = ((VBDockingContainerToolWindow)window).VBDockingPanel as VBDockingPanelTabbedDoc;
-            //                if (VBDockingPanel != null)
-            //                    VBDockingPanel.RemoveDockingContainerToolWindow((VBDockingContainerBase)window);
-            //            }
-            //        }
-            //    }
-            //}
-            //else 
-            if (window != null)
-                window.ACUrlCommand(Const.CmdClose);
+            if (window == null)
+                return;
+            
+            VBDesign vbDesign = VBDesignOfDesigner;
+            if (vbDesign == null)
+                return;
+
+            if (vbDesign.DockingManager != null && window is Control control)            
+            {
+                vbDesign.DockingManager.CloseControl(control);
+            }
+            
+            window.ACUrlCommand(Const.CmdClose);
         }
 
         public virtual void OnDesignerLoaded(IVBContent designEditor, bool reverseToXaml)

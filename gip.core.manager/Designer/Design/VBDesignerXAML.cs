@@ -1144,8 +1144,8 @@ namespace gip.core.manager
         /// </summary>
         public override void HideDesignManager()
         {
-            IACObject window = GetWindow(Const.ToolWindow);
-            if(window != null)
+            IACObject window = ToolWindow;
+            if (window != null)
                 CloseDockableWindow(window);
 
             ClosePropertyWindow();
@@ -1171,7 +1171,7 @@ namespace gip.core.manager
         /// </summary>
         public override void ClosePropertyWindow()
         {
-            IACObject window = GetWindow(Const.ToolPropertyWindow);
+            IACObject window = PropertyWindow;
             if (window != null)
                 CloseDockableWindow(window);
         }
@@ -1193,7 +1193,7 @@ namespace gip.core.manager
         /// </summary>
         public override void CloseLogicalTreeWindow()
         {
-            IACObject window = GetWindow(Const.ToolLogicalTreeWindow);
+            IACObject window = LogicalTreeWindow;
             if (window != null)
                 CloseDockableWindow(window);
         }

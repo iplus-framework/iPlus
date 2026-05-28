@@ -173,7 +173,8 @@ namespace gip.core.layoutengine.avui
             if (map != null && map.State == ClosingState.None) // && VBDockingManager.GetIsCloseableBSORoot(map.Design))
             {
                 map.State = ClosingState.GUI;
-                map.Design.StopAutoStartComponent();
+                if (GetIsCloseableBSORoot(map.Design))
+                    map.Design.StopAutoStartComponent();
             }
 
         }
@@ -265,6 +266,31 @@ namespace gip.core.layoutengine.avui
                         }
                         else
                             invoker.ACUrlCommand(Const.CmdFindGUIResult, this);
+                    }
+                    else
+                    {
+                        foreach (var control in VBDesignList)
+                        {
+                            if (control is IVBContent design)
+                            {
+                                if (ACUrlHelper.IsSearchedGUIInstance(design.ACIdentifier, filterVBControlClassName, filterControlName, filterVBContent, filterACNameOfComponent))
+                                {
+                                    if (withDialogStack)
+                                    {
+                                        if (DialogStack.Any())
+                                        {
+                                            invoker.ACUrlCommand(Const.CmdFindGUIResult, design);
+                                            break;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        invoker.ACUrlCommand(Const.CmdFindGUIResult, design);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 catch (Exception e)
@@ -1946,6 +1972,24 @@ namespace gip.core.layoutengine.avui
             //    }
             //}
         }
+
+        public bool CloseControl(Control control)
+        {
+            if (DesignToolMap == null)
+                return false;
+            var c = DesignToolMap.FirstOrDefault(c => c.Design == control);
+            if (c != null)
+            {
+                if (!c.Dockable.CanClose)
+                    c.Dockable.CanClose = true;
+                Factory.CloseDockable(c.Dockable);
+                DesignToolMap.Remove(c);
+                VBDesignList.Remove(c.Design);
+                return true;
+            }
+            return false;
+        }
+
         #endregion
 
         #region Persistence

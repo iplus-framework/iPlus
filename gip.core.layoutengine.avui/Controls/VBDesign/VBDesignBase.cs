@@ -41,6 +41,15 @@ namespace gip.core.layoutengine.avui
             : base()
         {
             this.InstanceInfoList = new VBInstanceInfoList();
+            
+            // // Listen for IsDesignerActive changes to force command CanExecute re-evaluation
+            // this.PropertyChanged += (s, e) =>
+            // {
+            //     if (e.Property == IsDesignerActiveProperty)
+            //     {
+            //         CommandManager.RequeryInstances();
+            //     }
+            // };
         }
 
         protected override void OnInitialized()
