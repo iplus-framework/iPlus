@@ -73,7 +73,7 @@ namespace gip.core.layoutengine.avui
             _Factory.WindowClosing += _Factory_WindowClosing;
             _Factory.WindowClosed += _Factory_WindowClosed;
 
-            _MainLayout = new ProportionalDock() { Orientation = Orientation.Vertical, DockGroup = DockGroupId };
+            _MainLayout = new ProportionalDock() { Orientation = Orientation.Vertical, DockGroup = DockGroupId, IsCollapsable = false };
             DocumentDock documentDock = new DocumentDock
             {
                 Id = "Documents",
@@ -83,7 +83,7 @@ namespace gip.core.layoutengine.avui
             };
 
             documentDock.VisibleDockables = _Factory.CreateList<IDockable>();
-            ProportionalDock horizontalDock = new ProportionalDock() { Orientation = Orientation.Horizontal, DockGroup = DockGroupId };
+            ProportionalDock horizontalDock = new ProportionalDock() { Orientation = Orientation.Horizontal, DockGroup = DockGroupId, IsCollapsable = false };
             horizontalDock.VisibleDockables.Add(documentDock);
             _MainLayout.VisibleDockables = _Factory.CreateList<IDockable>(horizontalDock);
 
@@ -1344,7 +1344,7 @@ namespace gip.core.layoutengine.avui
             // All Documents (BSO's) have been closed including Docked windows.
             if (horizontalArea == null)
             {
-                horizontalArea = new ProportionalDock() { Orientation = Orientation.Horizontal, DockGroup = DockGroupId };
+                horizontalArea = new ProportionalDock() { Orientation = Orientation.Horizontal, DockGroup = DockGroupId, IsCollapsable = false };
                 int i = 0;
                 IDockable previousDockable = null;
                 ToolDock bottomDock = null;
