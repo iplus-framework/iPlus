@@ -13,6 +13,8 @@ namespace gip.core.layoutengine.avui
 {
     public class VBWorkflowAdorner : Adorner
     {
+        private bool _isUpdatingRelationsVisual;
+
         public VBWorkflowAdorner(Control Control) : base(Control)
         {
         }
@@ -61,35 +63,48 @@ namespace gip.core.layoutengine.avui
 
         public void FillUpdateRelationsVisual(List<ConnectionIACObject> connectionIACObjectList, List<VBVisual> vbVisualList)
         {
-            ClearAdoners();
-            RelationsVisual.Clear();
-            if (connectionIACObjectList == null || !vbVisualList.Any())
+            if (_isUpdatingRelationsVisual)
                 return;
 
-            foreach (ConnectionIACObject connectionIACObject in connectionIACObjectList)
+            _isUpdatingRelationsVisual = true;
+            try
             {
-                string nodeFromName = ((IACWorkflowNode)connectionIACObject.Item1).XName;
-                string nodeToName = ((IACWorkflowNode)connectionIACObject.Item2).XName;
-
-                VBVisual visualFrom = vbVisualList.Where(c => c.ACCompInitState == ACInitState.Initialized).FirstOrDefault(c => c.Name == nodeFromName);
-                VBVisual visualTo = vbVisualList.Where(c => c.ACCompInitState == ACInitState.Initialized).FirstOrDefault(c => c.Name == nodeToName);
-
-                if (visualFrom == null || visualTo == null)
+                ClearAdoners();
+                RelationsVisual.Clear();
+                if (connectionIACObjectList == null || !vbVisualList.Any())
                     return;
-                visualFrom.ApplyTemplate();
-                visualTo.ApplyTemplate();
 
-                AdornerLayer adornerLayerFrom = AdornerLayer.GetAdornerLayer(visualFrom);
-                VBVisualAdorner adornerFrom = new VBVisualAdorner(visualFrom);
-                adornerLayerFrom.Children.Add(adornerFrom);
-                AdornerLayer.SetAdornedElement(adornerFrom, visualFrom);
+                foreach (ConnectionIACObject connectionIACObject in connectionIACObjectList)
+                {
+                    string nodeFromName = ((IACWorkflowNode)connectionIACObject.Item1).XName;
+                    string nodeToName = ((IACWorkflowNode)connectionIACObject.Item2).XName;
 
-                AdornerLayer adornerLayerTo = AdornerLayer.GetAdornerLayer(visualTo);
-                VBVisualAdorner adornerTo = new VBVisualAdorner(visualTo);
-                adornerLayerTo.Children.Add(adornerTo);
-                AdornerLayer.SetAdornedElement(adornerTo, visualTo);
+                    VBVisual visualFrom = vbVisualList.Where(c => c.ACCompInitState == ACInitState.Initialized).FirstOrDefault(c => c.Name == nodeFromName);
+                    VBVisual visualTo = vbVisualList.Where(c => c.ACCompInitState == ACInitState.Initialized).FirstOrDefault(c => c.Name == nodeToName);
 
-                RelationsVisual.Add(new Tuple<VBVisualAdorner, VBVisualAdorner>(adornerFrom, adornerTo));
+                    if (visualFrom == null || visualTo == null)
+                        continue;
+
+                    AdornerLayer adornerLayerFrom = AdornerLayer.GetAdornerLayer(visualFrom);
+                    if (adornerLayerFrom == null)
+                        continue;
+                    VBVisualAdorner adornerFrom = new VBVisualAdorner(visualFrom);
+                    adornerLayerFrom.Children.Add(adornerFrom);
+                    AdornerLayer.SetAdornedElement(adornerFrom, visualFrom);
+
+                    AdornerLayer adornerLayerTo = AdornerLayer.GetAdornerLayer(visualTo);
+                    if (adornerLayerTo == null)
+                        continue;
+                    VBVisualAdorner adornerTo = new VBVisualAdorner(visualTo);
+                    adornerLayerTo.Children.Add(adornerTo);
+                    AdornerLayer.SetAdornedElement(adornerTo, visualTo);
+
+                    RelationsVisual.Add(new Tuple<VBVisualAdorner, VBVisualAdorner>(adornerFrom, adornerTo));
+                }
+            }
+            finally
+            {
+                _isUpdatingRelationsVisual = false;
             }
         }
     }
@@ -113,7 +128,7 @@ namespace gip.core.layoutengine.avui
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            VBAdornerDecorator.RefreshAdorner();
+            VBAdornerDecorator?.RefreshAdorner();
             return base.ArrangeOverride(finalSize);
         }
     }

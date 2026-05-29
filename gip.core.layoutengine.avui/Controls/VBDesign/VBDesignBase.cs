@@ -41,15 +41,6 @@ namespace gip.core.layoutengine.avui
             : base()
         {
             this.InstanceInfoList = new VBInstanceInfoList();
-            
-            // // Listen for IsDesignerActive changes to force command CanExecute re-evaluation
-            // this.PropertyChanged += (s, e) =>
-            // {
-            //     if (e.Property == IsDesignerActiveProperty)
-            //     {
-            //         CommandManager.RequeryInstances();
-            //     }
-            // };
         }
 
         protected override void OnInitialized()
@@ -185,6 +176,17 @@ namespace gip.core.layoutengine.avui
             this.KeyDown -= DesignPanel_KeyDown;
             _pressedKeys.Clear();
 
+            // Clean up adorners when the design is unloaded (e.g., switching tabs)
+            // so that the selection rectangles don't remain visible on hidden views.
+            if (AdornVBControlManagerList != null)
+            {
+                foreach (var adManager in AdornVBControlManagerList)
+                {
+                    adManager.RemoveAdornerFromElement();
+                }
+                AdornVBControlManagerList.Clear();
+            }
+
             // Auto-hide/pinned tool collapse detaches controls from the visual tree without
             // a real BSO teardown. Reset the base loaded flag so InitVBControl re-applies
             // inherited bindings when the control is reattached.
@@ -232,6 +234,29 @@ namespace gip.core.layoutengine.avui
             if (!string.IsNullOrEmpty(VBContent) && ContextACObject != null && ContextACObject is IACComponent)
                 (ContextACObject as IACComponent).ACAction(new ACActionArgs(this, 0, 0, Global.ElementActionType.VBDesignLoaded));
         }
+
+
+        // protected override void OnMeasureInvalidated()
+        // {
+        //     base.OnMeasureInvalidated();
+        //     VBDesignBase_IsVisibleChanged();
+        // }
+
+        // void VBDesignBase_IsVisibleChanged()
+        // {
+        //     if (!this.IsVisible)
+        //     {
+        //         // When the design becomes invisible (e.g., switching tabs), clear selection and hide adorners
+        //         //SelectedVBControl = null;
+        //         if (AdornVBControlManagerList != null)
+        //         {
+        //             foreach (var adManager in AdornVBControlManagerList)
+        //             {
+        //                 adManager.RemoveAdornerFromElement();
+        //             }
+        //         }
+        //     }
+        // }
 
         #endregion
 

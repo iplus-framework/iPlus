@@ -41,8 +41,8 @@ namespace gip.core.layoutengine.avui
             Rect adornedElementRect = new Rect(-2, -2, desiredSize.Width + 4, desiredSize.Height + 4);
             SolidColorBrush renderBrush = new SolidColorBrush(Colors.White);
             renderBrush.Opacity = 0.05;
-            Pen renderPen = new Pen(new SolidColorBrush(_color), 1.5d);
-            renderPen.DashStyle = DashStyle.Dot;
+            Pen renderPen = new Pen(new SolidColorBrush(_color), 6.0);
+            renderPen.DashStyle = DashStyle.Dash;
             drawingContext.DrawRectangle(renderBrush, renderPen, adornedElementRect, 3, 3);
             base.Render(drawingContext);
         }
