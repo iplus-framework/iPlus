@@ -1275,6 +1275,16 @@ namespace gip.core.layoutengine.avui
 
         #region Mouse-Events
 
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
+        {
+            if (e.Properties.IsLeftButtonPressed)
+            {
+                if (DragEnabled == DragMode.Enabled && this.ContentACObject is IACObject)
+                    VBDragDrop.VBDoDragDrop(e, this);
+            }
+            base.OnPointerPressed(e);
+        }
+
         protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
             if (e.InitialPressMouseButton == MouseButton.Right)
