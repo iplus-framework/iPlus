@@ -115,13 +115,16 @@ namespace gip.core.layoutengine.avui.Helperclasses
                     ACUrlTypeInfo acUrlTypeInfo = new ACUrlTypeInfo();
                     interactiveObject.ACUrlTypeInfo(vbContent, ref acUrlTypeInfo);
                     int count = acUrlTypeInfo.Count;
-                    if (count < 2)
-                        continue;
-                    var lastSegment = acUrlTypeInfo[count - 1];
-                    var penultimateSegment = acUrlTypeInfo[count - 2];
-                    if (penultimateSegment.Value is INotifyPropertyChanged observableObject)
+                    while (count >= 2)
                     {
-                        observablePropertyTuples.Add(new Tuple<INotifyPropertyChanged, string>(observableObject, lastSegment.SegmentName));
+                        var lastSegment = acUrlTypeInfo[count - 1];
+                        var penultimateSegment = acUrlTypeInfo[count - 2];
+                        if (penultimateSegment.Value is INotifyPropertyChanged observableObject)
+                        {
+                            observablePropertyTuples.Add(new Tuple<INotifyPropertyChanged, string>(observableObject, lastSegment.SegmentName));
+                            break;
+                        }
+                        count--;
                     }
                 }
 

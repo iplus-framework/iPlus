@@ -165,6 +165,7 @@ namespace gip.core.manager
                 }
                 else
                     (VBBSOSelectionManager as VBBSOSelectionManager).HighlightContentACObject(value);
+                OnPropertyChanged();
             }
         }
 

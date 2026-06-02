@@ -2,6 +2,7 @@
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 using Avalonia;
 using Avalonia.Collections;
+using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
 using gip.core.datamodel;
@@ -133,12 +134,11 @@ namespace gip.core.layoutengine.avui
 
         private void InsertAdorner()
         {
-            //var layer = AdornerLayer;
-            if (this.Child != null)
+            var layer = AdornerLayer;
+            if (layer != null)
             {
-                var adorners = AdornerLayer.GetAdornerLayer(this.Child);
-                if (adorners != null && !adorners.Children.Contains(vbWorkflowAdorner))
-                    adorners.Children.Add(vbWorkflowAdorner);
+                if (!layer.Children.Contains(vbWorkflowAdorner))
+                    layer.Children.Add(vbWorkflowAdorner);
             }
             this.Child.UpdateLayout();
         }
@@ -151,9 +151,8 @@ namespace gip.core.layoutengine.avui
             var layer = AdornerLayer;
             if (layer != null)
             {
-                var adorners = AdornerLayer.GetAdornerLayer(this.Child);
-                if (adorners != null && !adorners.Children.Contains(vbWorkflowAdorner))
-                    adorners.Children.Add(vbWorkflowAdorner);
+                if (!layer.Children.Contains(vbWorkflowAdorner))
+                    layer.Children.Add(vbWorkflowAdorner);
             }
             vbWorkflowAdorner.InvalidateVisual();
         }
@@ -166,9 +165,8 @@ namespace gip.core.layoutengine.avui
             var layer = AdornerLayer;
             if (layer != null)
             {
-                var adorners = AdornerLayer.GetAdornerLayer(this.Child);
-                if (adorners != null)
-                    adorners.Children.Remove(vbWorkflowAdorner);
+                if (layer.Children.Contains(vbWorkflowAdorner))
+                    layer.Children.Remove(vbWorkflowAdorner);
             }
         }
     }

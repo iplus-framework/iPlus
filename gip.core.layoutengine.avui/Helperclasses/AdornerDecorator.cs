@@ -33,7 +33,7 @@ namespace gip.core.layoutengine.avui
             set => Content = value;
         }
 
-        public AdornerLayer AdornerLayer => AdornerLayer.GetAdornerLayer(this);
+        public AdornerLayer AdornerLayer => AdornerLayer.GetAdornerLayer(Child != null ? Child : this);
 
         #region Protected Methods
 

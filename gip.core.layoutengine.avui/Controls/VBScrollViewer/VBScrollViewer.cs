@@ -1,6 +1,8 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 using System.ComponentModel;
 
 namespace gip.core.layoutengine.avui
@@ -47,6 +49,18 @@ namespace gip.core.layoutengine.avui
             if (!IsEnabledScrollOnLeftCtrlKeyDown && e.KeyModifiers == KeyModifiers.Control)
                 return;
             base.OnPointerWheelChanged(e);
+        }
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs e)
+        {
+            base.OnPropertyChanged(e);
+
+            // When the scroll offset changes, refresh the adorner to redraw connection lines
+            if (e.Property == OffsetProperty)
+            {
+                var adornerDecorator = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBAdornerDecoratorIACObject)) as VBAdornerDecoratorIACObject;
+                adornerDecorator?.RefreshAdorner();
+            }
         }
     }
 }
