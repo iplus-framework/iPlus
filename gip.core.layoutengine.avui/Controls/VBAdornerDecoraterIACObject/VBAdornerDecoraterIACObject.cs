@@ -1,12 +1,14 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace gip.core.layoutengine.avui
@@ -25,7 +27,6 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public VBAdornerDecoratorIACObject() : base()
         {
-           
         }
 
         /// <summary>
@@ -132,8 +133,8 @@ namespace gip.core.layoutengine.avui
 
         private void InsertAdorner()
         {
-            var layer = AdornerLayer;
-            if (layer != null)
+            //var layer = AdornerLayer;
+            if (this.Child != null)
             {
                 var adorners = AdornerLayer.GetAdornerLayer(this.Child);
                 if (adorners != null && !adorners.Children.Contains(vbWorkflowAdorner))

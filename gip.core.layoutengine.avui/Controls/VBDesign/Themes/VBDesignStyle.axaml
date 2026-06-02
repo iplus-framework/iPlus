@@ -17,12 +17,14 @@
                                 Margin="{TemplateBinding Padding}"
                                 ClipToBounds="True">
                         <Grid>
-                        <ContentPresenter x:Name="PART_Presenter"
-                                      Content="{TemplateBinding Content}"
-                                      ContentTemplate="{TemplateBinding ContentTemplate}"
-                                      Cursor="{TemplateBinding Cursor}"
-                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            <VisualLayerManager Name="PART_VisualLayerManager" EnableAdornerLayer="False">
+                                <ContentPresenter x:Name="PART_Presenter"
+                                    Content="{TemplateBinding Content}"
+                                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                                    Cursor="{TemplateBinding Cursor}"
+                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            </VisualLayerManager>
                         </Grid>
                     </Border>
                 </ControlTemplate>

@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Data;
 using Avalonia.Input;
@@ -44,6 +45,7 @@ namespace gip.core.layoutengine.avui
     /// Das VBDesign dient zur Darstellung von beliebigen Klasse, welche <see cref="IACObjectDesign"/> implementiert (z.B. Partslist, ACClassDesign)
     /// </summary>
     [TemplatePart(Name = "PART_BorderFreeze", Type = typeof(Control))]
+    [TemplatePart(Name = "PART_VisualLayerManager", Type = typeof(VisualLayerManager))]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBDesign'}de{'VBDesign'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBDesign : VBDesignBase, IVBContent, IVBSerialize, IACMenuBuilderWPFTree
     {
@@ -74,6 +76,13 @@ namespace gip.core.layoutengine.avui
                 InitBinding();
         }
 
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+        {
+            base.OnApplyTemplate(e);
+            _PART_VisualLayerManager = e.NameScope.Find("PART_VisualLayerManager") as VisualLayerManager;
+            if (_PART_VisualLayerManager != null && _VisualLayerManagerEnabled.HasValue)
+                _PART_VisualLayerManager.EnableAdornerLayer = _VisualLayerManagerEnabled.Value;
+        }
 
         #endregion
 
@@ -1356,6 +1365,8 @@ namespace gip.core.layoutengine.avui
         #region Adorner
 
         private bool _AdornedVBContentInfo = false;
+        private VisualLayerManager _PART_VisualLayerManager = null;
+        private bool? _VisualLayerManagerEnabled = null;
 
         public void ShowHideVBContentInfo()
         {
@@ -1422,6 +1433,22 @@ namespace gip.core.layoutengine.avui
                     _AdornedVBContentInfo = false;
                 }
             }
+        }
+
+        internal bool EnableAdornerLayer(bool enable)
+        {
+            _VisualLayerManagerEnabled = enable;
+            if (_PART_VisualLayerManager == null)
+                return false;
+            _PART_VisualLayerManager.EnableAdornerLayer = enable;
+            return true;
+        }
+
+        internal bool IsAdornerLayerEnabled()
+        {
+            if (_PART_VisualLayerManager == null)
+                return _VisualLayerManagerEnabled.HasValue ? _VisualLayerManagerEnabled.Value : false;
+            return _PART_VisualLayerManager.EnableAdornerLayer;
         }
 
         #endregion

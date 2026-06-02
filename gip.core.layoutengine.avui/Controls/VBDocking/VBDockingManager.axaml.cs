@@ -573,6 +573,12 @@ namespace gip.core.layoutengine.avui
                     return;
             }
 
+            Global.VBDesignContainer containerType = VBDockingManager.GetContainer(uiElement);
+            Global.VBDesignDockState dockState = VBDockingManager.GetDockState(uiElement);
+            var closeButtonVisibility = VBDockingManager.GetCloseButtonVisibility(uiElement);
+            bool isCloseable = VBDockingManager.GetIsCloseableBSORoot(uiElement)
+                && closeButtonVisibility == Global.ControlModes.Enabled;
+
             VBDesign uiElementAsDataDesign = uiElement as VBDesign;
             if (uiElementAsDataDesign != null)
             {
@@ -594,17 +600,12 @@ namespace gip.core.layoutengine.avui
                     acCaption = uiElementAsDataDesign.AutoStartACComponent;
                 if (string.IsNullOrEmpty(acCaption) && !string.IsNullOrEmpty(uiElementAsDataDesign.ACIdentifier))
                     acCaption = uiElementAsDataDesign.ACIdentifier;
-
+                uiElementAsDataDesign.EnableAdornerLayer(isCloseable);
             }
             string title = VBDockingManager.GetWindowTitle(uiElement);
             if (!string.IsNullOrEmpty(title))
                 acCaption = title;
 
-            Global.VBDesignContainer containerType = VBDockingManager.GetContainer(uiElement);
-            Global.VBDesignDockState dockState = VBDockingManager.GetDockState(uiElement);
-            var closeButtonVisibility = VBDockingManager.GetCloseButtonVisibility(uiElement);
-            bool isCloseable = VBDockingManager.GetIsCloseableBSORoot(uiElement)
-                && closeButtonVisibility == Global.ControlModes.Enabled;
             Size size = VBDockingManager.GetWindowSize(uiElement);
             double toolWidth = 400;
             double toolHeight = 1200;

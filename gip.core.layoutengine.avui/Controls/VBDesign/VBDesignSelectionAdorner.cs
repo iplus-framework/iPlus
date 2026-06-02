@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Media.Immutable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,19 +32,21 @@ namespace gip.core.layoutengine.avui
             _color = color;
         }
 
+        private static IDashStyle s_dot;
+        private static IDashStyle Dot => s_dot ??= new ImmutableDashStyle(new double[] { 1, 1 }, 1);
+
+        private static SolidColorBrush s_FillBrush;
+        private static SolidColorBrush FillBrush => s_FillBrush ??= new SolidColorBrush(Colors.White) { Opacity = 0.05 };
+
         /// <summary>
         /// Handles the OnRender.
         /// </summary>
         /// <param name="drawingContext">The drawing context parameter.</param>
         public override void Render(DrawingContext drawingContext)
         {
-            Size desiredSize = this.AdornedElement.DesiredSize;
-            Rect adornedElementRect = new Rect(-2, -2, desiredSize.Width + 4, desiredSize.Height + 4);
-            SolidColorBrush renderBrush = new SolidColorBrush(Colors.White);
-            renderBrush.Opacity = 0.05;
-            Pen renderPen = new Pen(new SolidColorBrush(_color), 6.0);
-            renderPen.DashStyle = DashStyle.Dash;
-            drawingContext.DrawRectangle(renderBrush, renderPen, adornedElementRect, 3, 3);
+            drawingContext.DrawRectangle(FillBrush, 
+                new Pen(new SolidColorBrush(_color), 6.0) { DashStyle = Dot }, 
+                new RoundedRect(new Rect(0, 0, this.AdornedElement.DesiredSize.Width + 0, this.AdornedElement.DesiredSize.Height + 0), 6, 6));
             base.Render(drawingContext);
         }
     }

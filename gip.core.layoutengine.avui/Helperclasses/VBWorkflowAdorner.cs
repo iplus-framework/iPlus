@@ -1,6 +1,8 @@
 ﻿using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Diagnostics;
 using Avalonia.Media;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
@@ -23,13 +25,21 @@ namespace gip.core.layoutengine.avui
         {
             if (RelationsVisual == null || !RelationsVisual.Any())
                 return;
-            VBAdornerDecoratorIACObject VBAdornerDecorator = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBAdornerDecoratorIACObject)) as VBAdornerDecoratorIACObject;
+            VBAdornerDecoratorIACObject VBAdornerDecorator = VBVisualTreeHelper.FindParentObjectInVisualTree(AdornedElement, typeof(VBAdornerDecoratorIACObject)) as VBAdornerDecoratorIACObject;
+            if (VBAdornerDecorator == null)
+                return;
+            //AdornerLayer.GetAdornerLayer(VBAdornerDecorator)?.InvalidateVisual();
+            AdornerLayer adornerLayer = AdornerLayer.GetAdornerLayer(VBAdornerDecorator);
+            if (adornerLayer == null)
+                return;
+
             foreach (Tuple<VBVisualAdorner, VBVisualAdorner> visuals in RelationsVisual)
             {
-                if (visuals.Item1.IsDescendantOf(VBAdornerDecorator) && visuals.Item2.IsDescendantOf(VBAdornerDecorator))
+                if (   visuals.Item1 != null && visuals.Item1.AdornedElement != null && visuals.Item1.AdornedElement.IsDescendantOf(VBAdornerDecorator) 
+                    && visuals.Item2 != null && visuals.Item2.AdornedElement != null && visuals.Item2.AdornedElement.IsDescendantOf(VBAdornerDecorator))
                 {
-                    Point from = visuals.Item1.TransformToVisual(VBAdornerDecorator)?.Transform(new Point(visuals.Item1.Bounds.Width - 1, visuals.Item1.Bounds.Height / 2)) ?? new Point();
-                    Point to = visuals.Item2.TransformToVisual(VBAdornerDecorator)?.Transform(new Point(0, visuals.Item2.Bounds.Height / 2)) ?? new Point();
+                    Point from = visuals.Item1.TransformToVisual(adornerLayer)?.Transform(new Point(visuals.Item1.Bounds.Width - 1, visuals.Item1.Bounds.Height / 2)) ?? new Point();
+                    Point to = visuals.Item2.TransformToVisual(adornerLayer)?.Transform(new Point(0, visuals.Item2.Bounds.Height / 2)) ?? new Point();
                     context.DrawLine(new Pen(VBAdornerDecorator.ConnectionColor, VBAdornerDecorator.ConnectionThickness), from, to);
                 }
             }
