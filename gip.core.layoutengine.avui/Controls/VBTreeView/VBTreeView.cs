@@ -1109,6 +1109,7 @@ namespace gip.core.layoutengine.avui
                     //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
                     if (((TreeViewItem)sender).Parent is TreeView)
                         vbContextMenu.PlacementTarget = this;
+                    vbContextMenu.Closed += (s, args) => { this.ContextMenu = null; };
                     ContextMenu.Open();
                 }
                 else

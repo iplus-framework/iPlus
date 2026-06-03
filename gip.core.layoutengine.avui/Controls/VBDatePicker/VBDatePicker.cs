@@ -494,6 +494,7 @@ namespace gip.core.layoutengine.avui
                     {
                         VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
                         this.ContextMenu = vbContextMenu;
+                        vbContextMenu.Closed += (s, args) => { this.ContextMenu = null; };
                         ContextMenu.Open();
                     }
                     e.Handled = true;

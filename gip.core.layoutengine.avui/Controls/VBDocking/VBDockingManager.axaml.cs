@@ -672,6 +672,8 @@ namespace gip.core.layoutengine.avui
                 dockPanel.Children.Add(ribbonControl);
                 dockPanel.Children.Add(uiElement);
                 content = dockPanel;
+                // Mark content as having a ribbon so the tab's ribbon switch button knows to show/hide
+                VBDockingManager.SetHasRibbon(content, true);
             }
 
             ProportionalDock horizontalArea = null;

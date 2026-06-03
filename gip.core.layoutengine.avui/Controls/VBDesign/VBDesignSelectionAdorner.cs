@@ -46,7 +46,7 @@ namespace gip.core.layoutengine.avui
         {
             drawingContext.DrawRectangle(FillBrush, 
                 new Pen(new SolidColorBrush(_color), 6.0) { DashStyle = Dot }, 
-                new RoundedRect(new Rect(0, 0, this.AdornedElement.DesiredSize.Width + 0, this.AdornedElement.DesiredSize.Height + 0), 6, 6));
+                new RoundedRect(new Rect(0, 0, this.AdornedElement.DesiredSize.Width + 0, this.AdornedElement.DesiredSize.Height + 0), 10, 10));
             base.Render(drawingContext);
         }
     }

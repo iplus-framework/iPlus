@@ -341,6 +341,7 @@ namespace gip.core.layoutengine.avui.timeline
                     //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
                     if (vbContextMenu.PlacementTarget == null)
                         vbContextMenu.PlacementTarget = this;
+                    vbContextMenu.Closed += (s, args) => { this.ContextMenu = null; };
                     ContextMenu.Open();
                 }
             }

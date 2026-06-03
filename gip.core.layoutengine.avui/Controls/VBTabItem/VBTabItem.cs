@@ -1101,6 +1101,7 @@ namespace gip.core.layoutengine.avui
                     this.ContextMenu = vbContextMenu;
                     if (vbContextMenu.PlacementTarget == null)
                         vbContextMenu.PlacementTarget = this;
+                    vbContextMenu.Closed += (s, args) => { this.ContextMenu = null; };
                     ContextMenu.Open(this);
                 }
                 e.Handled = true;

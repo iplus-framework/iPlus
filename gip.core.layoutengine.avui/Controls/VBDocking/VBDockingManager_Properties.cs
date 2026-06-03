@@ -110,6 +110,10 @@ namespace gip.core.layoutengine.avui
                                AvaloniaProperty.RegisterAttached<VBDockingManager, Control, bool>(
                                    "IsCloseableBSORoot", false);
 
+        public static readonly AttachedProperty<bool> HasRibbonProperty =
+                               AvaloniaProperty.RegisterAttached<VBDockingManager, Control, bool>(
+                                   "HasRibbon", false);
+
         public static readonly AttachedProperty<bool> DisableDockingOnClickProperty =
                                AvaloniaProperty.RegisterAttached<VBDockingManager, Control, bool>(
                                    "DisableDockingOnClick", false);
@@ -230,6 +234,20 @@ namespace gip.core.layoutengine.avui
             if (element == null)
                 throw new ArgumentNullException("element");
             return element.GetValue(VBDockingManager.RibbonBarVisibilityProperty);
+        }
+
+        public static void SetHasRibbon(Control element, bool value)
+        {
+            if (element == null)
+                throw new ArgumentNullException("element");
+            element.SetValue(VBDockingManager.HasRibbonProperty, value);
+        }
+
+        public static bool GetHasRibbon(Control element)
+        {
+            if (element == null)
+                throw new ArgumentNullException("element");
+            return element.GetValue(VBDockingManager.HasRibbonProperty);
         }
 
         public static void SetIsCloseableBSORoot(Control element, bool value)
