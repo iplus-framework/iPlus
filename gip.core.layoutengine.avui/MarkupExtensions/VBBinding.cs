@@ -69,10 +69,16 @@ namespace gip.core.layoutengine.avui
             resolvedMode = this.Mode;
 
             if (context == null || String.IsNullOrEmpty(_VBContent))
+            {
+                //LogOperatingModeBinding("TryResolveBinding", "Skip: context null or VBContent empty.");
                 return false;
+            }
 
             if (!context.ACUrlBinding(_VBContent, ref _dcACTypeInfo, ref dcSource, ref dcPath, ref _dcRightControlMode))
+            {
+                //LogOperatingModeBinding("TryResolveBinding", $"ACUrlBinding returned false. Context={ResolveTypeName(context)}; VBContent={_VBContent}");
                 return false;
+            }
 
             if (_dcACTypeInfo != null)
             {
@@ -86,7 +92,35 @@ namespace gip.core.layoutengine.avui
             if (Layoutgenerator.CurrentBSO != null)
                 Layoutgenerator.CurrentBSO.AddWPFRef(this.GetHashCode(), dcSource as IACObject);
 
+            //LogOperatingModeBinding("TryResolveBinding", $"Resolved OK. Context={ResolveTypeName(context)}; Source={ResolveTypeName(dcSource)}; Path={dcPath}; Mode={resolvedMode}; ACTypeInfo={ResolveTypeName(_dcACTypeInfo)}; RightControlMode={_dcRightControlMode}");
+
             return true;
+        }
+
+        private bool IsOperatingModeBinding
+        {
+            get
+            {
+                return String.Equals(_VBContent, "OperatingMode", StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        private void LogOperatingModeBinding(string phase, string message)
+        {
+            if (!IsOperatingModeBinding)
+                return;
+
+            try
+            {
+                if (Database.Root != null && Database.Root.Messages != null)
+                    Database.Root.Messages.LogInfo("VBBinding", phase, message);
+                else
+                    Debug.WriteLine($"VBBinding[{phase}] {message}");
+            }
+            catch
+            {
+                // Diagnostics must never break binding behavior.
+            }
         }
 
         private static string ResolveTypeName(object value)
@@ -135,8 +169,16 @@ namespace gip.core.layoutengine.avui
                 if (nextContext == null)
                     return;
 
+                // Ignore stale DataContext events that are immediately superseded by another value.
+                if (!Object.ReferenceEquals(target.DataContext, nextContext))
+                {
+                    LogOperatingModeBinding("DataContextRebind", $"Skip stale event. Target={target.GetType().Name}:{target.Name}; Property={dp.Name}; EventContext={ResolveTypeName(nextContext)}; CurrentContext={ResolveTypeName(target.DataContext)}");
+                    return;
+                }
+
                 if (!TryResolveBinding(nextContext, out object nextSource, out string nextPath, out BindingMode nextMode))
                 {
+                    LogOperatingModeBinding("DataContextRebind", $"Resolve failed. Target={target.GetType().Name}:{target.Name}; Property={dp.Name}; Context={ResolveTypeName(nextContext)}");
                     if (dp == ToolTip.TipProperty)
                         target.SetValue(dp, null);
                     return;
@@ -144,6 +186,7 @@ namespace gip.core.layoutengine.avui
 
                 var resolvedBinding = CreateResolvedBinding(nextSource, nextPath, nextMode);
                 target.Bind(dp, resolvedBinding);
+                LogOperatingModeBinding("DataContextRebind", $"Rebind OK. Target={target.GetType().Name}:{target.Name}; Property={dp.Name}; Context={ResolveTypeName(nextContext)}; Source={ResolveTypeName(nextSource)}; Path={nextPath}; Mode={nextMode}");
 
                 // FOR TRACING:
                 // Database.Root.Messages.LogDebug(
@@ -165,6 +208,13 @@ namespace gip.core.layoutengine.avui
                 if (nextContext == null)
                     return;
 
+                // Ignore stale DataContext events that are immediately superseded by another value.
+                if (!Object.ReferenceEquals(target.DataContext, nextContext))
+                {
+                    LogOperatingModeBinding("DeferredRebind", $"Skip stale event. Target={target.GetType().Name}:{target.Name}; Property={dp.Name}; EventContext={ResolveTypeName(nextContext)}; CurrentContext={ResolveTypeName(target.DataContext)}");
+                    return;
+                }
+
                 if (!TryResolveBinding(nextContext, out object nextSource, out string nextPath, out BindingMode nextMode))
                     return;
 
@@ -172,6 +222,7 @@ namespace gip.core.layoutengine.avui
 
                 var resolvedBinding = CreateResolvedBinding(nextSource, nextPath, nextMode);
                 target.Bind(dp, resolvedBinding);
+                LogOperatingModeBinding("DeferredRebind", $"Deferred rebind OK. Target={target.GetType().Name}:{target.Name}; Property={dp.Name}; Context={ResolveTypeName(nextContext)}; Source={ResolveTypeName(nextSource)}; Path={nextPath}; Mode={nextMode}");
 
                 string targetName = target.Name;
                 string targetType = target.GetType().Name;
@@ -265,6 +316,11 @@ namespace gip.core.layoutengine.avui
                     Source = dcSource;
                     Path = dcPath;
                     Mode = resolvedMode;
+                    LogOperatingModeBinding("ProvideValue-Nested", $"Resolved nested binding. Context={ResolveTypeName(context)}; Source={ResolveTypeName(dcSource)}; Path={dcPath}; Mode={resolvedMode}");
+                }
+                else
+                {
+                    LogOperatingModeBinding("ProvideValue-Nested", $"Nested resolve failed. Context={ResolveTypeName(context)}; VBContent={_VBContent}");
                 }
                 return this;
             }
@@ -282,6 +338,7 @@ namespace gip.core.layoutengine.avui
             // the string "Root" to bool) that can abort XAML rendering downstream.
             if (_isDesignFallback)
             {
+                LogOperatingModeBinding("ProvideValue-Fallback", $"Fallback mode. Target={targetType}:{targetName}; Property={dpName}; Context={contextType}; VBContent={_VBContent}");
                 // FOR TRACING:
                 // Database.Root.Messages.LogInfo("VBBindingExt", "ProvideValue", $"VBBinding Resolve FAIL Target={targetType}:{targetName}; Property={dpName}; VBContent={_VBContent}; Context={contextType}");
 
@@ -302,8 +359,7 @@ namespace gip.core.layoutengine.avui
             // do not leak Source/Path state between controls.
             var resolvedBinding = CreateResolvedBinding(dcSource, dcPath, resolvedMode);
 
-            if (styledTarget != null)
-                EnsureDataContextRebind(styledTarget, dp);
+            LogOperatingModeBinding("ProvideValue-Resolved", $"Resolved binding. Target={targetType}:{targetName}; Property={dpName}; Context={contextType}; Source={ResolveTypeName(dcSource)}; Path={dcPath}; Mode={resolvedMode}; ACTypeInfo={ResolveTypeName(_dcACTypeInfo)}; RightControlMode={_dcRightControlMode}");
 
             // FOR TRACING:
             // Database.Root.Messages.LogInfo("VBBindingExt", "ProvideValue", $"VBBinding Resolve OK Target={targetType}:{targetName}; Property={dpName}; VBContent={_VBContent}; Context={contextType}; Source={ResolveTypeName(dcSource)}; Path={dcPath}; Mode={resolvedMode}");

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Diagnostics;
 using Avalonia;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui;
@@ -157,6 +158,46 @@ namespace gip.core.visualcontrols.avui
         #endregion
 
         #endregion
+
+        // protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        // {
+        //     base.OnPropertyChanged(change);
+
+        //     if (change.Property == VBPAControlBase.OperatingModeProperty)
+        //     {
+        //         LogStateChange("OperatingMode", change.NewValue);
+        //     }
+        //     else if (change.Property == Pos1Property)
+        //     {
+        //         LogStateChange("Pos1", change.NewValue);
+        //     }
+        // }
+
+        // private void LogStateChange(string propertyName, object value)
+        // {
+        //     try
+        //     {
+        //         string valueText = value == null ? "<null>" : value.ToString();
+        //         string typeText = value == null ? "<null>" : value.GetType().FullName;
+        //         string msg = string.Format(
+        //             "VBValve state change: Name={0}; ValveType={1}; Property={2}; Value={3}; ValueType={4}; DataContextType={5}",
+        //             string.IsNullOrEmpty(Name) ? "<null>" : Name,
+        //             ValveType,
+        //             propertyName,
+        //             valueText,
+        //             typeText,
+        //             DataContext == null ? "<null>" : DataContext.GetType().FullName);
+
+        //         if (Database.Root != null && Database.Root.Messages != null)
+        //             Database.Root.Messages.LogInfo("VBValve", "StateChange", msg);
+        //         else
+        //             Debug.WriteLine(msg);
+        //     }
+        //     catch
+        //     {
+        //         // Diagnostics must never affect control behavior.
+        //     }
+        // }
 
     }
 }
