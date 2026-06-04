@@ -5,6 +5,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Styling;
+using Avalonia.VisualTree;
 using Dock.Avalonia.Controls;
 using Dock.Model.Avalonia;
 using Dock.Model.Avalonia.Controls;
@@ -1316,6 +1317,17 @@ namespace gip.core.layoutengine.avui
                     if (acClassDesign.VisualHeight > 0 || acClassDesign.VisualWidth > 0)
                         vbDialogRoot.CanResize = false;
                 }
+
+                // Compensate dialog size for zoom scaling:
+                // When LayoutTransformControl.UseRenderTransform=True, dialog content carries RenderTransform
+                // that scales it visually. We need to enlarge the dialog window to avoid clipping.
+                double scale = GetLayoutTransformScale(this);
+                if (scale > 1.0)
+                {
+                    vbDialogRoot.Width *= scale;
+                    vbDialogRoot.Height *= scale;
+                }
+
                 IRoot root = this.Root();
                 if (root != null && root.RootPageWPF != null && root.RootPageWPF.InFullscreen)
                     vbDialogRoot.WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -1323,7 +1335,7 @@ namespace gip.core.layoutengine.avui
                     vbDialogRoot.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 DialogStack.Add(vbDialogRoot);
                 
-                if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime classicDesktop)
+                if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime classicDesktop && classicDesktop.MainWindow != null)
                 {
                     await vbDialogRoot.ShowDialog(classicDesktop.MainWindow);
                 }
@@ -2031,6 +2043,38 @@ namespace gip.core.layoutengine.avui
         public bool IsEnabledACAction(ACActionArgs actionArgs)
         {
             return false;
+        }
+
+        /// <summary>
+        /// Extract the scale factor from the nearest LayoutTransformControl ancestor.
+        /// When LayoutTransformControl.UseRenderTransform=True, the ScaleTransform is assigned to the
+        /// child's RenderTransform (not held by the LayoutTransformControl itself).
+        /// We check the LayoutTransform property of the LayoutTransformControl directly.
+        /// Returns 1.0 if no ScaleTransform is found.
+        /// </summary>
+        private static double GetLayoutTransformScale(Visual startingPoint)
+        {
+            foreach (var ancestor in startingPoint.GetVisualAncestors())
+            {
+                if (ancestor is LayoutTransformControl ltc)
+                {
+                    // Check the LayoutTransform property directly
+                    var transform = ltc.LayoutTransform;
+                    if (transform is Avalonia.Media.ScaleTransform directScale)
+                    {
+                        return directScale.ScaleX;
+                    }
+                    // Handle TransformGroup containing a ScaleTransform
+                    if (transform is Avalonia.Media.TransformGroup group)
+                    {
+                        return transform.Value.M11;
+                    }
+                    // Break after finding the first LayoutTransformControl
+                    break;
+                }
+            }
+
+            return 1.0;
         }
     }
 }

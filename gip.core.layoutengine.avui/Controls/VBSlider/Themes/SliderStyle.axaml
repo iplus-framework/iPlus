@@ -353,21 +353,31 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 					<Grid>
 						<Grid.RowDefinitions>
 							<RowDefinition Height="Auto"/>
-							<RowDefinition Height="Auto" MinHeight="{TemplateBinding MinHeight}"/>
+							<RowDefinition Height="*" MinHeight="{TemplateBinding MinHeight}"/>
 							<RowDefinition Height="Auto"/>
 						</Grid.RowDefinitions>
 						<TickBar x:Name="TopTick"
 								 Fill="{TemplateBinding Foreground}"
 								 Height="4"
+								 Minimum="{TemplateBinding Minimum}"
+								 Maximum="{TemplateBinding Maximum}"
+								 Orientation="{TemplateBinding Orientation}"
 								 Placement="Top"
+								 ReservedSpace="2,0,2,0"
 								 Grid.Row="0"
-								 IsVisible="False"/>
+								 IsVisible="False"
+								 Ticks="{TemplateBinding Ticks}"/>
 						<TickBar x:Name="BottomTick"
 								 Fill="{TemplateBinding Foreground}"
 								 Height="4"
+								 Minimum="{TemplateBinding Minimum}"
+								 Maximum="{TemplateBinding Maximum}"
+								 Orientation="{TemplateBinding Orientation}"
 								 Placement="Bottom"
+								 ReservedSpace="2,0,2,0"
 								 Grid.Row="2"
-								 IsVisible="False"/>
+								 IsVisible="False"
+								 Ticks="{TemplateBinding Ticks}"/>
 						<Border x:Name="TrackBackground"
 								BorderBrush="{StaticResource HorizontalSliderTrackNormalBorder}"
 								BorderThickness="1"
@@ -385,7 +395,12 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 										   IsVisible="False"/>
 							</Canvas>
 						</Border>
-						<Track x:Name="PART_Track" Grid.Row="1">
+						<Track x:Name="PART_Track"
+							   Grid.Row="1"
+							   Minimum="{TemplateBinding Minimum}"
+							   Maximum="{TemplateBinding Maximum}"
+							   Value="{TemplateBinding Value}"
+							   Orientation="{TemplateBinding Orientation}">
 							<Track.DecreaseButton>
 								<RepeatButton Name="PART_DecreaseButton" Theme="{StaticResource SliderRepeatButtonStyle}"/>
 							</Track.DecreaseButton>
@@ -444,21 +459,31 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 						<Grid>
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition Width="Auto"/>
-								<ColumnDefinition MinWidth="{TemplateBinding MinWidth}" Width="Auto"/>
+								<ColumnDefinition Width="*" MinWidth="{TemplateBinding MinWidth}"/>
 								<ColumnDefinition Width="Auto"/>
 							</Grid.ColumnDefinitions>
 							<TickBar x:Name="TopTick"
 									 Grid.Column="0"
 									 Fill="{TemplateBinding Foreground}"
+									 Minimum="{TemplateBinding Minimum}"
+									 Maximum="{TemplateBinding Maximum}"
+									 Orientation="{TemplateBinding Orientation}"
 									 Placement="Left"
+									 ReservedSpace="0,2,0,2"
 									 IsVisible="False"
-									 Width="4"/>
+									 Width="4"
+									 Ticks="{TemplateBinding Ticks}"/>
 							<TickBar x:Name="BottomTick"
 									 Grid.Column="2"
 									 Fill="{TemplateBinding Foreground}"
+									 Minimum="{TemplateBinding Minimum}"
+									 Maximum="{TemplateBinding Maximum}"
+									 Orientation="{TemplateBinding Orientation}"
 									 Placement="Right"
+									 ReservedSpace="0,2,0,2"
 									 IsVisible="False"
-									 Width="4"/>
+									 Width="4"
+									 Ticks="{TemplateBinding Ticks}"/>
 							<Border x:Name="TrackBackground"
 									BorderBrush="{StaticResource VerticalSliderTrackNormalBorder}"
 									BorderThickness="1"
@@ -477,7 +502,12 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 											   Width="4.0"/>
 								</Canvas>
 							</Border>
-							<Track x:Name="PART_Track" Grid.Column="1">
+							<Track x:Name="PART_Track"
+								   Grid.Column="1"
+								   Minimum="{TemplateBinding Minimum}"
+								   Maximum="{TemplateBinding Maximum}"
+								   Value="{TemplateBinding Value}"
+								   Orientation="{TemplateBinding Orientation}">
 								<Track.DecreaseButton>
 									<RepeatButton Name="PART_DecreaseButton" Theme="{StaticResource SliderRepeatButtonStyle}"/>
 								</Track.DecreaseButton>

@@ -5,20 +5,20 @@
 
   <!-- VBStatusBarItem Template -->
   <ControlTemplate x:Key="VBStatusBarItemTemplate" TargetType="local:VBStatusBarItem">
-    <Border BorderBrush="{TemplateBinding BorderBrush}" 
+    <!-- <Border BorderBrush="{TemplateBinding BorderBrush}" 
             BorderThickness="{TemplateBinding BorderThickness}" 
             Background="{TemplateBinding Background}" 
-            Padding="{TemplateBinding Padding}">
+            Padding="{TemplateBinding Padding}"> -->
       <ContentPresenter Content="{TemplateBinding Content}"
                         ContentTemplate="{TemplateBinding ContentTemplate}"
+                        Padding="{TemplateBinding Padding}"
                         HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
                         VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-    </Border>
+    <!-- </Border> -->
   </ControlTemplate>
 
   <!-- VBStatusBarItem ControlTheme -->
   <ControlTheme x:Key="{x:Type local:VBStatusBarItem}" TargetType="local:VBStatusBarItem">
-    <Setter Property="Padding" Value="3"/>
     <Setter Property="Background" Value="Transparent"/>
     <Setter Property="HorizontalContentAlignment" Value="Left"/>
     <Setter Property="VerticalContentAlignment" Value="Center"/>

@@ -154,16 +154,6 @@
 
   <ControlTemplate x:Key="DialogRootTemplate" TargetType="{x:Type local:VBWindowDialogRoot}">
     <DockPanel>
-      <DockPanel.RenderTransform>
-        <ScaleTransform>
-          <ScaleTransform.ScaleX>
-            <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="ScaleX" Mode="OneWay"/>
-          </ScaleTransform.ScaleX>
-          <ScaleTransform.ScaleY>
-            <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="ScaleY" Mode="OneWay"/>
-          </ScaleTransform.ScaleY>
-        </ScaleTransform>
-      </DockPanel.RenderTransform>
       <Grid DockPanel.Dock="Top">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="5"></ColumnDefinition>
@@ -221,7 +211,19 @@
             BorderThickness="1,1,1,2"
                     CornerRadius="0,0,6,6">
         <Grid Background="Transparent" Margin="6,0,2,2">
-          <ContentPresenter x:Name="PART_cpClientWindowContent" Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}"/>
+          <LayoutTransformControl>
+            <LayoutTransformControl.LayoutTransform>
+              <ScaleTransform>
+                <ScaleTransform.ScaleX>
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="ScaleX" Mode="OneWay"/>
+                </ScaleTransform.ScaleX>
+                <ScaleTransform.ScaleY>
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="ScaleY" Mode="OneWay"/>
+                </ScaleTransform.ScaleY>
+              </ScaleTransform>
+            </LayoutTransformControl.LayoutTransform>
+            <ContentPresenter x:Name="PART_cpClientWindowContent" Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}"/>
+          </LayoutTransformControl>
         </Grid>
       </Border>
     </DockPanel>

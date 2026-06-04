@@ -843,8 +843,8 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
         IACComponent bsoAlarmExplorer = ACRoot.SRoot.Businessobjects.StartComponent("BSOAlarmExplorer", this, null) as IACComponent;
         if (bsoAlarmExplorer != null)
         {
-            bsoAlarmExplorer.ACUrlCommand("!ShowAlarmExplorer");
-            await bsoAlarmExplorer.Stop();
+            await (Task)bsoAlarmExplorer.ACUrlCommand("!ShowAlarmExplorer");
+            //await bsoAlarmExplorer.Stop();
         }
     }
 

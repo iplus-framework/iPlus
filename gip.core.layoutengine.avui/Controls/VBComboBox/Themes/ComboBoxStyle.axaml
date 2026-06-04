@@ -69,6 +69,7 @@
                         IsVisible="{TemplateBinding IsEditable, Converter={x:Static BoolConverters.Not}}">
         </ContentControl>
         <Popup x:Name="PART_Popup"
+               InheritsTransform="True"
                Grid.ColumnSpan="2"
                IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
                Placement="Bottom"
@@ -167,6 +168,7 @@
                         IsVisible="{TemplateBinding IsEditable, Converter={x:Static BoolConverters.Not}}">
         </ContentControl>
         <Popup x:Name="PART_Popup"
+               InheritsTransform="True"
                Grid.ColumnSpan="2"
                IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
                Placement="Bottom"
@@ -318,6 +320,7 @@
 
 
         <Popup x:Name="PART_Popup"
+               InheritsTransform="True"
      Grid.ColumnSpan="2"
      IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
      Placement="Bottom"
@@ -466,6 +469,7 @@
 
 
         <Popup x:Name="PART_Popup"
+               InheritsTransform="True"
      Grid.ColumnSpan="2"
      IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
      Placement="Bottom"
@@ -574,6 +578,7 @@
                         IsVisible="{TemplateBinding IsEditable, Converter={x:Static BoolConverters.Not}}">
         </ContentControl>
         <Popup x:Name="PART_Popup"
+               InheritsTransform="True"
                Grid.ColumnSpan="2"
                IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
                Placement="Bottom"
@@ -730,6 +735,7 @@
         </ToggleButton>
 
         <Popup x:Name="PART_Popup"
+               InheritsTransform="True"
      Grid.ColumnSpan="2"
      IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
      Placement="Bottom"

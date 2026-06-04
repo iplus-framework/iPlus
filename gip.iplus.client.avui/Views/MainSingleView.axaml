@@ -84,7 +84,7 @@
                         </Grid.ColumnDefinitions>
 
                         <vb:VBStatusBar x:Name="PageStatusBar" Grid.Column="0" Height="26">
-                            <vb:VBStatusBarItem Classes="WarningIconClass" Padding="5,0,0,0"  x:Name="WarningIcon">
+                            <vb:VBStatusBarItem Classes="WarningIconClass" Margin="5,0,0,0"  x:Name="WarningIcon">
                               <Viewbox Width="24" Height="24" Margin="0,2,0,0">
                                 <Canvas x:Name="Ebene_1" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
                                   <Path x:Name="Dreieck" Width="24" Height="21.0526" Canvas.Left="-1.84774e-006" Canvas.Top="1.47372" Stretch="Fill" Data="F1 M 12,2.47372L 0.999998,21.5263L 23,21.5263L 12,2.47372 Z " StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round">
@@ -127,10 +127,10 @@
                       </vb:VBStatusBar>
 
                         <vb:VBStatusBar Grid.Column="2" x:Name="ConnectionStatusBar"  Height="26" >
-                            <vb:VBStatusBarItem Padding="5,0,0,0"  >
+                            <vb:VBStatusBarItem Margin="5,0,0,0" >
                               <vb:VBConnectionState x:Name="ClientConnIcon" IsServerConnection="False" ></vb:VBConnectionState>
                             </vb:VBStatusBarItem>
-                            <vb:VBStatusBarItem>
+                            <vb:VBStatusBarItem Margin="5,0,0,0" >
                               <vb:VBTextBlock x:Name="ClientConnText">+0 -0</vb:VBTextBlock>
                             </vb:VBStatusBarItem>
                       </vb:VBStatusBar>

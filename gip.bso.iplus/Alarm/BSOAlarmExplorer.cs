@@ -448,7 +448,7 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInfo("","",999)]
-        public async void ShowAlarmExplorer()
+        public async Task ShowAlarmExplorer()
         {
             if (_backgroundWorker == null)
                 InitializeBackgroundWorker();
@@ -459,8 +459,10 @@ namespace gip.bso.iplus
             SubscribeEvents();
 
             await ShowDialogAsync(this, "AlarmLive", "", true);
+            await this.ParentACComponent.StopComponent(this);
 
-            _backgroundWorker.CancelAsync();
+            if (_backgroundWorker != null && _backgroundWorker.IsBusy)
+                _backgroundWorker.CancelAsync();
             UnSubscribeEvents();
         }
 
@@ -546,7 +548,7 @@ namespace gip.bso.iplus
         #region Methods => Archive
 
         [ACMethodInfo("", "", 999)]
-        public async void ShowAlarmArchiveExplorer()
+        public async Task ShowAlarmArchiveExplorer()
         {
             if (SearchFrom == DateTime.MinValue)
                 SearchFrom = DateTime.Now.AddDays(-7);
@@ -555,6 +557,7 @@ namespace gip.bso.iplus
                 SearchTo = DateTime.Now;
 
             await ShowDialogAsync(this, "AlarmArchive");
+            await this.ParentACComponent.StopComponent(this);
 
             SelectedMessageLevel = null;
             _MsgAlarmLogList = null;
@@ -971,7 +974,7 @@ namespace gip.bso.iplus
             switch (acMethodName)
             {
                 case nameof(ShowAlarmExplorer):
-                    ShowAlarmExplorer();
+                    result = ShowAlarmExplorer();
                     return true;
                 case nameof(AcknowledgeCurrent):
                     AcknowledgeCurrent();
@@ -1019,7 +1022,7 @@ namespace gip.bso.iplus
                     EventCallback((IACPointNetBase)acParameter[0], (ACEventArgs)acParameter[1], (IACObject)acParameter[2]);
                     return true;
                 case nameof(ShowAlarmArchiveExplorer):
-                    ShowAlarmArchiveExplorer();
+                    result = ShowAlarmArchiveExplorer();
                     return true;
                 case nameof(Search):
                     Search();
