@@ -255,11 +255,17 @@ namespace gip.core.autocomponent
         public override object ExecuteMethod(string acMethodName, params Object[] acParameter)
         {
             string acMethodName1;
-            int pos = acMethodName.IndexOf('!');
+            int pos = acMethodName.IndexOf(ACUrlHelper.Delimiter_InvokeMethod);
             if (pos == 0)
                 acMethodName1 = acMethodName.Substring(1);
             else
                 acMethodName1 = acMethodName;
+
+            pos = acMethodName1.IndexOf(ACUrlHelper.Delimiter_AsyncMethodInvocation);
+            if (pos == 0)
+                acMethodName1 = acMethodName1.Substring(1);
+            else
+                acMethodName1 = acMethodName1;                
 
             ACClassMethod acClassMethod = ComponentClass.GetMethod(acMethodName1);
             if (acClassMethod == null)
