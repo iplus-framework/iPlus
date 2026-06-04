@@ -1,65 +1,53 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
-using System.Collections.Generic;
+using System;
 
 namespace gip.core.layoutengine.avui
 {
     public class VBContentRemoteControlAdorner : Adorner
     {
         private readonly Control _popupContent;
-        private readonly List<Visual> _children;
 
         public VBContentRemoteControlAdorner(Control adornedElement, Control popupContent) : base(adornedElement)
         {
+            ArgumentNullException.ThrowIfNull(popupContent);
+
             _popupContent = popupContent;
-            _children = new List<Visual>();
-            _children.Add(_popupContent);
+            ((ISetLogicalParent)_popupContent).SetParent(this);
+            LogicalChildren.Add(_popupContent);
+            VisualChildren.Add(_popupContent);
         }
-
-        protected int VisualChildrenCount => _children.Count;
-
-
-        //protected override Visual GetVisualChild(int index)
-        //{
-        //    return _children[index];
-        //}
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            // Position the popup above the text box
             var desiredSize = _popupContent.DesiredSize;
-            double height = desiredSize.Height; // finalSize.Height > 0.0001 ? finalSize.Height * 4 : desiredSize.Height;
-            double width = desiredSize.Height; // Uniform
-            double newheight = desiredSize.Height; // finalSize.Height > 0.0001 ? finalSize.Height * 4 : desiredSize.Height;
-            double newwidth = desiredSize.Width; // Uniform
+
+            if (desiredSize.Width <= 0 || desiredSize.Height <= 0)
+            {
+                _popupContent.Measure(finalSize);
+                desiredSize = _popupContent.DesiredSize;
+            }
+
+            if (desiredSize.Width <= 0 || desiredSize.Height <= 0)
+            {
+                return finalSize;
+            }
+
+            double height = desiredSize.Height;
             if (height < 10)
-            {
-                height = 10; // Minimum height
-                double factor = 1;
-                if (desiredSize.Height > 0.0001)
-                    factor = height / desiredSize.Height;
-                width = factor * desiredSize.Width > 0.0001 ? desiredSize.Width : height;
-                newheight = height;
-                newwidth = width;
-            }
+                height = 10;
             else if (height > 120)
-            {
-                height = 120; // Minimum height
-                double factor = 1;
-                if (desiredSize.Height > 0.0001)
-                    factor = height / desiredSize.Height;
-                width = factor * desiredSize.Width > 0.0001 ? desiredSize.Width : height;
-                newheight = height;
-                newwidth = width;
-            }
-            //desiredSize.Height = height;
-            //desiredSize.Width = width;
-            double x = finalSize.Width - newwidth - 20;
+                height = 120;
+
+            double scale = desiredSize.Height > 0 ? height / desiredSize.Height : 1;
+            var arrangedSize = new Size(desiredSize.Width * scale, height);
+
+            double x = finalSize.Width - arrangedSize.Width - 20;
             if (x < 0)
-                x = 0; 
+                x = 0;
+
             var point = new Point(x, 0);
-            //var point = new Point(-20, 0);
-            _popupContent.Arrange(new Rect(point, desiredSize));
+            _popupContent.Arrange(new Rect(point, arrangedSize));
             return finalSize;
         }
 

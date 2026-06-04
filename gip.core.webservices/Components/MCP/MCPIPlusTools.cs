@@ -66,13 +66,20 @@ namespace gip.core.webservices
                         "3 = Types of database objects (Entity Framework) or tables. For each type (table), there are one or more database query components (category 4) with which database queries for this table are executed.\r\n" +
                         "4 = Types of database query components. Database query components are Instances of ACQueryDefinition and contain predefined database queries with predefined search parameters that can optionally be filled in with values by the user. " +
                         "Determine the address (ACUrl) of the component using get_instance_info and call the corresponding search method using execute_acurl_command, which you previously determined using get_method_info. " +
-                        "As long as no database data is to be changed and only data is to be read, PREFER query components to business objects (category 2).")]
-            int category = 0)
+                        "As long as no database data is to be changed and only data is to be read, PREFER query components to business objects (category 2). " +
+                        "If searchTerms are provided, search is automatically performed across all categories and this parameter is ignored.")]
+            int category = 0,
+            [Description("(optional) Multi-term OR search. Pass several candidate terms (e.g., synonyms in multiple languages) to reduce the result set in one call. Matching is done against ACIdentifier, ACIdentifierKey and translated captions. If at least one term is provided, search runs across all categories and each result includes Cat unless forceCategoryFilter is set to true.")]
+            string[] searchTerms = null,
+            [Description("(optional) Maximum number of rows in the result. Use 0 for no limit (default).")]
+            int maxResults = 0,
+            [Description("(optional) If true, the selected category is enforced even when searchTerms are provided. Default: false.")]
+            bool forceCategoryFilter = false)
         {
             VBUserRights userRights = null;
             if (mcpHost is PAMcpServerHost host)
                 userRights = host.ResolveUserForSession(server);
-            return GetAppTree(mcpHost).get_thesaurus(mcpHost, userRights, i18nLangTag, category);
+            return GetAppTree(mcpHost).get_thesaurus(mcpHost, userRights, i18nLangTag, category, searchTerms, maxResults, forceCategoryFilter);
         }
 
 

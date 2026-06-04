@@ -18,6 +18,9 @@ namespace gip.core.webservices
         public string ACIdentifier { get; set; }
         [JsonPropertyName("D")]
         public string Description { get; set; }
+        [JsonPropertyName("Cat")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? Category { get; set; }
     }
 
     public class MCP_TypeInfoBase : MCP_BaseType

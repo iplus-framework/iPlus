@@ -23,6 +23,11 @@ namespace gip.core.webservices
    - Category 2: Business objects/apps (user applications)
    - Category 3: Database entities/tables
    - Category 4: Database query components
+    - Optionally pass searchTerms (array) to narrow results with multiple candidate words/synonyms in one call
+    - If searchTerms contains at least one term, search is performed across all categories automatically (OR semantics)
+    - Use forceCategoryFilter=true if you intentionally want to search only within the selected category while still using searchTerms
+    - In that mode, each row includes `Cat` so you can determine the category for follow-up calls
+    - Optionally pass maxResults to cap result size for smaller model context windows
 
 2. **get_type_infos** - Get detailed information about specific types found in the thesaurus. Use the ClassID for subsequent operations.
 
@@ -80,12 +85,17 @@ The iPlus system is a comprehensive industrial automation platform with hierarch
         {
             return @"**IPLUS MCP TOOLS QUICK REFERENCE:**
 
-**get_thesaurus(i18nLangTag, category=0)**
+**get_thesaurus(i18nLangTag, category=0, searchTerms=[], maxResults=0, forceCategoryFilter=false)**
 - category 0: Static system components
 - category 1: Dynamic workflow components  
 - category 2: Business objects/user apps
 - category 3: Database entities/tables
 - category 4: Database query components
+- searchTerms: optional OR-based multi-term filter (e.g., [""Slider"", ""Schieber"", ""Sli""])
+- if searchTerms has at least one term: category is ignored and all categories are searched
+- forceCategoryFilter: when true, keep category filtering active even if searchTerms are provided
+- Cat in result rows tells you the actual category of each hit
+- maxResults: optional cap (0 = no limit)
 
 **get_type_infos(acIdentifiersOrClassIDs, i18nLangTag, getDerivedTypes=false, getBaseTypes=false)**
 - Use ACIdentifiers from thesaurus or resolved ClassIDs

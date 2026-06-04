@@ -52,6 +52,7 @@ namespace gip.core.webservices
         /// 1 = Types for dynamic components that are created during runtime and automatically added to or removed from the application tree when they are no longer needed. These are usually workflow components.
         /// 2 = Types for dynamic components (so-called business objects or apps) that are instantiated at the request of a user and used exclusively by that user to operate apps and primarily work with database data.
         /// 3 = Types of database objects (Entity Framework) or tables.
+        /// 4 = Types of database query components (ACQueryDefinition instances).
         /// </summary>
         public Dictionary<string, gip.core.datamodel.ACClass>[] ThesaurusByACId
         {
@@ -70,6 +71,32 @@ namespace gip.core.webservices
             }
         }
 
+        private sealed class ThesaurusSearchEntry
+        {
+            public string ACIdentifier { get; set; }
+            public gip.core.datamodel.ACClass ACClass { get; set; }
+            public string SearchText { get; set; }
+            public int Category { get; set; }
+        }
+
+        private ThesaurusSearchEntry[][] _ThesaurusSearchIndexByCategory = null;
+        private ThesaurusSearchEntry[][] ThesaurusSearchIndexByCategory
+        {
+            get
+            {
+                using (ACMonitor.Lock(_80000_Lock))
+                {
+                    if (_ThesaurusSearchIndexByCategory != null)
+                        return _ThesaurusSearchIndexByCategory;
+                }
+                InitializeThesaurus();
+                using (ACMonitor.Lock(_80000_Lock))
+                {
+                    return _ThesaurusSearchIndexByCategory;
+                }
+            }
+        }
+
         protected override Dictionary<string, gip.core.datamodel.ACClass> EntityTypes 
         { 
             get
@@ -83,16 +110,45 @@ namespace gip.core.webservices
         #region Methods
 
         #region Thesaurus
-        public string get_thesaurus(IACComponent requester, VBUserRights userRights, string i18nLangTag, int category = 0)
+        public string get_thesaurus(IACComponent requester, VBUserRights userRights, string i18nLangTag, int category = 0, string[] searchTerms = null, int maxResults = 0, bool forceCategoryFilter = false)
         {
             using (requester.Root.UsingThread(userRights.VBUser))
             {
                 try
                 {
-                    MCP_BaseType[] thesaurus = ThesaurusByACId[category].Select(kvp => new MCP_BaseType
+                    string[] normalizedTerms = null;
+                    if (searchTerms != null)
                     {
-                        ACIdentifier = kvp.Key,
-                        Description = Translator.GetTranslation(null, kvp.Value.ACCaption, string.IsNullOrEmpty(i18nLangTag) ? "en" : i18nLangTag.ToLower())
+                        normalizedTerms = searchTerms
+                            .Where(t => !string.IsNullOrWhiteSpace(t))
+                            .Select(t => t.Trim().ToLowerInvariant())
+                            .Distinct()
+                            .ToArray();
+                    }
+
+                    bool hasSearchTerms = normalizedTerms != null && normalizedTerms.Any();
+                    bool searchAcrossAllCategories = hasSearchTerms && !forceCategoryFilter;
+                    if (!searchAcrossAllCategories && (category < 0 || category >= ThesaurusByACId.Length))
+                        throw new ArgumentOutOfRangeException(nameof(category), $"Invalid category '{category}'. Valid range is 0..{ThesaurusByACId.Length - 1}.");
+
+                    IEnumerable<ThesaurusSearchEntry> filteredEntries = searchAcrossAllCategories
+                        ? ThesaurusSearchIndexByCategory.SelectMany(entries => entries)
+                        : ThesaurusSearchIndexByCategory[category];
+
+                    if (hasSearchTerms)
+                    {
+                        filteredEntries = filteredEntries.Where(e => normalizedTerms.Any(term => e.SearchText.Contains(term)));
+                    }
+
+                    if (maxResults > 0)
+                        filteredEntries = filteredEntries.Take(maxResults);
+
+                    string langTag = string.IsNullOrEmpty(i18nLangTag) ? "en" : i18nLangTag.ToLower();
+                    MCP_BaseType[] thesaurus = filteredEntries.Select(entry => new MCP_BaseType
+                    {
+                        ACIdentifier = entry.ACIdentifier,
+                        Description = Translator.GetTranslation(null, entry.ACClass.ACCaption, langTag),
+                        Category = entry.Category
                     }).ToArray();
                     return JsonSerializer.Serialize(thesaurus, new JsonSerializerOptions { WriteIndented = false });
                 }
@@ -109,6 +165,7 @@ namespace gip.core.webservices
             // TODO: Thread-Safety
             Dictionary<Guid, gip.core.datamodel.ACClass> thesaurusByCId = new Dictionary<Guid, gip.core.datamodel.ACClass>();
             Dictionary<string, gip.core.datamodel.ACClass>[] thesaurusByACId = new Dictionary<string, gip.core.datamodel.ACClass>[5];
+            ThesaurusSearchEntry[][] thesaurusSearchIndexByCategory = new ThesaurusSearchEntry[5][];
             for (int i = 0; i < thesaurusByACId.Length; i++)
             {
                 thesaurusByACId[i] = new Dictionary<string, gip.core.datamodel.ACClass>();
@@ -191,11 +248,34 @@ namespace gip.core.webservices
                 }
             }
 
+            for (int i = 0; i < thesaurusByACId.Length; i++)
+            {
+                thesaurusSearchIndexByCategory[i] = thesaurusByACId[i].Select(kvp => new ThesaurusSearchEntry
+                {
+                    ACIdentifier = kvp.Key,
+                    ACClass = kvp.Value,
+                    SearchText = BuildThesaurusSearchText(kvp.Key, kvp.Value),
+                    Category = i
+                }).ToArray();
+            }
+
             using (ACMonitor.Lock(_80000_Lock))
             {
                 _ThesaurusByCId = thesaurusByCId;
                 _ThesaurusByACId = thesaurusByACId;
+                _ThesaurusSearchIndexByCategory = thesaurusSearchIndexByCategory;
             }
+        }
+
+        private static string BuildThesaurusSearchText(string acIdentifier, gip.core.datamodel.ACClass cls)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(acIdentifier ?? string.Empty);
+            sb.Append('|');
+            sb.Append(cls != null ? cls.ACIdentifierKey.ToString() : string.Empty);
+            sb.Append('|');
+            sb.Append(cls?.ACCaptionTranslation ?? string.Empty);
+            return sb.ToString().ToLowerInvariant();
         }
 
         protected virtual void PopulateThesaurus(IACComponent aCComponent, ref Dictionary<Guid, gip.core.datamodel.ACClass> thesaurusByCId, ref Dictionary<string, gip.core.datamodel.ACClass> thesaurusByACId, bool skipChilds = false)

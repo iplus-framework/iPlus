@@ -94,6 +94,7 @@ namespace gip.core.layoutengine.avui
                 // Create and add the popup adorner
                 VBContentRemoteControlAdorner currentPopupAdorner = new VBContentRemoteControlAdorner(Control, content);
                 adornerLayer.Children.Add(currentPopupAdorner);
+                AdornerLayer.SetAdornedElement(currentPopupAdorner, Control);
 
                 // Set up timer to hide popup after specified duration
                 DispatcherTimer popupTimer = new DispatcherTimer(DispatcherPriority.Normal);//, Control.Dispatcher)
@@ -161,17 +162,23 @@ namespace gip.core.layoutengine.avui
             if (_templateResources == null)
                 return null;
 
-            string templateKey = "RemoteCommandPopupTemplate"; // Default template
+            string templateKey = popupType switch
+            {
+                RemoteCommandPopupType.Success => "RemoteCommandPopupSuccessTemplate",
+                RemoteCommandPopupType.Error => "RemoteCommandPopupErrorTemplate",
+                RemoteCommandPopupType.Warning => "RemoteCommandPopupWarningTemplate",
+                _ => "RemoteCommandPopupTemplate"
+            };
 
-            //string templateKey = popupType switch
-            //{
-            //    RemoteCommandPopupType.Success => "RemoteCommandPopupSuccessTemplate",
-            //    RemoteCommandPopupType.Error => "RemoteCommandPopupErrorTemplate",
-            //    RemoteCommandPopupType.Warning => "RemoteCommandPopupWarningTemplate",
-            //    _ => "RemoteCommandPopupTemplate"
-            //};
+            if (_templateResources.ContainsKey(templateKey))
+                return _templateResources[templateKey] as DataTemplate;
 
-            return _templateResources[templateKey] as DataTemplate;
+            // Fall back to default template when specific one is missing.
+            const string defaultTemplateKey = "RemoteCommandPopupTemplate";
+            if (_templateResources.ContainsKey(defaultTemplateKey))
+                return _templateResources[defaultTemplateKey] as DataTemplate;
+
+            return null;
         }
 
         /// <summary>
@@ -271,7 +278,7 @@ namespace gip.core.layoutengine.avui
                 return;
             if (!RemoteCommandManager.Instance.HasRemoteCommand(acComponent, acUrl, isCommand))
                 return;
-            ShowCustomTimedPopup(uiElement, "", RemoteCommandPopupType.Default, 6.0);
+            ShowCustomTimedPopup(uiElement, "", commandPopupType, 6.0);
         }
 
         public void VisualizeIfRemoteControlled(Control uiElement, IACComponent acComponent, bool isCommand, RemoteCommandPopupType commandPopupType = RemoteCommandPopupType.Default)

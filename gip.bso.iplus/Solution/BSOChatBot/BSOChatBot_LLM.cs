@@ -192,6 +192,12 @@ namespace gip.bso.iplus
             set
             {
                 _SelectedChatClientSettings = value;
+                if (_ServiceProvider != null)
+                {
+                    _ServiceProvider.Dispose();
+                    _ServiceProvider = null;
+                }
+                
                 if (_SelectedChatClientSettings != null)
                 {
                     Endpoint = _SelectedChatClientSettings.Endpoint;
