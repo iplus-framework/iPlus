@@ -55,23 +55,42 @@ namespace gip.core.layoutengine.avui
         }
 
         protected bool _LoadedBase = false;
+        private IACComponent ResolveInstanceInfoSourceComponent()
+        {
+            // When SetAsBSOACComponet is used, BSOACComponent can still hold a stale
+            // local override after visual detach/reattach. Prefer the nearest ancestor
+            // value as source so InstanceInfo child lookup starts from inherited context.
+            if (InstanceInfoList != null && InstanceInfoList.Any(c => c.SetAsBSOACComponet))
+            {
+                foreach (var ancestor in this.GetVisualAncestors())
+                {
+                    var inheritedBso = ancestor.GetValue(VBDesignBase.BSOACComponentProperty) as IACComponent;
+                    if (inheritedBso != null)
+                        return inheritedBso;
+                }
+            }
+
+            return BSOACComponent as IACComponent;
+        }
+
         internal virtual void InitVBControl()
         {
-            if (!_LoadedBase && BSOACComponent != null)
+            IACComponent sourceComponent = ResolveInstanceInfoSourceComponent();
+            if (!_LoadedBase && sourceComponent != null)
             {
                 foreach (VBInstanceInfo instanceInfo in InstanceInfoList)
                 {
                     IACComponent subACComponent = null;
                     if (instanceInfo.ACIdentifier == "..")
                     {
-                        subACComponent = BSOACComponent != null ? BSOACComponent.ParentACComponent : null;
+                        subACComponent = sourceComponent != null ? sourceComponent.ParentACComponent : null;
                     }
                     else
                     {
-                        subACComponent = BSOACComponent != null ? BSOACComponent.GetChildComponent(instanceInfo.ACIdentifier, true) : null;
+                        subACComponent = sourceComponent != null ? sourceComponent.GetChildComponent(instanceInfo.ACIdentifier, true) : null;
                         if (subACComponent == null && instanceInfo.AutoStart)
                         {
-                            subACComponent = BSOACComponent != null ? BSOACComponent.StartComponent(instanceInfo.ACIdentifier, null, instanceInfo.BuildStartParameter()) as IACComponent : null;
+                            subACComponent = sourceComponent != null ? sourceComponent.StartComponent(instanceInfo.ACIdentifier, null, instanceInfo.BuildStartParameter()) as IACComponent : null;
                         }
                     }
                     if (subACComponent != null)
@@ -91,6 +110,10 @@ namespace gip.core.layoutengine.avui
                                 Source = subACComponent
                             };
                             this.Bind(VBDesignBase.BSOACComponentProperty, binding);
+
+                            // Support chained InstanceInfo entries by continuing from the
+                            // component selected by SetAsBSOACComponet.
+                            sourceComponent = subACComponent;
                         }
                     }
                     else
@@ -112,11 +135,11 @@ namespace gip.core.layoutengine.avui
                     this.Bind(IsVisibleProperty, binding);
                 }
 
-                if (BSOACComponent != null)
+                if (BSOACComponent != null || sourceComponent != null)
                 {
                     var binding = new Binding
                     {
-                        Source = BSOACComponent,
+                        Source = BSOACComponent ?? sourceComponent,
                         Path = Const.InitState,
                         Mode = BindingMode.OneWay
                     };
@@ -124,7 +147,7 @@ namespace gip.core.layoutengine.avui
 
                     binding = new Binding
                     {
-                        Source = BSOACComponent,
+                        Source = BSOACComponent ?? sourceComponent,
                         Path = Const.ACUrlCmdMessage,
                         Mode = BindingMode.OneWay
                     };

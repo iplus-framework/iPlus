@@ -10,6 +10,8 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Data;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Templates;
+using Avalonia.Media;
 using gip.core.layoutengine.avui.Helperclasses;
 using Avalonia;
 
@@ -24,12 +26,20 @@ namespace gip.core.layoutengine.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBXMLViewer'}de{'VBXMLViewer'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public partial class VBXMLViewer : UserControl, IVBContent, IACObject
     {
+        private const string XmlMarkBrushKey = "ThemeForegroundLowBrush";
+        private const string XmlTagBrushKey = "ThemeAccentBrush";
+        private const string XmlAttributeBrushKey = "HighlightBrush2";
+        private const string XmlAttributeValueBrushKey = "HyperlinkVisitedBrush";
+        private const string XmlTextBrushKey = "ThemeForegroundBrush";
+        private const string XmlCommentBrushKey = "DisabledForegroundBrush";
+
         /// <summary>
         /// Creates a new instance of VBXMLViewer.
         /// </summary>
         public VBXMLViewer()
         {
             InitializeComponent();
+            ConfigureTreeView();
         }
 
         /// <summary>
@@ -52,6 +62,236 @@ namespace gip.core.layoutengine.avui
 
 
         bool _Initialized = false;
+
+        private sealed class XmlTreeNodeItem
+        {
+            public XmlTreeNodeItem(XmlNode node, string displayText, IReadOnlyList<XmlTreeNodeItem> children)
+            {
+                Node = node;
+                DisplayText = displayText;
+                Children = children;
+            }
+
+            public XmlNode Node { get; }
+
+            public string DisplayText { get; }
+
+            public IReadOnlyList<XmlTreeNodeItem> Children { get; }
+        }
+
+        private void ConfigureTreeView()
+        {
+            TreeViewXML.ItemTemplate = new FuncTreeDataTemplate<XmlTreeNodeItem>(
+                (item, namescope) => BuildTreeNodeControl(item),
+                item => item?.Children);
+        }
+
+        private Control BuildTreeNodeControl(XmlTreeNodeItem item)
+        {
+            if (item?.Node == null)
+                return CreateToken(item?.DisplayText ?? string.Empty, XmlTextBrushKey);
+
+            XmlNode node = item.Node;
+            switch (node.NodeType)
+            {
+                case XmlNodeType.Element:
+                    return BuildElementNodeControl(node, item.Children != null && item.Children.Count > 0);
+                case XmlNodeType.Text:
+                    return CreateToken(node.InnerText, XmlTextBrushKey);
+                case XmlNodeType.CDATA:
+                    return BuildCDataNodeControl(node.InnerText);
+                case XmlNodeType.Comment:
+                    return BuildCommentNodeControl(node.Value);
+                case XmlNodeType.XmlDeclaration:
+                    return BuildDeclarationNodeControl(node.Name, node.Value);
+                case XmlNodeType.ProcessingInstruction:
+                    return BuildDeclarationNodeControl(node.Name, node.Value);
+                default:
+                    return CreateToken(item.DisplayText ?? node.OuterXml, XmlTextBrushKey);
+            }
+        }
+
+        private Control BuildElementNodeControl(XmlNode node, bool hasChildren)
+        {
+            StackPanel panel = CreateInlinePanel();
+            AddToken(panel, "<", XmlMarkBrushKey);
+            AddToken(panel, node.Name, XmlTagBrushKey);
+
+            if (node.Attributes != null)
+            {
+                foreach (XmlAttribute attribute in node.Attributes)
+                {
+                    AddToken(panel, " ", XmlMarkBrushKey);
+                    AddToken(panel, attribute.Name, XmlAttributeBrushKey);
+                    AddToken(panel, "=\"", XmlMarkBrushKey);
+                    AddToken(panel, attribute.Value, XmlAttributeValueBrushKey);
+                    AddToken(panel, "\"", XmlMarkBrushKey);
+                }
+            }
+
+            AddToken(panel, hasChildren ? ">" : "/>", XmlMarkBrushKey);
+            return panel;
+        }
+
+        private Control BuildCommentNodeControl(string commentText)
+        {
+            StackPanel panel = CreateInlinePanel();
+            AddToken(panel, "<!--", XmlMarkBrushKey);
+            AddToken(panel, commentText ?? string.Empty, XmlCommentBrushKey);
+            AddToken(panel, "-->", XmlMarkBrushKey);
+            return panel;
+        }
+
+        private Control BuildCDataNodeControl(string cdataText)
+        {
+            StackPanel panel = CreateInlinePanel();
+            AddToken(panel, "<![CDATA[", XmlMarkBrushKey);
+            AddToken(panel, cdataText ?? string.Empty, XmlTextBrushKey);
+            AddToken(panel, "]]>", XmlMarkBrushKey);
+            return panel;
+        }
+
+        private Control BuildDeclarationNodeControl(string name, string value)
+        {
+            StackPanel panel = CreateInlinePanel();
+            AddToken(panel, "<?", XmlMarkBrushKey);
+            AddToken(panel, name ?? string.Empty, XmlTagBrushKey);
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                AddToken(panel, " ", XmlMarkBrushKey);
+                AddToken(panel, value, XmlAttributeBrushKey);
+            }
+            AddToken(panel, "?>", XmlMarkBrushKey);
+            return panel;
+        }
+
+        private StackPanel CreateInlinePanel()
+        {
+            return new StackPanel
+            {
+                Orientation = Avalonia.Layout.Orientation.Horizontal,
+                Spacing = 0
+            };
+        }
+
+        private void AddToken(Panel panel, string text, string brushResourceKey)
+        {
+            panel.Children.Add(CreateToken(text, brushResourceKey));
+        }
+
+        private VBTextBlock CreateToken(string text, string brushResourceKey)
+        {
+            return new VBTextBlock
+            {
+                Text = text ?? string.Empty,
+                Foreground = ResolveBrush(brushResourceKey)
+            };
+        }
+
+        private IBrush ResolveBrush(string brushResourceKey)
+        {
+            if (!string.IsNullOrEmpty(brushResourceKey))
+            {
+                if (TreeViewXML != null
+                    && TreeViewXML.TryFindResource(brushResourceKey, out object localResource)
+                    && localResource is IBrush localBrush)
+                {
+                    return localBrush;
+                }
+
+                if (this.TryFindResource(brushResourceKey, out object inheritedResource)
+                    && inheritedResource is IBrush inheritedBrush)
+                {
+                    return inheritedBrush;
+                }
+            }
+
+            if (TreeViewXML != null
+                && TreeViewXML.TryFindResource(XmlTextBrushKey, out object fallbackResource)
+                && fallbackResource is IBrush fallbackBrush)
+            {
+                return fallbackBrush;
+            }
+
+            return Brushes.Gray;
+        }
+
+        private static IReadOnlyList<XmlTreeNodeItem> BuildTreeItems(XmlNodeList nodes)
+        {
+            List<XmlTreeNodeItem> items = new List<XmlTreeNodeItem>();
+            if (nodes == null)
+                return items;
+
+            foreach (XmlNode node in nodes)
+            {
+                XmlTreeNodeItem item = CreateTreeItem(node);
+                if (item != null)
+                    items.Add(item);
+            }
+
+            return items;
+        }
+
+        private static XmlTreeNodeItem CreateTreeItem(XmlNode node)
+        {
+            if (!ShouldDisplayNode(node))
+                return null;
+
+            IReadOnlyList<XmlTreeNodeItem> children = BuildTreeItems(node.ChildNodes);
+            string displayText = BuildDisplayText(node, children.Count > 0);
+            return new XmlTreeNodeItem(node, displayText, children);
+        }
+
+        private static bool ShouldDisplayNode(XmlNode node)
+        {
+            if (node == null)
+                return false;
+
+            if (node.NodeType == XmlNodeType.Whitespace || node.NodeType == XmlNodeType.SignificantWhitespace)
+                return !string.IsNullOrWhiteSpace(node.Value);
+
+            return true;
+        }
+
+        private static string BuildDisplayText(XmlNode node, bool hasChildren)
+        {
+            switch (node.NodeType)
+            {
+                case XmlNodeType.Element:
+                    string attributes = BuildAttributeText(node.Attributes);
+                    return hasChildren
+                        ? $"<{node.Name}{attributes}>"
+                        : $"<{node.Name}{attributes}/>";
+                case XmlNodeType.Text:
+                case XmlNodeType.CDATA:
+                    return node.InnerText;
+                case XmlNodeType.Comment:
+                    return $"<!--{node.Value}-->";
+                case XmlNodeType.XmlDeclaration:
+                    return $"<?{node.Name} {node.Value}?>";
+                default:
+                    return node.OuterXml;
+            }
+        }
+
+        private static string BuildAttributeText(XmlAttributeCollection attributes)
+        {
+            if (attributes == null || attributes.Count == 0)
+                return string.Empty;
+
+            StringBuilder builder = new StringBuilder();
+            foreach (XmlAttribute attribute in attributes)
+            {
+                builder.Append(' ');
+                builder.Append(attribute.Name);
+                builder.Append("=\"");
+                builder.Append(attribute.Value);
+                builder.Append('"');
+            }
+
+            return builder.ToString();
+        }
+
         /// <summary>
         /// Initializes the VBControl.
         /// </summary>
@@ -59,7 +299,6 @@ namespace gip.core.layoutengine.avui
         {
             if (_Initialized || DataContext == null || ContextACObject == null)
                 return;
-            _Initialized = true;
 
             if (String.IsNullOrEmpty(VBContent))
                 return;
@@ -98,7 +337,10 @@ namespace gip.core.layoutengine.avui
                 this.Bind(VBXMLViewer.ACCompInitStateProperty, binding);
             }
 
-            _XMLEditor.ChangeSyntaxHighlighting();
+            TreeViewXML.SelectionChanged -= TreeViewXML_SelectionChanged;
+            TreeViewXML.SelectionChanged += TreeViewXML_SelectionChanged;
+
+            _Initialized = true;
         }
 
         protected override void OnLoaded(RoutedEventArgs e)
@@ -120,6 +362,10 @@ namespace gip.core.layoutengine.avui
                 return;
             _Initialized = false;
             _ACTypeInfo = null;
+
+            TreeViewXML.SelectionChanged -= TreeViewXML_SelectionChanged;
+            TreeViewXML.ItemsSource = null;
+            SetValue(SelectedItemProperty, null);
 
             this.ClearAllBindings();
         }
@@ -146,6 +392,22 @@ namespace gip.core.layoutengine.avui
             {
                 SetValue(ContentXMLProperty, value);
             }
+        }
+
+        /// <summary>
+        /// Represetns the dependency property for SelectItem.
+        /// </summary>
+        public static readonly StyledProperty<object> SelectedItemProperty
+            = AvaloniaProperty.Register<VBXMLViewer, object>(nameof(SelectedItem));
+
+        /// <summary>
+        /// Gets the selected item.
+        /// </summary>
+        [Category("VBControl")]
+        public object SelectedItem
+        {
+            get => GetValue(SelectedItemProperty);
+            set { }
         }
 
         /// <summary>
@@ -178,7 +440,12 @@ namespace gip.core.layoutengine.avui
         {
             base.OnPropertyChanged(change);
 
-            if (change.Property == ACCompInitStateProperty)
+            if (change.Property == DataContextProperty || change.Property == VBContentProperty)
+            {
+                if (!_Initialized && DataContext != null && ContextACObject != null && !String.IsNullOrEmpty(VBContent))
+                    InitVBControl();
+            }
+            else if (change.Property == ACCompInitStateProperty)
                 InitStateChanged();
             else if (change.Property == BSOACComponentProperty)
             {
@@ -199,20 +466,21 @@ namespace gip.core.layoutengine.avui
             {
                 if (change.NewValue != null && change.NewValue is XmlDocument xmlDoc)
                 {
-                    _XMLEditor.Text = xmlDoc.InnerText;
-
-                    // Avalonia doesn't support XPath for Binding to XMLDataProvider and displaying XML with a Hierachical datatemplate
-                    // Maybe in Future there will be a control for it
-                    //this.Bind(VBTextEditor.VBTextProperty, binding);
-                    //BindingOperations.ClearBinding(vbContentControl._XMLEditor, TreeView.ItemsSourceProperty);
-                    //XmlDataProvider provider = new XmlDataProvider();
-                    //provider.Document = e.NewValue as XmlDocument;
-                    //Binding binding = new Binding();
-                    //binding.Source = provider;
-                    //binding.XPath = "child::node()";
-                    //vbContentControl._XMLEditor.SetBinding(TreeView.ItemsSourceProperty, binding);
+                    TreeViewXML.ItemsSource = BuildTreeItems(xmlDoc.ChildNodes);
                 }
+                else
+                    TreeViewXML.ItemsSource = null;
+
+                SetValue(SelectedItemProperty, null);
             }
+        }
+
+        private void TreeViewXML_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (TreeViewXML.SelectedItem is XmlTreeNodeItem treeNode)
+                SetValue(SelectedItemProperty, treeNode.Node);
+            else
+                SetValue(SelectedItemProperty, TreeViewXML.SelectedItem);
         }
 
 

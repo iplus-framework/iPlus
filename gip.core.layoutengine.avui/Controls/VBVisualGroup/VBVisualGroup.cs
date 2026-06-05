@@ -6,6 +6,7 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
+using Avalonia.VisualTree;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.ext.design.avui.Extensions;
@@ -595,32 +596,32 @@ namespace gip.core.layoutengine.avui
 
         private void TraceGroupState(string stage)
         {
-            // try
-            // {
-            //     string msg = string.Format(
-            //         "Stage={0}; Name={1}; VBContent={2}; VBDesignName={3}; Theme={4}; DataContext={5}; ContentObj={6}; Parent={7}; CanvasLeft={8}; CanvasTop={9}; IsVisible={10}; Opacity={11}; Bounds={12}; Initialized={13}; MergedDictionaries={14}",
-            //         stage,
-            //         string.IsNullOrEmpty(Name) ? "<null>" : Name,
-            //         string.IsNullOrEmpty(VBContent) ? "<null>" : VBContent,
-            //         string.IsNullOrEmpty(VBDesignName) ? "<null>" : VBDesignName,
-            //         Theme?.GetType().Name ?? "<null>",
-            //         DataContext?.GetType().Name ?? "<null>",
-            //         ContentACObject?.GetType().Name ?? "<null>",
-            //         Parent?.GetType().Name ?? "<null>",
-            //         Canvas.GetLeft(this),
-            //         Canvas.GetTop(this),
-            //         IsVisible,
-            //         Opacity,
-            //         Bounds,
-            //         _Initialized,
-            //         Resources?.MergedDictionaries?.Count ?? 0);
+            try
+            {
+                string msg = string.Format(
+                    "Stage={0}; Name={1}; VBContent={2}; VBDesignName={3}; Theme={4}; DataContext={5}; ContentObj={6}; Parent={7}; CanvasLeft={8}; CanvasTop={9}; IsVisible={10}; Opacity={11}; Bounds={12}; Initialized={13}; MergedDictionaries={14}",
+                    stage,
+                    string.IsNullOrEmpty(Name) ? "<null>" : Name,
+                    string.IsNullOrEmpty(VBContent) ? "<null>" : VBContent,
+                    string.IsNullOrEmpty(VBDesignName) ? "<null>" : VBDesignName,
+                    Theme?.GetType().Name ?? "<null>",
+                    DataContext?.GetType().Name ?? "<null>",
+                    ContentACObject?.GetType().Name ?? "<null>",
+                    Parent?.GetType().Name ?? "<null>",
+                    Canvas.GetLeft(this),
+                    Canvas.GetTop(this),
+                    IsVisible,
+                    Opacity,
+                    Bounds,
+                    _Initialized,
+                    Resources?.MergedDictionaries?.Count ?? 0);
 
-            //     this.Root()?.Messages?.LogDebug("VBVisualGroup", "TraceGroupState", msg);
-            // }
-            // catch
-            // {
-            //     // Diagnostic tracing must never affect control behavior.
-            // }
+                this.Root()?.Messages?.LogDebug("VBVisualGroup", "TraceGroupState", msg);
+            }
+            catch
+            {
+                // Diagnostic tracing must never affect control behavior.
+            }
         }
 
         /// <summary>
@@ -934,21 +935,29 @@ namespace gip.core.layoutengine.avui
         /// <param name="e">The PointerEventArgs.</param>
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-            {
-                base.OnPointerPressed(e);
-            }
-            else if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed)
-            {
-                OnPointerRightButtonDown(e);
-            }
+            base.OnPointerPressed(e);
         }
 
         /// <summary>
-        /// Handles the OnPointerRightButtonDown event.
+        /// Handles the OnPointerReleased event for right-click context menu.
+        /// Moved from OnPointerPressed to OnPointerReleased so child VBVisual controls
+        /// (which also use OnPointerReleased) get a chance to handle the event first.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected virtual void OnPointerRightButtonDown(PointerPressedEventArgs e)
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
+        {
+            if (e.InitialPressMouseButton == MouseButton.Right)
+            {
+                OnPointerRightButtonUp(e);
+            }
+            base.OnPointerReleased(e);
+        }
+
+        /// <summary>
+        /// Handles the right button up event for context menu.
+        /// </summary>
+        /// <param name="e">The event arguments.</param>
+        protected virtual void OnPointerRightButtonUp(PointerReleasedEventArgs e)
         {
             if (DisableContextMenu)
             {
@@ -968,6 +977,7 @@ namespace gip.core.layoutengine.avui
             {
                 return;
             }
+
             Point point = e.GetPosition(this);
             ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
             BSOACComponent.ACAction(actionArgs);

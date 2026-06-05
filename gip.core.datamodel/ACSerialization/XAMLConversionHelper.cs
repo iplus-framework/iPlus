@@ -1949,13 +1949,17 @@ namespace gip.core.datamodel
             ("ListBox.ItemContainerStyle", "ListBox.ItemContainerTheme", false),
             // Visibility to IsVisible converters
             (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:VisibilityNullConverter\}(.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:IsVisibleNullConverter.Current}$1}""", true),
+            (@"\bVisibility=""\{vb:VBBinding\s+(.*?),\s*Converter=\{vb:VisibilityNullConverter\}\}""", @"IsVisible=""{vb:VBBinding $1, Converter={x:Static vb:IsVisibleNullConverter.Current}}""", true),
             (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilityBool\}(.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:ConverterIsVisibleBool.Current}$1}""", true),
             (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilityInverseBool\}(.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}$1}""", true),
             (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilitySingle(.*?)\}(.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={vb:ConverterIsVisibleSingle$1}$2}""", true),
+            (@"\bVisibility=""\{vb:VBBinding\s+(.*?),\s*Converter=\{vb:ConverterControlModesVisibility\}\}""", @"IsVisible=""{vb:VBBinding $1, Converter={x:Static vb:ConverterControlModesVisibility.Current}}""", true),
             (@"\bVisibility=""\{Binding\s+Converter=\{vb:VisibilityNullConverter\}(.*?)\}""", @"IsVisible=""{Binding Converter={x:Static vb:IsVisibleNullConverter.Current}$1}""", true),
+            (@"\bVisibility=""\{Binding\s+(.*?),\s*Converter=\{vb:VisibilityNullConverter\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:IsVisibleNullConverter.Current}}""", true),
             (@"\bVisibility=""\{Binding\s+(.*?),\s*Converter=\{vb:ConverterVisibilityBool\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:ConverterIsVisibleBool.Current}}""", true),
             (@"\bVisibility=""\{Binding\s+(.*?),\s*Converter=\{vb:ConverterVisibilityInverseBool\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}}""", true),
             (@"\bVisibility=""\{Binding\s+Converter=\{vb:ConverterVisibilitySingle(.*?)\}(.*?)\}""", @"IsVisible=""{Binding Converter={vb:ConverterIsVisibleSingle$1}$2}""", true),
+            (@"\bVisibility=""\{Binding\s+(.*?),\s*Converter=\{vb:ConverterControlModesVisibility\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:ConverterControlModesVisibility.Current}}""", true),
 
             // Regex-based patterns for complex multi-line replacements
             (@"<vb:VBTreeView\.TreeItemTemplate>\s*<DataTemplate>", "<TreeView.ItemTemplate>\n    <TreeDataTemplate ItemsSource=\"{Binding VisibleItemsT}\">", true),

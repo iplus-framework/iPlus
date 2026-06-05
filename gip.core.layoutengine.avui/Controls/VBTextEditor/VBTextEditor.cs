@@ -392,7 +392,7 @@ namespace gip.core.layoutengine.avui
             // wird benötigt, falls gekapselt im UserControl
             if (vbDesign == null)
                 vbDesign = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBDesignBase)) as VBDesignBase;
-            if (vbDesign != null)
+            if (vbDesign != null && BSOACComponent != null)
             {
                 _VBFindAndReplace = vbDesign.GetACComponentByKey(BSOACComponent, VBBSOFindAndReplaceID, null, true);
                 // Falls nicht erzeugt, weil DataContext ein Sub-BSO ist, dann gehe zum Haupt-BSO
