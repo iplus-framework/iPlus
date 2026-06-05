@@ -212,9 +212,51 @@ namespace gip.core.layoutengine.avui
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null && parameter == null) return true;
-            if (value == null || parameter == null) return false;
-            return value.Equals(parameter);
+            return AreEquivalent(value, parameter, culture);
+        }
+
+        internal static bool AreEquivalent(object value, object parameter, CultureInfo culture)
+        {
+            if (value == null && parameter == null)
+                return true;
+            if (value == null || parameter == null)
+                return false;
+
+            if (value.Equals(parameter))
+                return true;
+
+            if (!(parameter is string parameterText))
+                return false;
+
+            Type valueType = value.GetType();
+
+            // ConverterParameter in XAML is usually a string; support enum text values like "SMIdle".
+            if (valueType.IsEnum)
+            {
+                if (Enum.TryParse(valueType, parameterText, true, out object enumValue))
+                    return value.Equals(enumValue);
+                return false;
+            }
+
+            Type targetValueType = Nullable.GetUnderlyingType(valueType) ?? valueType;
+
+            // Fast path for booleans because they are common in trigger conditions.
+            if (targetValueType == typeof(bool))
+            {
+                if (bool.TryParse(parameterText, out bool parsedBool))
+                    return value.Equals(parsedBool);
+                return false;
+            }
+
+            try
+            {
+                object converted = System.Convert.ChangeType(parameterText, targetValueType, culture ?? CultureInfo.InvariantCulture);
+                return value.Equals(converted);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -244,9 +286,7 @@ namespace gip.core.layoutengine.avui
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null) 
-                return false;
-            return value.Equals(parameter) ? true : false;
+            return ObjectEqualsConverter.AreEquivalent(value, parameter, culture);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

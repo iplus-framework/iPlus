@@ -700,7 +700,7 @@ namespace gip.core.layoutengine.avui
         protected override void OnSelectionChanged(SelectionChangedEventArgs e)
         {
             IACObject contextObject = ContextACObject;
-            if (contextObject == null)
+            if (contextObject == null || SelectionOnBSO)
             {
                 contextObject = BSOACComponent;
             }

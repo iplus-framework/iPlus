@@ -306,6 +306,15 @@ namespace gip.core.layoutengine.avui
             get { return GetValue(BindSelectedItemToContextProperty); }
             set { SetValue(BindSelectedItemToContextProperty, value); }
         }
+
+        public static readonly StyledProperty<bool> SelectionOnBSOProperty = AvaloniaProperty.Register<VBDataGrid, bool>(nameof(SelectionOnBSO));
+
+        [Category("VBControl")]
+        public bool SelectionOnBSO
+        {
+            get { return GetValue(SelectionOnBSOProperty); }
+            set { SetValue(SelectionOnBSOProperty, value); }
+        }
         #endregion
 
         #region IVBSource Members
