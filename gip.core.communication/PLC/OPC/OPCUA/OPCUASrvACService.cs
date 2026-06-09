@@ -15,6 +15,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Reflection;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Pkcs;
+using System.Runtime.InteropServices;
 
 namespace gip.core.communication
 {
@@ -165,7 +166,8 @@ namespace gip.core.communication
 
             try
             {
-                LogCertificatePatchRuntimeMarker();
+                if (gip.core.autocomponent.Environment.IsRunningUnderWine())
+                    LogCertificatePatchRuntimeMarker();
                 _AppConfiguration = _AppInstance.LoadApplicationConfigurationAsync(true, default).GetAwaiter().GetResult();
                 if (_AppConfiguration == null)
                 {
@@ -176,22 +178,26 @@ namespace gip.core.communication
                 if (_AppConfiguration == null)
                     return;
 
-                EnsureDirectoryStorePreference(_AppConfiguration);
-                NormalizeApplicationCertificateStorePaths(_AppConfiguration);
-                EnsureSupportedPrivateKeyFormats(_AppConfiguration);
-                NormalizeApplicationCertificateSubjectNames(_AppConfiguration);
-                PreferPemPrivateKeysForApplicationStore(_AppConfiguration);
-                PinMostRecentApplicationCertificate(_AppConfiguration);
-                AttachPinnedCertificatePrivateKey(_AppConfiguration);
-                LogApplicationCertificateDiagnostics(_AppConfiguration, "after-pin", -1);
+                if (gip.core.autocomponent.Environment.IsRunningUnderWine())
+                {
+                    EnsureDirectoryStorePreference(_AppConfiguration);
+                    NormalizeApplicationCertificateStorePaths(_AppConfiguration);
+                    EnsureSupportedPrivateKeyFormats(_AppConfiguration);
+                    NormalizeApplicationCertificateSubjectNames(_AppConfiguration);
+                    PreferPemPrivateKeysForApplicationStore(_AppConfiguration);
+                    PinMostRecentApplicationCertificate(_AppConfiguration);
+                    AttachPinnedCertificatePrivateKey(_AppConfiguration);
+                    LogApplicationCertificateDiagnostics(_AppConfiguration, "after-pin", -1);
+                }
 
                 bool hasAppCertificate = false;
                 Exception certificateValidationException = null;
                 bool x509StoreFallbackActive = false;
-                const int maxCertificateCheckAttempts = 4;
+                int maxCertificateCheckAttempts = gip.core.autocomponent.Environment.IsRunningUnderWine() ? 4 : 1;
                 for (int attempt = 0; attempt < maxCertificateCheckAttempts; attempt++)
                 {
-                    LogApplicationCertificateDiagnostics(_AppConfiguration, "before-check", attempt);
+                    if (gip.core.autocomponent.Environment.IsRunningUnderWine())
+                        LogApplicationCertificateDiagnostics(_AppConfiguration, "before-check", attempt);
 
                     try
                     {
@@ -209,17 +215,20 @@ namespace gip.core.communication
                         certificateValidationException = ex;
                         Messages.LogException(this.GetACUrl(), $"CheckApplicationInstanceCertificatesAttempt({attempt + 1})", ex);
 
-                        if (!x509StoreFallbackActive && IsPrivateKeyAccessFailure(ex))
+                        if (gip.core.autocomponent.Environment.IsRunningUnderWine())
                         {
-                            x509StoreFallbackActive = TryPromotePinnedCertificateToCurrentUserMy(_AppConfiguration);
-                            if (x509StoreFallbackActive)
-                                LogApplicationCertificateDiagnostics(_AppConfiguration, "after-store-fallback", attempt);
+                            if (!x509StoreFallbackActive && IsPrivateKeyAccessFailure(ex))
+                            {
+                                x509StoreFallbackActive = TryPromotePinnedCertificateToCurrentUserMy(_AppConfiguration);
+                                if (x509StoreFallbackActive)
+                                    LogApplicationCertificateDiagnostics(_AppConfiguration, "after-store-fallback", attempt);
+                            }
                         }
                     }
 
                     // Newly created certs may be materialized as PFX in this pass.
                     // Convert and retry so the UA stack can load PEM on Wine.
-                    if (attempt < maxCertificateCheckAttempts - 1)
+                    if (gip.core.autocomponent.Environment.IsRunningUnderWine() && attempt < maxCertificateCheckAttempts - 1)
                     {
                         if (!x509StoreFallbackActive)
                         {
@@ -259,39 +268,6 @@ namespace gip.core.communication
                 Messages.LogException(this.GetACUrl(), "InitOPCUAApp(10)", e);
                 return;
             }
-
-            //if (ReverseConnectUrl != null)
-            //{
-            //    Server.AddReverseConnection(ReverseConnectUrl);
-            //}
-
-            //var reverseConnections = _OPCUASrvServer.GetReverseConnections();
-            //if (reverseConnections?.Count > 0)
-            //{
-            //    // print reverse connect info
-            //    Console.WriteLine("Reverse Connect Clients:");
-            //    foreach (var connection in reverseConnections)
-            //    {
-            //        Console.WriteLine(connection.Key);
-            //    }
-            //}
-
-            // print endpoint info
-            //Console.WriteLine("Server Endpoints:");
-            //var endpoints = Server.GetEndpoints().Select(e => e.EndpointUrl).Distinct();
-            //foreach (var endpoint in endpoints)
-            //{
-            //    Console.WriteLine(endpoint);
-            //}
-
-            //// start the status thread
-            //Status = Task.Run(new Action(StatusThread));
-
-            //// print notification on session events
-            //Server.CurrentInstance.SessionManager.SessionActivated += EventStatus;
-            //Server.CurrentInstance.SessionManager.SessionClosing += EventStatus;
-            //Server.CurrentInstance.SessionManager.SessionCreated += EventStatus;
-
         }
 
         private void LogCertificatePatchRuntimeMarker()

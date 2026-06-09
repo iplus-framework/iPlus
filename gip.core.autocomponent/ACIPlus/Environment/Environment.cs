@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 using System.Data.Common;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace gip.core.autocomponent
 {
@@ -662,6 +663,30 @@ namespace gip.core.autocomponent
                 return currentCount > MaxLicensedWCFConnections;
         }
 
+        #endregion
+
+        #region Wine
+        // Wine detection: ntdll.wine_get_version() is only exported by Wine's ntdll.dll.
+        // On real Windows this import throws EntryPointNotFoundException, indicating we are NOT in Wine.
+        [DllImport("ntdll.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "wine_get_version", CharSet = CharSet.Ansi)]
+        private static extern IntPtr WineGetVersion();
+
+        private static bool? _isRunningUnderWine;
+        public static bool IsRunningUnderWine()
+        {
+            if (_isRunningUnderWine.HasValue)
+                return _isRunningUnderWine.Value;
+            try
+            {
+                WineGetVersion();
+                _isRunningUnderWine = true;
+            }
+            catch
+            {
+                _isRunningUnderWine = false;
+            }
+            return _isRunningUnderWine.Value;
+        }
         #endregion
 
     }

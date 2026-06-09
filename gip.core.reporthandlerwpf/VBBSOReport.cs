@@ -726,7 +726,7 @@ namespace gip.core.reporthandlerwpf
 
             try
             {
-                if (IsRunningUnderWine())
+                if (Environment.IsRunningUnderWine())
                 {
                     string linuxPdfPath = ConvertWinePathToLinuxPath(pdfPath);
                     if (String.IsNullOrWhiteSpace(linuxPdfPath))
@@ -1013,7 +1013,7 @@ namespace gip.core.reporthandlerwpf
                     }
 
                     string tempPdfPath;
-                    if (IsRunningUnderWine())
+                    if (Environment.IsRunningUnderWine())
                     {
                         string uid = Guid.NewGuid().ToString("N").Substring(0, 8);
                         tempPdfPath = $@"Z:\tmp\iplus_{uid}.pdf";
@@ -1070,7 +1070,7 @@ namespace gip.core.reporthandlerwpf
                         xps = reportDoc.CreateXpsDocument(data, fileName);
                         return null;
                     }
-                    else if (IsRunningUnderWine())
+                    else if (Environment.IsRunningUnderWine())
                     {
                         // File-based creation: commits + closes the zip package and reopens it in
                         // FileAccess.Read mode.  This is required because the memory-based overload
@@ -1148,7 +1148,7 @@ namespace gip.core.reporthandlerwpf
                                                 pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
                                             }
 
-                                            if (IsRunningUnderWine())
+                                            if (Environment.IsRunningUnderWine())
                                                 PrintFixedDocumentSequenceToQueue(pQ, fDocSeq, pt, _wineXpsPath);
                                             else
                                                 writer.Write(fDocSeq, pt);
@@ -1161,7 +1161,7 @@ namespace gip.core.reporthandlerwpf
                                     // On Wine the dialog path should never fall back to writer.Write —
                                     // that would submit a raw XPS job through Wine's PS driver, producing
                                     // the garbled "System.Windows.Documents.FixedDocumentSequence.pdf".
-                                    if (IsRunningUnderWine())
+                                    if (Environment.IsRunningUnderWine())
                                     {
                                         // Wine 11.x can throw PrintQueueException from PrintDialog after the
                                         // user picks a printer (PTProvider ConvertDevModeToPrintTicket path).
@@ -1295,7 +1295,7 @@ namespace gip.core.reporthandlerwpf
 
                                     try
                                     {
-                                        if (IsRunningUnderWine())
+                                        if (Environment.IsRunningUnderWine())
                                             PrintFixedDocumentSequenceToQueue(pQ, fDocSeq, pt, _wineXpsPath);
                                         else
                                             writer.Write(fDocSeq, pt);
@@ -1356,32 +1356,10 @@ namespace gip.core.reporthandlerwpf
             return null;
         }
 
-        // Wine detection: ntdll.wine_get_version() is only exported by Wine's ntdll.dll.
-        // On real Windows this import throws EntryPointNotFoundException, indicating we are NOT in Wine.
-        [DllImport("ntdll.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "wine_get_version", CharSet = CharSet.Ansi)]
-        private static extern IntPtr WineGetVersion();
-
-        private static bool? _isRunningUnderWine;
-        private static bool IsRunningUnderWine()
-        {
-            if (_isRunningUnderWine.HasValue)
-                return _isRunningUnderWine.Value;
-            try
-            {
-                WineGetVersion();
-                _isRunningUnderWine = true;
-            }
-            catch
-            {
-                _isRunningUnderWine = false;
-            }
-            return _isRunningUnderWine.Value;
-        }
-
         private static bool _wineLegacySerializationConfigured;
         private static void EnsureWineLegacySerializationPath()
         {
-            if (!IsRunningUnderWine() || _wineLegacySerializationConfigured)
+            if (!Environment.IsRunningUnderWine() || _wineLegacySerializationConfigured)
                 return;
 
             // 1) Best effort: set the documented runtime switch used by System.Printing.
@@ -1751,14 +1729,14 @@ namespace gip.core.reporthandlerwpf
 
             // On Wine: use the pre-built temp XPS file (created by FlowPrint using the file-based
             // CreateXpsDocument overload which commits and reopens in Read mode) to drive xpstopdf.
-            if (IsRunningUnderWine() && TryPrintViaLinuxTools(prebuiltWinXpsPath, pQ, pt))
+            if (Environment.IsRunningUnderWine() && TryPrintViaLinuxTools(prebuiltWinXpsPath, pQ, pt))
                 return;
 
             object manager = null;
 
             // On Wine fallback (Linux tools not available): use NgcSerializationManager to at least
             // avoid the XPS OM COM crash. Text may still be garbled due to Wine's PS driver.
-            if (IsRunningUnderWine())
+            if (Environment.IsRunningUnderWine())
                 manager = TryCreateNgcSerializationManager(pQ);
 
             // Locate the internal CreateSerializationManager method.  Its signature is confirmed
@@ -1791,7 +1769,7 @@ namespace gip.core.reporthandlerwpf
                     this.Root().Messages.LogException("VBBSOReport", "PrintFixedDocumentSequenceToQueue",
                         ex.InnerException?.Message ?? ex.Message);
 
-                    if (!IsRunningUnderWine())
+                    if (!Environment.IsRunningUnderWine())
                         PrintQueue.CreateXpsDocumentWriter(pQ)?.Write(fDocSeq, pt);
 
                     return;

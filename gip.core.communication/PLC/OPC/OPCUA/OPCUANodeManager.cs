@@ -454,13 +454,13 @@ namespace gip.core.communication
                 UAStateACMethod uaMethod = source as UAStateACMethod;
 
                 DataValue value = null;
-                if (uaProperty != null)
+                if (uaProperty != null && nodeToRead.AttributeId == (uint)13) // Attributes.Value
                 {
                     if (uaProperty.WrappedValue != uaProperty.ACValueAsVariant)
                         uaProperty.WrappedValue = uaProperty.ACValueAsVariant;
                     value = new DataValue(uaProperty.ACValueAsVariant);
                 }
-                else //if (uaMethod != null)
+                else
                     value = new DataValue();
                 values[ii] = value;
                 value.ServerTimestamp = DateTime.UtcNow;

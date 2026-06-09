@@ -190,7 +190,10 @@ namespace gip.core.communication
                     return ACProperty.Value;
                 }
                 else if (_InnerPropertyType == InnerPropertyTypeEnum.Enum)
-                    return ACProperty.Value;
+                {
+                    // Convert enum to its underlying numeric type for OPC UA wire encoding
+                    return Convert.ChangeType(ACProperty.Value, TypeMapper.NetType);
+                }
                 else
                     return (ACProperty.Value as IBitAccess).Value;
             }
@@ -210,7 +213,10 @@ namespace gip.core.communication
                         ACProperty.Value = value;
                 }
                 else if (_InnerPropertyType == InnerPropertyTypeEnum.Enum)
-                    ACProperty.Value = value;
+                {
+                    // Convert numeric value back to the enum type
+                    ACProperty.Value = Enum.ToObject(ACProperty.PropertyType, value);
+                }
                 else
                     (ACProperty.Value as IBitAccess).Value = value;
                 WrappedValue = ACValueAsVariant;
@@ -237,9 +243,14 @@ namespace gip.core.communication
             if (instance.PropertyType.IsEnum)
             {
                 innerPropertyType = InnerPropertyTypeEnum.Enum;
-                //_TypeInfo = TypeInfo.Construct(instance.PropertyType);
-                //DataType = TypeInfo.GetDataTypeId(_TypeInfo);
-                return new UATypeMapper(DataTypes.Enumeration, DataTypeIds.Enumeration, TypeInfo.Scalars.Int32, typeof(Int32), false);
+                Type underlyingType = Enum.GetUnderlyingType(instance.PropertyType);
+                foreach (var mapper in _KnownTypes)
+                {
+                    if (mapper.NetType == underlyingType)
+                        return mapper;
+                }
+                // Fallback to Int32 (default enum underlying type)
+                return new UATypeMapper(DataTypes.Int32, DataTypeIds.Int32, TypeInfo.Scalars.Int32, typeof(Int32), false);
             }
             if (BitAccessType.IsAssignableFrom(instance.PropertyType))
             {
