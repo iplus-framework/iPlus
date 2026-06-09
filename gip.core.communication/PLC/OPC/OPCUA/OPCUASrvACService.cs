@@ -187,6 +187,7 @@ namespace gip.core.communication
 
                 bool hasAppCertificate = false;
                 Exception certificateValidationException = null;
+                bool x509StoreFallbackActive = false;
                 const int maxCertificateCheckAttempts = 4;
                 for (int attempt = 0; attempt < maxCertificateCheckAttempts; attempt++)
                 {
@@ -207,18 +208,28 @@ namespace gip.core.communication
                     {
                         certificateValidationException = ex;
                         Messages.LogException(this.GetACUrl(), $"CheckApplicationInstanceCertificatesAttempt({attempt + 1})", ex);
+
+                        if (!x509StoreFallbackActive && IsPrivateKeyAccessFailure(ex))
+                        {
+                            x509StoreFallbackActive = TryPromotePinnedCertificateToCurrentUserMy(_AppConfiguration);
+                            if (x509StoreFallbackActive)
+                                LogApplicationCertificateDiagnostics(_AppConfiguration, "after-store-fallback", attempt);
+                        }
                     }
 
                     // Newly created certs may be materialized as PFX in this pass.
                     // Convert and retry so the UA stack can load PEM on Wine.
                     if (attempt < maxCertificateCheckAttempts - 1)
                     {
-                        EnsureDirectoryStorePreference(_AppConfiguration);
-                        NormalizeApplicationCertificateStorePaths(_AppConfiguration);
-                        EnsureSupportedPrivateKeyFormats(_AppConfiguration);
-                        PreferPemPrivateKeysForApplicationStore(_AppConfiguration);
-                        PinMostRecentApplicationCertificate(_AppConfiguration);
-                        AttachPinnedCertificatePrivateKey(_AppConfiguration);
+                        if (!x509StoreFallbackActive)
+                        {
+                            EnsureDirectoryStorePreference(_AppConfiguration);
+                            NormalizeApplicationCertificateStorePaths(_AppConfiguration);
+                            EnsureSupportedPrivateKeyFormats(_AppConfiguration);
+                            PreferPemPrivateKeysForApplicationStore(_AppConfiguration);
+                            PinMostRecentApplicationCertificate(_AppConfiguration);
+                            AttachPinnedCertificatePrivateKey(_AppConfiguration);
+                        }
                         LogApplicationCertificateDiagnostics(_AppConfiguration, "after-repair", attempt);
                     }
                 }
@@ -293,7 +304,7 @@ namespace gip.core.communication
                     : "<missing>";
 
                 Messages.LogInfo(this.GetACUrl(), ClassName,
-                    $"OPCUA_CERT_PATCH_MARKER=2026-06-09c assemblyPath={assemblyPath} assemblyLastWriteUtc={assemblyLastWriteUtc}");
+                    $"OPCUA_CERT_PATCH_MARKER=2026-06-09f assemblyPath={assemblyPath} assemblyLastWriteUtc={assemblyLastWriteUtc}");
             }
             catch (Exception ex)
             {
@@ -301,6 +312,99 @@ namespace gip.core.communication
             }
         }
 
+        private static bool IsPrivateKeyAccessFailure(Exception exception)
+        {
+            if (exception == null)
+                return false;
+
+            return exception.ToString().IndexOf("Cannot access private key for certificate with thumbprint", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private bool TryPromotePinnedCertificateToCurrentUserMy(ApplicationConfiguration configuration)
+        {
+            if (configuration?.SecurityConfiguration?.ApplicationCertificates == null)
+                return false;
+
+            bool promotedAny = false;
+            foreach (var certId in configuration.SecurityConfiguration.ApplicationCertificates)
+            {
+                if (certId == null)
+                    continue;
+
+                if (!string.Equals(certId.StoreType, CertificateStoreType.Directory, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (string.IsNullOrWhiteSpace(certId.StorePath) || string.IsNullOrWhiteSpace(certId.Thumbprint))
+                    continue;
+
+                try
+                {
+                    string storePath = Utils.ReplaceSpecialFolderNames(certId.StorePath);
+                    if (string.IsNullOrWhiteSpace(storePath))
+                        continue;
+
+                    string certDirectory = Path.Combine(storePath, "certs");
+                    string privateKeyDirectory = Path.Combine(storePath, "private");
+                    string derPath = FindCertificateFileByThumbprint(certDirectory, ".der", certId.Thumbprint);
+                    string pemPath = FindCertificateFileByThumbprint(privateKeyDirectory, ".pem", certId.Thumbprint);
+
+                    if (string.IsNullOrWhiteSpace(derPath) || string.IsNullOrWhiteSpace(pemPath))
+                        continue;
+
+                    if (!TryCreateCertificateWithPrivateKeyFromDerPem(derPath, pemPath, out X509Certificate2 certificateWithPrivateKey, out string loadInfo))
+                    {
+                        Messages.LogInfo(this.GetACUrl(), ClassName,
+                            $"Store fallback skipped: failed to load DER+PEM certificate for thumbprint={certId.Thumbprint}; {loadInfo}");
+                        continue;
+                    }
+
+                    bool certificateAttached = TrySetIdentifierCertificate(certId, certificateWithPrivateKey, out string attachInfo);
+                    bool addedToCurrentUserMy = false;
+                    string storeImportInfo;
+
+                    try
+                    {
+                        using var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+                        store.Open(OpenFlags.ReadWrite);
+
+                        var existing = store.Certificates.Find(X509FindType.FindByThumbprint, certificateWithPrivateKey.Thumbprint, false);
+                        foreach (var cert in existing)
+                            store.Remove(cert);
+
+                        store.Add(certificateWithPrivateKey);
+                        addedToCurrentUserMy = true;
+                        storeImportInfo = "store.Add(certificateWithPrivateKey)";
+                    }
+                    catch (Exception storeEx)
+                    {
+                        storeImportInfo = $"store add failed: {storeEx.GetType().Name}: {storeEx.Message}; using identifier-attached certificate";
+                    }
+
+                    if (!certificateAttached && !addedToCurrentUserMy)
+                    {
+                        certificateWithPrivateKey.Dispose();
+                        Messages.LogInfo(this.GetACUrl(), ClassName,
+                            $"Store fallback skipped: no usable certificate promotion for thumbprint={certId.Thumbprint}; attach={attachInfo}; import={storeImportInfo}");
+                        continue;
+                    }
+
+                    certId.StoreType = CertificateStoreType.X509Store;
+                    certId.StorePath = "CurrentUser\\My";
+                    certId.Thumbprint = certificateWithPrivateKey.Thumbprint;
+                    ForceThumbprintOnlyLookup(certId);
+
+                    promotedAny = true;
+                    Messages.LogInfo(this.GetACUrl(), ClassName,
+                        $"Activated Wine certificate fallback to CurrentUser\\My for thumbprint={certId.Thumbprint}; attach={attachInfo}; import={storeImportInfo}");
+                }
+                catch (Exception ex)
+                {
+                    Messages.LogException(this.GetACUrl(), "TryPromotePinnedCertificateToCurrentUserMy(10)", ex);
+                }
+            }
+
+            return promotedAny;
+        }
         private void EnsureDirectoryStorePreference(ApplicationConfiguration configuration)
         {
             if (configuration?.SecurityConfiguration?.ApplicationCertificates == null)
@@ -726,32 +830,18 @@ namespace gip.core.communication
                     if (string.IsNullOrWhiteSpace(derPath) || string.IsNullOrWhiteSpace(pemPath))
                         continue;
 
-                    using var publicCertificate = X509CertificateLoader.LoadCertificateFromFile(derPath);
-                    string pemPrivateKeyText = File.ReadAllText(pemPath);
-
-                    X509Certificate2 certificateWithPrivateKey = null;
-                    using RSA rsaPublic = publicCertificate.GetRSAPublicKey();
-                    if (rsaPublic != null)
+                    if (!TryCreateCertificateWithPrivateKeyFromDerPem(derPath, pemPath, out X509Certificate2 certificateWithPrivateKey, out string loadInfo))
                     {
-                        using var rsaPrivate = RSA.Create();
-                        rsaPrivate.ImportFromPem(pemPrivateKeyText);
-                        certificateWithPrivateKey = publicCertificate.CopyWithPrivateKey(rsaPrivate);
-                    }
-                    else
-                    {
-                        using ECDsa ecdsaPublic = publicCertificate.GetECDsaPublicKey();
-                        if (ecdsaPublic != null)
-                        {
-                            using var ecdsaPrivate = ECDsa.Create();
-                            ecdsaPrivate.ImportFromPem(pemPrivateKeyText);
-                            certificateWithPrivateKey = publicCertificate.CopyWithPrivateKey(ecdsaPrivate);
-                        }
+                        Messages.LogInfo(this.GetACUrl(), ClassName,
+                            $"AttachPinnedCertificatePrivateKey skipped: unable to load DER+PEM private-key certificate for thumbprint={thumbprint}; {loadInfo}");
+                        continue;
                     }
 
-                    if (certificateWithPrivateKey == null || !certificateWithPrivateKey.HasPrivateKey)
+                    if (!certificateWithPrivateKey.HasPrivateKey)
                     {
                         Messages.LogInfo(this.GetACUrl(), ClassName,
                             $"AttachPinnedCertificatePrivateKey skipped: unable to create private-key certificate for thumbprint={thumbprint}");
+                        certificateWithPrivateKey.Dispose();
                         continue;
                     }
 
@@ -776,6 +866,58 @@ namespace gip.core.communication
                 {
                     Messages.LogException(this.GetACUrl(), "AttachPinnedCertificatePrivateKey(10)", ex);
                 }
+            }
+        }
+
+        private static bool TryCreateCertificateWithPrivateKeyFromDerPem(string derPath, string pemPath, out X509Certificate2 certificateWithPrivateKey, out string loadInfo)
+        {
+            certificateWithPrivateKey = null;
+            loadInfo = null;
+
+            try
+            {
+                using var publicCertificate = X509CertificateLoader.LoadCertificateFromFile(derPath);
+                string pemPrivateKeyText = File.ReadAllText(pemPath);
+
+                using RSA rsaPublic = publicCertificate.GetRSAPublicKey();
+                if (rsaPublic != null)
+                {
+                    using var rsaPrivate = RSA.Create();
+                    rsaPrivate.ImportFromPem(pemPrivateKeyText);
+                    certificateWithPrivateKey = publicCertificate.CopyWithPrivateKey(rsaPrivate);
+                }
+                else
+                {
+                    using ECDsa ecdsaPublic = publicCertificate.GetECDsaPublicKey();
+                    if (ecdsaPublic != null)
+                    {
+                        using var ecdsaPrivate = ECDsa.Create();
+                        ecdsaPrivate.ImportFromPem(pemPrivateKeyText);
+                        certificateWithPrivateKey = publicCertificate.CopyWithPrivateKey(ecdsaPrivate);
+                    }
+                }
+
+                if (certificateWithPrivateKey == null)
+                {
+                    loadInfo = "unsupported certificate key algorithm";
+                    return false;
+                }
+
+                if (!certificateWithPrivateKey.HasPrivateKey)
+                {
+                    loadInfo = "certificate loaded without private key";
+                    certificateWithPrivateKey.Dispose();
+                    certificateWithPrivateKey = null;
+                    return false;
+                }
+
+                loadInfo = "ok";
+                return true;
+            }
+            catch (Exception ex)
+            {
+                loadInfo = ex.Message;
+                return false;
             }
         }
 
