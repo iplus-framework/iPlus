@@ -14,7 +14,8 @@ namespace gip.core.communication
     {
         #region c'tors
 
-        public OPCUAClientMonitoredItem(IACPropertyNetServer acProperty, string opcAddr, OPCUAClientACSubscr opcUASubscr) : base()
+        public OPCUAClientMonitoredItem(IACPropertyNetServer acProperty, string opcAddr, OPCUAClientACSubscr opcUASubscr)
+            : base((ITelemetryContext)null, new MonitoredItemOptions())
         {
             try
             {
@@ -106,7 +107,10 @@ namespace gip.core.communication
                 Session activeSession = _OPCUAClientACSubscr?.OPCUASession?.UASession;
                 if (activeSession == null || activeSession.Disposed)
                     activeSession = Subscription.Session as Session;
-                response = activeSession.Write(null, _WriteValues, out status, out diagnostic);
+                var writeResponse = activeSession.WriteAsync(null, _WriteValues, default).GetAwaiter().GetResult();
+                status = writeResponse.Results;
+                diagnostic = writeResponse.DiagnosticInfos;
+                response = writeResponse.ResponseHeader;
                 ClientBase.ValidateResponse(status, _WriteValues);
                 ClientBase.ValidateDiagnosticInfos(diagnostic, _WriteValues);
             }
@@ -156,7 +160,7 @@ namespace gip.core.communication
 
         internal void ReadInitValue(OPCUAClientACSubscr opcUASubscr)
         {
-            ReadValue(opcUASubscr.OPCUASession.UASession.ReadValue(StartNodeId));
+            ReadValue(opcUASubscr.OPCUASession.UASession.ReadValueAsync(StartNodeId, default).GetAwaiter().GetResult());
         }
 
         private void ReadValue(DataValue dataValue)

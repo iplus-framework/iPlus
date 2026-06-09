@@ -44,7 +44,7 @@ namespace gip.core.communication
             // update endpoint description using the discovery endpoint.
             if (endpoint.UpdateBeforeConnect)
             {
-                endpoint.UpdateFromServer();
+                endpoint.UpdateFromServerAsync((ITelemetryContext)null, default).GetAwaiter().GetResult();
 
                 endpointDescription = endpoint.Description;
                 endpointConfiguration = endpoint.Configuration;
@@ -66,7 +66,9 @@ namespace gip.core.communication
                     throw ServiceResultException.Create(StatusCodes.BadConfigurationError, "ApplicationCertificate must be specified.");
                 }
 
-                clientCertificate =  configuration.SecurityConfiguration.ApplicationCertificate.Find(true).Result;
+                clientCertificate = configuration.SecurityConfiguration.ApplicationCertificate
+                    .FindAsync(true, string.Empty, null, default)
+                    .GetAwaiter().GetResult();
 
                 if (clientCertificate == null)
                 {
@@ -78,7 +80,7 @@ namespace gip.core.communication
                 {
                     clientCertificateChain = new X509Certificate2Collection(clientCertificate);
                     List<CertificateIdentifier> issuers = new List<CertificateIdentifier>();
-                    configuration.CertificateValidator.GetIssuers(clientCertificate, issuers);
+                    configuration.CertificateValidator.GetIssuersAsync(clientCertificate, issuers, default).GetAwaiter().GetResult();
 
                     for (int i = 0; i < issuers.Count; i++)
                     {
@@ -88,13 +90,9 @@ namespace gip.core.communication
             }
 
             // initialize the channel which will be created with the server.
-            ITransportChannel channel = SessionChannel.Create(
-                 configuration,
-                 endpointDescription,
-                 endpointConfiguration,
-                 clientCertificate,
-                 clientCertificateChain,
-                 messageContext);
+            ITransportChannel channel = new DefaultSessionFactory((ITelemetryContext)null)
+                .CreateChannelAsync(configuration, null, endpoint, false, false, default)
+                .GetAwaiter().GetResult();
 
             return new OPCUAClientSession(channel, configuration, endpoint, null);
         }

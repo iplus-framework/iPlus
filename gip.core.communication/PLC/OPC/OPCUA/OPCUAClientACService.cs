@@ -132,7 +132,7 @@ namespace gip.core.communication
                              && ClientApplicationConfigrationPath.EndsWith(".Config.xml") ? ClientApplicationConfigrationPath.Replace(".Config.xml", "") 
                                                                                           : ClientApplicationConfigrationPath;
 
-            _AppInstance = new ApplicationInstance()
+            _AppInstance = new ApplicationInstance((ITelemetryContext)null)
             {
                 ApplicationName = this.ACIdentifier,
                 ApplicationType = Opc.Ua.ApplicationType.Client,
@@ -141,10 +141,8 @@ namespace gip.core.communication
 
             try
             {
-                Task<ApplicationConfiguration> taskConfig = _AppInstance.LoadApplicationConfiguration(true);
-                if (taskConfig != null)
-                    _AppConfiguration = taskConfig.Result;
-                else
+                _AppConfiguration = _AppInstance.LoadApplicationConfigurationAsync(true, default).GetAwaiter().GetResult();
+                if (_AppConfiguration == null)
                     Messages.LogError(this.GetACUrl(), ClassName, "Load application configuration error!!!");
             }
             catch (Exception e)
@@ -159,24 +157,20 @@ namespace gip.core.communication
 
             if (UseCertificate)
             {
-                Task<bool> taskCert = _AppInstance.CheckApplicationInstanceCertificates(true);
-                if (taskCert != null)
+                _HasAppCertificate = _AppInstance.CheckApplicationInstanceCertificatesAsync(true, null, default).GetAwaiter().GetResult();
+                if (HasAppCertificate)
                 {
-                    _HasAppCertificate = taskCert.Result;
-                    if (HasAppCertificate)
-                    {
-                        AppConfiguration.ApplicationUri = X509Utils.GetApplicationUriFromCertificate(AppConfiguration.SecurityConfiguration.ApplicationCertificate.Certificate);
-                        if (AppConfiguration.SecurityConfiguration.AutoAcceptUntrustedCertificates)
-                            _AutoAccept = true;
+                    var appUris = X509Utils.GetApplicationUrisFromCertificate(AppConfiguration.SecurityConfiguration.ApplicationCertificate.Certificate);
+                    AppConfiguration.ApplicationUri = appUris?.FirstOrDefault();
+                    if (AppConfiguration.SecurityConfiguration.AutoAcceptUntrustedCertificates)
+                        _AutoAccept = true;
 
-                        AppConfiguration.CertificateValidator.CertificateValidation += new CertificateValidationEventHandler(CertificateValidator_CertificateValidation);
-                    }
-                    else
-                        Messages.LogError(this.GetACUrl(), ClassName, "Application certificate is missing!!!");
-
+                    AppConfiguration.CertificateValidator.CertificateValidation += new CertificateValidationEventHandler(CertificateValidator_CertificateValidation);
                 }
                 else
-                    Messages.LogError(this.GetACUrl(), ClassName, "Check application instance certificate error!!!");
+                {
+                    Messages.LogError(this.GetACUrl(), ClassName, "Application certificate is missing!!!");
+                }
             }
         }
 

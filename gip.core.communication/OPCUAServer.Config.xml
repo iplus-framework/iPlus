@@ -11,10 +11,10 @@
 
   <SecurityConfiguration>
 
-    <!-- Where the application instance certificate is stored (MachineDefault) -->
+    <!-- Use a directory-based own store for cross-platform/Wine compatibility. -->
     <ApplicationCertificate>
-      <StoreType>X509Store</StoreType>
-      <StorePath>CurrentUser\My</StorePath>
+      <StoreType>Directory</StoreType>
+      <StorePath>%LocalApplicationData%/OPC Foundation/pki/own</StorePath>
       <SubjectName>CN=iplus UA Core Server, C=US, S=Arizona, O=OPC Foundation, DC=localhost</SubjectName>
     </ApplicationCertificate>
 
@@ -172,8 +172,8 @@
       <ua:String>DA</ua:String>
     </ServerCapabilities>
     <SupportedPrivateKeyFormats>
-      <ua:String>PFX</ua:String>
       <ua:String>PEM</ua:String>
+      <ua:String>PFX</ua:String>
     </SupportedPrivateKeyFormats>
     <MaxTrustListSize>0</MaxTrustListSize>
     <MultiCastDnsEnabled>false</MultiCastDnsEnabled>

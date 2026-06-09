@@ -5,6 +5,7 @@ using Opc.Ua.Server;
 using System.Security.Cryptography.X509Certificates;
 using gip.core.datamodel;
 using System.Collections.Concurrent;
+using System.Text;
 
 namespace gip.core.communication
 {
@@ -19,11 +20,6 @@ namespace gip.core.communication
             _VBUser = vbUser;
         }
 
-        public OPCUAUserIdentity(CertificateIdentifier certificateId, VBUser vbUser) : base(certificateId)
-        {
-            _VBUser = vbUser;
-        }
-
         public OPCUAUserIdentity(X509Certificate2 certificate, VBUser vbUser) : base(certificate)
         {
             _VBUser = vbUser;
@@ -34,7 +30,7 @@ namespace gip.core.communication
             _VBUser = vbUser;
         }
 
-        public OPCUAUserIdentity(string username, string password, VBUser vbUser) : base(username, password)
+        public OPCUAUserIdentity(string username, string password, VBUser vbUser) : base(username, Encoding.UTF8.GetBytes(password ?? string.Empty))
         {
             _VBUser = vbUser;
         }

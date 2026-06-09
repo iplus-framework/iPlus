@@ -25,7 +25,7 @@
 		<RoslynVersion Condition="'$(UseAvaloniaFork)' == 'True'">5.0.0</RoslynVersion>
 		<RoslynVersion Condition="'$(UseAvaloniaFork)' == 'False'">5.0.0</RoslynVersion>
 		<RoslynVersionIPlus>5.0.1</RoslynVersionIPlus>
-		<DotNetExtensionsVersion>10.0.6</DotNetExtensionsVersion>
+		<DotNetExtensionsVersion>10.0.8</DotNetExtensionsVersion>
 		<SystemCompositionVersion>10.0.6</SystemCompositionVersion>
 		<NuGetVersion>7.0.3</NuGetVersion>
 		<CoreWCFVersion>1.8.0</CoreWCFVersion>
@@ -175,11 +175,11 @@
 		<PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageVersion Include="NModbus" Version="3.0.81" />
 		<PackageVersion Include="OllamaSharp" Version="5.4.12" />
-		<PackageVersion Include="OPCFoundation.NetStandard.Opc.Ua.Client" Version="1.5.376.244" />
-		<PackageVersion Include="OPCFoundation.NetStandard.Opc.Ua.Configuration" Version="1.5.376.244" />
-		<PackageVersion Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.5.376.244" />
-		<PackageVersion Include="OPCFoundation.NetStandard.Opc.Ua.Security.Certificates" Version="1.5.376.244" />
-		<PackageVersion Include="OPCFoundation.NetStandard.Opc.Ua.Server" Version="1.5.376.244" />
+		<PackageVersion Include="OPCFoundation.NetStandard.Opc.Ua.Client" Version="1.5.378.145" />
+		<PackageVersion Include="OPCFoundation.NetStandard.Opc.Ua.Configuration" Version="1.5.378.145" />
+		<PackageVersion Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.5.378.145" />
+		<PackageVersion Include="OPCFoundation.NetStandard.Opc.Ua.Security.Certificates" Version="1.5.378.145" />
+		<PackageVersion Include="OPCFoundation.NetStandard.Opc.Ua.Server" Version="1.5.378.145" />
 		<PackageVersion Include="Portable.BouncyCastle" Version="1.9.0" />
 		<PackageVersion Include="QuickGraphCore" Version="1.0.0" />
 		<PackageVersion Include="Scryber.Core" Version="9.5.0" />
@@ -247,12 +247,12 @@
 		<PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="$(DotNetExtensionsVersion)" />
 		<PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="$(DotNetExtensionsVersion)" />
 		<PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="$(DotNetExtensionsVersion)" />
-		<PackageVersion Include="Microsoft.Extensions.Logging" Version="$(DotNetExtensionsVersion)" />
+		<PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.8" />
     	<PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(DotNetExtensionsVersion)" />
 		<PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="$(DotNetExtensionsVersion)" />
 		<PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="$(DotNetExtensionsVersion)" />
 		<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(DotNetExtensionsVersion)" />
-		<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="$(DotNetExtensionsVersion)" />
+		<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8" />
 		<PackageVersion Include="Microsoft.Maui.Resizetizer" Version="10.0.30" />
 		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
 		<PackageVersion Include="Microsoft.VisualStudio.Threading" Version="17.14.15" />

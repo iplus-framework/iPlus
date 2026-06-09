@@ -152,7 +152,7 @@ namespace gip.core.communication
 
             try
             {
-                UASubscription.Create();
+                UASubscription.CreateAsync(default).GetAwaiter().GetResult();
 
                 foreach (OPCUAClientMonitoredItem mItem in UASubscription.MonitoredItems)
                 {
@@ -183,7 +183,7 @@ namespace gip.core.communication
                 return false;
 
             if (!UASubscription.Session.Disposed && UASubscription.Session.TransportChannel != null)
-                UASubscription.Delete(true);
+                UASubscription.DeleteAsync(true, default).GetAwaiter().GetResult();
 
             return true;
         }

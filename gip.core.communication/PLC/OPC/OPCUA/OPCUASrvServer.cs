@@ -23,7 +23,6 @@ namespace gip.core.communication
 
         public void ACDeInit()
         {
-            Stop();
             using (ACMonitor.Lock(_30210_LockValue))
             {
                 _ACService = null;
@@ -76,20 +75,6 @@ namespace gip.core.communication
 
             // request notifications when the user identity is changed. all valid users are accepted by default.
             server.SessionManager.ImpersonateUser += new ImpersonateEventHandler(SessionManager_ImpersonateUser);
-        }
-
-        /// <summary>
-        /// Cleans up before the server shuts down.
-        /// </summary>
-        /// <remarks>
-        /// This method is called before any shutdown processing occurs.
-        /// </remarks>
-        protected override void OnServerStopping()
-        {
-            //Debug.WriteLine("The Server is stopping.");
-
-            base.OnServerStopping();
-
         }
 
         /// <summary>
@@ -195,8 +180,8 @@ namespace gip.core.communication
                     if (configuration.SecurityConfiguration.TrustedUserCertificates != null &&
                         configuration.SecurityConfiguration.UserIssuerCertificates != null)
                     {
-                        CertificateValidator certificateValidator = new CertificateValidator();
-                        certificateValidator.Update(configuration).Wait();
+                        CertificateValidator certificateValidator = new CertificateValidator((ITelemetryContext)null);
+                        certificateValidator.UpdateAsync(configuration, default).GetAwaiter().GetResult();
                         certificateValidator.Update(configuration.SecurityConfiguration.UserIssuerCertificates,
                             configuration.SecurityConfiguration.TrustedUserCertificates,
                             configuration.SecurityConfiguration.RejectedCertificateStore);
@@ -211,7 +196,7 @@ namespace gip.core.communication
         /// <summary>
         /// Called when a client tries to change its user identity.
         /// </summary>
-        private void SessionManager_ImpersonateUser(Session session, ImpersonateEventArgs args)
+        private void SessionManager_ImpersonateUser(ISession session, ImpersonateEventArgs args)
         {
             // check for a WSS token.
             IssuedIdentityToken wssToken = args.NewIdentity as IssuedIdentityToken;
@@ -247,17 +232,18 @@ namespace gip.core.communication
 
             // create an exception with a vendor defined sub-code.
             throw new ServiceResultException(new ServiceResult(
-                StatusCodes.BadIdentityTokenRejected,
-                "IvalidAuthentication",
                 OPCUASrvACService.Namespace_UA_App,
+                StatusCodes.BadIdentityTokenRejected,
                 new LocalizedText(info)));
         }
 
         /// <summary>
         /// Validates the password for a username token.
         /// </summary>
-        private VBUser VerifyPassword(string userName, string password)
+        private VBUser VerifyPassword(string userName, byte[] passwordBytes)
         {
+            string password = passwordBytes != null ? System.Text.Encoding.UTF8.GetString(passwordBytes) : null;
+
             if (String.IsNullOrEmpty(password) || String.IsNullOrEmpty(userName))
             {
                 // construct translation object with default text.
@@ -270,9 +256,8 @@ namespace gip.core.communication
 
                 // create an exception with a vendor defined sub-code.
                 throw new ServiceResultException(new ServiceResult(
-                    StatusCodes.BadIdentityTokenRejected,
-                    "InvalidPassword",
                     OPCUASrvACService.Namespace_UA_App,
+                    StatusCodes.BadIdentityTokenRejected,
                     new LocalizedText(info)));
             }
 
@@ -288,9 +273,8 @@ namespace gip.core.communication
                 ACService.Messages.LogDebug(ACService.GetACUrl(), "VerifyPassword", String.Format("User {0} denied for OPC-UA", info.Text));
 
                 throw new ServiceResultException(new ServiceResult(
-                    StatusCodes.BadUserAccessDenied,
-                    "InvalidLogin",
                     OPCUASrvACService.Namespace_UA_App,
+                    StatusCodes.BadUserAccessDenied,
                     new LocalizedText(info)));
             }
             AddLoggedOnUser(vbUser);
@@ -324,11 +308,17 @@ namespace gip.core.communication
             {
                 if (m_certificateValidator != null)
                 {
-                    m_certificateValidator.Validate(certificate);
+                    m_certificateValidator.ValidateAsync(certificate, default).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    CertificateValidator.Validate(certificate);
+                    var channelValidator = ACService.AppConfiguration?.CertificateValidator;
+                    if (channelValidator == null)
+                    {
+                        throw ServiceResultException.Create(StatusCodes.BadConfigurationError, "Certificate validator is not initialized.");
+                    }
+
+                    channelValidator.ValidateAsync(certificate, default).GetAwaiter().GetResult();
                 }
             }
             catch (Exception e)
@@ -358,9 +348,8 @@ namespace gip.core.communication
 
                 // create an exception with a vendor defined sub-code.
                 throw new ServiceResultException(new ServiceResult(
-                    result,
-                    info.Key,
                     OPCUASrvACService.Namespace_UA_App,
+                    result,
                     new LocalizedText(info)));
             }
         }

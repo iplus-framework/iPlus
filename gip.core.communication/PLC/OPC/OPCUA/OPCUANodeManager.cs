@@ -718,7 +718,7 @@ namespace gip.core.communication
         }
 
 
-        public void CreateMonitoredItems(OperationContext context, uint subscriptionId, double publishingInterval, TimestampsToReturn timestampsToReturn, IList<MonitoredItemCreateRequest> itemsToCreate, IList<ServiceResult> errors, IList<MonitoringFilterResult> filterErrors, IList<IMonitoredItem> monitoredItems, ref long globalIdCounter)
+        public void CreateMonitoredItems(OperationContext context, uint subscriptionId, double publishingInterval, TimestampsToReturn timestampsToReturn, IList<MonitoredItemCreateRequest> itemsToCreate, IList<ServiceResult> errors, IList<MonitoringFilterResult> filterErrors, IList<IMonitoredItem> monitoredItems, bool createDurable, MonitoredItemIdFactory globalIdFactory)
         {
             ServerSystemContext systemContext = _SystemContext.Copy(context);
             IDictionary<NodeId, NodeState> operationCache = new NodeIdDictionary<NodeState>();
@@ -776,7 +776,8 @@ namespace gip.core.communication
                         context.DiagnosticsMask,
                         timestampsToReturn,
                         itemToCreate,
-                        ref globalIdCounter,
+                        createDurable,
+                        globalIdFactory,
                         out filterError,
                         out monitoredItem);
 
@@ -822,7 +823,8 @@ namespace gip.core.communication
                         context.DiagnosticsMask,
                         timestampsToReturn,
                         itemToCreate,
-                        ref globalIdCounter,
+                        createDurable,
+                        globalIdFactory,
                         out filterError,
                         out monitoredItem);
 
@@ -1282,7 +1284,7 @@ namespace gip.core.communication
                     if (ServiceResult.IsBad(argumentError))
                     {
                         argumentsValid = false;
-                        result.InputArgumentDiagnosticInfos.Add(new DiagnosticInfo(argumentError, systemContext.OperationContext.DiagnosticsMask, false, systemContext.OperationContext.StringTable));
+                        result.InputArgumentDiagnosticInfos.Add(new DiagnosticInfo(argumentError, systemContext.OperationContext.DiagnosticsMask, false, systemContext.OperationContext.StringTable, null));
                     }
                     else
                     {
@@ -1327,7 +1329,8 @@ namespace gip.core.communication
             DiagnosticsMasks diagnosticsMasks,
             TimestampsToReturn timestampsToReturn,
             MonitoredItemCreateRequest itemToCreate,
-            ref long globalIdCounter,
+            bool createDurable,
+            MonitoredItemIdFactory globalIdFactory,
             out MonitoringFilterResult filterError,
             out IMonitoredItem monitoredItem)
         {
@@ -1380,7 +1383,12 @@ namespace gip.core.communication
             }
 
             // create a globally unique identifier.
-            uint monitoredItemId = Utils.IncrementIdentifier(ref globalIdCounter);
+            if (globalIdFactory == null)
+            {
+                return StatusCodes.BadInternalError;
+            }
+
+            uint monitoredItemId = globalIdFactory.GetNextId();
 
             // determine the sampling interval.
             double samplingInterval = itemToCreate.RequestedParameters.SamplingInterval;
@@ -1407,7 +1415,7 @@ namespace gip.core.communication
                     null,
                     samplingInterval,
                     0,
-                    false,
+                    createDurable,
                     0);
 
             // report the initial value.
@@ -1600,11 +1608,6 @@ namespace gip.core.communication
         }
 
         public void TransferMonitoredItems(OperationContext context, bool sendInitialValues, IList<IMonitoredItem> monitoredItems, IList<bool> processedItems, IList<ServiceResult> errors)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void CreateMonitoredItems(OperationContext context, uint subscriptionId, double publishingInterval, TimestampsToReturn timestampsToReturn, IList<MonitoredItemCreateRequest> itemsToCreate, IList<ServiceResult> errors, IList<MonitoringFilterResult> filterErrors, IList<IMonitoredItem> monitoredItems, bool createDurable, ref long globalIdCounter)
         {
             throw new NotImplementedException();
         }

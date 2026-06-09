@@ -296,7 +296,9 @@ namespace gip.core.communication
 
             try
             {
-                EndpointDescription selectedEndpoint = CoreClientUtils.SelectEndpoint(AppInstance.ApplicationConfiguration, EndpointURL, ParentOPCUAClientACService.HasAppCertificate, 1500);
+                EndpointDescription selectedEndpoint = CoreClientUtils
+                    .SelectEndpointAsync(AppInstance.ApplicationConfiguration, EndpointURL, ParentOPCUAClientACService.HasAppCertificate, 1500, (ITelemetryContext)null, default)
+                    .GetAwaiter().GetResult();
                 EndpointConfiguration endpointConfiguration = EndpointConfiguration.Create(AppInstance.ApplicationConfiguration);
                 ConfiguredEndpoint endpoint = new ConfiguredEndpoint(null, selectedEndpoint, endpointConfiguration);
 
@@ -416,14 +418,14 @@ namespace gip.core.communication
                         userIdentity = new UserIdentity(new AnonymousIdentityToken());
                         break;
                     case OPCUserAuthenticationMode.Username:
-                        userIdentity = new UserIdentity(Username, Password);
+                        userIdentity = new UserIdentity(Username, Encoding.UTF8.GetBytes(Password ?? string.Empty));
                         break;
                     case OPCUserAuthenticationMode.Certificate:
                         userIdentity = LoadCertificate();
                         break;
                 }
 
-                UASession.Open(ACIdentifier, userIdentity);
+                UASession.OpenAsync(ACIdentifier, 0, userIdentity, null, true, true, default).GetAwaiter().GetResult();
             }
             catch (ServiceResultException exc)
             {
@@ -472,7 +474,7 @@ namespace gip.core.communication
                 return false;
 
             _UASession.KeepAlive -= UASession_KeepAlive;
-            UASession.Close();
+            UASession.CloseAsync(default).GetAwaiter().GetResult();
             IsConnected.ValueT = false;
             return true;
         }
@@ -493,7 +495,7 @@ namespace gip.core.communication
                     {
                         if (_ReconnectHandler == null && AutoReconnect)
                         {
-                            _ReconnectHandler = new SessionReconnectHandler();
+                            _ReconnectHandler = new SessionReconnectHandler((ITelemetryContext)null, false, -1);
                             _ReconnectHandler.BeginReconnect(_UASession, ReconnectPeriod, Client_ReconnectComplete);
                         }
                     }
@@ -524,8 +526,8 @@ namespace gip.core.communication
             {
                 foreach (var subs in _UASession.Subscriptions)
                 {
-                    subs.Delete(true);
-                    subs.Create();
+                    subs.DeleteAsync(true, default).GetAwaiter().GetResult();
+                    subs.CreateAsync(default).GetAwaiter().GetResult();
                 }
             }
             catch(Exception exc)
@@ -681,7 +683,7 @@ namespace gip.core.communication
             // update endpoint description using the discovery endpoint.
             if (endpoint.UpdateBeforeConnect)
             {
-                endpoint.UpdateFromServer();
+                endpoint.UpdateFromServerAsync((ITelemetryContext)null, default).GetAwaiter().GetResult();
 
                 endpointDescription = endpoint.Description;
                 endpointConfiguration = endpoint.Configuration;
@@ -703,7 +705,9 @@ namespace gip.core.communication
                     throw ServiceResultException.Create(StatusCodes.BadConfigurationError, "ApplicationCertificate must be specified.");
                 }
 
-                clientCertificate = configuration.SecurityConfiguration.ApplicationCertificate.Find(true).Result;
+                clientCertificate = configuration.SecurityConfiguration.ApplicationCertificate
+                    .FindAsync(true, string.Empty, null, default)
+                    .GetAwaiter().GetResult();
 
                 if (clientCertificate == null)
                 {
@@ -715,7 +719,7 @@ namespace gip.core.communication
                 {
                     clientCertificateChain = new X509Certificate2Collection(clientCertificate);
                     List<CertificateIdentifier> issuers = new List<CertificateIdentifier>();
-                    configuration.CertificateValidator.GetIssuers(clientCertificate, issuers);
+                    configuration.CertificateValidator.GetIssuersAsync(clientCertificate, issuers, default).GetAwaiter().GetResult();
 
                     for (int i = 0; i < issuers.Count; i++)
                     {
@@ -731,13 +735,9 @@ namespace gip.core.communication
             //}
 
             // initialize the channel which will be created with the server.
-            ITransportChannel channel = SessionChannel.Create(
-                 configuration,
-                 endpointDescription,
-                 endpointConfiguration,
-                 clientCertificate,
-                 clientCertificateChain,
-                 messageContext);
+            ITransportChannel channel = new DefaultSessionFactory((ITelemetryContext)null)
+                .CreateChannelAsync(configuration, null, endpoint, false, false, default)
+                .GetAwaiter().GetResult();
 
             return new OPCUAClientSession(channel, configuration, endpoint, null);
         }

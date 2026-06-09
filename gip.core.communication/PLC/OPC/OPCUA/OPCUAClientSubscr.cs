@@ -9,11 +9,6 @@ namespace gip.core.communication
 {
     public class OPCUAClientSubscr : Subscription
     {
-        public OPCUAClientSubscr() : base()
-        {
-
-        }
-
         public OPCUAClientSubscr(Subscription template) : base(template)
         {
 
