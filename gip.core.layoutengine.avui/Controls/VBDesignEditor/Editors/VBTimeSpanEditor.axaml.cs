@@ -15,7 +15,7 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
     {
 		public VBTimeSpanEditor()
 		{
-			//InitializeComponent();
+			InitializeComponent();
 		}
 
 		protected override void OnLoaded(RoutedEventArgs e)

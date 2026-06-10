@@ -37,18 +37,18 @@
     <DocumentationFile>$(SolutionDir)bin\Debug\gip.core.layoutengine.avui.xml</DocumentationFile>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <NoWarn Condition="'$(UseAvaloniaFork)' == 'False'">
-      1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002</NoWarn>
+      1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002;0108</NoWarn>
     <NoWarn Condition="'$(UseAvaloniaFork)' == 'True'">
-      1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002;MSB3277</NoWarn>
+      1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002;MSB3277;0108</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
     <DocumentationFile>
     </DocumentationFile>
     <NoWarn Condition="'$(UseAvaloniaFork)' == 'False'">
-      1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002</NoWarn>
+      1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002;0108</NoWarn>
     <NoWarn Condition="'$(UseAvaloniaFork)' == 'True'">
-      1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002;MSB3277</NoWarn>
+      1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002;MSB3277;0108</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -227,14 +227,12 @@
     <PackageReference Include="OxyPlot.Avalonia" />
     <PackageReference Include="Markdown.Avalonia" />
     <PackageReference Include="MessageBox.Avalonia" />
-    <PackageReference Include="iPlus.RoslynPad.Editor.Avalonia" />
-    <PackageReference Include="iPlus.RoslynPad.Roslyn.Avalonia" />
-    <PackageReference Include="Avalonia.HtmlRenderer" />
-  </ItemGroup>
-  <!-- <ItemGroup '$(UseAvaloniaFork)' == 'False'">
+    <!-- <PackageReference Include="iPlus.RoslynPad.Editor.Avalonia" />
+    <PackageReference Include="iPlus.RoslynPad.Roslyn.Avalonia" /> -->
     <PackageReference Include="RoslynPad.Editor.Avalonia" />
     <PackageReference Include="RoslynPad.Roslyn.Avalonia" />
-  </ItemGroup> -->
+    <PackageReference Include="Avalonia.HtmlRenderer" />
+  </ItemGroup>
 
   <!-- Use Avalonia Fork -->
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaInclude.props" />

@@ -26,7 +26,7 @@
 		<RoslynVersion Condition="'$(UseAvaloniaFork)' == 'False'">5.0.0</RoslynVersion>
 		<RoslynVersionIPlus>5.0.1</RoslynVersionIPlus>
 		<DotNetExtensionsVersion>10.0.8</DotNetExtensionsVersion>
-		<SystemCompositionVersion>10.0.6</SystemCompositionVersion>
+		<SystemCompositionVersion>10.0.8</SystemCompositionVersion>
 		<NuGetVersion>7.0.3</NuGetVersion>
 		<CoreWCFVersion>1.8.0</CoreWCFVersion>
 		<ASPNetVersion>2.3.9</ASPNetVersion>
@@ -37,10 +37,10 @@
 		<EFCorePackageVersionFork>10.0.5</EFCorePackageVersionFork>
 
 		<!-- $(AvaloniaRootDir)\av_main\build\SkiaSharp.props -->
-		<SkiaSharpVersion>3.119.4-preview.1.1</SkiaSharpVersion>
+		<SkiaSharpVersion>3.119.4</SkiaSharpVersion>
 
 		<!-- $(AvaloniaRootDir)\av_main\build\HarfBuzzSharp.props -->
-		<HarfBuzzSharpVersion>8.3.1.6-preview.1.1</HarfBuzzSharpVersion>
+		<HarfBuzzSharpVersion>8.3.1.6-preview.3.1</HarfBuzzSharpVersion>
 
 		<!-- ClosedXML uses transitive packages of DocumentFormat.OpenXml and this result in an package conflict. 
     Therefore this declaration is used for override in csproj -->
@@ -73,14 +73,16 @@
 		<PackageVersion Include="Avalonia.ReactiveUI" Version="11.3.9" />
 		<PackageVersion Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersionLatest)" />
-		<PackageVersion Include="Avalonia.Angle.Windows.Natives" Version="2.1.25547.20250602" />
+		<PackageVersion Include="Avalonia.Angle.Windows.Natives" Version="2.1.27548.20260419" />
 		<PackageVersion Include="HarfBuzzSharp" Version="$(HarfBuzzSharpVersion)" />
 		<PackageVersion Include="ReactiveUI.Avalonia" Version="11.4.12" />
 		<PackageVersion Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.1" />
 
 		<!-- Third-party packages that depend on Avalonia - modify versions when using fork -->
-		<PackageVersion Include="iPlus.RoslynPad.Editor.Avalonia" Version="$(RoslynVersionIPlus)" />
-		<PackageVersion Include="iPlus.RoslynPad.Roslyn.Avalonia" Version="$(RoslynVersionIPlus)" />
+		<!-- <PackageVersion Include="iPlus.RoslynPad.Editor.Avalonia" Version="$(RoslynVersionIPlus)" />
+		<PackageVersion Include="iPlus.RoslynPad.Roslyn.Avalonia" Version="$(RoslynVersionIPlus)" /> -->
+		<PackageVersion Include="RoslynPad.Editor.Avalonia" Version="$(RoslynVersion)" />
+		<PackageVersion Include="RoslynPad.Roslyn.Avalonia" Version="$(RoslynVersion)" />
 		<PackageVersion Include="OxyPlot.Avalonia" Version="2.1.0-Avalonia11" />
 		<PackageVersion Include="MessageBox.Avalonia" Version="12.0.0" />
 		<PackageVersion Include="Markdown.Avalonia" Version="12.0.0-a3" />
@@ -186,9 +188,12 @@
 		<PackageVersion Include="iPlus.Scryber.Core" Version="9.5.0.2" />
     	<PackageVersion Include="Scryber.Core.OpenType" Version="9.2.0.0" />
 		
-		<PackageVersion Include="iPlus.RoslynPad.Editor.Windows" Version="$(RoslynVersionIPlus)" />
+		<!-- <PackageVersion Include="iPlus.RoslynPad.Editor.Windows" Version="$(RoslynVersionIPlus)" />
 		<PackageVersion Include="iPlus.RoslynPad.Roslyn" Version="$(RoslynVersionIPlus)" />
-		<PackageVersion Include="iPlus.RoslynPad.Roslyn.Windows" Version="$(RoslynVersionIPlus)" />
+		<PackageVersion Include="iPlus.RoslynPad.Roslyn.Windows" Version="$(RoslynVersionIPlus)" /> -->
+		<PackageVersion Include="RoslynPad.Editor.Windows" Version="$(RoslynVersion)" />
+		<PackageVersion Include="RoslynPad.Roslyn" Version="$(RoslynVersion)" />
+		<PackageVersion Include="RoslynPad.Roslyn.Windows" Version="$(RoslynVersion)" />
 		<PackageVersion Include="System.Composition.TypedParts" Version="$(SystemCompositionVersion)" />
 		<PackageVersion Include="System.Composition.AttributedModel" Version="$(SystemCompositionVersion)" />
 		<PackageVersion Include="System.Composition.Convention" Version="$(SystemCompositionVersion)" />
