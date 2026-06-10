@@ -248,6 +248,12 @@ namespace gip.core.layoutengine.avui
                 return false;
             }
 
+            // Check if the target type implements IConvertible before attempting conversion.
+            // Convert.ChangeType can only convert to types that implement IConvertible.
+            // Types like custom classes (e.g., ACClass) will throw InvalidCastException.
+            if (!typeof(IConvertible).IsAssignableFrom(targetValueType))
+                return false;
+
             try
             {
                 object converted = System.Convert.ChangeType(parameterText, targetValueType, culture ?? CultureInfo.InvariantCulture);

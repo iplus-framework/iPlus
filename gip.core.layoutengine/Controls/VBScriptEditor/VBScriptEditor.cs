@@ -259,11 +259,26 @@ namespace gip.core.layoutengine
                     try
                     {
                         if (_roslynHost != null)
+                        {
+                            // Clear the document before InitializeAsync to prevent text duplication.
+                            // The binding may have already set TextEditor.Text to VBText, and
+                            // InitializeAsync calls AppendText(documentText), which would duplicate
+                            // the content. By clearing first, AppendText starts with an empty document.
+                            // _OnTargetUpdated = true prevents OnTextChanged from syncing the empty
+                            // text back to VBText during this initialization phase.
+                            _OnTargetUpdated = true;
+                            Text = string.Empty;
+                        }
+                        if (_roslynHost != null)
                             _docId = this.InitializeAsync(_roslynHost, _classificationHighlightColors, AppContext.BaseDirectory, this.VBText, SourceCodeKind.Script).Result;
+                        // After InitializeAsync completes, the document has the correct text from AppendText.
+                        // Reset the flag to allow normal OnTextChanged behavior.
+                        _OnTargetUpdated = false;
                     }
                     catch (Exception e)
                     {
                         this.Root().Messages.LogException("VBScriptEditor", "InitVBControl0020", e);
+                        _OnTargetUpdated = false;
                     }
 
                     foldingStrategy = new VBScriptEditorBraceFoldingStrategy();
