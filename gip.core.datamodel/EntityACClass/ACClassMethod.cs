@@ -1863,6 +1863,42 @@ namespace gip.core.datamodel
                 }
             }
         }
+
+        [NotMapped]
+        private readonly DateTime WpfUiModeStamp = new DateTime(1900, 1, 1);
+        [NotMapped]
+        private readonly DateTime AvaloniaUiModeStamp = new DateTime(1900, 1, 2);
+        [NotMapped]
+        private readonly DateTime NoneUiModeStamp = new DateTime(1900, 1, 3);
+
+        [NotMapped]
+        public ScriptTarget SourceCodeTargetFramework
+        {
+            get
+            {
+                if (!XMLDesign2UpdateDate.HasValue)
+                    return ScriptTarget.Unknown;
+                if (XMLDesign2UpdateDate == WpfUiModeStamp)
+                    return ScriptTarget.Wpf;
+                else if (XMLDesign2UpdateDate == AvaloniaUiModeStamp)
+                    return ScriptTarget.Avalonia;
+                else if (XMLDesign2UpdateDate == NoneUiModeStamp)
+                    return ScriptTarget.Any;
+                else
+                    return ScriptTarget.Unknown;
+            }
+            set
+            {
+                if (value == ScriptTarget.Wpf)
+                    XMLDesign2UpdateDate = WpfUiModeStamp;
+                else if (value == ScriptTarget.Avalonia)
+                    XMLDesign2UpdateDate = AvaloniaUiModeStamp;
+                else if (value == ScriptTarget.Any)
+                    XMLDesign2UpdateDate = NoneUiModeStamp;
+                else
+                    XMLDesign2UpdateDate = null;
+            }
+        }
         #endregion
 
 
@@ -2202,6 +2238,21 @@ namespace gip.core.datamodel
         public Guid NewID { get; set; }
         public string NewACIdentifier { get; set; }
     }
+
+    /// <summary>
+    /// Target platform for a script, determined by parsing its &lt;Precompiler&gt; directives.
+    /// </summary>
+    public enum ScriptTarget
+    {
+        Unknown,
+        /// <summary>The script has no UI-framework-specific dependencies.</summary>
+        Any,
+        /// <summary>The script depends on WPF (System.Windows.*, PresentationCore.dll, etc.).</summary>
+        Wpf,
+        /// <summary>The script depends on Avalonia (Avalonia.*, etc.).</summary>
+        Avalonia
+    }
 }
+
 
 

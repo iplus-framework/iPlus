@@ -597,7 +597,7 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        [ACMethodInfo("Start", "en{'Edit komplex value'}de{'Editiere komplexen Wert'}", 500, true)]
+        [ACMethodInfo("Start", "en{'Edit complex value'}de{'Editiere komplexen Wert'}", 500, true)]
         public async void EditValue()
         {
             if (!IsEnabledEditValue())
@@ -1038,17 +1038,17 @@ namespace gip.core.autocomponent
             switch (acMethodName)
             {
                 #region Start / EditValue
-                case "Start":
-                case Const.IsEnabledPrefix + "Start":
-                    return new string[] { nameof(CurrentACComponent) };
-                case "EditValue":
-                case Const.IsEnabledPrefix + "EditValue":
-                    return new string[] { nameof(CurrentACComponent) };
+                case nameof(Start):
+                case nameof(IsEnabledStart):
+                    return new string[] { nameof(CurrentACComponent), nameof(SelectedFunction), nameof(SelectedVirtualMethod), nameof(SelectedACMethodParam) };
+                case nameof(EditValue):
+                case nameof(IsEnabledEditValue):
+                    return new string[] { nameof(CurrentACComponent), nameof(SelectedFunction), nameof(SelectedVirtualMethod), nameof(SelectedACMethodParam) };
                 #endregion
 
                 #region Always Enabled (no IsEnabled method)
-                case "EditComplexValueOk":
-                case "EditComplexValueCancel":
+                case nameof(EditComplexValueOk):
+                case nameof(EditComplexValueCancel):
                     return new string[] { nameof(InitState) };
                 #endregion
             }

@@ -20,15 +20,19 @@ namespace gip.core.autocomponent
 
 
         #region c'tors
-        public Script(string acMethodName, ScriptEngine engine, string sourceCode, bool continueOnError)
+        public Script(string acMethodName, ScriptEngine engine, string sourceCode, bool continueOnError, ACClassMethod acClassMethod = null)
         {
             _ACMethodName = acMethodName;
             _ScriptEngine = engine;
             if (string.IsNullOrEmpty(sourceCode))
                 throw new ArgumentNullException("sourceCode is empty");
+            // Store the raw source for precompiler directive parsing
+            _RawSource = sourceCode;
+            // Process the source code (remove precompiler regions and make static)
             _SourceCode = ScriptEngine.RemovePrecompilerRegionAndMakeStatic(sourceCode);
             _ContinueOnError = continueOnError;
             _ScriptTrigger = ScriptTrigger.ScriptTriggers.Where(c => acMethodName.StartsWith(c.MethodNamePrefix)).FirstOrDefault();
+            _ACClassMethod = acClassMethod;
         }
         #endregion
 
@@ -108,6 +112,19 @@ namespace gip.core.autocomponent
             }
         }
 
+        /// <summary>
+        /// The original source code as stored in the database, including &lt;Precompiler&gt; directives.
+        /// Used for parsing assembly references and namespace imports.
+        /// </summary>
+        string _RawSource;
+        public string RawSource
+        {
+            get
+            {
+                return _RawSource;
+            }
+        }
+
         string _SourceCode;
         public string Sourcecode
         {
@@ -146,6 +163,15 @@ namespace gip.core.autocomponent
             get
             {
                 return _ContinueOnError;
+            }
+        }
+
+        ACClassMethod _ACClassMethod;
+        public ACClassMethod ACClassMethod
+        {
+            get
+            {
+                return _ACClassMethod;
             }
         }
         #endregion

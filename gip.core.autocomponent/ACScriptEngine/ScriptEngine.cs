@@ -40,6 +40,17 @@ namespace gip.core.autocomponent
         public const string C_TypeNameScriptStaticClass = C_ScriptNamespace + "." + C_ScriptStaticClassName;
         #endregion
 
+        /// <summary>
+        /// Current UI mode of the application.
+        /// </summary>
+        public enum UiMode
+        {
+            Unknown,
+            None,      // Headless / background service
+            Wpf,
+            Avalonia
+        }
+
         #region Constructors
 
         /// <summary>
@@ -76,7 +87,7 @@ namespace gip.core.autocomponent
                     ScriptEngine engine2 = new ScriptEngine(acClass);
                     foreach (ACClassMethod acClassMethod in query)
                     {
-                        engine2.RegisterScript(acClassMethod.ACIdentifier, acClassMethod.Sourcecode, acClassMethod.ContinueByError);
+                        engine2.RegisterScript(acClassMethod.ACIdentifier, acClassMethod.Sourcecode, acClassMethod.ContinueByError, acClassMethod);
                     }
 
                     using (ACMonitor.Lock(_20091_LockProxyEngines))
@@ -107,7 +118,7 @@ namespace gip.core.autocomponent
                     ScriptEngine engine2 = new ScriptEngine(acClass);
                     foreach (ACClassMethod acClassMethod in query)
                     {
-                        engine2.RegisterScript(acClassMethod.ACIdentifier, acClassMethod.Sourcecode, acClassMethod.ContinueByError);
+                        engine2.RegisterScript(acClassMethod.ACIdentifier, acClassMethod.Sourcecode, acClassMethod.ContinueByError, acClassMethod);
                     }
 
                     using (ACMonitor.Lock(_20092_LockRealEngines))
@@ -182,24 +193,87 @@ namespace gip.core.autocomponent
                                            platform: compilerPlatform,
                                            assemblyIdentityComparer: DesktopAssemblyIdentityComparer.Default);
 
-            // TODO: Add references Should these be configurable?
+            // Determine current UI mode
+            UiMode uiMode = GetCurrentUiMode();
+            ACRoot.SRoot.Messages.LogDebug(_ACType.GetACUrl(), "ScriptEngine.Compile()", $"UI Mode: {uiMode}, Total scripts: {_Scripts.Count}");
+
+            // Collect only compatible scripts and their precompiler directives
+            var compatibleScripts = new List<string>();
+            var scriptAssemblies = new List<string>();
+            var scriptNamespaces = new List<string>();
+            var scriptsNeedingTargetUpdate = new List<KeyValuePair<Script, ScriptTarget>>();
+
+            foreach (Script script in _Scripts)
+            {
+                ScriptTarget target;
+                string detectionMethod;
+
+                // Try cached value from ACClassMethod.IsSourcecodeForUI first
+                if (script.ACClassMethod != null && script.ACClassMethod.SourceCodeTargetFramework != ScriptTarget.Unknown)
+                {
+                    target = script.ACClassMethod.SourceCodeTargetFramework;
+                    detectionMethod = "cached";
+                }
+                else
+                {
+                    // Fall back to code analysis
+                    target = ParseScriptTarget(script.RawSource);
+                    detectionMethod = "analyzed";
+
+                    // Track scripts whose target was Unknown (will update after successful compilation)
+                    if (script.ACClassMethod != null && script.ACClassMethod.SourceCodeTargetFramework == ScriptTarget.Unknown)
+                    {
+                        scriptsNeedingTargetUpdate.Add(new KeyValuePair<Script, ScriptTarget>(script, target));
+                    }
+                }
+
+                bool isCompatible = IsScriptCompatible(target, uiMode);
+                if (!isCompatible)
+                {
+                    ACRoot.SRoot.Messages.LogDebug(_ACType.GetACUrl(), "ScriptEngine.Compile()",
+                        $"SKIP '{script.ACMethodName}' ({detectionMethod}): target={target}, uiMode={uiMode}");
+                    continue;
+                }
+
+                ACRoot.SRoot.Messages.LogDebug(_ACType.GetACUrl(), "ScriptEngine.Compile()",
+                    $"INCLUDE '{script.ACMethodName}' ({detectionMethod}): target={target}, uiMode={uiMode}");
+                compatibleScripts.Add(script.Sourcecode);
+                ParsePrecompilerDirectives(script.RawSource, scriptAssemblies, scriptNamespaces);
+            }
+
+            // CRITICAL: Filter out UI-specific namespaces that don't match the current UI mode
+            // This prevents compilation errors when incompatible namespaces leak through
+            FilterNamespacesForUiMode(scriptNamespaces, uiMode);
+
+            ACRoot.SRoot.Messages.LogDebug(_ACType.GetACUrl(), "ScriptEngine.Compile()",
+                $"Final: {compatibleScripts.Count} scripts, {scriptNamespaces.Count} namespaces from {_Scripts.Count} total");
+
+            // Setup paths and base references
             string dotNetPath = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
-            string wpfPath = dotNetPath.Replace("Microsoft.NETCore.App", "Microsoft.WindowsDesktop.App");
-            if (!Directory.Exists(wpfPath) || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                wpfPath = null;
             string exePath = ACRoot.SRoot.Environment.Rootpath;
 
-            ACRoot.SRoot.Messages.LogDebug(_ACType.GetACUrl(), "ScriptEngine.Compile()", String.Format("Complier {0}, DotNetPath {1}", compilationOptions, dotNetPath));
+            ACRoot.SRoot.Messages.LogDebug(_ACType.GetACUrl(), "ScriptEngine.Compile()", String.Format("Compiler {0}, DotNetPath {1}, UI Mode: {2}", compilationOptions, dotNetPath, uiMode));
 
             var references = new List<MetadataReference>();
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.dll"));
-            if (wpfPath != null)
-                references.Add(MetadataReference.CreateFromFile(wpfPath + "PresentationCore.dll"));
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "WindowsBase.dll"));
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Core.dll"));
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Data.dll"));
             references.Add(MetadataReference.CreateFromFile(exePath + "Microsoft.EntityFrameworkCore.dll"));
             references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Runtime.dll"));
+
+            // Add UI-framework-specific references based on UI mode
+            if (uiMode == UiMode.Wpf)
+            {
+                string wpfPath = dotNetPath.Replace("Microsoft.NETCore.App", "Microsoft.WindowsDesktop.App");
+                if (Directory.Exists(wpfPath) && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    references.Add(MetadataReference.CreateFromFile(wpfPath + "PresentationCore.dll"));
+                    ACRoot.SRoot.Messages.LogDebug(_ACType.GetACUrl(), "ScriptEngine.Compile()", "Added WPF PresentationCore.dll reference");
+                }
+            }
+
+            // Add references from loaded assemblies
             foreach (Assembly classAssembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 try
@@ -217,9 +291,17 @@ namespace gip.core.autocomponent
                 }
             }
 
-            // Assembly deklarations in Script-Code
-            foreach (string refAssembly in _Scripts.Assemblies)
+            // Add script-specific assembly references (only for compatible scripts)
+            foreach (string refAssembly in scriptAssemblies)
             {
+                // Skip WPF-specific assemblies when not in WPF mode
+                if (refAssembly.Equals("PresentationCore.dll", StringComparison.OrdinalIgnoreCase) && uiMode != UiMode.Wpf)
+                    continue;
+                if (refAssembly.Equals("PresentationFramework.dll", StringComparison.OrdinalIgnoreCase) && uiMode != UiMode.Wpf)
+                    continue;
+                if (refAssembly.Equals("WindowsBase.dll", StringComparison.OrdinalIgnoreCase) && uiMode == UiMode.Avalonia)
+                    continue;
+
                 string refAssemblyTemp = refAssembly;
                 if (!refAssemblyTemp.EndsWith(".dll"))
                     refAssemblyTemp += ".dll";
@@ -228,16 +310,25 @@ namespace gip.core.autocomponent
                 if (!System.IO.File.Exists(assemblyNameAndPath))
                     assemblyNameAndPath = System.IO.Path.Combine(dotNetPath, refAssemblyTemp);
                 if (!references.OfType<PortableExecutableReference>().Any(c => System.IO.Path.GetFileName(c.FilePath) == refAssemblyTemp))
-                    references.Add(MetadataReference.CreateFromFile(assemblyNameAndPath));
+                {
+                    try
+                    {
+                        references.Add(MetadataReference.CreateFromFile(assemblyNameAndPath));
+                    }
+                    catch (Exception ex)
+                    {
+                        ACRoot.SRoot.Messages.LogDebug(_ACType.GetACUrl(), "ScriptEngine.Compile()",
+                            $"Could not add assembly reference '{refAssemblyTemp}' at '{assemblyNameAndPath}': {ex.Message}");
+                    }
+                }
             }
 
             try
             {
                 _CompiledAssembly = null;
-                // Get the code
-                List<string> namespaces = _Scripts.UsingNamespaces;
-                AddDefaultNamespaces(namespaces);
-                string compileUnit = GetCode(namespaces);
+                // Get the code using filtered compatible scripts and namespaces
+                AddDefaultNamespaces(scriptNamespaces);
+                string compileUnit = GetCode(scriptNamespaces, compatibleScripts);
                 SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(compileUnit);
                 // Compile the code
                 CSharpCompilation compilation = CSharpCompilation.Create(execAssembly.FullName,
@@ -268,6 +359,45 @@ namespace gip.core.autocomponent
                 {
                     ms.Seek(0, SeekOrigin.Begin);
                     _CompiledAssembly = Assembly.Load(ms.ToArray());
+
+                    Database dbNeedSave = null;
+                    // Cache the ScriptTarget for scripts that had Unknown status
+                    foreach (var kvp in scriptsNeedingTargetUpdate)
+                    {
+                        Script script = kvp.Key;
+                        ScriptTarget detectedTarget = kvp.Value;
+                        if (script.ACClassMethod != null && script.ACClassMethod.SourceCodeTargetFramework == ScriptTarget.Unknown)
+                        {
+                            if (script.ACClassMethod.Database == Database.GlobalDatabase)
+                            {
+                                using (Database db = new Database())
+                                {
+                                    ACClassMethod method = db.ACClassMethod.Where(m => m.ACClassMethodID == script.ACClassMethod.ACClassMethodID).FirstOrDefault();
+                                    if (method != null)
+                                    {
+                                        method.SourceCodeTargetFramework = detectedTarget;
+                                        db.SaveChanges();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                script.ACClassMethod.SourceCodeTargetFramework = detectedTarget;
+                                dbNeedSave = script.ACClassMethod.Database;
+                            }
+                            ACRoot.SRoot.Messages.LogDebug(_ACType.GetACUrl(), "ScriptEngine.Compile()",
+                                $"Cached ScriptTarget '{script.ACMethodName}': {detectedTarget}");
+                        }
+                    }
+
+                    if (dbNeedSave != null)
+                    {
+                        using (ACMonitor.Lock(dbNeedSave.QueryLock_1X000))
+                        {
+                            dbNeedSave.ACSaveChanges();
+                        }
+                    }
+
                     return true;
                 }
             }
@@ -281,8 +411,10 @@ namespace gip.core.autocomponent
         /// <summary>
         /// This method creates the <see cref="SyntaxTree"/> containing the actual C# code that will be compiled.
         /// </summary>
-        /// <returns>A <see cref="SyntaxTree"/> containing the code to be compiled.</returns>
-        private string GetCode(IEnumerable<string> namespaces)
+        /// <param name="namespaces">The namespaces to include in the generated code.</param>
+        /// <param name="scriptMethods">The preprocessed script method source codes to compile.</param>
+        /// <returns>A string containing the complete C# code to be compiled.</returns>
+        private string GetCode(IEnumerable<string> namespaces, List<string> scriptMethods)
         {
             var sb = new StringBuilder();
 
@@ -304,14 +436,19 @@ namespace gip.core.autocomponent
             sb.AppendLine("    {");
 
             // Add the actual script methods
-            string scriptMethods = _Scripts.ToString();
-            if (!string.IsNullOrEmpty(scriptMethods))
+            if (scriptMethods != null && scriptMethods.Any())
             {
-                // Indent each line of the script methods
-                var lines = scriptMethods.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string line in lines)
+                foreach (string scriptMethod in scriptMethods)
                 {
-                    sb.AppendLine($"        {line}");
+                    if (!string.IsNullOrEmpty(scriptMethod))
+                    {
+                        // Indent each line of the script methods
+                        var lines = scriptMethod.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (string line in lines)
+                        {
+                            sb.AppendLine($"        {line}");
+                        }
+                    }
                 }
             }
 
@@ -361,8 +498,13 @@ namespace gip.core.autocomponent
 
         public void RegisterScript(string acMethodName, string sourcecode, bool continueOnError)
         {
+            RegisterScript(acMethodName, sourcecode, continueOnError, null);
+        }
+
+        public void RegisterScript(string acMethodName, string sourcecode, bool continueOnError, ACClassMethod acClassMethod)
+        {
             _CompiledAssembly = null;
-            Script script = new Script(acMethodName, this, sourcecode, continueOnError);
+            Script script = new Script(acMethodName, this, sourcecode, continueOnError, acClassMethod);
             _Scripts.AddScript(script);
         }
 
@@ -561,6 +703,295 @@ namespace gip.core.autocomponent
             if (!namespaces.Contains("System.Linq"))
                 namespaces.Add("System.Linq");
         }
+
+        #endregion
+
+        #region UI Detection and Script Filtering
+
+        /// <summary>
+        /// Removes UI-specific namespaces that don't match the current UI mode.
+        /// </summary>
+        private static void FilterNamespacesForUiMode(List<string> namespaces, UiMode uiMode)
+        {
+            if (namespaces == null) return;
+
+            // Namespaces to exclude when NOT in WPF mode
+            string[] wpfNamespaces = new[]
+            {
+                "System.Windows",
+                "System.Windows.Media",
+                "System.Windows.Controls",
+                "System.Windows.Input",
+                "System.Windows.Shapes",
+                "System.Windows.Documents",
+                "System.Windows.Media.Imaging",
+                "System.Windows.Media.Animation",
+            };
+
+            // Namespaces to exclude when NOT in Avalonia mode
+            string[] avaloniaNamespaces = new[]
+            {
+                "Avalonia",
+                "Avalonia.Media",
+                "Avalonia.Controls",
+                "Avalonia.Input",
+                "Avalonia.Rendering",
+                "Avalonia.Styling",
+                "Avalonia.Data",
+            };
+
+            if (uiMode == UiMode.Wpf)
+            {
+                // Remove Avalonia namespaces
+                foreach (string ns in avaloniaNamespaces)
+                {
+                    namespaces.RemoveAll(n => n.Equals(ns, StringComparison.OrdinalIgnoreCase) ||
+                                              n.StartsWith(ns + ".", StringComparison.OrdinalIgnoreCase));
+                }
+            }
+            else if (uiMode == UiMode.Avalonia)
+            {
+                // Remove WPF namespaces
+                foreach (string ns in wpfNamespaces)
+                {
+                    namespaces.RemoveAll(n => n.Equals(ns, StringComparison.OrdinalIgnoreCase) ||
+                                              n.StartsWith(ns + ".", StringComparison.OrdinalIgnoreCase));
+                }
+            }
+            else if (uiMode == UiMode.None)
+            {
+                // Headless mode - remove ALL UI namespaces
+                foreach (string ns in wpfNamespaces.Concat(avaloniaNamespaces))
+                {
+                    namespaces.RemoveAll(n => n.Equals(ns, StringComparison.OrdinalIgnoreCase) ||
+                                              n.StartsWith(ns + ".", StringComparison.OrdinalIgnoreCase));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determines the current UI mode of the application.
+        /// </summary>
+        /// <returns>The current UI mode (None, Wpf, or Avalonia).</returns>
+        private UiMode GetCurrentUiMode()
+        {
+            // Check if ACRoot is available and has UI services
+            if (ACRoot.SRoot == null)
+                return UiMode.None;
+
+            try
+            {
+                if (ACRoot.SRoot.IsAvaloniaUI)
+                    return UiMode.Avalonia;
+                
+                // Check if WPF services are available
+                if (ACRoot.SRoot.WPFServices != null && !ACRoot.SRoot.IsAvaloniaUI)
+                    return UiMode.Wpf;
+
+                // No UI detected (headless mode, background service, etc.)
+                return UiMode.None;
+            }
+            catch
+            {
+                // If we can't determine the UI mode, assume headless
+                return UiMode.None;
+            }
+        }
+
+        /// <summary>
+        /// Parses a script's raw source code to determine its target platform.
+        /// </summary>
+        /// <param name="rawSource">The original source code with &lt;Precompiler&gt; directives.</param>
+        /// <returns>The determined script target platform.</returns>
+        public static ScriptTarget ParseScriptTarget(string rawSource)
+        {
+            if (string.IsNullOrEmpty(rawSource))
+                return ScriptTarget.Any;
+
+            bool hasWpfReferences = false;
+            bool hasAvaloniaReferences = false;
+
+            // Log first 500 chars of raw source for debugging
+            string sourcePreview = rawSource.Length > 500 ? rawSource.Substring(0, 500) + "..." : rawSource;
+            ACRoot.SRoot.Messages.LogDebug("ScriptEngine", "ParseScriptTarget()",
+                $"Analyzing source preview:\n{sourcePreview}");
+
+            // Check for WPF indicators - ONLY truly WPF-specific markers
+            // IMPORTANT: Do NOT include "Brushes." or "SolidColorBrush" - these exist in BOTH frameworks!
+            // Include both regular and ///-prefixed versions (precompiler directives have /// prefix)
+            string[] wpfIndicators = new[]
+            {
+                "refassembly PresentationCore.dll",
+                "/// refassembly PresentationCore.dll",
+                "refassembly PresentationFramework.dll",
+                "/// refassembly PresentationFramework.dll",
+                "using System.Windows;",
+                "/// using System.Windows;",
+                "using System.Windows.Media;",
+                "/// using System.Windows.Media;",
+                "using System.Windows.Controls;",
+                "/// using System.Windows.Controls;",
+                "using System.Windows.Input;",
+                "/// using System.Windows.Input;",
+                "using System.Windows.Shapes;",
+                "/// using System.Windows.Shapes;",
+                "using System.Windows.Documents;",
+                "/// using System.Windows.Documents;",
+                "using System.Windows.Media.Imaging;",
+                "/// using System.Windows.Media.Imaging;",
+                "using System.Windows.Media.Animation;",
+                "/// using System.Windows.Media.Animation;",
+                "System.Windows.Brushes",
+                "System.Windows.Visibility",
+            };
+
+            // Check for Avalonia indicators
+            // Include both regular and ///-prefixed versions (precompiler directives have /// prefix)
+            string[] avaloniaIndicators = new[]
+            {
+                "using Avalonia.Media;",
+                "/// using Avalonia.Media;",
+                "using Avalonia.Controls;",
+                "/// using Avalonia.Controls;",
+                "using Avalonia.Input;",
+                "/// using Avalonia.Input;",
+                "using Avalonia.Rendering;",
+                "/// using Avalonia.Rendering;",
+                "using Avalonia.Styling;",
+                "/// using Avalonia.Styling;",
+                "using Avalonia.Data;",
+                "/// using Avalonia.Data;",
+                "ISolidColorBrush",
+                "Avalonia.Media.Brushes",
+            };
+
+            string matchedWpfIndicator = null;
+            foreach (string indicator in wpfIndicators)
+            {
+                if (rawSource.Contains(indicator))
+                {
+                    hasWpfReferences = true;
+                    matchedWpfIndicator = indicator;
+                    break;
+                }
+            }
+
+            string matchedAvaloniaIndicator = null;
+            foreach (string indicator in avaloniaIndicators)
+            {
+                if (rawSource.Contains(indicator))
+                {
+                    hasAvaloniaReferences = true;
+                    matchedAvaloniaIndicator = indicator;
+                    break;
+                }
+            }
+
+            // Log detection results
+            ACRoot.SRoot.Messages.LogDebug("ScriptEngine", "ParseScriptTarget()",
+                $"Result: hasWpf={hasWpfReferences} (matched: {matchedWpfIndicator ?? "none"}), hasAvalonia={hasAvaloniaReferences} (matched: {matchedAvaloniaIndicator ?? "none"})");
+
+            // Determine target based on findings
+            if (hasWpfReferences && !hasAvaloniaReferences)
+            {
+                ACRoot.SRoot.Messages.LogDebug("ScriptEngine", "ParseScriptTarget()", $"-> ScriptTarget.Wpf");
+                return ScriptTarget.Wpf;
+            }
+            if (hasAvaloniaReferences && !hasWpfReferences)
+            {
+                ACRoot.SRoot.Messages.LogDebug("ScriptEngine", "ParseScriptTarget()", $"-> ScriptTarget.Avalonia");
+                return ScriptTarget.Avalonia;
+            }
+            if (hasWpfReferences && hasAvaloniaReferences)
+            {
+                // Mixed - treat as WPF by default (original behavior)
+                // This case should be rare; ideally scripts are separated
+                ACRoot.SRoot.Messages.LogDebug("ScriptEngine", "ParseScriptTarget()", $"-> ScriptTarget.Wpf (mixed)");
+                return ScriptTarget.Wpf;
+            }
+            ACRoot.SRoot.Messages.LogDebug("ScriptEngine", "ParseScriptTarget()", $"-> ScriptTarget.Any");
+            return ScriptTarget.Any;
+        }
+
+        /// <summary>
+        /// Determines if a script with the given target is compatible with the current UI mode.
+        /// </summary>
+        /// <param name="target">The script's target platform.</param>
+        /// <param name="uiMode">The current UI mode.</param>
+        /// <returns>True if the script can be compiled in the current UI mode.</returns>
+        public static bool IsScriptCompatible(ScriptTarget target, UiMode uiMode)
+        {
+            // Scripts with no UI dependencies are always compatible
+            if (target == ScriptTarget.Any)
+                return true;
+
+            // In headless mode, only compile scripts with no UI dependencies
+            if (uiMode == UiMode.None)
+                return false;
+
+            // WPF scripts only compile in WPF mode
+            if (target == ScriptTarget.Wpf)
+                return uiMode == UiMode.Wpf;
+
+            // Avalonia scripts only compile in Avalonia mode
+            if (target == ScriptTarget.Avalonia)
+                return uiMode == UiMode.Avalonia;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Parses the &lt;Precompiler&gt; directives from a script's raw source code.
+        /// </summary>
+        /// <param name="rawSource">The original source code with &lt;Precompiler&gt; directives.</param>
+        /// <param name="assemblies">Collection to add discovered assembly references to.</param>
+        /// <param name="namespaces">Collection to add discovered namespace imports to.</param>
+        public static void ParsePrecompilerDirectives(string rawSource, List<string> assemblies, List<string> namespaces)
+        {
+            if (string.IsNullOrEmpty(rawSource))
+                return;
+
+            string preCompStart = "/// <Precompiler>";
+            string preCompEnd = "/// </Precompiler>";
+
+            int startPos = rawSource.IndexOf(preCompStart);
+            while (startPos >= 0)
+            {
+                int endPos = rawSource.IndexOf(preCompEnd, startPos);
+                if (endPos < 0)
+                    break;
+
+                string region = rawSource.Substring(startPos + preCompStart.Length, endPos - startPos - preCompStart.Length);
+                string[] lines = region.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string line in lines)
+                {
+                    string trimmed = line.Trim();
+                    // Remove leading /// comment prefix
+                    if (trimmed.StartsWith("///"))
+                        trimmed = trimmed.Substring(3).Trim();
+
+                    // Parse refassembly directive
+                    if (trimmed.StartsWith("refassembly "))
+                    {
+                        string asmName = trimmed.Substring(12).TrimEnd(';');
+                        if (!string.IsNullOrEmpty(asmName) && !assemblies.Contains(asmName))
+                            assemblies.Add(asmName);
+                    }
+                    // Parse using directive
+                    else if (trimmed.StartsWith("using "))
+                    {
+                        string nsName = trimmed.Substring(6).TrimEnd(';');
+                        if (!string.IsNullOrEmpty(nsName) && !namespaces.Contains(nsName))
+                            namespaces.Add(nsName);
+                    }
+                }
+
+                // Look for next Precompiler block
+                startPos = rawSource.IndexOf(preCompStart, endPos);
+            }
+        }
+
         #endregion
     }
 }
