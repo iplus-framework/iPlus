@@ -44,7 +44,14 @@ namespace gip.ext.xamldom.avui
 						}
 					}
 					if (newName != null) {
-						nameScope.Register(newName, namedObject.Instance);
+						try {
+							nameScope.Register(newName, namedObject.Instance);
+						}
+						catch (InvalidOperationException) {
+							// NameScope is sealed (e.g. inside a DataTemplate).
+							// Skip registration — the element will still function without a name.
+							Debug.WriteLine($"Warning: Cannot register name '{newName}' — NameScope is sealed (element is inside a template).");
+						}
 						
 						try{
 							var prp = namedObject.ElementType.GetProperty(namedObject.RuntimeNameProperty);

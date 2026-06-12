@@ -174,6 +174,27 @@ namespace gip.core.datamodel
             // Convert WPF-style trigger blocks embedded in *.Style property elements into
             // Xaml.Behaviors-based triggers and copy default Setter values to owner attributes.
             avaloniaXAML = ConvertControlThemeTriggersToBehaviors(avaloniaXAML);
+
+            // Convert WPF *.LayoutTransform property elements to Avalonia LayoutTransformControl wrappers.
+            // WPF: <TextBlock><TextBlock.LayoutTransform><RotateTransform/></TextBlock.LayoutTransform></TextBlock>
+            // Avalonia: <LayoutTransformControl><LayoutTransformControl.LayoutTransform><RotateTransform/></LayoutTransformControl.LayoutTransform><TextBlock></TextBlock></LayoutTransformControl>
+            avaloniaXAML = ConvertLayoutTransformToLayoutTransformControl(avaloniaXAML);
+
+            // Remove CenterX/CenterY from ScaleTransform elements (not supported by Avalonia ScaleTransform).
+            avaloniaXAML = RemoveScaleTransformCenterProperties(avaloniaXAML);
+
+            // Apply regex and string replacements
+            foreach (var tuple in C_AvaloniaPostFindAndReplace)
+            {
+                if (tuple.IsRegex)
+                {
+                    avaloniaXAML = Regex.Replace(avaloniaXAML ?? "", tuple.WpfPattern, tuple.AvaloniaReplacement, RegexOptions.Singleline | RegexOptions.IgnoreCase);
+                }
+                else
+                {
+                    avaloniaXAML = avaloniaXAML?.Replace(tuple.WpfPattern, tuple.AvaloniaReplacement);
+                }
+            }            
             
             return avaloniaXAML;
         }
@@ -198,12 +219,16 @@ namespace gip.core.datamodel
                 if (string.IsNullOrEmpty(xamlNs))
                     return xaml;
 
-                // Search for both '.Style' (WPF) and names ending with 'Theme' (Avalonia).
-                // The find-and-replace converts `ListBox.ItemContainerStyle` to `ListBox.ItemContainerTheme`
-                // before this method runs. Note: ItemContainerTheme does NOT contain '.Theme' as a substring
-                // (the dot is between 'ItemContainer' and 'Theme'), so we must check for ending with 'Theme'
-                // rather than containing '.Theme'. XPath 1.0 has no ends-with(), so we use substring(length-4).
-                var stylePropertyNodes = doc.SelectNodes("//*[contains(local-name(), '.Style') or substring(local-name(), string-length(local-name()) - 4) = 'Theme']");
+                // Search for property elements that hold a Style/ControlTheme value.
+                // Matches:
+                //   - Names containing '.Style' (e.g. ListBox.ItemContainerStyle)
+                //   - Names ending with 'Style' (e.g. GraphEdgeStyle)
+                //   - Names ending with 'Theme' (e.g. ItemContainerTheme)
+                // XPath 1.0 has no ends-with(), so we use substring(length-N) for suffix checks.
+                var stylePropertyNodes = doc.SelectNodes(
+                    "//*[contains(local-name(), '.Style') " +
+                    "or substring(local-name(), string-length(local-name()) - 4) = 'Style' " +
+                    "or substring(local-name(), string-length(local-name()) - 4) = 'Theme']");
                 if (stylePropertyNodes == null || stylePropertyNodes.Count == 0)
                     return xaml;
 
@@ -215,6 +240,7 @@ namespace gip.core.datamodel
                 foreach (var styleProperty in styleProperties)
                 {
                     if (!styleProperty.LocalName.EndsWith(".Style", StringComparison.OrdinalIgnoreCase) &&
+                        !styleProperty.LocalName.EndsWith("Style", StringComparison.OrdinalIgnoreCase) &&
                         !styleProperty.LocalName.EndsWith("Theme", StringComparison.OrdinalIgnoreCase))
                         continue;
 
@@ -241,6 +267,13 @@ namespace gip.core.datamodel
                                               string.Equals(e.LocalName, "Style.Triggers", StringComparison.OrdinalIgnoreCase));
 
                     // Copy default setter values from ControlTheme root and optional ControlTheme.Setters block.
+                    // Only promote setters to owner attributes when the style targets the owner itself.
+                    // If TargetType differs from the owner (e.g. GraphEdgeStyle targets VBGraphEdge,
+                    // not VBGraphSurface), keep setters inside the ControlTheme.
+                    var targetTypeAttr = controlTheme.GetAttribute("TargetType");
+                    bool targetsOwner = string.IsNullOrEmpty(targetTypeAttr) ||
+                                        OwnerMatchesTargetType(ownerElement, targetTypeAttr);
+
                     var defaultSetters = new List<XmlElement>();
                     defaultSetters.AddRange(controlTheme
                         .ChildNodes
@@ -262,24 +295,27 @@ namespace gip.core.datamodel
                     }
 
                     int movedDefaultSetterCount = 0;
-                    foreach (var setter in defaultSetters)
+                    if (targetsOwner)
                     {
-                        var propertyName = setter.GetAttribute("Property");
-                        var propertyValue = setter.GetAttribute("Value");
-                        if (string.IsNullOrWhiteSpace(propertyName))
-                            continue;
-
-                        // Only convert plain properties to owner attributes.
-                        if (propertyName.Contains(".") || propertyName.Contains(":"))
-                            continue;
-
-                        propertyName = NormalizeTriggerPropertyName(propertyName);
-                        propertyValue = NormalizeTriggerPropertyValue(propertyName, propertyValue);
-
-                        if (!ownerElement.HasAttribute(propertyName))
+                        foreach (var setter in defaultSetters)
                         {
-                            ownerElement.SetAttribute(propertyName, propertyValue);
-                            movedDefaultSetterCount++;
+                            var propertyName = setter.GetAttribute("Property");
+                            var propertyValue = setter.GetAttribute("Value");
+                            if (string.IsNullOrWhiteSpace(propertyName))
+                                continue;
+
+                            // Only convert plain properties to owner attributes.
+                            if (propertyName.Contains(".") || propertyName.Contains(":"))
+                                continue;
+
+                            propertyName = NormalizeTriggerPropertyName(propertyName);
+                            propertyValue = NormalizeTriggerPropertyValue(propertyName, propertyValue);
+
+                            if (!ownerElement.HasAttribute(propertyName))
+                            {
+                                ownerElement.SetAttribute(propertyName, propertyValue);
+                                movedDefaultSetterCount++;
+                            }
                         }
                     }
 
@@ -548,11 +584,31 @@ namespace gip.core.datamodel
                         behaviorBindingProperty.AppendChild(multiBinding);
                         behavior.AppendChild(behaviorBindingProperty);
 
-                        int actionCount = 0;
-                        foreach (var setter in multiDataTrigger
+                        // Collect setters from both direct children AND nested .Setters container.
+                        // WPF XAML can use either <MultiDataTrigger><Setter .../></MultiDataTrigger>
+                        // or <MultiDataTrigger><MultiDataTrigger.Setters><Setter .../></MultiDataTrigger.Setters></MultiDataTrigger>.
+                        var settersFromDirectChildren = multiDataTrigger
                             .ChildNodes
                             .OfType<XmlElement>()
-                            .Where(e => string.Equals(e.LocalName, "Setter", StringComparison.OrdinalIgnoreCase)))
+                            .Where(e => string.Equals(e.LocalName, "Setter", StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+
+                        var mdtSettersContainer = multiDataTrigger
+                            .ChildNodes
+                            .OfType<XmlElement>()
+                            .FirstOrDefault(e => string.Equals(e.LocalName, "MultiDataTrigger.Setters", StringComparison.OrdinalIgnoreCase));
+
+                        if (mdtSettersContainer != null)
+                        {
+                            var settersFromContainer = mdtSettersContainer
+                                .ChildNodes
+                                .OfType<XmlElement>()
+                                .Where(e => string.Equals(e.LocalName, "Setter", StringComparison.OrdinalIgnoreCase))
+                                .ToList();
+                            settersFromDirectChildren.AddRange(settersFromContainer);
+                        }
+
+                        foreach (var setter in settersFromDirectChildren)
                         {
                             var propertyName = setter.GetAttribute("Property");
                             if (string.IsNullOrWhiteSpace(propertyName))
@@ -568,20 +624,21 @@ namespace gip.core.datamodel
                             action.SetAttribute("PropertyName", propertyName);
                             action.SetAttribute("Value", propertyValue);
                             behavior.AppendChild(action);
-                            actionCount++;
                         }
 
-                        if (actionCount > 0)
-                        {
-                            interactionBehaviors.AppendChild(behavior);
-                            hasBehavior = true;
-                        }
+                        interactionBehaviors.AppendChild(behavior);
+                        hasBehavior = true;
                     }
 
                     if (!hasBehavior)
                         continue;
 
-                    ownerElement.ReplaceChild(interactionBehaviors, styleProperty);
+                    // Inject behaviors INTO the ControlTheme instead of replacing the entire style property.
+                    // This preserves the *.GraphEdgeStyle property assignment and its TargetType.
+                    controlTheme.AppendChild(interactionBehaviors);
+
+                    // Remove the original triggers element since we've converted it to behaviors.
+                    controlTheme.RemoveChild(triggersElement);
                 }
 
                 return doc.OuterXml;
@@ -1460,6 +1517,179 @@ namespace gip.core.datamodel
             return false;
         }
 
+        /// <summary>
+        /// Converts WPF *.LayoutTransform property elements to Avalonia LayoutTransformControl wrappers.
+        /// WPF: &lt;TextBlock&gt;&lt;TextBlock.LayoutTransform&gt;&lt;RotateTransform/&gt;&lt;/TextBlock.LayoutTransform&gt;&lt;/TextBlock&gt;
+        /// Avalonia: &lt;LayoutTransformControl&gt;&lt;LayoutTransformControl.LayoutTransform&gt;&lt;RotateTransform/&gt;&lt;/LayoutTransformControl.LayoutTransform&gt;&lt;TextBlock&gt;&lt;/TextBlock&gt;&lt;/LayoutTransformControl&gt;
+        /// Layout attached properties (Grid.*, Canvas.*, etc.) are moved from the owner to the wrapper.
+        /// </summary>
+        private static string ConvertLayoutTransformToLayoutTransformControl(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                // Find all elements with .LayoutTransform property elements
+                var layoutTransformElements = doc.SelectNodes("//*[contains(local-name(), '.LayoutTransform')]");
+                if (layoutTransformElements == null || layoutTransformElements.Count == 0)
+                    return xaml;
+
+                string xamlNs = GetDefaultXamlNamespace(doc);
+
+                // Process from the end to avoid index issues when modifying the DOM
+                var layoutTransformList = layoutTransformElements.OfType<XmlNode>().OfType<XmlElement>().ToList();
+
+                foreach (var layoutTransformElement in layoutTransformList)
+                {
+                    // Skip if the element has already been processed or removed from the DOM
+                    if (layoutTransformElement.ParentNode == null)
+                        continue;
+
+                    if (!layoutTransformElement.LocalName.EndsWith(".LayoutTransform", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    var ownerElement = layoutTransformElement.ParentNode as XmlElement;
+                    if (ownerElement == null)
+                        continue;
+
+                    // Check if this element has already been wrapped (parent is already a LayoutTransformControl)
+                    var grandParent = ownerElement.ParentNode as XmlElement;
+                    if (grandParent != null &&
+                        string.Equals(grandParent.LocalName, "LayoutTransformControl", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    // Create the LayoutTransformControl wrapper
+                    var wrapper = doc.CreateElement("LayoutTransformControl", xamlNs);
+
+                    // Layout panel attached properties to move from owner to wrapper
+                    var layoutAttachedProperties = new[]
+                    {
+                        "Grid.Row", "Grid.RowSpan", "Grid.Column", "Grid.ColumnSpan",
+                        "Canvas.Left", "Canvas.Top", "Canvas.Right", "Canvas.Bottom",
+                        "Dock.Dock"
+                    };
+
+                    // Presentation properties to move from owner to wrapper
+                    var presentationProperties = new[]
+                    {
+                        "HorizontalAlignment", "VerticalAlignment",
+                        "HorizontalContentAlignment", "VerticalContentAlignment",
+                        "Margin", "Panel.ZIndex"
+                    };
+
+                    bool hasLayoutProperty = false;
+
+                    // Move layout attached properties to the wrapper
+                    foreach (var propertyName in layoutAttachedProperties)
+                    {
+                        if (ownerElement.HasAttribute(propertyName))
+                        {
+                            wrapper.SetAttribute(propertyName, ownerElement.GetAttribute(propertyName));
+                            hasLayoutProperty = true;
+                        }
+                    }
+
+                    // Move presentation properties to the wrapper
+                    foreach (var propertyName in presentationProperties)
+                    {
+                        if (ownerElement.HasAttribute(propertyName))
+                        {
+                            wrapper.SetAttribute(propertyName, ownerElement.GetAttribute(propertyName));
+                            hasLayoutProperty = true;
+                        }
+                    }
+
+                    // Clone the owner element (without the layout/presentation attributes that were moved)
+                    var clonedOwner = (XmlElement)ownerElement.CloneNode(true);
+                    if (hasLayoutProperty)
+                    {
+                        // Remove the moved attributes from the cloned owner
+                        foreach (var propertyName in layoutAttachedProperties.Concat(presentationProperties))
+                        {
+                            clonedOwner.RemoveAttribute(propertyName);
+                        }
+                    }
+
+                    // Remove the original *.LayoutTransform child from the cloned owner
+                    foreach (var child in clonedOwner.ChildNodes.OfType<XmlElement>().ToList())
+                    {
+                        if (child.LocalName.EndsWith(".LayoutTransform", StringComparison.OrdinalIgnoreCase))
+                        {
+                            clonedOwner.RemoveChild(child);
+                        }
+                    }
+
+                    // Create the new LayoutTransformControl.LayoutTransform property element
+                    var newLayoutTransformElement = doc.CreateElement("LayoutTransformControl.LayoutTransform", xamlNs);
+                    foreach (XmlAttribute attr in layoutTransformElement.Attributes)
+                    {
+                        newLayoutTransformElement.SetAttribute(attr.LocalName, attr.Value);
+                    }
+                    foreach (XmlNode child in layoutTransformElement.ChildNodes)
+                    {
+                        newLayoutTransformElement.AppendChild(doc.ImportNode(child, true));
+                    }
+
+                    // Build the wrapper: append cloned owner first, then the LayoutTransform property element
+                    wrapper.AppendChild(clonedOwner);
+                    wrapper.AppendChild(newLayoutTransformElement);
+
+                    // Replace the original owner with the wrapper in the DOM
+                    ownerElement.ParentNode?.ReplaceChild(wrapper, ownerElement);
+                }
+
+                return doc.OuterXml;
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
+        }
+
+        /// <summary>
+        /// Removes CenterX and CenterY attributes from ScaleTransform elements.
+        /// WPF ScaleTransform supports CenterX/CenterY, but Avalonia ScaleTransform does not.
+        /// </summary>
+        private static string RemoveScaleTransformCenterProperties(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                var scaleTransforms = doc.SelectNodes("//*[local-name()='ScaleTransform']");
+                if (scaleTransforms == null || scaleTransforms.Count == 0)
+                    return xaml;
+
+                foreach (var element in scaleTransforms.OfType<XmlNode>().OfType<XmlElement>())
+                {
+                    element.RemoveAttribute("CenterX");
+                    element.RemoveAttribute("CenterY");
+                }
+
+                return doc.OuterXml;
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
+        }
+
         private static string ConvertResourceDictionarySourceToResourceInclude(string xaml)
         {
             if (string.IsNullOrWhiteSpace(xaml))
@@ -1909,6 +2139,16 @@ namespace gip.core.datamodel
             ("<Style.Setters>", "<ControlTheme.Setters>", false),
             ("</Style.Setters>", "</ControlTheme.Setters>", false),
             ("</Style>", "</ControlTheme>", false),
+            // Convert *.Style property elements to *.Theme (e.g. Border.Style → Border.Theme)
+            // The leading dot ensures we don't accidentally match names like GraphEdgeStyle.
+            (@"\.(Style)(\s*(?:/>|>))", @".Theme$2", true),
+            // Convert Setter Property="Visibility" to Property="IsVisible" with value conversion
+            // These remain inside ControlTheme when TargetType differs from the owner element.
+            (@"Property=""Visibility""\s+Value=""Collapsed""", @"Property=""IsVisible"" Value=""False""", true),
+            (@"Property=""Visibility""\s+Value=""Hidden""", @"Property=""IsVisible"" Value=""False""", true),
+            (@"Property=""Visibility""\s+Value=""Visible""", @"Property=""IsVisible"" Value=""True""", true),
+            // Fallback: convert Property="Visibility" without value change (may need manual review)
+            (@"Property=""Visibility""", @"Property=""IsVisible""", true),
             (" ToolTip=", " ToolTip.Tip=", false),
             ("DataGrid.Columns", "vb:VBDataGrid.Columns", false),
             (@"<DataGridTextColumn(?=[\s>])", "<vb:VBDataGridTextColumn", true),
@@ -2043,6 +2283,58 @@ namespace gip.core.datamodel
             (@"\bStrokeDashArray=""([^""]*?\d)\s+(\d[^""]*?)\""", @"StrokeDashArray=""$1,$2""", true),
 
             // Note: xmlns removal from child elements is handled separately in XAMLDesign property to preserve root element xmlns
+        };
+
+        /// <summary>
+        /// Checks whether the owner element's tag name matches the TargetType of a Style/ControlTheme.
+        /// Returns true if they match or if TargetType is empty (meaning the style applies to the owner).
+        /// Used to decide whether default setters can be safely promoted to owner attributes.
+        /// </summary>
+        private static bool OwnerMatchesTargetType(XmlElement ownerElement, string targetType)
+        {
+            if (string.IsNullOrWhiteSpace(targetType))
+                return true;
+
+            // Extract the type name from TargetType, e.g.:
+            //   "{x:Type vb:VBGraphEdge}" -> "VBGraphEdge"
+            //   "{x:Type Border}" -> "Border"
+            //   "Border" -> "Border"
+            string targetTypeName = targetType;
+            if (targetType.IndexOf('{') >= 0 && targetType.IndexOf('}') >= 0)
+            {
+                var inner = targetType.Substring(targetType.IndexOf('{') + 1, targetType.LastIndexOf('}') - targetType.IndexOf('{') - 1);
+                inner = inner.Trim();
+                // Strip {x:Type ...} prefix
+                const string typePrefix = "x:Type ";
+                if (inner.StartsWith(typePrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    inner = inner.Substring(typePrefix.Length).Trim();
+                }
+                // Strip namespace prefix (e.g. "vb:" or "ctrl:")
+                int colonIndex = inner.IndexOf(':');
+                if (colonIndex >= 0)
+                {
+                    inner = inner.Substring(colonIndex + 1);
+                }
+                targetTypeName = inner;
+            }
+            else if (targetType.IndexOf(':') > 0)
+            {
+                // Handle "ns:TypeName" without braces
+                int colonIndex = targetType.LastIndexOf(':');
+                targetTypeName = targetType.Substring(colonIndex + 1);
+            }
+
+            // Extract owner element's local name (without namespace prefix)
+            string ownerLocalName = ownerElement.LocalName;
+
+            return string.Equals(ownerLocalName, targetTypeName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public static readonly (string WpfPattern, string AvaloniaReplacement, bool IsRegex)[] C_AvaloniaPostFindAndReplace = new[]
+        {
+            (" ToolTip=", " ToolTip.Tip=", false),
+            ("Property=\"ToolTip\"", "Property=\"ToolTip.Tip\"", false)
         };
     }
 }

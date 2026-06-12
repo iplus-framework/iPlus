@@ -298,6 +298,15 @@ namespace gip.core.layoutengine.avui
                     {
                         SetDefaultAnchor(anchor);
                     }
+
+                    // ElementName bindings require a NameScope. Avalonia's built-in binding
+                    // extension sets this during ProvideValue; replicate that behavior here.
+                    var nameScope = TryGetNameScope(provider, target, anchor);
+                    if (nameScope != null)
+                    {
+                        SetNameScope(nameScope);
+                    }
+
                     target.Bind(dp, this);
                     return target.GetValue(dp);
                 }
@@ -391,33 +400,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         private static object TryGetAnchorFromParentStack(IServiceProvider provider, object targetObject)
         {
-            System.Collections.IEnumerable stackItems = null;
-
-            // Preferred path: use Avalonia's parent-stack service.
-            var parentProvider = provider.GetService(typeof(IAvaloniaXamlIlParentStackProvider)) as IAvaloniaXamlIlParentStackProvider;
-            if (parentProvider != null)
-            {
-                stackItems = parentProvider.Parents;
-            }
-
-            // Fallback path: some provider implementations expose stack-like properties
-            // directly (e.g. debugger shows XamlIlContext.Context<T> with ParentsStack).
-            if (stackItems == null)
-            {
-                var providerType = provider.GetType();
-                var candidatePropertyNames = new[] { "ParentsStack", "DirectParentsStack", "Parents" };
-
-                foreach (var propertyName in candidatePropertyNames)
-                {
-                    var property = providerType.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    if (property == null)
-                        continue;
-
-                    stackItems = property.GetValue(provider) as System.Collections.IEnumerable;
-                    if (stackItems != null)
-                        break;
-                }
-            }
+            var stackItems = TryGetParentStack(provider);
 
             if (stackItems == null)
                 return null;
@@ -459,6 +442,79 @@ namespace gip.core.layoutengine.avui
             return null;
         }
 
+        private static System.Collections.IEnumerable TryGetParentStack(IServiceProvider provider)
+        {
+            System.Collections.IEnumerable stackItems = null;
+
+            // Preferred path: use Avalonia's parent-stack service.
+            var parentProvider = provider.GetService(typeof(IAvaloniaXamlIlParentStackProvider)) as IAvaloniaXamlIlParentStackProvider;
+            if (parentProvider != null)
+            {
+                stackItems = parentProvider.Parents;
+            }
+
+            // Fallback path: some provider implementations expose stack-like properties
+            // directly (e.g. debugger shows XamlIlContext.Context<T> with ParentsStack).
+            if (stackItems == null)
+            {
+                var providerType = provider.GetType();
+                var candidatePropertyNames = new[] { "ParentsStack", "DirectParentsStack", "Parents" };
+
+                foreach (var propertyName in candidatePropertyNames)
+                {
+                    var property = providerType.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    if (property == null)
+                        continue;
+
+                    stackItems = property.GetValue(provider) as System.Collections.IEnumerable;
+                    if (stackItems != null)
+                        break;
+                }
+            }
+
+            return stackItems;
+        }
+
+        private static INameScope TryGetNameScope(IServiceProvider provider, AvaloniaObject target, object anchor)
+        {
+            var direct = provider.GetService(typeof(INameScope)) as INameScope;
+            if (direct != null)
+                return direct;
+
+            if (target is StyledElement targetElement)
+            {
+                var targetScope = NameScope.GetNameScope(targetElement);
+                if (targetScope != null)
+                    return targetScope;
+            }
+
+            if (anchor is StyledElement anchorElement)
+            {
+                var anchorScope = NameScope.GetNameScope(anchorElement);
+                if (anchorScope != null)
+                    return anchorScope;
+            }
+
+            var stackItems = TryGetParentStack(provider);
+            if (stackItems == null)
+                return null;
+
+            foreach (var item in stackItems)
+            {
+                if (item is INameScope stackScope)
+                    return stackScope;
+
+                if (item is StyledElement se)
+                {
+                    var scope = NameScope.GetNameScope(se);
+                    if (scope != null)
+                        return scope;
+                }
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Sets the DefaultAnchor property on Binding via reflection.
         /// This is required because the Bind(AvaloniaProperty, BindingBase, object?) overload
@@ -478,6 +534,28 @@ namespace gip.core.layoutengine.avui
             catch
             {
                 // Reflection fallback is best-effort; binding will still work without the anchor.
+            }
+        }
+
+        private void SetNameScope(INameScope nameScope)
+        {
+            try
+            {
+                var prop = typeof(ReflectionBinding).GetProperty("NameScope", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (prop != null)
+                {
+                    // The property type is WeakReference<INameScope?> and is internal to Avalonia.
+                    // Construct it dynamically to keep this code compatible with Avalonia internals.
+                    var weakRef = Activator.CreateInstance(prop.PropertyType, nameScope);
+                    if (weakRef != null)
+                    {
+                        prop.SetValue(this, weakRef);
+                    }
+                }
+            }
+            catch
+            {
+                // Reflection fallback is best-effort; binding may still resolve if NameScope is discoverable later.
             }
         }
     }
