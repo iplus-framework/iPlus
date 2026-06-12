@@ -11,6 +11,7 @@ using Avalonia;
 using Avalonia.Data;
 using Avalonia.Markup.Xaml;
 using Avalonia.SourceGenerator;
+using Avalonia.VisualTree;
 
 namespace gip.ext.xamldom.avui
 {
@@ -22,6 +23,10 @@ namespace gip.ext.xamldom.avui
     {
         public abstract object GetValue(object instance);
         public abstract void SetValue(object instance, object value);
+        public virtual void SetValue(object instance, object value, XamlObject xamlContext)
+        {
+            SetValue(instance, value);
+        }
         public abstract void ResetValue(object instance);
         public abstract TypeConverter TypeConverter { get; }
         public abstract Type TargetType { get; }
@@ -109,6 +114,92 @@ namespace gip.ext.xamldom.avui
                 return avaloniaConverter;
 
             return null;
+        }
+
+        protected static void ApplyBindingWithAnchor(
+            AvaloniaObject target,
+            AvaloniaProperty property,
+            BindingBase binding,
+            XamlObject xamlContext)
+        {
+            var anchor = TryGetAnchorFromXamlContext(xamlContext) ?? TryGetAnchorFromInstance(target);
+            if (anchor != null)
+            {
+                TrySetBindingDefaultAnchor(binding, anchor);
+            }
+
+            target.Bind(property, binding);
+        }
+
+        protected static object TryGetAnchorFromXamlContext(XamlObject xamlContext)
+        {
+            if (xamlContext == null)
+                return null;
+
+            // Prefer nearest visual parent from the parser object tree.
+            var current = xamlContext.ParentObject;
+            while (current != null)
+            {
+                if (current.Instance is Visual visual)
+                    return visual;
+                current = current.ParentObject;
+            }
+
+            return null;
+        }
+
+        protected static object TryGetAnchorFromInstance(object instance)
+        {
+            if (instance == null)
+                return null;
+
+            if (instance is Visual visual)
+                return visual;
+
+            // Behaviors commonly expose AssociatedObject.
+            var associatedObjectProperty = instance.GetType().GetProperty("AssociatedObject", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (associatedObjectProperty != null)
+            {
+                var associatedObject = associatedObjectProperty.GetValue(instance, null);
+                if (associatedObject is Visual associatedVisual)
+                    return associatedVisual;
+            }
+
+            // Avalonia inheritance parent can provide a tree anchor for non-visual objects.
+            var current = instance as AvaloniaObject;
+            var inheritanceParentProperty = typeof(AvaloniaObject).GetProperty("InheritanceParent", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            while (current != null && inheritanceParentProperty != null)
+            {
+                var parent = inheritanceParentProperty.GetValue(current, null) as AvaloniaObject;
+                if (parent == null)
+                    break;
+
+                if (parent is Visual parentVisual)
+                    return parentVisual;
+
+                current = parent;
+            }
+
+            return null;
+        }
+
+        protected static void TrySetBindingDefaultAnchor(BindingBase binding, object anchor)
+        {
+            try
+            {
+                var property = binding.GetType().GetProperty(
+                    "DefaultAnchor",
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+
+                if (property != null)
+                {
+                    property.SetValue(binding, new WeakReference(anchor, false), null);
+                }
+            }
+            catch
+            {
+                // Best-effort anchor injection.
+            }
         }
 
         sealed class TypeTypeConverter : TypeConverter
@@ -316,7 +407,20 @@ namespace gip.ext.xamldom.avui
             // otherwise SetValue treats the binding object as a literal value and type validation fails.
             if (value is BindingBase binding)
             {
-                avaloniaObject.Bind(_avaloniaProperty, binding);
+                ApplyBindingWithAnchor(avaloniaObject, _avaloniaProperty, binding, null);
+                return;
+            }
+
+            avaloniaObject.SetValue(_avaloniaProperty, value);
+        }
+
+        public override void SetValue(object instance, object value, XamlObject xamlContext)
+        {
+            var avaloniaObject = (AvaloniaObject)instance;
+
+            if (value is BindingBase binding)
+            {
+                ApplyBindingWithAnchor(avaloniaObject, _avaloniaProperty, binding, xamlContext);
                 return;
             }
 
@@ -378,7 +482,7 @@ namespace gip.ext.xamldom.avui
                 // instead of a raw binding object value.
                 if (value is BindingBase binding)
                 {
-                    avaloniaObject.Bind(_avaloniaProperty, binding);
+                    ApplyBindingWithAnchor(avaloniaObject, _avaloniaProperty, binding, null);
                     return;
                 }
 
@@ -391,6 +495,28 @@ namespace gip.ext.xamldom.avui
                 return;
             }
             throw new InvalidOperationException("Instance is not an AvaloniaObject or DependencyProperty is null.");            
+        }
+
+        public override void SetValue(object instance, object value, XamlObject xamlContext)
+        {
+            if (instance is AvaloniaObject avaloniaObject && _avaloniaProperty != null)
+            {
+                if (value is BindingBase binding)
+                {
+                    ApplyBindingWithAnchor(avaloniaObject, _avaloniaProperty, binding, xamlContext);
+                    return;
+                }
+
+                avaloniaObject.SetValue(_avaloniaProperty, value);
+                return;
+            }
+            else if (_propertyDescriptor != null)
+            {
+                _propertyDescriptor.SetValue(instance, value);
+                return;
+            }
+
+            throw new InvalidOperationException("Instance is not an AvaloniaObject or DependencyProperty is null.");
         }
 
         public override void ResetValue(object instance)

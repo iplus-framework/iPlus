@@ -198,7 +198,12 @@ namespace gip.core.datamodel
                 if (string.IsNullOrEmpty(xamlNs))
                     return xaml;
 
-                var stylePropertyNodes = doc.SelectNodes("//*[contains(local-name(), '.Style')]");
+                // Search for both '.Style' (WPF) and names ending with 'Theme' (Avalonia).
+                // The find-and-replace converts `ListBox.ItemContainerStyle` to `ListBox.ItemContainerTheme`
+                // before this method runs. Note: ItemContainerTheme does NOT contain '.Theme' as a substring
+                // (the dot is between 'ItemContainer' and 'Theme'), so we must check for ending with 'Theme'
+                // rather than containing '.Theme'. XPath 1.0 has no ends-with(), so we use substring(length-4).
+                var stylePropertyNodes = doc.SelectNodes("//*[contains(local-name(), '.Style') or substring(local-name(), string-length(local-name()) - 4) = 'Theme']");
                 if (stylePropertyNodes == null || stylePropertyNodes.Count == 0)
                     return xaml;
 
@@ -209,17 +214,22 @@ namespace gip.core.datamodel
 
                 foreach (var styleProperty in styleProperties)
                 {
-                    if (!styleProperty.LocalName.EndsWith(".Style", StringComparison.OrdinalIgnoreCase))
+                    if (!styleProperty.LocalName.EndsWith(".Style", StringComparison.OrdinalIgnoreCase) &&
+                        !styleProperty.LocalName.EndsWith("Theme", StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     var ownerElement = styleProperty.ParentNode as XmlElement;
                     if (ownerElement == null)
                         continue;
 
+                    // Accept both WPF (Style) and Avalonia (ControlTheme) names,
+                    // since find-and-replace converts `<Style ` but NOT `<Style.Triggers>`
+                    // (the dot prevents the space-pattern match).
                     var controlTheme = styleProperty
                         .ChildNodes
                         .OfType<XmlElement>()
-                        .FirstOrDefault(e => string.Equals(e.LocalName, "ControlTheme", StringComparison.OrdinalIgnoreCase));
+                        .FirstOrDefault(e => string.Equals(e.LocalName, "ControlTheme", StringComparison.OrdinalIgnoreCase) ||
+                                              string.Equals(e.LocalName, "Style", StringComparison.OrdinalIgnoreCase));
 
                     if (controlTheme == null)
                         continue;
@@ -227,7 +237,8 @@ namespace gip.core.datamodel
                     var triggersElement = controlTheme
                         .ChildNodes
                         .OfType<XmlElement>()
-                        .FirstOrDefault(e => string.Equals(e.LocalName, "ControlTheme.Triggers", StringComparison.OrdinalIgnoreCase));
+                        .FirstOrDefault(e => string.Equals(e.LocalName, "ControlTheme.Triggers", StringComparison.OrdinalIgnoreCase) ||
+                                              string.Equals(e.LocalName, "Style.Triggers", StringComparison.OrdinalIgnoreCase));
 
                     // Copy default setter values from ControlTheme root and optional ControlTheme.Setters block.
                     var defaultSetters = new List<XmlElement>();
@@ -239,7 +250,8 @@ namespace gip.core.datamodel
                     var settersContainer = controlTheme
                         .ChildNodes
                         .OfType<XmlElement>()
-                        .FirstOrDefault(e => string.Equals(e.LocalName, "ControlTheme.Setters", StringComparison.OrdinalIgnoreCase));
+                        .FirstOrDefault(e => string.Equals(e.LocalName, "ControlTheme.Setters", StringComparison.OrdinalIgnoreCase) ||
+                                              string.Equals(e.LocalName, "Style.Setters", StringComparison.OrdinalIgnoreCase));
 
                     if (settersContainer != null)
                     {
@@ -296,7 +308,16 @@ namespace gip.core.datamodel
 
                         foreach (var attr in dataTrigger.Attributes.OfType<XmlAttribute>())
                         {
-                            behavior.SetAttribute(attr.Name, attr.Value);
+                            // Collapse embedded whitespace (newlines, tabs, multiple spaces) into single spaces
+                            // so OuterXml does not emit &#xA; entities for multi-line attribute values.
+                            string value = attr.Value;
+                            if (value.IndexOf('\n') >= 0 || value.IndexOf('\r') >= 0 || value.IndexOf('\t') >= 0)
+                            {
+                                value = string.Join(" ", value
+                                    .Split(new[] { '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(v => v.Trim()));
+                            }
+                            behavior.SetAttribute(attr.Name, value);
                         }
 
                         int actionCount = 0;
@@ -1888,7 +1909,7 @@ namespace gip.core.datamodel
             ("<Style.Setters>", "<ControlTheme.Setters>", false),
             ("</Style.Setters>", "</ControlTheme.Setters>", false),
             ("</Style>", "</ControlTheme>", false),
-            ("ToolTip=", "ToolTip.Tip=", false),
+            (" ToolTip=", " ToolTip.Tip=", false),
             ("DataGrid.Columns", "vb:VBDataGrid.Columns", false),
             (@"<DataGridTextColumn(?=[\s>])", "<vb:VBDataGridTextColumn", true),
             (@"</DataGridTextColumn(?=\s*>)", "</vb:VBDataGridTextColumn", true),

@@ -741,7 +741,7 @@ namespace gip.ext.xamldom.avui
             }
             set
             {
-                propertyInfo.SetValue(parentObject.Instance, value);
+                propertyInfo.SetValue(parentObject.Instance, value, parentObject);
                 if (ValueOnInstanceChanged != null)
                     ValueOnInstanceChanged(this, EventArgs.Empty);
             }

@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
+using Avalonia.Markup.Xaml.XamlIl.Runtime;
 using Avalonia.Xaml.Interactivity;
 using gip.core.datamodel;
 using System;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace gip.core.layoutengine.avui
@@ -286,6 +288,16 @@ namespace gip.core.layoutengine.avui
                 // not the binding object instance itself.
                 if (target != null && dp != null)
                 {
+                    // When VBBinding is used inside a Behavior (like DataTriggerBehavior), the
+                    // binding target is not a Visual, so RelativeSource AncestorType bindings
+                    // fail because VisualAncestorElementNode.SelectSource requires a Visual anchor.
+                    // XamlIL (compiled bindings) passes the correct anchor automatically, but
+                    // ProvideValue does not. Extract it from the XAML parent stack if available.
+                    object anchor = TryGetAnchorFromParentStack(provider, target);
+                    if (anchor != null)
+                    {
+                        SetDefaultAnchor(anchor);
+                    }
                     target.Bind(dp, this);
                     return target.GetValue(dp);
                 }
@@ -372,6 +384,101 @@ namespace gip.core.layoutengine.avui
             Database.Root.Messages.LogInfo("VBBindingExt", "ProvideValue", $"VBBinding Resolve OK Target={targetType}:{targetName}; Property={dpName}; VBContent={_VBContent}; Context={contextType}; Source={ResolveTypeName(dcSource)}; Path={dcPath}; Mode={resolvedMode}");
 
             return resolvedBinding;
+        }
+
+        /// <summary>
+        /// Attempts to extract a Visual anchor from the XAML parent stack.
+        /// </summary>
+        private static object TryGetAnchorFromParentStack(IServiceProvider provider, object targetObject)
+        {
+            System.Collections.IEnumerable stackItems = null;
+
+            // Preferred path: use Avalonia's parent-stack service.
+            var parentProvider = provider.GetService(typeof(IAvaloniaXamlIlParentStackProvider)) as IAvaloniaXamlIlParentStackProvider;
+            if (parentProvider != null)
+            {
+                stackItems = parentProvider.Parents;
+            }
+
+            // Fallback path: some provider implementations expose stack-like properties
+            // directly (e.g. debugger shows XamlIlContext.Context<T> with ParentsStack).
+            if (stackItems == null)
+            {
+                var providerType = provider.GetType();
+                var candidatePropertyNames = new[] { "ParentsStack", "DirectParentsStack", "Parents" };
+
+                foreach (var propertyName in candidatePropertyNames)
+                {
+                    var property = providerType.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    if (property == null)
+                        continue;
+
+                    stackItems = property.GetValue(provider) as System.Collections.IEnumerable;
+                    if (stackItems != null)
+                        break;
+                }
+            }
+
+            if (stackItems == null)
+                return null;
+
+            var items = new List<object>();
+            foreach (var item in stackItems)
+            {
+                if (item != null)
+                    items.Add(item);
+            }
+
+            if (items.Count == 0)
+                return null;
+
+            // Prefer the closest Visual to the current target object.
+            int targetIndex = items.FindIndex(x => Object.ReferenceEquals(x, targetObject));
+            if (targetIndex >= 0)
+            {
+                for (int i = targetIndex - 1; i >= 0; i--)
+                {
+                    if (items[i] is Visual visual)
+                        return visual;
+                }
+
+                for (int i = targetIndex + 1; i < items.Count; i++)
+                {
+                    if (items[i] is Visual visual)
+                        return visual;
+                }
+            }
+
+            // Fallback: pick the deepest visual-like candidate.
+            for (int i = items.Count - 1; i >= 0; i--)
+            {
+                if (items[i] is Visual visual)
+                    return visual;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Sets the DefaultAnchor property on Binding via reflection.
+        /// This is required because the Bind(AvaloniaProperty, BindingBase, object?) overload
+        /// accepting an anchor is internal, and CreateInstance is sealed/internal.
+        /// DefaultAnchor is used as a fallback when SelectSource evaluates RelativeSource AncestorType.
+        /// </summary>
+        private void SetDefaultAnchor(object anchor)
+        {
+            try
+            {
+                var prop = typeof(Binding).GetProperty("DefaultAnchor", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (prop != null)
+                {
+                    prop.SetValue(this, new WeakReference(anchor, false));
+                }
+            }
+            catch
+            {
+                // Reflection fallback is best-effort; binding will still work without the anchor.
+            }
         }
     }
 
