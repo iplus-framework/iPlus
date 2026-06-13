@@ -1826,7 +1826,7 @@ namespace gip.core.autocomponent
                 {
                     source = ParentACComponent;
                     path = ACType.GetACPath(true);
-                    acUrlTypeInfo.AddSegment(this.GetACUrl(), acTypeInfo, Value, Global.ControlModes.Enabled);
+                    acUrlTypeInfo.AddSegment(this.GetACUrl(), acTypeInfo, Value, Global.ControlModes.Enabled, this);
                     acUrlTypeInfo.SubPath = path;
                 }
                 if (!string.IsNullOrEmpty(acUrl))
@@ -1836,13 +1836,13 @@ namespace gip.core.autocomponent
             {
                 if (!string.IsNullOrEmpty(acUrl))
                 {
-                    acUrlTypeInfo.AddSegment(this.GetACUrl(), acTypeInfo, Value, Global.ControlModes.Enabled);
+                    acUrlTypeInfo.AddSegment(this.GetACUrl(), acTypeInfo, Value, Global.ControlModes.Enabled, this);
                     acUrlTypeInfo.SubPath = ACType.GetACPath(true);
                     return ((IACEntityObjectContext)Value).ACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
                 }
                 else
                 {
-                    acUrlTypeInfo.AddSegment(this.GetACUrl(), acTypeInfo, Value, Global.ControlModes.Enabled);
+                    acUrlTypeInfo.AddSegment(this.GetACUrl(), acTypeInfo, Value, Global.ControlModes.Enabled, this);
                     acUrlTypeInfo.SubPath = ACType.GetACPath(true);
                 }
                 return true;
@@ -1910,7 +1910,7 @@ namespace gip.core.autocomponent
                     acClassRight = ParentACComponent.ACType as ACClass; // Am weitest unten abgeleitetet Klasse
                     rightControlMode = acClassRight.RightManager.GetControlMode(cp);
                 }
-                acUrlTypeInfo.AddSegment(this.GetACUrl(), acTypeInfo, Value, rightControlMode);
+                acUrlTypeInfo.AddSegment(this.GetACUrl(), acTypeInfo, Value, rightControlMode, this);
                 return true;
             }
 
@@ -1924,7 +1924,7 @@ namespace gip.core.autocomponent
                 case ACUrlHelper.UrlKeys.Child:
                     {
                         string baseUrl = this.GetACUrl();
-                        acUrlTypeInfo.AddSegment(baseUrl, this.ACType, this.Value, rightControlMode);
+                        acUrlTypeInfo.AddSegment(baseUrl, this.ACType, this.Value, rightControlMode, this);
                         string[] parts = acUrl.Split(ACUrlHelper.Delimiter_DirSeperator);
                         foreach (var part in parts)
                         {
@@ -1978,7 +1978,7 @@ namespace gip.core.autocomponent
                                                         TypeAnalyser.GetPropertyPathValue(source, path, out pi);
                                                         if (pi != null)
                                                         {
-                                                            acUrlTypeInfo.AddSegment(baseUrl, pi.PropertyType, pi.GetValue(source), rightControlMode);
+                                                            acUrlTypeInfo.AddSegment(baseUrl, pi.PropertyType, pi.GetValue(source), rightControlMode, this);
                                                             return true;
                                                         }
                                                     }
@@ -2004,7 +2004,7 @@ namespace gip.core.autocomponent
                                         }
                                         if (acTypeInfo == null)
                                             return false;
-                                        acUrlTypeInfo.AddSegment(baseUrl, acTypeInfo, source, rightControlMode);
+                                        acUrlTypeInfo.AddSegment(baseUrl, acTypeInfo, source, rightControlMode, this);
                                         return true;
                                     }
                                     // Sonst ACRef
@@ -2116,7 +2116,7 @@ namespace gip.core.autocomponent
                                             }
                                         }
 
-                                        acUrlTypeInfo.AddSegment(baseUrl, acTypeInfo, source, rightControlMode);
+                                        acUrlTypeInfo.AddSegment(baseUrl, acTypeInfo, source, rightControlMode, this);
                                         return true;
                                     }
                                 }
@@ -2151,11 +2151,11 @@ namespace gip.core.autocomponent
                                             rightControlMode = acClassRight.RightManager.GetControlMode(cm);
                                         }
 
-                                        acUrlTypeInfo.AddSegment(baseUrl, acTypeInfo, source, rightControlMode);
+                                        acUrlTypeInfo.AddSegment(baseUrl, acTypeInfo, source, rightControlMode, this);
                                         return true;
                                     }
                                 default:
-                                    acUrlTypeInfo.AddSegment(baseUrl, acTypeInfo.ValueTypeACClass, null, rightControlMode);
+                                    acUrlTypeInfo.AddSegment(baseUrl, acTypeInfo.ValueTypeACClass, null, rightControlMode, this);
                                     path += acTypeInfo.GetACPath(false);
                                     break;
                             }
@@ -2204,7 +2204,7 @@ namespace gip.core.autocomponent
                             rightControlMode = acClassRight.RightManager.GetControlMode(cm);
                         }
 
-                        acUrlTypeInfo.AddSegment(this.GetACUrl() + ACUrlHelper.Delimiter_InvokeMethod + methodName, cm, this.Value, rightControlMode);
+                        acUrlTypeInfo.AddSegment(this.GetACUrl() + ACUrlHelper.Delimiter_InvokeMethod + methodName, cm, this.Value, rightControlMode, this);
 
                     }
                     return true;

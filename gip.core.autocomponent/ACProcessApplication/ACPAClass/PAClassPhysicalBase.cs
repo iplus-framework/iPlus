@@ -99,6 +99,21 @@ namespace gip.core.autocomponent
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(SwitchToAutomatic):
+                case nameof(SwitchToManual):
+                case nameof(SwitchToMaintenance):
+                case nameof(IsEnabledSwitchToAutomatic):
+                case nameof(IsEnabledSwitchToManual):
+                case nameof(IsEnabledSwitchToMaintenance):
+                    return new string[] { nameof(OperatingMode), nameof(ReqOperatingMode) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
         #endregion
 
         #region Operating-Mode        

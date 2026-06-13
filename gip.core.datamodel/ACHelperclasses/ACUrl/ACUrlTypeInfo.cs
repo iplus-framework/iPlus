@@ -32,6 +32,7 @@ namespace gip.core.datamodel
                 return ACUrlHelper.SplitSegments(ACUrl).LastOrDefault();
             }
         }
+        public IACPropertyBase Property { get; set; }
     }
 
     public class ACUrlTypeInfo : List<ACUrlTypeSegmentInfo>
@@ -54,25 +55,27 @@ namespace gip.core.datamodel
             return lastObject;
         }
 
-        public void AddSegment(string acUrl, IACType acType, object value, Global.ControlModes rightControlMode)
+        public void AddSegment(string acUrl, IACType acType, object value, Global.ControlModes rightControlMode, IACPropertyBase property = null)
         {
             this.Add(new ACUrlTypeSegmentInfo
             {
                 ACUrl = acUrl,
                 ACType = acType,
                 Value = value,
-                RightControlMode = rightControlMode
+                RightControlMode = rightControlMode,
+                Property = property
             });
         }
 
-        public void AddSegment(string acUrl, Type type, object value, Global.ControlModes rightControlMode)
+        public void AddSegment(string acUrl, Type type, object value, Global.ControlModes rightControlMode, IACPropertyBase property = null)
         {
             this.Add(new ACUrlTypeSegmentInfo
             {
                 ACUrl = acUrl,
                 CLRType = type,
                 Value = value,
-                RightControlMode = rightControlMode
+                RightControlMode = rightControlMode,
+                Property = property
             });
         }
     }

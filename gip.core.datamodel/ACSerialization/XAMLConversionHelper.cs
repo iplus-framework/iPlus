@@ -194,8 +194,14 @@ namespace gip.core.datamodel
                 {
                     avaloniaXAML = avaloniaXAML?.Replace(tuple.WpfPattern, tuple.AvaloniaReplacement);
                 }
-            }            
-            
+            }
+
+            // Wrap Control elements inside ToolTip.Tip Setter.Value in <Template>.
+            avaloniaXAML = WrapToolTipTipInTemplate(avaloniaXAML);
+
+            // Produce well-formed, indented XML output.
+            avaloniaXAML = FormatXaml(avaloniaXAML);
+
             return avaloniaXAML;
         }
 
@@ -2329,6 +2335,154 @@ namespace gip.core.datamodel
             string ownerLocalName = ownerElement.LocalName;
 
             return string.Equals(ownerLocalName, targetTypeName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Strips a leading XML declaration (&lt;?xml ...&gt;) from the input and returns it in <paramref name="declaration"/>.
+        /// Returns the rest of the string (trimmed of leading whitespace).
+        /// </summary>
+        private static string StripXmlDeclaration(string xaml, out string declaration)
+        {
+            declaration = null;
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+
+            var trimmed = xaml.TrimStart();
+            if (trimmed.StartsWith("<?xml", StringComparison.Ordinal))
+            {
+                var closeIndex = trimmed.IndexOf("?>", StringComparison.Ordinal);
+                if (closeIndex > 0)
+                {
+                    declaration = trimmed.Substring(0, closeIndex + 2).Trim();
+                    return trimmed.Substring(closeIndex + 2).TrimStart();
+                }
+            }
+
+            return xaml;
+        }
+
+        /// <summary>
+        /// Wraps content of Setter.Value in ToolTip.Tip setters into a Template element.
+        /// </summary>
+        private static string WrapToolTipTipInTemplate(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+
+            try
+            {
+                var body = StripXmlDeclaration(xaml, out string xmlDecl);
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml("<Root>" + body + "</Root>");
+
+                var setters = doc.SelectNodes("//*[local-name()='Setter']")
+                    ?.OfType<XmlElement>()
+                    .ToList();
+
+                if (setters == null || setters.Count == 0)
+                    return xaml;
+
+                foreach (var setter in setters)
+                {
+                    var prop = setter.GetAttribute("Property");
+                    if (!string.Equals(prop, "ToolTip.Tip", StringComparison.OrdinalIgnoreCase)
+                        && !string.Equals(prop, "ToolTip", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    var valueElement = setter.ChildNodes
+                        .OfType<XmlElement>()
+                        .FirstOrDefault(e => string.Equals(e.LocalName, "Setter.Value", StringComparison.OrdinalIgnoreCase));
+
+                    if (valueElement == null)
+                        continue;
+
+                    var childElements = valueElement.ChildNodes.OfType<XmlElement>().ToList();
+                    if (childElements.Count == 0)
+                        continue;
+
+                    // Already wrapped in a single Template element.
+                    if (childElements.Count == 1
+                        && string.Equals(childElements[0].LocalName, "Template", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    var nodesToWrap = valueElement.ChildNodes.Cast<XmlNode>().ToList();
+
+                    XmlElement template = string.IsNullOrEmpty(valueElement.NamespaceURI)
+                        ? doc.CreateElement("Template")
+                        : doc.CreateElement("Template", valueElement.NamespaceURI);
+
+                    valueElement.RemoveAll();
+                    valueElement.AppendChild(template);
+
+                    foreach (var node in nodesToWrap)
+                    {
+                        template.AppendChild(node);
+                    }
+                }
+
+                var result = doc.DocumentElement?.InnerXml ?? body;
+                if (!string.IsNullOrEmpty(xmlDecl))
+                    result = xmlDecl + Environment.NewLine + result;
+
+                return result;
+            }
+            catch
+            {
+                return xaml;
+            }
+        }
+
+        /// <summary>
+        /// Formats XAML with proper indentation and line breaks for readability.
+        /// </summary>
+        private static string FormatXaml(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+
+            try
+            {
+                var body = StripXmlDeclaration(xaml, out string xmlDecl);
+                var doc = new XmlDocument();
+                doc.PreserveWhitespace = false;
+                doc.LoadXml("<Root>" + body + "</Root>");
+
+                using (var sw = new StringWriter())
+                {
+                    var settings = new XmlWriterSettings
+                    {
+                        Indent = true,
+                        IndentChars = "  ",
+                        NewLineHandling = NewLineHandling.Entitize,
+                        OmitXmlDeclaration = true,
+                        Encoding = Encoding.UTF8
+                    };
+
+                    using (var writer = XmlWriter.Create(sw, settings))
+                    {
+                        doc.DocumentElement.WriteContentTo(writer);
+                    }
+
+                    var result = sw.ToString();
+
+                    // Restore the XML declaration at the top.
+                    if (!string.IsNullOrEmpty(xmlDecl))
+                        result = xmlDecl + Environment.NewLine + result;
+
+                    return result;
+                }
+            }
+            catch
+            {
+                return xaml;
+            }
         }
 
         public static readonly (string WpfPattern, string AvaloniaReplacement, bool IsRegex)[] C_AvaloniaPostFindAndReplace = new[]

@@ -1,5 +1,6 @@
 ﻿using Avalonia.Interactivity;
 using Avalonia.Labs.Input;
+using Avalonia.Threading;
 using gip.core.datamodel;
 using ReactiveUI;
 using System;
@@ -7,12 +8,16 @@ using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Threading;
 using System.Windows.Input;
 using Avalonia.LogicalTree;
 using Avalonia;
 using Avalonia.Input;
 using Avalonia.Controls;
+using System.Diagnostics;
 
 namespace gip.core.layoutengine.avui.Helperclasses
 {
@@ -119,9 +124,16 @@ namespace gip.core.layoutengine.avui.Helperclasses
                     {
                         var lastSegment = acUrlTypeInfo[count - 1];
                         var penultimateSegment = acUrlTypeInfo[count - 2];
-                        if (penultimateSegment.Value is INotifyPropertyChanged observableObject)
+                        string path = lastSegment.SegmentName;
+                        INotifyPropertyChanged observableObject = penultimateSegment.Value as INotifyPropertyChanged;
+                        if (lastSegment.Property != null && lastSegment.Property is IACPropertyNetBase netProp)
                         {
-                            observablePropertyTuples.Add(new Tuple<INotifyPropertyChanged, string>(observableObject, lastSegment.SegmentName));
+                            observableObject = netProp;
+                            path = nameof(IACMember.Value);
+                        }
+                        if (observableObject != null)
+                        {
+                            observablePropertyTuples.Add(new Tuple<INotifyPropertyChanged, string>(observableObject, path));
                             break;
                         }
                         count--;
@@ -201,23 +213,21 @@ namespace gip.core.layoutengine.avui.Helperclasses
             IACComponent propertyOwner,
             IEnumerable<string> propertiesToObserve)
         {
-            // Create observables for each property dynamically
+            var manualRequeryTrigger = new Subject<Unit>();
+
+            // Create observables for each property, marshaling PropertyChanged events from background threads
+            // (e.g., server communication threads) to the UI thread.
+            // Use non-blocking dispatch so communication threads do not wait on UI work,
+            // which can deadlock when CanExecute evaluation performs synchronous remote calls.
             var propertyObservables = propertiesToObserve
                 .Select(propName => propertyOwner.GetProperty(propName))
                 .Where(prop => prop != null)
-                .Select(prop => Observable.FromEventPattern<PropertyChangedEventHandler, PropertyChangedEventArgs>(
-                    h => propertyOwner.PropertyChanged += h,
-                    h => propertyOwner.PropertyChanged -= h)
-                    .Where(evt => evt.EventArgs.PropertyName == prop.ACIdentifier)
-                    .Select(_ => Unit.Default))
+                .Select(prop => ObservePropertyChangedOnUiThread(propertyOwner, prop.ACIdentifier))
                 .ToArray();
 
-            // Merge all observables and evaluate the condition
-            var canExecuteObservable = Observable.Merge(propertyObservables)
-                .Select(_ => ReactiveEvaluateCanExecute(canExecuteMethodName, propertyOwner))
-                .StartWith(ReactiveEvaluateCanExecute(canExecuteMethodName, propertyOwner));
+            var canExecuteObservable = BuildCanExecuteObservable(canExecuteMethodName, propertyOwner, propertyObservables, manualRequeryTrigger);
 
-            return ReactiveCommand.Create(executeAction, canExecuteObservable);
+            return ReactiveCommand.Create(WrapExecuteAction(executeAction, manualRequeryTrigger), canExecuteObservable);
         }
 
         public static ReactiveCommand<Unit, Unit> CreateReactiveCommand(
@@ -226,22 +236,177 @@ namespace gip.core.layoutengine.avui.Helperclasses
             IACComponent propertyOwner,
             IEnumerable<Tuple<INotifyPropertyChanged, string>> propertiesToObserve)
         {
-            // Create observables for each property dynamically
+            var manualRequeryTrigger = new Subject<Unit>();
+
+            // Create observables for each property, marshaling PropertyChanged events from background threads
+            // (e.g., server communication threads) to the UI thread.
+            // Use non-blocking dispatch so communication threads do not wait on UI work,
+            // which can deadlock when CanExecute evaluation performs synchronous remote calls.
             var propertyObservables = propertiesToObserve
                 .Where(prop => prop != null)
-                .Select(prop => Observable.FromEventPattern<PropertyChangedEventHandler, PropertyChangedEventArgs>(
-                    h => prop.Item1.PropertyChanged += h,
-                    h => prop.Item1.PropertyChanged -= h)
-                    .Where(evt => evt.EventArgs.PropertyName == prop.Item2)
-                    .Select(_ => Unit.Default))
+                .Select(prop => ObservePropertyChangedOnUiThread(prop.Item1, prop.Item2))
                 .ToArray();
 
-            // Merge all observables and evaluate the condition
-            var canExecuteObservable = Observable.Merge(propertyObservables)
-                .Select(_ => ReactiveEvaluateCanExecute(canExecuteMethodName, propertyOwner))
-                .StartWith(ReactiveEvaluateCanExecute(canExecuteMethodName, propertyOwner));
+            var canExecuteObservable = BuildCanExecuteObservable(canExecuteMethodName, propertyOwner, propertyObservables, manualRequeryTrigger);
 
-            return ReactiveCommand.Create(executeAction, canExecuteObservable);
+            return ReactiveCommand.Create(WrapExecuteAction(executeAction, manualRequeryTrigger), canExecuteObservable);
+        }
+
+        private static Action WrapExecuteAction(Action executeAction, IObserver<Unit> manualRequeryTrigger)
+        {
+            return () =>
+            {
+                executeAction();
+                TraceReactiveCommand("Manual requery trigger after execute");
+                manualRequeryTrigger.OnNext(Unit.Default);
+            };
+        }
+
+        /// <summary>
+        /// Builds a CanExecute stream that coalesces bursts of property changes and performs
+        /// remote IsEnabled checks off the UI thread, then marshals only the boolean result
+        /// back to the UI thread.
+        /// </summary>
+        private static IObservable<bool> BuildCanExecuteObservable(
+            string canExecuteMethodName,
+            IACComponent propertyOwner,
+            IObservable<Unit>[] propertyObservables,
+            IObservable<Unit> manualRequeryTrigger)
+        {
+            int evaluateInFlight = 0;
+
+            var triggerStream = Observable.Merge(propertyObservables.Concat(new[] { manualRequeryTrigger }))
+                .Synchronize()
+                .Throttle(TimeSpan.FromMilliseconds(50))
+                .StartWith(Unit.Default);
+
+            // Re-evaluate immediately and then at sparse delayed checkpoints.
+            // This keeps late-state reliability while reducing remote IsEnabled traffic.
+            var requeryTicks = triggerStream
+                .Select(_ => CreateRequerySchedule())
+                .Switch();
+
+            var backgroundEvaluated = requeryTicks
+                .SelectMany(_ =>
+                {
+                    if (Interlocked.CompareExchange(ref evaluateInFlight, 1, 0) != 0)
+                    {
+                        TraceReactiveCommand($"Skip requery tick for {canExecuteMethodName}: evaluation already running");
+                        return Observable.Empty<bool>();
+                    }
+
+                    return EvaluateCanExecuteOnUiThreadAsync(canExecuteMethodName, propertyOwner)
+                        .Finally(() => Interlocked.Exchange(ref evaluateInFlight, 0));
+                })
+                .DistinctUntilChanged();
+
+            return ObserveOnUiThread(backgroundEvaluated);
+        }
+
+        private static IObservable<Unit> CreateRequerySchedule()
+        {
+            return Observable.Merge(
+                Observable.Return(Unit.Default),
+                Observable.Timer(TimeSpan.FromMilliseconds(200)).Select(_ => Unit.Default),
+                Observable.Timer(TimeSpan.FromMilliseconds(700)).Select(_ => Unit.Default),
+                Observable.Timer(TimeSpan.FromMilliseconds(1500)).Select(_ => Unit.Default),
+                Observable.Timer(TimeSpan.FromMilliseconds(2800)).Select(_ => Unit.Default),
+                Observable.Timer(TimeSpan.FromMilliseconds(4500)).Select(_ => Unit.Default),
+                Observable.Timer(TimeSpan.FromMilliseconds(7000)).Select(_ => Unit.Default));
+        }
+
+        private static IObservable<bool> EvaluateCanExecuteOnUiThreadAsync(string canExecuteMethodName, IACComponent propertyOwner)
+        {
+            return Observable.Create<bool>(observer =>
+            {
+                void Evaluate()
+                {
+                    try
+                    {
+                        TraceReactiveCommand($"Requery tick for {canExecuteMethodName}");
+                        TraceReactiveCommand($"Evaluate on UI for {canExecuteMethodName}");
+                        var isEnabled = ReactiveEvaluateCanExecute(canExecuteMethodName, propertyOwner);
+                        TraceReactiveCommand($"Evaluate result for {canExecuteMethodName}: {isEnabled}");
+                        observer.OnNext(isEnabled);
+                        observer.OnCompleted();
+                    }
+                    catch (Exception ex)
+                    {
+                        observer.OnError(ex);
+                    }
+                }
+
+                if (Dispatcher.UIThread.CheckAccess())
+                    Evaluate();
+                else
+                    Dispatcher.UIThread.Post(Evaluate, DispatcherPriority.Send);
+
+                return Disposable.Empty;
+            });
+        }
+
+        /// <summary>
+        /// Wraps a PropertyChanged event subscription so that notifications are dispatched
+        /// to the UI thread in a non-blocking way, ensuring cross-thread safety while
+        /// keeping communication threads free to process synchronous server responses.
+        /// </summary>
+        private static IObservable<Unit> ObservePropertyChangedOnUiThread(INotifyPropertyChanged source, string propertyName)
+        {
+            return Observable.Create<Unit>(observer =>
+            {
+                void Handler(object sender, PropertyChangedEventArgs e)
+                {
+                    if (e.PropertyName == propertyName)
+                    {
+                        TraceReactiveCommand($"PropertyChanged: {source.GetType().Name}.{propertyName}");
+                        observer.OnNext(Unit.Default);
+                    }
+                }
+                source.PropertyChanged += Handler;
+                return Disposable.Create(() => source.PropertyChanged -= Handler);
+            });
+        }
+
+        /// <summary>
+        /// Marshals an observable sequence to the UI thread without blocking the source thread.
+        /// </summary>
+        private static IObservable<T> ObserveOnUiThread<T>(IObservable<T> source)
+        {
+            return Observable.Create<T>(observer => source.Subscribe(
+                value =>
+                {
+                    if (Dispatcher.UIThread.CheckAccess())
+                    {
+                        TraceReactiveCommand($"Deliver CanExecute on UI: {value}");
+                        observer.OnNext(value);
+                    }
+                    else
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            TraceReactiveCommand($"Deliver CanExecute (posted) on UI: {value}");
+                            observer.OnNext(value);
+                        }, DispatcherPriority.Send);
+                },
+                error =>
+                {
+                    if (Dispatcher.UIThread.CheckAccess())
+                        observer.OnError(error);
+                    else
+                        Dispatcher.UIThread.Post(() => observer.OnError(error), DispatcherPriority.Send);
+                },
+                () =>
+                {
+                    if (Dispatcher.UIThread.CheckAccess())
+                        observer.OnCompleted();
+                    else
+                        Dispatcher.UIThread.Post(observer.OnCompleted, DispatcherPriority.Send);
+                }));
+        }
+
+        [Conditional("ACCOMMANDHELPER_TRACE")]
+        private static void TraceReactiveCommand(string message)
+        {
+            Debug.WriteLine($"[ACCommandHelper] {message}; thread={Environment.CurrentManagedThreadId}; ui={Dispatcher.UIThread.CheckAccess()}");
         }
 
         /// <summary>
