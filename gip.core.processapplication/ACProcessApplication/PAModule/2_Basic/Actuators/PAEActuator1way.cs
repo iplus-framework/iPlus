@@ -113,16 +113,16 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "Open":
+                case nameof(Open):
                     Open();
                     return true;
-                case "Close":
+                case nameof(Close):
                     Close();
                     return true;
-                case Const.IsEnabledPrefix + "Open":
+                case nameof(IsEnabledOpen):
                     result = IsEnabledOpen();
                     return true;
-                case Const.IsEnabledPrefix + "Close":
+                case nameof(IsEnabledClose):
                     result = IsEnabledClose();
                     return true;
             }
@@ -136,10 +136,10 @@ namespace gip.core.processapplication
         {
             if (!IsEnabledOpen())
                 return;
-            if (!PreExecute("Open"))
+            if (!PreExecute(nameof(Open)))
                 return;
             OnSetOpenValues();
-            PostExecute("Open");
+            PostExecute(nameof(Open));
         }
 
         public virtual bool IsEnabledOpen()
@@ -169,10 +169,10 @@ namespace gip.core.processapplication
         {
             if (!IsEnabledClose())
                 return;
-            if (!PreExecute("Close"))
+            if (!PreExecute(nameof(Close)))
                 return;
             OnSetCloseValues();
-            PostExecute("Close");
+            PostExecute(nameof(Close));
         }
 
         public bool IsEnabledClose()

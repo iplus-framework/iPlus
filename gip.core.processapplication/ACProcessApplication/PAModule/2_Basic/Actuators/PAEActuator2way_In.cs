@@ -108,21 +108,35 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "Position2":
+                case nameof(Position2):
                     Position2();
                     return true;
-                case "Position1":
+                case nameof(Position1):
                     Position1();
                     return true;
-                case Const.IsEnabledPrefix + "Position2":
+                case nameof(IsEnabledPosition2):
                     result = IsEnabledPosition2();
                     return true;
-                case Const.IsEnabledPrefix + "Position1":
+                case nameof(IsEnabledPosition1):
                     result = IsEnabledPosition1();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(Position1):
+                case nameof(IsEnabledPosition1):
+                case nameof(Position2):
+                case nameof(IsEnabledPosition2):
+                    return new string[] { nameof(TurnOnInterlock), nameof(OperatingMode) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         #endregion
 
         [ACMethodInteraction("", "en{'Position 2'}de{'Stellung 2'}", 600, true, "", Global.ACKinds.MSMethodPrePost)]
@@ -130,10 +144,10 @@ namespace gip.core.processapplication
         {
             if (!IsEnabledPosition2())
                 return;
-            if (!PreExecute("Position2"))
+            if (!PreExecute(nameof(Position2)))
                 return;
             OnSetPosition2Values();
-            PostExecute("Position2");
+            PostExecute(nameof(Position2));
         }
 
         public virtual bool IsEnabledPosition2()
@@ -161,10 +175,10 @@ namespace gip.core.processapplication
         {
             if (!IsEnabledPosition1())
                 return;
-            if (!PreExecute("Position1"))
+            if (!PreExecute(nameof(Position1)))
                 return;
             OnSetPosition1Values();
-            PostExecute("Position1");
+            PostExecute(nameof(Position1));
         }
 
         public virtual bool IsEnabledPosition1()

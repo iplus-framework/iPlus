@@ -103,19 +103,19 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "TurnOnLeft":
+                case nameof(TurnOnLeft):
                     TurnOnLeft();
                     return true;
-                case "TurnOnRight":
+                case nameof(TurnOnRight):
                     TurnOnRight();
                     return true;
-                case "TurnOnWithSpeed":
+                case nameof(TurnOnWithSpeed):
                     TurnOnWithSpeed((double)acParameter[0], (bool)acParameter[1]);
                     return true;
-                case Const.IsEnabledPrefix + "TurnOnLeft":
+                case nameof(IsEnabledTurnOnLeft):
                     result = IsEnabledTurnOnLeft();
                     return true;
-                case Const.IsEnabledPrefix + "TurnOnRight":
+                case nameof(IsEnabledTurnOnRight):
                     result = IsEnabledTurnOnRight();
                     return true;
             }
@@ -123,16 +123,29 @@ namespace gip.core.processapplication
         }
         #endregion
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(TurnOnLeft):
+                case nameof(IsEnabledTurnOnLeft):
+                case nameof(TurnOnRight):
+                case nameof(IsEnabledTurnOnRight):
+                    return new string[] { nameof(TurnOnInterlock), nameof(OperatingMode), nameof(ReqSpeed), nameof(RunState), nameof(DirectionLeft), nameof(ToggleAllowed) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
 
         [ACMethodInteraction("", "en{'turn on left'}de{'Links ein'}", 800, true, "", Global.ACKinds.MSMethodPrePost)]
         public virtual void TurnOnLeft()
         {
             if (!IsEnabledTurnOnLeft())
                 return;
-            if (!PreExecute("TurnOnLeft"))
+            if (!PreExecute(nameof(TurnOnLeft)))
                 return;
             OnTurnOnLeft();
-            PostExecute("TurnOnLeft");
+            PostExecute(nameof(TurnOnLeft));
         }
 
         public virtual void OnTurnOnLeft()
@@ -166,10 +179,10 @@ namespace gip.core.processapplication
         {
             if (!IsEnabledTurnOnRight())
                 return;
-            if (!PreExecute("TurnOnRight"))
+            if (!PreExecute(nameof(TurnOnRight)))
                 return;
             OnTurnOnRight();
-            PostExecute("TurnOnRight");
+            PostExecute(nameof(TurnOnRight));
         }
 
         public virtual void OnTurnOnRight()
@@ -200,14 +213,14 @@ namespace gip.core.processapplication
         [ACMethodInfo("", "en{'turn on with speed'}de{'Einschalten mit Drehz.'}", 801, false, Global.ACKinds.MSMethodPrePost)]
         public virtual void TurnOnWithSpeed(double speed, bool leftDirection)
         {
-            if (!PreExecute("TurnOnWithSpeed"))
+            if (!PreExecute(nameof(TurnOnWithSpeed)))
                 return;
             ReqSpeed.ValueT = speed;
             if (leftDirection)
                 TurnOnLeft();
             else
                 TurnOnRight();
-            PostExecute("TurnOnWithSpeed");
+            PostExecute(nameof(TurnOnWithSpeed));
         }
 
         public override void ActivateRouteItemOnSimulation(RouteItem item, bool switchOff)

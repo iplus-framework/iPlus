@@ -51,15 +51,27 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "Close":
+                case nameof(Close):
                     Close();
                     return true;
-                case Const.IsEnabledPrefix + "Close":
+                case nameof(IsEnabledClose):
                     result = IsEnabledClose();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(Close):
+                case nameof(IsEnabledClose):
+                    return new string[] { nameof(OperatingMode) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         #endregion
 
         [ACMethodInteraction("", "en{'Close'}de{'Schliessen'}", 700, true, "", Global.ACKinds.MSMethodPrePost)]
@@ -67,10 +79,10 @@ namespace gip.core.processapplication
         {
             if (!IsEnabledClose())
                 return;
-            if (!PreExecute("Close"))
+            if (!PreExecute(nameof(Close)))
                 return;
             OnSetCloseValues();
-            PostExecute("Close");
+            PostExecute(nameof(Close));
         }
 
         public bool IsEnabledClose()

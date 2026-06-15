@@ -77,15 +77,27 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "TurnOn":
+                case nameof(TurnOn):
                     TurnOn();
                     return true;
-                case Const.IsEnabledPrefix + "TurnOn":
+                case nameof(IsEnabledTurnOn):
                     result = IsEnabledTurnOn();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(TurnOn):
+                case nameof(IsEnabledTurnOn):
+                    return new string[] { nameof(TurnOnInterlock), nameof(OperatingMode), nameof(RunState) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         #endregion
 
         [ACMethodInteraction("", "en{'turn on'}de{'Einschalten'}", 800, true, "", Global.ACKinds.MSMethodPrePost)]
@@ -93,10 +105,10 @@ namespace gip.core.processapplication
         {
             if (!IsEnabledTurnOn())
                 return;
-            if (!PreExecute("TurnOn"))
+            if (!PreExecute(nameof(TurnOn)))
                 return;
             OnTurnOn();
-            PostExecute("TurnOn");
+            PostExecute(nameof(TurnOn));
         }
 
         protected virtual void OnTurnOn()

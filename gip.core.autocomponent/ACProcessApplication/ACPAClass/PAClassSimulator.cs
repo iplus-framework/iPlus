@@ -180,38 +180,55 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "SimulationOn":
+                case nameof(SimulationOn):
                     SimulationOn();
                     return true;
-                case "SimulationOff":
+                case nameof(SimulationOff):
                     SimulationOff();
                     return true;
-                case "ManualSimulation":
+                case nameof(ManualSimulation):
                     ManualSimulation();
                     return true;
-                case "AutoSimulation":
+                case nameof(AutoSimulation):
                     AutoSimulation();
                     return true;
-                case "RunScriptCyclic":
+                case nameof(RunScriptCyclic):
                     RunScriptCyclic();
                     return true;
-                case "RunPostScriptCyclic":
+                case nameof(RunPostScriptCyclic):
                     RunPostScriptCyclic();
                     return true;
-                case Const.IsEnabledPrefix + "SimulationOn":
+                case nameof(IsEnabledSimulationOn):
                     result = IsEnabledSimulationOn();
                     return true;
-                case Const.IsEnabledPrefix + "SimulationOff":
+                case nameof(IsEnabledSimulationOff):
                     result = IsEnabledSimulationOff();
                     return true;
-                case Const.IsEnabledPrefix + "ManualSimulation":
+                case nameof(IsEnabledManualSimulation):
                     result = IsEnabledManualSimulation();
                     return true;
-                case Const.IsEnabledPrefix + "AutoSimulation":
+                case nameof(IsEnabledAutoSimulation):
                     result = IsEnabledAutoSimulation();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+                        
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(SimulationOn):
+                case nameof(SimulationOff):
+                case nameof(ManualSimulation):
+                case nameof(AutoSimulation):
+                case nameof(IsEnabledSimulationOn):
+                case nameof(IsEnabledSimulationOff):
+                case nameof(IsEnabledManualSimulation):
+                case nameof(IsEnabledAutoSimulation):
+                    return new string[] { nameof(RunSimulation), nameof(ManualSimulationMode) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         public static bool HandleExecuteACMethod_PAClassSimulator(out object result, IACComponent acComponent, string acMethodName, gip.core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
@@ -219,10 +236,10 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case Const.AskUserPrefix + "ManualSimulation":
+                case Const.AskUserPrefix + nameof(ManualSimulation):
                     result = AskUserManualSimulation(acComponent);
                     return true;
-                case Const.AskUserPrefix + "AutoSimulation":
+                case Const.AskUserPrefix + nameof(AutoSimulation):
                     result = AskUserAutoSimulation(acComponent);
                     return true;
             }

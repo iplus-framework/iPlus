@@ -97,16 +97,16 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "TurnOnSlow":
+                case nameof(TurnOnSlow):
                     TurnOnSlow();
                     return true;
-                case "TurnOnFast":
+                case nameof(TurnOnFast):
                     TurnOnFast();
                     return true;
-                case Const.IsEnabledPrefix + "TurnOnSlow":
+                case nameof(IsEnabledTurnOnSlow):
                     result = IsEnabledTurnOnSlow();
                     return true;
-                case Const.IsEnabledPrefix + "TurnOnFast":
+                case nameof(IsEnabledTurnOnFast):
                     result = IsEnabledTurnOnFast();
                     return true;
             }
@@ -114,17 +114,30 @@ namespace gip.core.processapplication
         }
         #endregion
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(TurnOnSlow):
+                case nameof(IsEnabledTurnOnSlow):
+                case nameof(TurnOnFast):
+                case nameof(IsEnabledTurnOnFast):
+                    return new string[] { nameof(TurnOnInterlock), nameof(OperatingMode), nameof(RunState), nameof(SpeedFast), nameof(TransitTimeSlowFast) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
 
         [ACMethodInteraction("", "en{'turn on slow'}de{'Langsam ein'}", 800, true, "", Global.ACKinds.MSMethodPrePost)]
         public virtual void TurnOnSlow()
         {
             if (!IsEnabledTurnOnSlow())
                 return;
-            if (!PreExecute("TurnOnSlow"))
+            if (!PreExecute(nameof(TurnOnSlow)))
                 return;
             ReqSpeedFast.ValueT = false;
             ReqRunState.ValueT = true;
-            PostExecute("TurnOnSlow");
+            PostExecute(nameof(TurnOnSlow));
         }
 
         public virtual void OnTurnOnSlow()
@@ -153,10 +166,10 @@ namespace gip.core.processapplication
         {
             if (!IsEnabledTurnOnFast())
                 return;
-            if (!PreExecute("TurnOnFast"))
+            if (!PreExecute(nameof(TurnOnFast)))
                 return;
             OnTurnOnFast();
-            PostExecute("TurnOnFast");
+            PostExecute(nameof(TurnOnFast));
         }
 
         public virtual void OnTurnOnFast()

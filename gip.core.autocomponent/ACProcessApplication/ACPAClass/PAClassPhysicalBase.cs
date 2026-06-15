@@ -78,22 +78,22 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "SwitchToAutomatic":
+                case nameof(SwitchToAutomatic):
                     SwitchToAutomatic();
                     return true;
-                case "SwitchToManual":
+                case nameof(SwitchToManual):
                     SwitchToManual();
                     return true;
-                case "SwitchToMaintenance":
+                case nameof(SwitchToMaintenance):
                     SwitchToMaintenance();
                     return true;
-                case Const.IsEnabledPrefix + "SwitchToAutomatic":
+                case nameof(IsEnabledSwitchToAutomatic):
                     result = IsEnabledSwitchToAutomatic();
                     return true;
-                case Const.IsEnabledPrefix + "SwitchToManual":
+                case nameof(IsEnabledSwitchToManual):
                     result = IsEnabledSwitchToManual();
                     return true;
-                case Const.IsEnabledPrefix + "SwitchToMaintenance":
+                case nameof(IsEnabledSwitchToMaintenance):
                     result = IsEnabledSwitchToMaintenance();
                     return true;
             }

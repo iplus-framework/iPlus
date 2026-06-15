@@ -237,38 +237,58 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "SetZero":
+                case nameof(SetZero):
                     SetZero();
                     return true;
-                case "ResetZero":
+                case nameof(ResetZero):
                     ResetZero();
                     return true;
-                case "TareOn":
+                case nameof(TareOn):
                     TareOn();
                     return true;
-                case "TareOff":
+                case nameof(TareOff):
                     TareOff();
                     return true;
-                case "Tare":
+                case nameof(Tare):
                     Tare();
                     return true;
-                case Const.IsEnabledPrefix + "SetZero":
+                case nameof(IsEnabledSetZero):
                     result = IsEnabledSetZero();
                     return true;
-                case Const.IsEnabledPrefix + "ResetZero":
+                case nameof(IsEnabledResetZero):
                     result = IsEnabledResetZero();
                     return true;
-                case Const.IsEnabledPrefix + "TareOn":
+                case nameof(IsEnabledTareOn):
                     result = IsEnabledTareOn();
                     return true;
-                case Const.IsEnabledPrefix + "TareOff":
+                case nameof(IsEnabledTareOff):
                     result = IsEnabledTareOff();
                     return true;
-                case Const.IsEnabledPrefix + "Tare":
+                case nameof(IsEnabledTare):
                     result = IsEnabledTare();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(SetZero):
+                case nameof(IsEnabledSetZero):
+                case nameof(ResetZero):
+                case nameof(IsEnabledResetZero):
+                case nameof(Tare):
+                case nameof(IsEnabledTare):
+                    return new string[] { nameof(InitState) };
+                case nameof(TareOn):
+                case nameof(IsEnabledTareOn):
+                case nameof(TareOff):
+                case nameof(IsEnabledTareOff):
+                    return new string[] { nameof(IsTared) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         [ACMethodInteraction("", "en{'Set zero'}de{'Setzen Nullwert'}", 700, true, "", Global.ACKinds.MSMethodPrePost)]
@@ -276,11 +296,11 @@ namespace gip.core.processapplication
         {
             if (!IsEnabledSetZero())
                 return;
-            if (!PreExecute("SetZero"))
+            if (!PreExecute(nameof(SetZero)))
                 return;
             ReqZeroSet.ValueT = true;
             ReqZeroReset.ValueT = false;
-            PostExecute("SetZero");
+            PostExecute(nameof(SetZero));
         }
 
         public virtual bool IsEnabledSetZero()
@@ -300,11 +320,11 @@ namespace gip.core.processapplication
         {
             if (!IsEnabledResetZero())
                 return;
-            if (!PreExecute("ResetZero"))
+            if (!PreExecute(nameof(ResetZero)))
                 return;
             ReqZeroSet.ValueT = false;
             ReqZeroReset.ValueT = true;
-            PostExecute("ResetZero");
+            PostExecute(nameof(ResetZero));
         }
 
         public virtual bool IsEnabledResetZero()

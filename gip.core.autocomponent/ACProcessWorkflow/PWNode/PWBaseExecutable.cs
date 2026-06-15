@@ -383,19 +383,19 @@ namespace gip.core.autocomponent
                 case nameof(SaveChangedACMethod):
                     result = SaveChangedACMethod();
                     return true;
-                case Const.IsEnabledPrefix + nameof(Start):
+                case nameof(IsEnabledStart):
                     result = IsEnabledStart();
                     return true;
-                case Const.IsEnabledPrefix + nameof(SetBreakPoint):
+                case nameof(IsEnabledSetBreakPoint):
                     result = IsEnabledSetBreakPoint();
                     return true;
-                case Const.IsEnabledPrefix + nameof(RemoveBreakPoint):
+                case nameof(IsEnabledRemoveBreakPoint):
                     result = IsEnabledRemoveBreakPoint();
                     return true;
-                case Const.IsEnabledPrefix + nameof(ResetAndComplete):
+                case nameof(IsEnabledResetAndComplete):
                     result = IsEnabledResetAndComplete();
                     return true;
-                case Const.IsEnabledPrefix + nameof(SaveChangedACMethod):
+                case nameof(IsEnabledSaveChangedACMethod):
                     result = IsEnabledSaveChangedACMethod();
                     return true;
             }
@@ -410,13 +410,13 @@ namespace gip.core.autocomponent
                 case nameof(ShowOrderDialog):
                     ShowOrderDialog(acComponent);
                     return true;
-                case Const.IsEnabledPrefix + nameof(ShowOrderDialog):
+                case nameof(IsEnabledShowOrderDialog):
                     result = IsEnabledShowOrderDialog(acComponent);
                     return true;
                 case nameof(AskUserStart):
                     result = AskUserStart(acComponent);
                     return true;
-                case Const.AskUserPrefix + nameof(SaveChangedACMethod):
+                case nameof(AskUserSaveChangedACMethod):
                     result = AskUserSaveChangedACMethod(acComponent);
                     return true;
             }

@@ -207,16 +207,16 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "StartScheduling":
+                case nameof(StartScheduling):
                     StartScheduling();
                     return true;
-                case "IsEnabledStartScheduling":
+                case nameof(IsEnabledStartScheduling):
                     result = IsEnabledStartScheduling();
                     return true;
-                case "StopScheduling":
+                case nameof(StopScheduling):
                     StopScheduling();
                     return true;
-                case "IsEnabledStopScheduling":
+                case nameof(IsEnabledStopScheduling):
                     result = IsEnabledStopScheduling();
                     return true;
                 //case "IsEnabledSubscribeToProjectWorkCycle10":
@@ -227,6 +227,20 @@ namespace gip.core.autocomponent
                 //    return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(StartScheduling):
+                case nameof(IsEnabledStartScheduling):
+                    return new string[] { nameof(RunScheduler) };
+                case nameof(StopScheduling):
+                case nameof(IsEnabledStopScheduling):
+                    return new string[] { nameof(InitState) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         [ACMethodInteraction("Scheduling", "en{'Activate scheduling'}de{'Aktiviere Zeitplanung'}", 200, true)]

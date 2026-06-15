@@ -124,22 +124,22 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "Position2":
+                case nameof(Position2):
                     Position2();
                     return true;
-                case "Position1":
+                case nameof(Position1):
                     Position1();
                     return true;
-                case "Close":
+                case nameof(Close):
                     Close();
                     return true;
-                case Const.IsEnabledPrefix + "Position2":
+                case nameof(IsEnabledPosition2):
                     result = IsEnabledPosition2();
                     return true;
-                case Const.IsEnabledPrefix + "Position1":
+                case nameof(IsEnabledPosition1):
                     result = IsEnabledPosition1();
                     return true;
-                case Const.IsEnabledPrefix + "Close":
+                case nameof(IsEnabledClose):
                     result = IsEnabledClose();
                     return true;
             }

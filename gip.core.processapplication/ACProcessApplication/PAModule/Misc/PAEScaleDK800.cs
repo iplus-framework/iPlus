@@ -160,7 +160,7 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "EventCallback":
+                case nameof(EventCallback):
                     EventCallback((gip.core.datamodel.IACPointNetBase)acParameter[0], (gip.core.datamodel.ACEventArgs)acParameter[1], (gip.core.datamodel.IACObject)acParameter[2]);
                     return true;
             }

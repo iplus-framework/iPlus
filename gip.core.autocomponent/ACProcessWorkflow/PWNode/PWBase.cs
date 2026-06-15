@@ -910,7 +910,7 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case ACStateConst.TMReset:
+                case nameof(Reset):
                     Reset();
                     return true;
                 case nameof(GetPAOrderInfo):
@@ -922,7 +922,7 @@ namespace gip.core.autocomponent
                 case nameof(AreChildsOfTypeCompleted):
                     result = AreChildsOfTypeCompleted(acParameter[0] as ACRef<ACClass>);
                     return true;
-                case Const.IsEnabledPrefix + ACStateConst.TMReset:
+                case nameof(IsEnabledReset):
                     result = IsEnabledReset();
                     return true;
                 case nameof(GetConfigForACMethod):

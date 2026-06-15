@@ -266,6 +266,17 @@ namespace gip.core.autocomponent
             return true;
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(ResetIn2Events):
+                case nameof(IsEnabledResetIn2Events):
+                    return new string[] { nameof(InitState) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         #endregion
 
 

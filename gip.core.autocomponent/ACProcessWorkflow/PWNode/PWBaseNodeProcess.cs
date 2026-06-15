@@ -161,38 +161,54 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case ACStateConst.SMRunning:
+                case nameof(SMRunning):
                     SMRunning();
                     return true;
-                case ACStateConst.SMPaused:
+                case nameof(SMPaused):
                     SMPaused();
                     return true;
-                case ACStateConst.SMCompleted:
+                case nameof(SMCompleted):
                     SMCompleted();
                     return true;
-                case "RaiseRunningEvent":
+                case nameof(RaiseRunningEvent):
                     RaiseRunningEvent();
                     return true;
-                case ACStateConst.TMPause:
+                case nameof(Pause):
                     Pause();
                     return true;
-                case ACStateConst.TMResume:
+                case nameof(Resume):
                     Resume();
                     return true;
-                case "TaskCallback":
+                case nameof(TaskCallback):
                     TaskCallback(acParameter[0] as IACPointNetBase, acParameter[1] as ACEventArgs, acParameter[2] as IACObject);
                     return true;
-                case Const.IsEnabledPrefix + "RaiseRunningEvent":
+                case nameof(IsEnabledRaiseRunningEvent):
                     result = IsEnabledRaiseRunningEvent();
                     return true;
-                case Const.IsEnabledPrefix + ACStateConst.TMPause:
+                case nameof(IsEnabledPause):
                     result = IsEnabledPause();
                     return true;
-                case Const.IsEnabledPrefix + ACStateConst.TMResume:
+                case nameof(IsEnabledResume):
                     result = IsEnabledResume();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(RaiseRunningEvent):
+                case nameof(IsEnabledRaiseRunningEvent):
+                    return new string[] { nameof(InitState) };
+                case nameof(Pause):
+                case nameof(IsEnabledPause):
+                case nameof(Resume):
+                case nameof(IsEnabledResume):
+                    return new string[] { nameof(CurrentACState) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         public static bool HandleExecuteACMethod_PWBaseNodeProcess(out object result, IACComponent acComponent, string acMethodName, gip.core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)

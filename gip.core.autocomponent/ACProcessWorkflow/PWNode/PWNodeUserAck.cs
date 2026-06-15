@@ -458,6 +458,18 @@ namespace gip.core.autocomponent
             ACStateEnum acState = (ACStateEnum) _this.ACUrlCommand("ACState");
             return acState == ACStateEnum.SMRunning || acState == ACStateEnum.SMStarting;
         }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(AckStart):
+                case nameof(IsEnabledAckStart):
+                    return new string[] { nameof(CurrentACState) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         #endregion
 
         #endregion

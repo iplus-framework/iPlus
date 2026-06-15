@@ -3,6 +3,7 @@
 ﻿using gip.core.datamodel;
 using gip.core.processapplication;
 using System;
+using System.Collections.Generic;
 using gip.core.autocomponent;
 
 namespace gip.core.processapplication
@@ -44,6 +45,17 @@ namespace gip.core.processapplication
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
         #endregion
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(RegisterAlibiWeight):
+                case nameof(IsEnabledRegisterAlibiWeight):
+                    return new string[] { nameof(InitState) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
 
 
         [ACPropertyBindingTarget(810, "Read from PLC", "en{'Alibi weight [kg]'}de{'Alibigewicht [kg]'}", "", false, false, RemotePropID = 86)]

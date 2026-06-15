@@ -77,29 +77,40 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "TurnOn":
+                case nameof(TurnOn):
                     TurnOn();
                     return true;
-                case "TurnOnWithSpeed":
+                case nameof(TurnOnWithSpeed):
                     TurnOnWithSpeed((double)acParameter[0]);
                     return true;
-                case Const.IsEnabledPrefix + "TurnOn":
+                case nameof(IsEnabledTurnOn):
                     result = IsEnabledTurnOn();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
         #endregion
-        
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(TurnOn):
+                case nameof(IsEnabledTurnOn):
+                    return new string[] { nameof(TurnOnInterlock), nameof(OperatingMode), nameof(ReqSpeed), nameof(RunState) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         [ACMethodInteraction("", "en{'turn on'}de{'Einschalten'}", 800, true, "", Global.ACKinds.MSMethodPrePost)]
         public virtual void TurnOn()
         {
             if (!IsEnabledTurnOn())
                 return;
-            if (!PreExecute("TurnOn"))
+            if (!PreExecute(nameof(TurnOn)))
                 return;
             ReqRunState.ValueT = true;
-            PostExecute("TurnOn");
+            PostExecute(nameof(TurnOn));
         }
 
         public virtual void OnTurnOn()
@@ -123,11 +134,11 @@ namespace gip.core.processapplication
         [ACMethodInfo("", "en{'turn on with speed'}de{'Einschalten mit Drehz.'}", 801, false, Global.ACKinds.MSMethodPrePost)]
         public virtual void TurnOnWithSpeed(double speed)
         {
-            if (!PreExecute("TurnOnWithSpeed"))
+            if (!PreExecute(nameof(TurnOnWithSpeed)))
                 return;
             ReqSpeed.ValueT = speed;
             TurnOn();
-            PostExecute("TurnOnWithSpeed");
+            PostExecute(nameof(TurnOnWithSpeed));
         }
 
         public override void ActivateRouteItemOnSimulation(RouteItem item, bool switchOff)

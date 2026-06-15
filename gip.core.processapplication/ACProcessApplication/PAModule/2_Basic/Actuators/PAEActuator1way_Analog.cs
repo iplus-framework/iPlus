@@ -84,13 +84,13 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "OpenWidth":
+                case nameof(OpenWidth):
                     OpenWidth((double)acParameter[0]);
                     return true;
-                case "StopActuator":
+                case nameof(StopActuator):
                     StopActuator();
                     return true;
-                case Const.IsEnabledPrefix + "StopActuator":
+                case nameof(IsEnabledStopActuator):
                     result = IsEnabledStopActuator();
                     return true;
             }
@@ -103,10 +103,10 @@ namespace gip.core.processapplication
         {
             if (!IsEnabledStopActuator())
                 return;
-            if (!PreExecute("StopActuator"))
+            if (!PreExecute(nameof(StopActuator)))
                 return;
             OnSetStopActuatorValue();
-            PostExecute("StopActuator");
+            PostExecute(nameof(StopActuator));
         }
 
         public bool IsEnabledStopActuator()

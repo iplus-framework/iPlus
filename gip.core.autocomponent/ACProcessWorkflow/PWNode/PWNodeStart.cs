@@ -77,10 +77,10 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "Start":
+                case nameof(Start):
                     Start();
                     return true;
-                case "SMStarting":
+                case nameof(SMStarting):
                     SMStarting();
                     return true;
             }

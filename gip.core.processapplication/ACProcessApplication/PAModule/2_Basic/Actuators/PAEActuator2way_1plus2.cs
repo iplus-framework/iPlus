@@ -99,10 +99,10 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "Position1And2":
+                case nameof(Position1And2):
                     Position1And2();
                     return true;
-                case Const.IsEnabledPrefix + "Position1And2":
+                case nameof(IsEnabledPosition1And2):
                     result = IsEnabledPosition1And2();
                     return true;
             }
@@ -115,10 +115,10 @@ namespace gip.core.processapplication
         {
             if (!IsEnabledPosition1And2())
                 return;
-            if (!PreExecute("Position1And2"))
+            if (!PreExecute(nameof(Position1And2)))
                 return;
             OnSetPosition1And2Values();
-            PostExecute("Position1And2");
+            PostExecute(nameof(Position1And2));
         }
 
         public bool IsEnabledPosition1And2()

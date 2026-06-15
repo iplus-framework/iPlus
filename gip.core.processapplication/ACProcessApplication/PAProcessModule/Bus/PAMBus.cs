@@ -85,7 +85,7 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "SendToDeviceOnBus":
+                case nameof(SendToDeviceOnBus):
                     SendToDeviceOnBus(acParameter[0] as string, acParameter[1] as object[]);
                     return true;
             }

@@ -119,34 +119,51 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "TurnOnSlowLeft":
+                case nameof(TurnOnSlowLeft):
                     TurnOnSlowLeft();
                     return true;
-                case "TurnOnSlowRight":
+                case nameof(TurnOnSlowRight):
                     TurnOnSlowRight();
                     return true;
-                case "TurnOnFastLeft":
+                case nameof(TurnOnFastLeft):
                     TurnOnFastLeft();
                     return true;
-                case "TurnOnFastRight":
+                case nameof(TurnOnFastRight):
                     TurnOnFastRight();
                     return true;
-                case Const.IsEnabledPrefix + "TurnOnSlowLeft":
+                case nameof(IsEnabledTurnOnSlowLeft):
                     result = IsEnabledTurnOnSlowLeft();
                     return true;
-                case Const.IsEnabledPrefix + "TurnOnSlowRight":
+                case nameof(IsEnabledTurnOnSlowRight):
                     result = IsEnabledTurnOnSlowRight();
                     return true;
-                case Const.IsEnabledPrefix + "TurnOnFastLeft":
+                case nameof(IsEnabledTurnOnFastLeft):
                     result = IsEnabledTurnOnFastLeft();
                     return true;
-                case Const.IsEnabledPrefix + "TurnOnFastRight":
+                case nameof(IsEnabledTurnOnFastRight):
                     result = IsEnabledTurnOnFastRight();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
         #endregion
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(TurnOnSlowLeft):
+                case nameof(IsEnabledTurnOnSlowLeft):
+                case nameof(TurnOnSlowRight):
+                case nameof(IsEnabledTurnOnSlowRight):
+                case nameof(TurnOnFastLeft):
+                case nameof(IsEnabledTurnOnFastLeft):
+                case nameof(TurnOnFastRight):
+                case nameof(IsEnabledTurnOnFastRight):
+                    return new string[] { nameof(TurnOnInterlock), nameof(OperatingMode), nameof(RunState), nameof(ReqDirectionLeft), nameof(SpeedFast), nameof(ToggleAllowed), nameof(TransitTimeSlowFast) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
 
 
 
@@ -155,10 +172,10 @@ namespace gip.core.processapplication
         {
             if (!IsEnabledTurnOnSlowLeft())
                 return;
-            if (!PreExecute("TurnOnSlowLeft"))
+            if (!PreExecute(nameof(TurnOnSlowLeft)))
                 return;
             OnTurnOnSlowLeft();
-            PostExecute("TurnOnSlowLeft");
+            PostExecute(nameof(TurnOnSlowLeft));
         }
 
         public virtual void OnTurnOnSlowLeft()
@@ -200,10 +217,10 @@ namespace gip.core.processapplication
         {
             if (!IsEnabledTurnOnSlowRight())
                 return;
-            if (!PreExecute("TurnOnSlowRight"))
+            if (!PreExecute(nameof(TurnOnSlowRight)))
                 return;
             OnTurnOnSlowRight();
-            PostExecute("TurnOnSlowRight");
+            PostExecute(nameof(TurnOnSlowRight));
         }
 
         public virtual void OnTurnOnSlowRight()
@@ -245,10 +262,10 @@ namespace gip.core.processapplication
         {
             if (!IsEnabledTurnOnFastLeft())
                 return;
-            if (!PreExecute("TurnOnFastLeft"))
+            if (!PreExecute(nameof(TurnOnFastLeft)))
                 return;
             OnTurnOnFastLeft();
-            PostExecute("TurnOnFastLeft");
+            PostExecute(nameof(TurnOnFastLeft));
         }
 
         public virtual void OnTurnOnFastLeft()
@@ -293,10 +310,10 @@ namespace gip.core.processapplication
         {
             if (!IsEnabledTurnOnFastRight())
                 return;
-            if (!PreExecute("TurnOnFastRight"))
+            if (!PreExecute(nameof(TurnOnFastRight)))
                 return;
             OnTurnOnFastRight();
-            PostExecute("TurnOnFastRight");
+            PostExecute(nameof(TurnOnFastRight));
         }
 
         public virtual void OnTurnOnFastRight()

@@ -1235,70 +1235,70 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case ACStateConst.SMIdle:
+                case nameof(SMIdle):
                     SMIdle();
                     return true;
-                case ACStateConst.SMStarting:
+                case nameof(SMStarting):
                     SMStarting();
                     return true;
-                case ACStateConst.SMRunning:
+                case nameof(SMRunning):
                     SMRunning();
                     return true;
-                case ACStateConst.SMCompleted:
+                case nameof(SMCompleted):
                     SMCompleted();
                     return true;
-                case ACStateConst.SMPausing:
+                case nameof(SMPausing):
                     SMPausing();
                     return true;
-                case ACStateConst.SMPaused:
+                case nameof(SMPaused):
                     SMPaused();
                     return true;
-                case ACStateConst.SMAborting:
+                case nameof(SMAborting):
                     SMAborting();
                     return true;
-                case ACStateConst.TMReset:
+                case nameof(Reset):
                     Reset();
                     return true;
-                case ACStateConst.TMPause:
+                case nameof(Pause):
                     Pause();
                     return true;
-                case ACStateConst.TMResume:
+                case nameof(Resume):
                     Resume();
                     return true;
-                case ACStateConst.TMAbort:
+                case nameof(Abort):
                     Abort();
                     return true;
-                case "ReStart":
+                case nameof(ReStart):
                     ReStart();
                     return true;
-                case "ResetSubState":
+                case nameof(ResetSubState):
                     ResetSubState();
                     return true;
-                case "ReloadConfig":
+                case nameof(ReloadConfig):
                     ReloadConfig();
                     return true;
-                case "IgnoreConfigStoreValidation":
+                case nameof(IgnoreConfigStoreValidation):
                     IgnoreConfigStoreValidation();
                     return true;
-                case Const.IsEnabledPrefix + ACStateConst.TMReset:
+                case nameof(IsEnabledReset):
                     result = IsEnabledReset();
                     return true;
-                case Const.IsEnabledPrefix + ACStateConst.TMPause:
+                case nameof(IsEnabledPause):
                     result = IsEnabledPause();
                     return true;
-                case Const.IsEnabledPrefix + ACStateConst.TMResume:
+                case nameof(IsEnabledResume):
                     result = IsEnabledResume();
                     return true;
-                case Const.IsEnabledPrefix + ACStateConst.TMAbort:
+                case nameof(IsEnabledAbort):
                     result = IsEnabledAbort();
                     return true;
-                case Const.IsEnabledPrefix + "ReStart":
+                case nameof(IsEnabledReStart):
                     result = IsEnabledReStart();
                     return true;
-                case Const.IsEnabledPrefix + "ResetSubState":
+                case nameof(IsEnabledResetSubState):
                     result = IsEnabledResetSubState();
                     return true;
-                case Const.IsEnabledPrefix + "IgnoreConfigStoreValidation":
+                case nameof(IsEnabledIgnoreConfigStoreValidation):
                     result = IsEnabledIgnoreConfigStoreValidation();
                     return true;
             }

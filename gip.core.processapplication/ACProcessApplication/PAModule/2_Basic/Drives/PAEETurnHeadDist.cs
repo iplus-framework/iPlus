@@ -91,10 +91,10 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "TurnOnLeftWithPos":
+                case nameof(TurnOnLeftWithPos):
                     TurnOnLeftWithPos((Int16)acParameter[0]);
                     return true;
-                case "TurnOnRightWithPos":
+                case nameof(TurnOnRightWithPos):
                     TurnOnRightWithPos((Int16)acParameter[0]);
                     return true;
             }
@@ -105,21 +105,21 @@ namespace gip.core.processapplication
         [ACMethodInfo("", "en{'turn on left pos'}de{'Einschalten links mit Pos.'}", 901, false, Global.ACKinds.MSMethodPrePost)]
         public virtual void TurnOnLeftWithPos(Int16 pos)
         {
-            if (!PreExecute("TurnOnLeftWithPos"))
+            if (!PreExecute(nameof(TurnOnLeftWithPos)))
                 return;
             ReqPosition.ValueT = pos;
             TurnOnLeft();
-            PostExecute("TurnOnLeftWithPos");
+            PostExecute(nameof(TurnOnLeftWithPos));
         }
 
         [ACMethodInfo("", "en{'turn on Right pos'}de{'Einschalten rechts mit Pos.'}", 902, false, Global.ACKinds.MSMethodPrePost)]
         public virtual void TurnOnRightWithPos(Int16 pos)
         {
-            if (!PreExecute("TurnOnRightWithPos"))
+            if (!PreExecute(nameof(TurnOnRightWithPos)))
                 return;
             ReqPosition.ValueT = pos;
             TurnOnRight();
-            PostExecute("TurnOnRightWithPos");
+            PostExecute(nameof(TurnOnRightWithPos));
         }
         #endregion
 
