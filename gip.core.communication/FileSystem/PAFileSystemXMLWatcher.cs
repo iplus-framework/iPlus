@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ComponentModel;
 using gip.core.datamodel;
-using gip.core.autocomponent;
 using System.IO;
-using System.Diagnostics;
 using System.Xml;
+using System.Reflection.Emit;
+using System.Linq;
 
 namespace gip.core.communication
 {
@@ -80,7 +77,7 @@ namespace gip.core.communication
             XmlTextReader xmlReader = null;
             string fileName = eventArgs["FullPath"] as string;
 
-            if (watcherChangeType != WatcherChangeTypes.Deleted)
+            if (watcherChangeType != WatcherChangeTypes.Deleted && IsImporterForXMLDocType(eventArgs, fileName))
             {
                 try
                 {
@@ -154,6 +151,11 @@ namespace gip.core.communication
                 return false;
             }
             return true;
+        }
+
+        public virtual bool IsImporterForXMLDocType(ACEventArgs eventArgs, string fileName)
+        {
+            return File.Exists(fileName) && new string[] { ".xml" }.Contains(System.IO.Path.GetExtension(fileName).ToLower());
         }
         #endregion
 

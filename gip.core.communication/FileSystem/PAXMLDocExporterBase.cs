@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.ComponentModel;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using System.IO;
-using System.Diagnostics;
 using System.Xml;
 using System.Xml.Serialization;
-using System.Xml.Linq;
 using System.Threading;
 
 namespace gip.core.communication

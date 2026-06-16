@@ -67,6 +67,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Portable.BouncyCastle.1.8.10\lib\net40\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
+    <Reference Include="ClosedXML, Version=0.95.4.0, Culture=neutral, PublicKeyToken=fd1eb21b62ae805b, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ClosedXML.Signed.0.95.4\lib\net46\ClosedXML.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -133,6 +136,9 @@
     <Compile Include="FileSystem\CyclicExport\PAXMLCyclicExport.cs" />
     <Compile Include="FileSystem\CyclicExport\PAFileCyclicExport.cs" />
     <Compile Include="FileSystem\CyclicExport\PAFileCyclicGroupBase.cs" />
+    <Compile Include="FileSystem\PADocImporterBase.cs" />
+    <Compile Include="FileSystem\PAExcelDocImporterBase.cs" />
+    <Compile Include="FileSystem\PAFileSystemExcelWatcher.cs" />
     <Compile Include="FileSystem\PAJSONDocExporterBase.cs" />
     <Compile Include="FileSystem\PAXMLDocExporterBase.cs" />
     <Compile Include="FileSystem\PAXMLDocImporterScript.cs" />
