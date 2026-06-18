@@ -26,6 +26,12 @@ namespace gip.core.layoutengine.avui
 
         public VBDataGridACValueColumn() : base()
         {
+            // Dummy BindingTarget required because DataGridBoundColumn.GenerateEditingElement
+            // calls element.Bind(BindingTarget, Binding) and throws NullReferenceException
+            // when BindingTarget is null. VBValueEditor handles its own binding internally
+            // in OnInitialized(), so this binding is effectively inert.
+            BindingTarget = ContentControl.ContentProperty;
+
             _cellACValueTheme = new Lazy<ControlTheme>(() =>
                OwningGrid.TryFindResource("DataGridCellACValueTheme", out var theme) ? (ControlTheme)theme : null);
             _cellTextBlockTheme = new Lazy<ControlTheme>(() =>

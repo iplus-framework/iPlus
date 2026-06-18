@@ -2184,6 +2184,8 @@ namespace gip.core.datamodel
             (" MouseEnter=", " PointerEntered=", false),
             (" MouseLeave=", " PointerExited=", false),
             (" MouseWheel=", " PointerWheelChanged=", false),
+            // Convert WPF IsMouseOver to Avalonia IsPointerOver
+            (@"\bIsMouseOver\b", "IsPointerOver", true),
             (@" ?PreviewMouseLeftButtonDown=""\{vb:VBDelegate (.*?)\}""", @" PointerPressed=""{vb:VBDelegate $1, HandlePreviewEvents=True}""", true),
             (@" ?PreviewMouseRightButtonDown=""\{vb:VBDelegate (.*?)\}""", @" PointerPressed=""{vb:VBDelegate $1, HandlePreviewEvents=True}""", true),
             (@" ?PreviewMouseLeftButtonUp=""\{vb:VBDelegate (.*?)\}""", @" PointerReleased=""{vb:VBDelegate $1, HandlePreviewEvents=True}""", true),
@@ -2287,6 +2289,10 @@ namespace gip.core.datamodel
             // Note: The conversion engine usually runs these patterns. If we want to replace spaces with commas INSIDE the value:
             // We use a lookahead/lookbehind approach or a specialized mapping.
             (@"\bStrokeDashArray=""([^""]*?\d)\s+(\d[^""]*?)\""", @"StrokeDashArray=""$1,$2""", true),
+
+            // Convert WPF pack://application URIs to Avalonia avares:// URIs
+            // e.g. pack://application:,,,/MyAssembly;component/Images/icon.png → avares://MyAssembly/Images/icon.png
+            (@"pack://application:[,\s]*/([^\s;""']+?);component/([^\s>""']+)", @"avares://$1/$2", true),
 
             // Note: xmlns removal from child elements is handled separately in XAMLDesign property to preserve root element xmlns
         };

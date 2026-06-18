@@ -821,6 +821,31 @@ namespace gip.bso.iplus
             return !BackgroundWorker.IsBusy && CurrentExportACProject != null;
         }
 
+        [ACMethodCommand("Export", "en{'Filter with this assembly'}de{'Filter mit dieser Assembly'}", 402, false)]
+        public void FilterThisAssembly()
+        {
+            if (!IsEnabledFilterThisAssembly()) 
+                return;
+            string asqn = CurrentExportProjectItem?.ValueT?.ObjectType?.AssemblyQualifiedName;
+            if (string.IsNullOrEmpty(asqn))
+                asqn = CurrentExportProjectItem?.ValueT?.FinalAssemblyQualifiedName;
+            if (string.IsNullOrEmpty(asqn))
+                this.SearchClassText = "";
+            else
+            {
+                asqn = asqn.Substring(0, asqn.IndexOf(','));
+                if (!string.IsNullOrEmpty(asqn))
+                    asqn = asqn.Substring(0, asqn.LastIndexOf('.'));
+                this.SearchClassText = asqn;
+            }
+            LoadExportTree();
+        }
+
+        public bool IsEnabledFilterThisAssembly()
+        {
+            return CurrentExportProjectItem != null;
+        }
+
         #endregion
 
         #region Preview items for load
@@ -1290,6 +1315,12 @@ namespace gip.bso.iplus
                 case nameof(IsEnabledPackageDlgCancel):
                     result = IsEnabledPackageDlgCancel();
                     return true;
+                case nameof(FilterThisAssembly):
+                    FilterThisAssembly();
+                    return true;
+                case nameof(IsEnabledFilterThisAssembly):
+                    result = IsEnabledFilterThisAssembly();
+                    return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
@@ -1314,6 +1345,9 @@ namespace gip.bso.iplus
                 case nameof(PackageDlgOk):
                 case nameof(IsEnabledPackageDlgOk):
                     return new string[] { nameof(CurrentExportFolder), nameof(PackageExportUser) };
+                case nameof(FilterThisAssembly):
+                case nameof(IsEnabledFilterThisAssembly):
+                    return new string[] { nameof(CurrentExportProjectItem) };
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName);
         }

@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -35,6 +36,8 @@ namespace gip.core.layoutengine.avui
             Binding binding2 = new Binding();
             binding2.Source = parent;
             this.Bind(ParentSurfaceProperty, binding2);
+
+            GraphItemContentTemplate = (parent?.GraphItemDataTemplateSelector as IDataTemplate) ?? parent?.GraphItemDataTemplate;
 
             if (ParentSurface != null)
                 ParentSurface.OnGraphItemsChanged += ParentSurface_OnGraphItemsChanged;
@@ -92,12 +95,14 @@ namespace gip.core.layoutengine.avui
                 ParentSurface.OnGraphItemsChanged -= ParentSurface_OnGraphItemsChanged;
 
             foreach (var conn in connectors)
+            {
                 if (conn != null)
                     conn.OnConnectorArranged -= OnConnectorArranged;
+            }
 
             this.ClearAllBindings();
 
-            Name = null;
+            //Name = null;
             ParentSurface = null;
         }
 
@@ -131,6 +136,15 @@ namespace gip.core.layoutengine.avui
 
         public static readonly StyledProperty<VBGraphSurface> ParentSurfaceProperty =
             AvaloniaProperty.Register<VBGraphItem, VBGraphSurface>(nameof(ParentSurface));
+
+        public IDataTemplate GraphItemContentTemplate
+        {
+            get { return GetValue(GraphItemContentTemplateProperty); }
+            set { SetValue(GraphItemContentTemplateProperty, value); }
+        }
+
+        public static readonly StyledProperty<IDataTemplate> GraphItemContentTemplateProperty =
+            AvaloniaProperty.Register<VBGraphItem, IDataTemplate>(nameof(GraphItemContentTemplate));
 
         /// <summary>
         /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.

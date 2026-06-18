@@ -116,6 +116,8 @@ namespace gip.core.datamodel
                                   (String.IsNullOrEmpty(SearchText)
                                     || item.ValueT.ACCaption.IndexOf(SearchText, StringComparison.CurrentCultureIgnoreCase) >= 0
                                     || item.ValueT.ACIdentifier.IndexOf(SearchText, StringComparison.CurrentCultureIgnoreCase) >= 0
+                                    || item.ValueT.AssemblyQualifiedName?.IndexOf(SearchText, StringComparison.CurrentCultureIgnoreCase) >= 0
+                                    || item.ValueT.AssemblyQualifiedName2?.IndexOf(SearchText, StringComparison.CurrentCultureIgnoreCase) >= 0
                                   )
                               && (     String.IsNullOrEmpty(SearchACUrlComponent)
                                     || item.ValueT.ACUrlComponent.IndexOf(SearchACUrlComponent, StringComparison.CurrentCultureIgnoreCase) >= 0

@@ -92,6 +92,12 @@
     <None Include="VBControlScripts/2026-04-13 08-58_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="VBControlScripts/2026-06-18 19-22_dlisak.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="VBControlScripts/2026-06-18 19-23_dlisak.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup Condition="!$(TargetFramework.Contains('android'))">
     <PackageReference Include="CoreWCF.NetTcp"  />

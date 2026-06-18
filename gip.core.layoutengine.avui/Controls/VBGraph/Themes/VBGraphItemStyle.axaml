@@ -26,7 +26,7 @@
                             <vb:VBConnector Grid.Row="1" Grid.Column="2" x:Name="OutR" VBContent="OutR" />
                             <vb:VBConnector Grid.Row="2" Grid.Column="1" x:Name="OutB" VBContent="OutB" />
                             <ContentPresenter Grid.RowSpan="3" Grid.ColumnSpan="3" Content="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}}"
-                                            ContentTemplate="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=ParentSurface.GraphItemDataTemplateSelector}" />
+                                            ContentTemplate="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=GraphItemContentTemplate}" />
                         </Grid>
                     </Border>
                 </ControlTemplate>

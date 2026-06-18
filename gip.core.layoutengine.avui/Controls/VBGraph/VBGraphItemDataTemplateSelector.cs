@@ -60,6 +60,8 @@ namespace gip.core.layoutengine.avui
         public string DataTemplate19Value { get; set; }
         public string DataTemplate20Value { get; set; }
 
+        public string FixedDataTemplateValue { get; set; }
+
         #endregion
 
 
@@ -82,6 +84,8 @@ namespace gip.core.layoutengine.avui
                 object acResult = contextObject.ACUrlCommand(DataTemplateValueACUrl, param);
                 stringValue = acResult != null ? acResult.ToString() : "";
             }
+            else if (!string.IsNullOrEmpty(FixedDataTemplateValue))
+                stringValue = FixedDataTemplateValue;
             else
                 stringValue = contextObject.ToString() ?? "";
 

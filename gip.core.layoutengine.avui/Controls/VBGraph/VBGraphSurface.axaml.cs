@@ -45,6 +45,14 @@ namespace gip.core.layoutengine.avui
         #region Initialization
         protected void InitVBControl()
         {
+            if (GraphItemDataTemplateSelector == null && GraphItemDataTemplate != null)
+            {
+                VBGraphItemDataTemplateSelector vBGraphItemDataTemplateSelector = new VBGraphItemDataTemplateSelector();
+                vBGraphItemDataTemplateSelector.DataTemplate0 = GraphItemDataTemplate;
+                vBGraphItemDataTemplateSelector.DataTemplate0Value = "0";
+                vBGraphItemDataTemplateSelector.FixedDataTemplateValue = "0";
+                GraphItemDataTemplateSelector = vBGraphItemDataTemplateSelector;
+            }
             if (!_Initialized && DataContext != null && !string.IsNullOrEmpty(VBContent))
             {
                 _Initialized = true;

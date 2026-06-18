@@ -50,7 +50,7 @@ namespace gip.core.autocomponent
         {
             get
             {
-                return _ACStateMethod.ACIdentifier;
+                return _ACStateMethod?.ACIdentifier;
             }
             set
             {
