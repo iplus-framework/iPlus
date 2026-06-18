@@ -100,7 +100,7 @@ namespace gip.core.layoutengine
             //ActualizeTheme(true);
         }
 
-        public override void OnApplyTemplate()
+        public override async void OnApplyTemplate()
         {
             if (this.Style == null)
             {
@@ -110,7 +110,7 @@ namespace gip.core.layoutengine
             base.OnApplyTemplate();
             if (!_themeApplied)
                 ActualizeTheme(false);
-            InitVBControl();
+            await InitVBControl();
         }
 
         public void ActualizeTheme(bool bInitializingCall)
@@ -118,7 +118,7 @@ namespace gip.core.layoutengine
             _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
         }
 
-        protected virtual void InitVBControl()
+        protected virtual async Task InitVBControl()
         {
             if (_Loaded || (ContextACObject == null))
                 return;
@@ -270,7 +270,9 @@ namespace gip.core.layoutengine
                             Text = string.Empty;
                         }
                         if (_roslynHost != null)
-                            _docId = this.InitializeAsync(_roslynHost, _classificationHighlightColors, AppContext.BaseDirectory, this.VBText, SourceCodeKind.Script).Result;
+                        {
+                            _docId = await this.InitializeAsync(_roslynHost, _classificationHighlightColors, AppContext.BaseDirectory, this.VBText, SourceCodeKind.Script);
+                        }
                         // After InitializeAsync completes, the document has the correct text from AppendText.
                         // Reset the flag to allow normal OnTextChanged behavior.
                         _OnTargetUpdated = false;
@@ -282,7 +284,7 @@ namespace gip.core.layoutengine
                     }
 
                     foldingStrategy = new VBScriptEditorBraceFoldingStrategy();
-                    foldingManager = FoldingManager.Install(TextArea);
+                    //foldingManager = FoldingManager.Install(TextArea);
                 }
             }
 
