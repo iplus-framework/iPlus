@@ -156,6 +156,8 @@ namespace gip.core.layoutengine.avui
         // when the list is a plain List<T> (not INotifyCollectionChanged).
         private INotifyPropertyChanged _itemsSourceChangeNotifier;
         private string _itemsSourceNotifyPropertyName;
+        private int _itemsSourceChangedVersion;
+        private int _itemsSourcePropertyChangedHandledVersion;
         #endregion
 
         #region IDataField Members

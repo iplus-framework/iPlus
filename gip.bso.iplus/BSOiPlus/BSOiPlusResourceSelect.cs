@@ -122,6 +122,8 @@ namespace gip.bso.iplus
                 if (acClassDesign != null && acClassDesign.ACIdentifier != "UnknowMainlayout")
                 {
                     layoutXAML = acClassDesign.XAMLDesign;
+                    // Remember the last design for potential save on successful layout load
+                    _lastACClassDesign = acClassDesign;
                 }
                 else
                 {

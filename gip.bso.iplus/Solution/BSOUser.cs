@@ -925,7 +925,7 @@ namespace gip.bso.iplus
             VBUserACClassDesign[] designs = Database.ContextIPlus.VBUserACClassDesign.ToArray();
             foreach (VBUserACClassDesign dsg in designs)
             {
-                string xml = dsg.XMLDesign;
+                string xml = dsg.XAMLDesign;
                 MatchCollection matches = Regex.Matches(xml, StartDelimiterString + SourceBSO + EndDelimiterDesignString);
                 matchDesign += matches.Count;
                 if (matches.Count > 0)
@@ -937,7 +937,7 @@ namespace gip.bso.iplus
                     xml = xml.Replace(StartDelimiterString + SourceBSO + EndDelimiterFavoritesString, StartDelimiterString + TargetBSO + EndDelimiterFavoritesString);
 
                 if (matchDesign > 0)
-                    dsg.XMLDesign = xml;
+                    dsg.XAMLDesign = xml;
             }
             if (matchDesign > 0)
             {

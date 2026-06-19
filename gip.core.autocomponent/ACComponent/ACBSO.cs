@@ -1236,6 +1236,46 @@ namespace gip.core.autocomponent
             }
         }
 
+        /// <summary>
+        /// Stores the last ACClassDesign fetched via ACType.GetDesign(), used for saving
+        /// the converted Avalonia XAML when VBDynamic successfully loads a dynamic layout.
+        /// </summary>
+        protected gip.core.datamodel.ACClassDesign _lastACClassDesign;
+
+        /// <summary>
+        /// Callback invoked by VBDynamic when a dynamic layout has been loaded.
+        /// Saves the converted Avalonia XAML to XMLDesign2 if the layout was loaded successfully
+        /// and there was no Avalonia XAML previously stored.
+        /// </summary>
+        /// <param name="success">True if the layout was loaded successfully, false otherwise.</param>
+        [ACMethodInfo("", "en{'OnDynamicLayoutLoaded'}de{'OnDynamicLayoutLoaded'}", 999)]        
+        public void OnDynamicLayoutLoaded(bool success)
+        {
+            if (success && _lastACClassDesign != null
+                && string.IsNullOrEmpty(_lastACClassDesign.XMLDesign2)
+                && !string.IsNullOrEmpty(_lastACClassDesign.XMLDesign))
+            {
+                try
+                {
+                    // Save the successfully loaded Avalonia XAML to XMLDesign2 for future use
+                    _lastACClassDesign.XMLDesign2 = _lastACClassDesign.XAMLDesign;
+                    _lastACClassDesign.XMLDesignUpdateDate = DateTime.Now;
+                    _lastACClassDesign.XMLDesign2UpdateDate = _lastACClassDesign.XMLDesignUpdateDate;
+                    if (_lastACClassDesign.Context != null)
+                    {
+                        var msgWithDetails = _lastACClassDesign.Context.ACSaveChanges();
+                        if (msgWithDetails != null)
+                        {
+                            Root.Messages.LogMessageMsg(msgWithDetails);
+                        }
+                    }
+                }
+                catch
+                {
+                    // Ignore caching errors, the layout still loaded
+                }
+            }
+        }
         #endregion
 
         #region ShowVBContent
@@ -1302,6 +1342,9 @@ namespace gip.core.autocomponent
                     return true;
                 case nameof(IsEnabledShowHideVBContentInfo):
                     result = IsEnabledShowHideVBContentInfo();
+                    return true;
+                case nameof(OnDynamicLayoutLoaded):
+                    OnDynamicLayoutLoaded((bool)acParameter[0]);
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);

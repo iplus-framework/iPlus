@@ -37,7 +37,12 @@ namespace gip.core.layoutengine.avui
 
         object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotSupportedException();
+            bool isVisible = (bool)value;
+            bool invertedLogic = parameter != null && parameter.ToString().Contains("invert");
+            bool retVal = isVisible ^ invertedLogic;
+            if (retVal)
+                return new object(); // Return a non-null object to indicate visibility
+            return null; // Return null to indicate invisibility
         }
 
         public object ProvideValue(IServiceProvider serviceProvider)

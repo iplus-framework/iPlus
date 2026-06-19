@@ -92,7 +92,14 @@ namespace gip.core.layoutengine.avui
                 item.Sn = i;
                 ratingItemsSource.Add(item);
             }
-            ratingList.ItemsSource = RatingItemsSource;
+            // Work directly with the Items collection to avoid the "Items collection must be empty
+            // before using ItemsSource" exception that occurs when the internal _items collection
+            // already has entries from XAML parsing/runtime initialization.
+            ratingList.Items.Clear();
+            foreach (var item in ratingItemsSource)
+            {
+                ratingList.Items.Add(item);
+            }
         }
 
         private void SetupRatingItemsSource(int sn)

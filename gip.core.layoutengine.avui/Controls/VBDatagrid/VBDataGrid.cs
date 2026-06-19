@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -340,6 +339,15 @@ namespace gip.core.layoutengine.avui
         {
             if (e.PropertyName != _itemsSourceNotifyPropertyName)
                 return;
+
+            // If the binding already produced an ItemsSourceProperty change for the current
+            // PropertyChanged cycle, forcing null/current here would only cause selection churn.
+            if (_itemsSourcePropertyChangedHandledVersion != _itemsSourceChangedVersion)
+            {
+                _itemsSourcePropertyChangedHandledVersion = _itemsSourceChangedVersion;
+                return;
+            }
+
             // If the collection already implements INotifyCollectionChanged (e.g. ObservableCollection),
             // the DataGrid receives add/remove notifications directly — no need to force a refresh.
             if (ItemsSource is System.Collections.Specialized.INotifyCollectionChanged)
@@ -392,6 +400,8 @@ namespace gip.core.layoutengine.avui
                 _itemsSourceChangeNotifier.PropertyChanged -= OnItemsSourceListPropertyChanged;
                 _itemsSourceChangeNotifier = null;
                 _itemsSourceNotifyPropertyName = null;
+                _itemsSourceChangedVersion = 0;
+                _itemsSourcePropertyChangedHandledVersion = 0;
             }
 
             CellPointerPressed -= VBDataGrid_CellPointerPressed;
@@ -831,6 +841,7 @@ namespace gip.core.layoutengine.avui
                 OnACUrlMessageReceived();
             else if (change.Property == ItemsSourceProperty)
             {
+                _itemsSourceChangedVersion++;
                 VBDataGrid_TargetUpdated(this, change);
             }
             else if (change.Property == SelectedItemProperty)

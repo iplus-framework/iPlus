@@ -109,24 +109,35 @@ namespace gip.core.layoutengine.avui
             }
 
             Visual uiElement = null;
-            if (string.IsNullOrEmpty(XMLDesign))
+            bool loadSuccess = false;
+            try
             {
-                ContentControl contentControl = new ContentControl();
-                this.TryFindResource("IconDesignStyleGip", out object resource);
-                contentControl.Theme = (ControlTheme)resource;
-                uiElement = contentControl;
-            }
-            else
-            {
-                uiElement = Layoutgenerator.LoadLayout(XMLDesign, DataContextForContent != null ? DataContextForContent : ContextACObject, BSOACComponent, VBContent);
-                Control fw = uiElement as Control;
-                if (fw != null && DataContextForContent != null)
+                if (string.IsNullOrEmpty(XMLDesign))
                 {
-                    Binding binding = new Binding();
-                    binding.Source = DataContextForContent;
-                    fw.Bind(Control.DataContextProperty, binding);
-                    //fw.DataContext = DataContextForContent;
+                    ContentControl contentControl = new ContentControl();
+                    this.TryFindResource("IconDesignStyleGip", out object resource);
+                    contentControl.Theme = (ControlTheme)resource;
+                    uiElement = contentControl;
+                    loadSuccess = true;
                 }
+                else
+                {
+                    uiElement = Layoutgenerator.LoadLayout(XMLDesign, DataContextForContent != null ? DataContextForContent : ContextACObject, BSOACComponent, VBContent);
+                    Control fw = uiElement as Control;
+                    if (fw != null && DataContextForContent != null)
+                    {
+                        Binding binding = new Binding();
+                        binding.Source = DataContextForContent;
+                        fw.Bind(Control.DataContextProperty, binding);
+                        //fw.DataContext = DataContextForContent;
+                    }
+                    loadSuccess = (uiElement != null);
+                }
+            }
+            catch
+            {
+                loadSuccess = false;
+                throw;
             }
 
             if (tabNamesList != null && uiElement is Control)
@@ -138,6 +149,20 @@ namespace gip.core.layoutengine.avui
 
             Content = uiElement;
             this.Focus();
+
+            string acUrlCmdOnLoadLayout = !string.IsNullOrEmpty(ACUrlCmdOnLoadLayout) ? ACUrlCmdOnLoadLayout : "!OnDynamicLayoutLoaded";
+            // Notify BSO that layout loading completed
+            if (BSOACComponent != null)
+            {
+                try
+                {
+                    BSOACComponent.ACUrlCommand(acUrlCmdOnLoadLayout, new object[] { loadSuccess });
+                }
+                catch
+                {
+                    // Ignore callback errors, they shouldn't affect layout loading
+                }
+            }
         }
 
         /// <summary>
@@ -204,6 +229,18 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         [Category("VBControl")]
         public string VBDynamicACComponent
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the ACUrl command to invoke when the dynamic layout has been loaded.
+        /// The command is invoked with a boolean parameter indicating whether the layout was loaded successfully.
+        /// Example: "!OnDynamicLayoutLoaded" will call the OnDynamicLayoutLoaded(bool) method on the BSO.
+        /// </summary>
+        [Category("VBControl")]
+        public string ACUrlCmdOnLoadLayout
         {
             get;
             set;

@@ -2229,6 +2229,15 @@ namespace gip.core.datamodel
             (@"\bVisibility=""\{Binding\s+(.*?),\s*Converter=\{vb:ConverterVisibilityInverseBool\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}}""", true),
             (@"\bVisibility=""\{Binding\s+Converter=\{vb:ConverterVisibilitySingle(.*?)\}(.*?)\}""", @"IsVisible=""{Binding Converter={vb:ConverterIsVisibleSingle$1}$2}""", true),
             (@"\bVisibility=""\{Binding\s+(.*?),\s*Converter=\{vb:ConverterControlModesVisibility\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:ConverterControlModesVisibility.Current}}""", true),
+            // Visibility to IsVisible converters – {x:Static ...Current} form (Binding with path + x:Static converter)
+            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+(.*?),\s*Converter=\{x:Static\s+vb:VisibilityNullConverter\.Current\}\}""", @"IsVisible=""{$1 $2, Converter={x:Static vb:IsVisibleNullConverter.Current}}""", true),
+            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+Converter=\{x:Static\s+vb:VisibilityNullConverter\.Current\}(.*?)\}""", @"IsVisible=""{$1 Converter={x:Static vb:IsVisibleNullConverter.Current}$2}""", true),
+            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+(.*?),\s*Converter=\{x:Static\s+vb:ConverterVisibilityBool\.Current\}\}""", @"IsVisible=""{$1 $2, Converter={x:Static vb:ConverterIsVisibleBool.Current}}""", true),
+            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+Converter=\{x:Static\s+vb:ConverterVisibilityBool\.Current\}(.*?)\}""", @"IsVisible=""{$1 Converter={x:Static vb:ConverterIsVisibleBool.Current}$2}""", true),
+            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+(.*?),\s*Converter=\{x:Static\s+vb:ConverterVisibilityInverseBool\.Current\}\}""", @"IsVisible=""{$1 $2, Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}}""", true),
+            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+Converter=\{x:Static\s+vb:ConverterVisibilityInverseBool\.Current\}(.*?)\}""", @"IsVisible=""{$1 Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}$2}""", true),
+            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+(.*?),\s*Converter=\{x:Static\s+vb:ConverterControlModesVisibility\.Current\}\}""", @"IsVisible=""{$1 $2, Converter={x:Static vb:ConverterControlModesVisibility.Current}}""", true),
+            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+Converter=\{x:Static\s+vb:ConverterControlModesVisibility\.Current\}(.*?)\}""", @"IsVisible=""{$1 Converter={x:Static vb:ConverterControlModesVisibility.Current}$2}""", true),
 
             // Regex-based patterns for complex multi-line replacements
             (@"<vb:VBTreeView\.TreeItemTemplate>\s*<DataTemplate>", "<TreeView.ItemTemplate>\n    <TreeDataTemplate ItemsSource=\"{Binding VisibleItemsT}\">", true),

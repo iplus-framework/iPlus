@@ -13,6 +13,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
+using Avalonia.Threading;
 using gip.ext.designer.avui;
 
 
@@ -28,6 +29,117 @@ namespace gip.core.layoutengine.avui
     public class VBCheckBox : CheckBox, IVBContent, IACMenuBuilderWPFTree, IACObject, IVBDynamicIcon
     {
         private IACBSO _LastKnownBSOACComponent = null;
+        private INotifyPropertyChanged _contextPropertyChangedSource;
+        private string _rootBindingSegment;
+        private bool _isRootRebindQueued;
+        private object _lastObservedRootValue;
+
+        private static string ExtractRootBindingSegment(string vbContent)
+        {
+            if (string.IsNullOrEmpty(vbContent))
+                return null;
+
+            int delimiterPos = vbContent.IndexOf('\\');
+            if (delimiterPos < 0)
+                return vbContent;
+            if (delimiterPos == 0)
+                return null;
+
+            return vbContent.Substring(0, delimiterPos);
+        }
+
+        private object GetCurrentRootValue()
+        {
+            if (ContextACObject == null || string.IsNullOrEmpty(_rootBindingSegment))
+                return null;
+
+            try
+            {
+                return ContextACObject.ACUrlCommand(_rootBindingSegment);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private void EnsureContextChangeTracking()
+        {
+            string rootSegment = ExtractRootBindingSegment(VBContent);
+            if (string.IsNullOrEmpty(rootSegment))
+            {
+                DetachContextChangeTracking();
+                return;
+            }
+
+            var currentContext = ContextACObject as INotifyPropertyChanged;
+            if (currentContext == null)
+            {
+                DetachContextChangeTracking();
+                return;
+            }
+
+            if (ReferenceEquals(_contextPropertyChangedSource, currentContext)
+                && string.Equals(_rootBindingSegment, rootSegment, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            DetachContextChangeTracking();
+            _contextPropertyChangedSource = currentContext;
+            _rootBindingSegment = rootSegment;
+            _isRootRebindQueued = false;
+            _lastObservedRootValue = GetCurrentRootValue();
+            _contextPropertyChangedSource.PropertyChanged += ContextRoot_PropertyChanged;
+        }
+
+        private void DetachContextChangeTracking()
+        {
+            if (_contextPropertyChangedSource != null)
+                _contextPropertyChangedSource.PropertyChanged -= ContextRoot_PropertyChanged;
+
+            _contextPropertyChangedSource = null;
+            _rootBindingSegment = null;
+            _isRootRebindQueued = false;
+            _lastObservedRootValue = null;
+        }
+
+        private void ContextRoot_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (!_Initialized || string.IsNullOrEmpty(_rootBindingSegment))
+                return;
+
+            if (!string.IsNullOrEmpty(e.PropertyName)
+                && !string.Equals(e.PropertyName, _rootBindingSegment, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            var currentRootValue = GetCurrentRootValue();
+            if (ReferenceEquals(_lastObservedRootValue, currentRootValue))
+                return;
+
+            _lastObservedRootValue = currentRootValue;
+
+            if (_isRootRebindQueued)
+                return;
+
+            _isRootRebindQueued = true;
+
+            void RebindAction()
+            {
+                _isRootRebindQueued = false;
+
+                if (!IsLoaded)
+                    return;
+
+                _Initialized = false;
+                InitVBControl();
+            }
+
+            Dispatcher.UIThread.Post(RebindAction, DispatcherPriority.Normal);
+        }
+
         #region c'tors
         /// <summary>
         /// Creates a new instance of VBCheckBox.
@@ -229,6 +341,9 @@ namespace gip.core.layoutengine.avui
         {
             if (_Initialized || DataContext == null || ContextACObject == null)
                 return;
+
+            //EnsureContextChangeTracking();
+
             _Initialized = true;
             if (DisableContextMenu)
                 ContextFlyout = null;
@@ -372,6 +487,7 @@ namespace gip.core.layoutengine.avui
             if (!_Initialized)
                 return;
             _Initialized = false;
+            DetachContextChangeTracking();
             if (bso != null && bso is IACBSO)
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
             _VBContentPropertyInfo = null;
@@ -462,6 +578,16 @@ namespace gip.core.layoutengine.avui
                         DeInitVBControl(bso ?? _LastKnownBSOACComponent);
                 }
             }
+            //else if (change.Property == StyledElement.DataContextProperty)
+            //{
+                // EnsureContextChangeTracking();
+
+                // if (_Initialized && !string.IsNullOrEmpty(VBContent))
+                // {
+                //     _Initialized = false;
+                //     InitVBControl();
+                // }
+            //}
             else if (change.Property == ACCaptionProperty)
             {
                 if (ContextACObject != null)
