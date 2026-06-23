@@ -29,11 +29,7 @@ namespace gip.core.reporthandler.avui
         private bool _isReady;
         private bool _pageLoaded;
         private bool _navigationStarted;
-        private bool _suppressNextChange;
-        private int _activateCounter;
         private int _navigationCounter;
-        private int _reloadCounter;
-        private string _lastMessageType;
         private DateTime _lastMessageUtc = DateTime.MinValue;
         private readonly SemaphoreSlim _activateGate = new SemaphoreSlim(1, 1);
 
@@ -68,11 +64,8 @@ namespace gip.core.reporthandler.avui
                 if (IsFullHtmlDocument(newValue))
                 {
                     _originalTemplate = newValue;
-                    Trace("Trace00001", $"Stored full template from binding (len={newValue?.Length ?? 0}).");
                 }
             });
-
-            Trace("Trace00002", "Constructor initialized.");
         }
 
         private void EnsureWebViewCreated()
@@ -87,8 +80,6 @@ namespace gip.core.reporthandler.avui
 
             WebViewHost.Children.Clear();
             WebViewHost.Children.Add(_webView);
-
-            Trace("Trace00045", "NativeWebView created and handlers attached.");
         }
 
         private void DestroyWebView()
@@ -109,12 +100,6 @@ namespace gip.core.reporthandler.avui
 
             WebViewHost.Children.Remove(_webView);
             _webView = null;
-            Trace("Trace00046", "NativeWebView destroyed.");
-        }
-
-        private void Trace(string code, string message)
-        {
-            this.Root()?.Messages.LogDebug("VBQuillEditor", code, message);
         }
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -125,13 +110,8 @@ namespace gip.core.reporthandler.avui
             {
                 // When the hosting tab hides this control, the native page may be torn down.
                 // Reset flags so ActivateAsync forces a fresh navigation next time.
-                Trace("Trace00003", $"IsVisible=false. Reset state (pageLoaded={_pageLoaded}, navStarted={_navigationStarted}).");
                 _pageLoaded = false;
                 _navigationStarted = false;
-            }
-            else if (change.Property == IsVisibleProperty && change.GetNewValue<bool>())
-            {
-                Trace("Trace00004", $"IsVisible=true (pageLoaded={_pageLoaded}, navStarted={_navigationStarted}).");
             }
         }
 
@@ -159,20 +139,16 @@ namespace gip.core.reporthandler.avui
         {
             base.OnLoaded(e);
 
-            Trace("Trace00005", $"OnLoaded start (pageLoaded={_pageLoaded}, navStarted={_navigationStarted}).");
-
             EnsureWebViewCreated();
 
             // Do not call ActivateAsync() from here: VBReportEditor already triggers it
             // when tab activation changes. Calling it in both places creates overlapping
             // activation flows and race conditions.
-            Trace("Trace00006", $"OnLoaded end (pageLoaded={_pageLoaded}, navStarted={_navigationStarted}, isReady={_isReady}).");
         }
 
         protected override void OnUnloaded(RoutedEventArgs e)
         {
             base.OnUnloaded(e);
-            Trace("Trace00007", $"OnUnloaded (pageLoaded={_pageLoaded}, navStarted={_navigationStarted}, isReady={_isReady}, lastMsg={_lastMessageType ?? "<none>"}).");
             // Intentionally keep EnvironmentRequested subscribed for the control lifetime.
             // This control is unloaded/reloaded on tab switches; detaching here would leave
             // subsequent navigations without the Linux host/environment preference hook.
@@ -191,8 +167,6 @@ namespace gip.core.reporthandler.avui
 
         private void WebView_EnvironmentRequested(object sender, WebViewEnvironmentRequestedEventArgs e)
         {
-            Trace("Trace00008", $"EnvironmentRequested ({e?.GetType().Name ?? "null"}).");
-
             if (e is LinuxWpeWebViewEnvironmentRequestedEventArgs wpeArgs)
             {
                 // Prefer WPE when available (matches Avalonia docs for NativeWebView on Linux).
@@ -211,7 +185,6 @@ namespace gip.core.reporthandler.avui
         {
             if (_navigationStarted && _webView != null && _webView.Source != null)
             {
-                Trace("Trace00009", "NavigateToEditor skipped (already started and source set).");
                 return;
             }
 
@@ -219,7 +192,6 @@ namespace gip.core.reporthandler.avui
 
             if (_webView == null)
             {
-                Trace("Trace00047", "NavigateToEditor aborted: webView was not created.");
                 return;
             }
 
@@ -235,7 +207,6 @@ namespace gip.core.reporthandler.avui
             // 2) append cache-busting query so URI is always unique
             if (_webView.Source != null)
             {
-                Trace("Trace00042", "NavigateToEditor clearing existing WebView.Source before re-navigation.");
                 _webView.Source = null;
                 await Task.Delay(25);
             }
@@ -244,14 +215,12 @@ namespace gip.core.reporthandler.avui
             _navigationCounter++;
             string navUrl = $"file://{htmlPath.Replace('\\', '/')}?nav={_navigationCounter}&ts={DateTime.UtcNow.Ticks}";
             var uri = new Uri(navUrl);
-            Trace("Trace00010", $"NavigateToEditor start #{_navigationCounter}: {uri}");
             _webView.Source = uri;
         }
 
         private async void WebView_NavigationCompleted(object sender, WebViewNavigationCompletedEventArgs e)
         {
             _pageLoaded = true;
-            Trace("Trace00011", $"NavigationCompleted (isSuccess={e.IsSuccess}, pageLoaded={_pageLoaded}, vbTextLen={VBText?.Length ?? 0}).");
 
             // Small delay to let Quill initialize
             await Task.Delay(500);
@@ -259,7 +228,6 @@ namespace gip.core.reporthandler.avui
             // If we already had content, push it to the editor
             if (!string.IsNullOrEmpty(VBText))
             {
-                Trace("Trace00012", $"NavigationCompleted pushing initial content (len={VBText.Length}).");
                 await SetContentToEditor(VBText);
             }
         }
@@ -271,18 +239,13 @@ namespace gip.core.reporthandler.avui
         private void WebView_WebMessageReceived(object sender, WebMessageReceivedEventArgs e)
         {
             if (string.IsNullOrEmpty(e.Body))
-            {
-                Trace("Trace00013", "WebMessageReceived empty body.");
                 return;
-            }
 
             try
             {
                 using var doc = JsonDocument.Parse(e.Body);
                 string messageType = doc.RootElement.GetProperty("type").GetString();
-                _lastMessageType = messageType;
                 _lastMessageUtc = DateTime.UtcNow;
-                Trace("Trace00014", $"WebMessageReceived type={messageType}, bodyLen={e.Body.Length}");
 
                 switch (messageType)
                 {
@@ -292,34 +255,21 @@ namespace gip.core.reporthandler.avui
 
                     case "ready":
                         _isReady = true;
-                        Trace("Trace00015", "Ready ack received from JS.");
                         break;
 
                     case "content-changed":
-                        _suppressNextChange = true;
                         string html = doc.RootElement.GetProperty("html").GetString();
-                        Trace("Trace00016", $"Content-changed received (htmlLen={html?.Length ?? 0}).");
                         string effectiveHtml = ReconstructFullDocument(html);
                         if (effectiveHtml != VBText)
                         {
                             VBText = effectiveHtml;
-                            Trace("Trace00017", $"VBText updated from content-changed (effectiveLen={effectiveHtml?.Length ?? 0}).");
                         }
-                        _suppressNextChange = false;
-                        break;
-
-                    case "trace":
-                        Trace("Trace00018", $"JS trace: {doc.RootElement.GetProperty("message").GetString()}");
-                        break;
-
-                    default:
-                        Trace("Trace00019", $"Unhandled message type={messageType}");
                         break;
                 }
             }
             catch (JsonException)
             {
-                Trace("Trace00020", $"WebMessageReceived JSON parse failed. RawLen={e.Body?.Length ?? 0}");
+                // Ignore malformed payloads
             }
             catch (Exception ex)
             {
@@ -401,20 +351,13 @@ namespace gip.core.reporthandler.avui
         private async Task SetContentToEditor(string html)
         {
             if (!_pageLoaded)
-            {
-                Trace("Trace00021", "SetContentToEditor skipped because page not loaded.");
                 return;
-            }
 
             if (_webView == null)
-            {
-                Trace("Trace00048", "SetContentToEditor skipped because webView is null.");
                 return;
-            }
 
             try
             {
-                Trace("Trace00022", $"SetContentToEditor invoke (len={html?.Length ?? 0}).");
                 // Escape the HTML for safe embedding in a JSON string
                 string escapedHtml = JsonSerializer.Serialize(html);
                 string script = $@"
@@ -427,7 +370,6 @@ namespace gip.core.reporthandler.avui
             }
             catch (Exception ex)
             {
-                Trace("Trace00023", "SetContentToEditor invoke failed.");
                 this.Root()?.Messages.LogException("VBQuillEditor", nameof(SetContentToEditor), ex);
             }
         }
@@ -439,20 +381,13 @@ namespace gip.core.reporthandler.avui
         public async Task FocusEditor()
         {
             if (!_pageLoaded)
-            {
-                Trace("Trace00024", "FocusEditor skipped because page not loaded.");
                 return;
-            }
 
             if (_webView == null)
-            {
-                Trace("Trace00049", "FocusEditor skipped because webView is null.");
                 return;
-            }
 
             try
             {
-                Trace("Trace00025", "FocusEditor invoke.");
                 string script = @"
                     (() => {
                         const msg = { type: 'focus' };
@@ -463,7 +398,6 @@ namespace gip.core.reporthandler.avui
             }
             catch (Exception ex)
             {
-                Trace("Trace00026", "FocusEditor invoke failed.");
                 this.Root()?.Messages.LogException("VBQuillEditor", nameof(FocusEditor), ex);
             }
         }
@@ -477,16 +411,10 @@ namespace gip.core.reporthandler.avui
             EnsureWebViewCreated();
 
             if (!await _activateGate.WaitAsync(0))
-            {
-                Trace("Trace00036", "ActivateAsync skipped because another activation is in progress.");
                 return;
-            }
 
             try
             {
-            _activateCounter++;
-            Trace("Trace00027", $"ActivateAsync start #{_activateCounter} (pageLoaded={_pageLoaded}, navStarted={_navigationStarted}, isReady={_isReady}).");
-
             if (!_pageLoaded)
             {
                 await NavigateToEditor();
@@ -495,11 +423,8 @@ namespace gip.core.reporthandler.avui
                     await Task.Delay(50);
                 }
 
-                Trace("Trace00028", $"ActivateAsync post-wait (pageLoaded={_pageLoaded}, navStarted={_navigationStarted}).");
-
                 if (!_pageLoaded)
                 {
-                    Trace("Trace00043", "ActivateAsync navigation wait timed out; forcing hard reload.");
                     await ForceReloadAsync();
                 }
             }
@@ -508,7 +433,6 @@ namespace gip.core.reporthandler.avui
             if (_pageLoaded)
             {
                 bool bridgeReady = await EnsureBridgeReadyAsync();
-                Trace("Trace00029", $"Bridge health result: {bridgeReady}");
                 if (!bridgeReady)
                 {
                     await ForceReloadAsync();
@@ -533,7 +457,6 @@ namespace gip.core.reporthandler.avui
             WebViewHost.InvalidateMeasure();
             WebViewHost.InvalidateArrange();
             InvalidateVisual();
-            Trace("Trace00030", $"ActivateAsync end #{_activateCounter} (pageLoaded={_pageLoaded}, isReady={_isReady}, lastMsg={_lastMessageType ?? "<none>"}).");
             }
             finally
             {
@@ -556,14 +479,12 @@ namespace gip.core.reporthandler.avui
                 double recentMs = (DateTime.UtcNow - _lastMessageUtc).TotalMilliseconds;
                 if (recentMs >= 0 && recentMs <= 2500)
                 {
-                    Trace("Trace00038", $"EnsureBridgeReadyAsync short-circuit via recent JS message ({_lastMessageType ?? "<none>"}, {recentMs:F0}ms ago).");
                     _isReady = true;
                     return true;
                 }
             }
 
             _isReady = false;
-            Trace("Trace00031", "EnsureBridgeReadyAsync ping start.");
             DateTime pingStartUtc = DateTime.UtcNow;
 
             try
@@ -578,46 +499,35 @@ namespace gip.core.reporthandler.avui
             }
             catch
             {
-                Trace("Trace00032", "EnsureBridgeReadyAsync ping invoke failed.");
                 return false;
             }
 
             for (var i = 0; i < 40; i++)
             {
                 if (_isReady)
-                {
-                    Trace("Trace00039", $"EnsureBridgeReadyAsync ready=true after {i + 1} checks.");
                     return true;
-                }
 
                 // If any message arrived during the ping window, the bridge is alive.
                 if (_lastMessageUtc >= pingStartUtc)
                 {
-                    Trace("Trace00040", $"EnsureBridgeReadyAsync observed JS traffic during ping ({_lastMessageType ?? "<none>"}).");
                     _isReady = true;
                     return true;
                 }
 
                 await Task.Delay(50);
             }
-
-            Trace("Trace00033", "EnsureBridgeReadyAsync timed out waiting for ready ack.");
             return false;
         }
 
         private async Task InvokeScriptWithTimeoutAsync(string script, int timeoutMs, string caller)
         {
             if (_webView == null)
-            {
-                Trace("Trace00050", $"InvokeScript skipped in {caller} because webView is null.");
                 throw new InvalidOperationException("WebView is null.");
-            }
 
             Task invokeTask = _webView.InvokeScript(script);
             Task completed = await Task.WhenAny(invokeTask, Task.Delay(timeoutMs));
             if (completed != invokeTask)
             {
-                Trace("Trace00037", $"InvokeScript timeout in {caller} after {timeoutMs}ms.");
                 throw new TimeoutException($"InvokeScript timeout in {caller}.");
             }
 
@@ -629,9 +539,6 @@ namespace gip.core.reporthandler.avui
         /// </summary>
         private async Task ForceReloadAsync()
         {
-            _reloadCounter++;
-            Trace("Trace00034", $"ForceReloadAsync start #{_reloadCounter}.");
-
             _pageLoaded = false;
             _navigationStarted = false;
             _isReady = false;
@@ -656,16 +563,13 @@ namespace gip.core.reporthandler.avui
 
             if (!_pageLoaded)
             {
-                Trace("Trace00044", "ForceReloadAsync timed out waiting for NavigationCompleted.");
+                return;
             }
 
             if (_pageLoaded)
             {
-                bool readyAfterReload = await EnsureBridgeReadyAsync();
-                Trace("Trace00041", $"ForceReloadAsync bridge result after reload: {readyAfterReload}");
+                await EnsureBridgeReadyAsync();
             }
-
-            Trace("Trace00035", $"ForceReloadAsync end #{_reloadCounter} (pageLoaded={_pageLoaded}, isReady={_isReady}).");
         }
 
         #endregion

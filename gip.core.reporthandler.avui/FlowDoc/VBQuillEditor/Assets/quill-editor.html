@@ -80,10 +80,6 @@
             }
         }
 
-        function traceToHost(message) {
-            sendToHost({ type: 'trace', message: message });
-        }
-
         // ── Toolbar configuration ──────────────────────────────
         const toolbarOptions = [
             [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
@@ -173,20 +169,17 @@
             switch (msg.type) {
                 case 'setContent':
                     if (msg.html !== undefined) {
-                        traceToHost('setContent-received');
                         const bodyContent = extractBodyContent(msg.html || '');
                         quill.clipboard.dangerouslyPasteHTML(bodyContent);
                     }
                     break;
 
                 case 'focus':
-                    traceToHost('focus-received');
                     quill.focus();
                     break;
 
                 case 'ready':
                     // Acknowledge readiness
-                    traceToHost('ready-received');
                     sendToHost({
                         type: 'ready',
                         timestamp: Date.now()
@@ -223,7 +216,6 @@
             type: 'ready',
             timestamp: Date.now()
         });
-        traceToHost('initialized-and-ready-sent');
     </script>
 </body>
 </html>
