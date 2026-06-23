@@ -25,6 +25,7 @@ namespace gip.core.reporthandler.avui
     public partial class VBReportEditor : UserControl, IVBContent, IACMenuBuilder, IACObject
     {
         private bool _HtmlBindingsInitialized = false;
+        private bool _QuillBindingsInitialized = false;
         private string _PreviewPdfPath;
 
         public VBReportEditor()
@@ -129,6 +130,7 @@ namespace gip.core.reporthandler.avui
                     Bind(VBReportEditor.ACUrlCmdMessageProperty, binding3);
 
                     EnsureHtmlBindings();
+                    EnsureQuillBindings();
                     ApplyTemplateMode();
 
 
@@ -198,9 +200,14 @@ namespace gip.core.reporthandler.avui
                 {
                     RefreshDesignerFromXAML();
                 }
+                else if (vbTabitemAdded == WysiwygTab)
+                {
+                    // Switching to WYSIWYG — push current XMLText into the Quill editor
+                    RefreshWysiwygFromXAML();
+                }
                 else if (vbTabitemAdded == PreviewTab)
                 {
-                    if (_LastActiveTab == DesignTab)
+                    if (_LastActiveTab == DesignTab || _LastActiveTab == WysiwygTab)
                         SaveToXAML();
                     RefreshViewerFromXAML();
                 }
@@ -216,7 +223,7 @@ namespace gip.core.reporthandler.avui
                 }
                 else // XAMLTab
                 {
-                    if (_LastActiveTab == DesignTab)
+                    if (_LastActiveTab == DesignTab || _LastActiveTab == WysiwygTab)
                         SaveToXAML();
                     else if (_LastActiveTab == ConfigurationTab)
                     {
@@ -273,6 +280,12 @@ namespace gip.core.reporthandler.avui
             {
                 ucHtmlEditor.ClearBinding(gip.core.layoutengine.avui.VBTextEditor.VBTextProperty);
                 _HtmlBindingsInitialized = false;
+            }
+
+            if (_QuillBindingsInitialized)
+            {
+                ucQuillEditor.ClearBinding(VBQuillEditor.VBTextProperty);
+                _QuillBindingsInitialized = false;
             }
 
             ClearPdfPreview();
@@ -382,6 +395,8 @@ namespace gip.core.reporthandler.avui
             VBTabItem vbTabitemAdded = this.ucTabControl.SelectedItem as VBTabItem;
             if (vbTabitemAdded == DesignTab)
                 RefreshDesignerFromXAML();
+            else if (vbTabitemAdded == WysiwygTab)
+                RefreshWysiwygFromXAML();
         }
 
         //private ReportDocument _ReportDocument = null;
@@ -419,6 +434,32 @@ namespace gip.core.reporthandler.avui
             //    //UCDesigner.Document = null;
             //    _WrongXAML = true;
             //}
+        }
+
+        /// <summary>
+        /// Pushes the current XMLText into the Quill WYSIWYG editor.
+        /// Called when switching to the WYSIWYG tab.
+        /// </summary>
+        public void RefreshWysiwygFromXAML()
+        {
+            if (!IsLoaded)
+                return;
+
+            ApplyTemplateMode();
+            if (!IsHtmlTemplate)
+            {
+                _WrongXAML = false;
+                return;
+            }
+
+            // The two-way binding ensures the Quill editor picks up the current XMLText.
+            // Additionally, focus the editor for immediate usability.
+            if (ucQuillEditor != null)
+            {
+                _ = ucQuillEditor.ActivateAsync();
+            }
+
+            _WrongXAML = false;
         }
 
         public void RefreshViewerFromXAML()
@@ -514,7 +555,10 @@ namespace gip.core.reporthandler.avui
         {
             if (IsHtmlTemplate)
             {
-                if (ucHtmlEditor != null && XMLText != ucHtmlEditor.VBText)
+                // Priority: WYSIWYG > Design (plain HTML)
+                if (ucQuillEditor != null && XMLText != ucQuillEditor.VBText)
+                    XMLText = ucQuillEditor.VBText;
+                else if (ucHtmlEditor != null && XMLText != ucHtmlEditor.VBText)
                     XMLText = ucHtmlEditor.VBText;
                 _WrongXAML = false;
                 return;
@@ -555,6 +599,21 @@ namespace gip.core.reporthandler.avui
             _HtmlBindingsInitialized = true;
         }
 
+        private void EnsureQuillBindings()
+        {
+            if (_QuillBindingsInitialized)
+                return;
+
+            var quillBinding = new Binding(nameof(XMLText))
+            {
+                Source = this,
+                Mode = BindingMode.TwoWay
+            };
+            ucQuillEditor.Bind(VBQuillEditor.VBTextProperty, quillBinding);
+
+            _QuillBindingsInitialized = true;
+        }
+
         private void ApplyTemplateMode()
         {
             bool isHtmlTemplate = IsHtmlTemplate;
@@ -567,6 +626,12 @@ namespace gip.core.reporthandler.avui
 
             if (ucHtmlEditor != null)
                 ucHtmlEditor.IsVisible = isHtmlTemplate;
+
+            if (WysiwygTab != null)
+                WysiwygTab.IsVisible = isHtmlTemplate;
+
+            if (ucQuillEditor != null)
+                ucQuillEditor.IsVisible = isHtmlTemplate;
 
             if (ucPdfViewer != null)
                 ucPdfViewer.IsVisible = isHtmlTemplate;

@@ -1026,9 +1026,9 @@ namespace gip.core.reporthandler.avui
             //UpdateName(newDesign);
             newDesign.ACKind = Global.ACKinds.DSDesignReport;
             if (parentReport != null && parentReport.ACUsage == newDesign.ACUsage)
-                newDesign.XAMLDesign = parentReport.XAMLDesign;
+                newDesign.XMLDesign = parentReport.XMLDesign;
             else if (newDesign.ACUsage == Global.ACUsages.DUReport)
-                newDesign.XAMLDesign = ScryberReportEngine.GetDefaultHtmlTemplate();
+                newDesign.XMLDesign = ScryberReportEngine.GetDefaultHtmlTemplate();
 
 
 

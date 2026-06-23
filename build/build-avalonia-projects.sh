@@ -138,6 +138,7 @@ declare -a SOLUTION_PATHS=(
     "../../AvMessageBox.Avalonia/iPlusAvalonia.slnx"
     "../../avOxyplot-avalonia/Source/iPlusAvalonia.slnx"
     "../../scryber.core/Scryber.Core.slnx"
+    "../../Avalonia.Controls.WebView/iPlusAvalonia.slnx"
 )
 
 declare -a SOLUTION_NAMES=(
@@ -156,6 +157,7 @@ declare -a SOLUTION_NAMES=(
     "Message Box"
     "OxyPlot Avalonia"
     "Scryber Core"
+    "WebView Controls"
 )
 
 declare -a SOLUTION_PRIORITIES=(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)

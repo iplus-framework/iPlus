@@ -231,7 +231,7 @@
     <PackageReference Include="iPlus.RoslynPad.Roslyn.Avalonia" /> -->
     <PackageReference Include="RoslynPad.Editor.Avalonia" />
     <PackageReference Include="RoslynPad.Roslyn.Avalonia" />
-    <PackageReference Include="Avalonia.HtmlRenderer" />
+    <PackageReference Include="Avalonia.Controls.WebView" />
   </ItemGroup>
 
   <!-- Use Avalonia Fork -->
@@ -256,7 +256,7 @@
   <Import Condition="'$(UseAvaloniaFork)' == 'True'"
     Project="../build/AvaloniaRichTextBoxInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaOxyPlotInclude.props" />
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaHtmlRenderer.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaWebViewInclude.props" />
 
   <ItemGroup>
     <Compile Remove="CodeCompletionXsdGenerator.cs" />

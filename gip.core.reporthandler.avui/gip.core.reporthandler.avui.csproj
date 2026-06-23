@@ -91,11 +91,21 @@
 		<PackageReference Include="TextMateSharp.Grammars" />
 	</ItemGroup>
 
+	<!-- Quill WYSIWYG editor assets (embedded for offline use) -->
+	<ItemGroup>
+		<EmbeddedResource Include="FlowDoc\VBQuillEditor\Assets\quill.min.js" />
+		<EmbeddedResource Include="FlowDoc\VBQuillEditor\Assets\quill.snow.css" />
+		<EmbeddedResource Include="FlowDoc\VBQuillEditor\Assets\quill-table-better.js" />
+		<EmbeddedResource Include="FlowDoc\VBQuillEditor\Assets\quill-table-better.css" />
+		<EmbeddedResource Include="FlowDoc\VBQuillEditor\Assets\quill-editor.html" />
+	</ItemGroup>
+
 	<!-- Use Avalonia Nuget -->
 	<ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
 		<PackageReference Include="Avalonia" />
 		<PackageReference Include="AvaloniaEdit.TextMate" />
 		<PackageReference Include="Simplecto.Avalonia.RichTextBox" />
+		<PackageReference Include="Avalonia.Controls.WebView" />
 	</ItemGroup>
 
 	<!-- Use Avalonia Fork -->
@@ -103,6 +113,7 @@
 	<Import Condition="'$(UseAvaloniaFork)' == 'True'"
 		Project="../build/AvaloniaRichTextBoxInclude.props" />
 	<Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaEditInclude.props" />
+	<Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaWebViewInclude.props" />
 
 	<ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'False'">
 		<PackageReference Include="Microsoft.EntityFrameworkCore" />

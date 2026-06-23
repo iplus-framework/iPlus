@@ -1,0 +1,32 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Reference Include="Avalonia.Controls.WebView.Core">
+      <HintPath>$(AvaloniaWebViewIncludeDir)/Avalonia.Controls.WebView.Core/bin/$(AvaloniaForkBuildConfiguration)/$(AvaloniaBuildFramework)/Avalonia.Controls.WebView.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Controls.WebView">
+      <HintPath>$(AvaloniaWebViewIncludeDir)/Avalonia.Controls.WebView/bin/$(AvaloniaForkBuildConfiguration)/$(AvaloniaBuildFramework)/Avalonia.Controls.WebView.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <Reference Remove="Avalonia.Controls.WebView.Core" />
+    <Reference Remove="Avalonia.Controls.WebView" />
+    <Reference Include="Avalonia.Controls.WebView.Core">
+      <HintPath>$(AvaloniaWebViewIncludeDir)/Avalonia.Controls.WebView.Core/bin/$(AvaloniaForkBuildConfiguration)/net10.0-android/Avalonia.Controls.WebView.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Controls.WebView">
+      <HintPath>$(AvaloniaWebViewIncludeDir)/Avalonia.Controls.WebView/bin/$(AvaloniaForkBuildConfiguration)/net10.0-android/Avalonia.Controls.WebView.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'browser'">
+    <Reference Remove="Avalonia.Controls.WebView.Core" />
+    <Reference Remove="Avalonia.Controls.WebView" />
+    <Reference Include="Avalonia.Controls.WebView.Core">
+      <HintPath>$(AvaloniaWebViewIncludeDir)/Avalonia.Controls.WebView.Core/bin/$(AvaloniaForkBuildConfiguration)/net10.0-browser/Avalonia.Controls.WebView.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Controls.WebView">
+      <HintPath>$(AvaloniaWebViewIncludeDir)/Avalonia.Controls.WebView/bin/$(AvaloniaForkBuildConfiguration)/net10.0-browser/Avalonia.Controls.WebView.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project> 

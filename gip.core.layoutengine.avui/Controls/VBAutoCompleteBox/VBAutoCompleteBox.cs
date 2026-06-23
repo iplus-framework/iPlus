@@ -19,7 +19,7 @@ namespace gip.core.layoutengine.avui
     public class VBAutoCompleteBox : AutoCompleteBox, IVBContent, IVBSource, IACObject
     {
         #region Private Fields
-        private IACBSO _LastKnownBSOACComponent = null;
+        //private IACBSO _LastKnownBSOACComponent = null;
         private bool _IsInitialized = false;
         private List<string> _vbShowColumns;
         private DispatcherTimer _cyclickDataRefreshDispTimer;

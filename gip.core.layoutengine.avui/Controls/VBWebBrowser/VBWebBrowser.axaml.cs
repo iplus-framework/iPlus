@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using TheArtOfDev.HtmlRenderer.Avalonia;
 
 namespace gip.core.layoutengine.avui
 {
@@ -174,7 +173,7 @@ namespace gip.core.layoutengine.avui
             {
                 try
                 {
-                    //nativeWebView.Source = new Uri(ContentFile);
+                    nativeWebView.Source = new Uri(ContentFile);
                 }
                 catch (Exception e)
                 {
@@ -250,7 +249,7 @@ namespace gip.core.layoutengine.avui
             }
             else if (change.Property == ContentXMLProperty && change.NewValue != null)
             {
-                //nativeWebView.NavigateToString(change.NewValue as string);
+                nativeWebView.NavigateToString(change.NewValue as string);
             }
             else if (change.Property == ContentFileProperty)
             {
@@ -264,7 +263,7 @@ namespace gip.core.layoutengine.avui
             }
             else if (change.Property == HtmlTextProperty)
             {
-                nativeWebView.Text = change.NewValue as string ?? string.Empty;
+                nativeWebView.NavigateToString(change.NewValue as string ?? string.Empty);
             }
        }
 

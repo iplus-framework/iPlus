@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quill Editor</title>
+    <link href="quill.snow.css" rel="stylesheet">
+    <link href="quill-table-better.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            overflow: hidden;
+        }
+        #container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #toolbar-container {
+            flex-shrink: 0;
+            border-bottom: 1px solid #ccc;
+        }
+        #editor-container {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        .ql-toolbar {
+            border-top: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            border-radius: 0 !important;
+        }
+        .ql-container {
+            border-bottom: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            border-radius: 0 !important;
+            font-size: 14px;
+        }
+        .ql-editor {
+            min-height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="toolbar-container">
+            <span id="toolbar"></span>
+        </div>
+        <div id="editor-container">
+            <div id="editor"></div>
+        </div>
+    </div>
+
+    <script src="quill.min.js"></script>
+    <script src="quill-table-better.js"></script>
+    <script>
+        function sendToHost(payload) {
+            const json = JSON.stringify(payload);
+
+            // Avalonia bridge on many platforms
+            if (typeof window.invokeCSharpAction === 'function') {
+                window.invokeCSharpAction(json);
+                return;
+            }
+
+            // WebView2-style bridge fallback
+            if (window.chrome && window.chrome.webview && typeof window.chrome.webview.postMessage === 'function') {
+                window.chrome.webview.postMessage(json);
+                return;
+            }
+
+            // WebKit message handler fallback
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.webview
+                && typeof window.webkit.messageHandlers.webview.postMessage === 'function') {
+                window.webkit.messageHandlers.webview.postMessage(json);
+                return;
+            }
+        }
+
+        function traceToHost(message) {
+            sendToHost({ type: 'trace', message: message });
+        }
+
+        // ── Toolbar configuration ──────────────────────────────
+        const toolbarOptions = [
+            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'indent': '-1'}, { 'indent': '+1' }],
+            [{ 'align': [] }],
+            ['blockquote', 'code-block'],
+            ['link', 'image', 'video'],
+            ['table'],
+            ['clean']
+        ];
+
+        // ── Initialize Quill ───────────────────────────────────
+        const quill = new Quill('#editor', {
+            theme: 'snow',
+            modules: {
+                toolbar: {
+                    container: toolbarOptions,
+                    handlers: {}
+                },
+                table: {
+                    allowTableInTable: true,
+                    html: true
+                }
+            },
+            placeholder: 'Start typing...'
+        });
+
+        // ── State: remember the Scryber document wrapper for setContent ──
+        // When C# sends a full <!doctype html>…</html> template via setContent,
+        // we extract just the body content for Quill. The C# side handles
+        // re-wrapping body-only HTML back into a full document on save.
+        let documentWrapperOpen = "";   // "<!doctype html> … </head>"
+
+        /**
+         * Given a full HTML document or a bare body fragment, populate
+         * documentWrapperOpen and return only the body-innerHTML suitable
+         * for dangerouslyPasteHTML.
+         */
+        function extractBodyContent(fullHtml) {
+            if (!fullHtml.trim().startsWith("<")) {
+                documentWrapperOpen = "";
+                return fullHtml;
+            }
+
+            const lower = fullHtml.toLowerCase();
+            const isFullDoc = lower.includes("<!doctype") || lower.startsWith("<html");
+
+            if (!isFullDoc) {
+                documentWrapperOpen = "";
+                return fullHtml;
+            }
+
+            // Find the closing </head> tag
+            const headEndIdx = lower.indexOf("</head>");
+            if (headEndIdx > -1) {
+                documentWrapperOpen = fullHtml.substring(0, headEndIdx + 7);
+            } else {
+                const bodyStartIdx = lower.indexOf("<body");
+                if (bodyStartIdx > -1) {
+                    documentWrapperOpen = fullHtml.substring(0, bodyStartIdx);
+                } else {
+                    documentWrapperOpen = "";
+                    return fullHtml;
+                }
+            }
+
+            // Extract the body content
+            const bodyTagMatch = /<body[\s\S]*?([\s\S]*)<\/body>/i.exec(fullHtml);
+            if (bodyTagMatch && bodyTagMatch[1]) {
+                return bodyTagMatch[1].trim();
+            }
+
+            // Fallback: everything after </head>, stripped of <body> tags
+            const afterHead = fullHtml.substring(headEndIdx + 7);
+            const stripped = afterHead.replace(/^<body[\s\S]*?>/i, "").replace(/<\/body>[\s\S]*$/i, "");
+            return stripped.trim();
+        }
+
+        // ── Message bridge: receive from C# ────────────────────
+        window.addEventListener('message', function(event) {
+            const msg = event.data;
+            if (typeof msg !== 'object' || msg === null) return;
+
+            switch (msg.type) {
+                case 'setContent':
+                    if (msg.html !== undefined) {
+                        traceToHost('setContent-received');
+                        const bodyContent = extractBodyContent(msg.html || '');
+                        quill.clipboard.dangerouslyPasteHTML(bodyContent);
+                    }
+                    break;
+
+                case 'focus':
+                    traceToHost('focus-received');
+                    quill.focus();
+                    break;
+
+                case 'ready':
+                    // Acknowledge readiness
+                    traceToHost('ready-received');
+                    sendToHost({
+                        type: 'ready',
+                        timestamp: Date.now()
+                    });
+                    break;
+            }
+        });
+
+        // ── Message bridge: send to C# ─────────────────────────
+        // Quill sends body-only HTML; C# re-wraps it into a full document.
+        let debounceTimer = null;
+        const DEBOUNCE_MS = 300;
+
+        quill.on('text-change', function(delta, oldDelta, source) {
+            if (source === 'api') return; // Ignore programmatic changes
+
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function() {
+                const bodyHtml = quill.container.querySelector('.ql-editor').innerHTML;
+                sendToHost({
+                    type: 'content-changed',
+                    html: bodyHtml
+                });
+            }, DEBOUNCE_MS);
+        });
+
+        // ── Signal ready to host ──────────────────────────────
+        sendToHost({
+            type: 'initialized',
+            version: Quill.version
+        });
+        // Proactive ready signal to avoid initial ping race on some WebView hosts.
+        sendToHost({
+            type: 'ready',
+            timestamp: Date.now()
+        });
+        traceToHost('initialized-and-ready-sent');
+    </script>
+</body>
+</html>
