@@ -1063,28 +1063,26 @@ namespace gip.core.reporthandlerwpf
                     if (reportDoc == null)
                         return null;
                     XpsDocument xps = null;
-                    string _wineXpsPath = null; // temp XPS file path used on Wine (file-based creation)
+                    string _wineXpsPath = null; // temp XPS file path used for file-based creation
                     if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://"))
                     {
                         string fileName = printerName.Substring(7);
                         xps = reportDoc.CreateXpsDocument(data, fileName);
                         return null;
                     }
-                    else if (gip.core.autocomponent.Environment.IsRunningUnderWine())
+                    else
                     {
-                        // File-based creation: commits + closes the zip package and reopens it in
-                        // FileAccess.Read mode.  This is required because the memory-based overload
-                        // opens the package in ZipArchiveMode.Update, which forbids opening the same
-                        // zip entry more than once — the XPS image serializer does exactly that when
-                        // the same bitmap brush appears on multiple pages or multiple elements.
-                        // The file-based path also gives us the XPS directly on disk so xpstopdf can
-                        // consume it without any re-serialization.
+                        // Always use file-based creation so the package is committed and reopened in
+                        // FileAccess.Read mode. This avoids ZipArchive update-mode entry reuse issues
+                        // ("Entries cannot be opened multiple times in Update mode") during print
+                        // serialization when the same resource is accessed multiple times.
                         string uid = Guid.NewGuid().ToString("N").Substring(0, 8);
-                        _wineXpsPath = $@"Z:\tmp\iplus_{uid}.xps";
+                        _wineXpsPath = gip.core.autocomponent.Environment.IsRunningUnderWine()
+                            ? $@"Z:\tmp\iplus_{uid}.xps"
+                            : Path.Combine(Path.GetTempPath(), $"iplus_{uid}.xps");
+
                         xps = reportDoc.CreateXpsDocument(data, _wineXpsPath);
                     }
-                    else
-                        xps = reportDoc.CreateXpsDocument(data);
                     if (xps == null)
                         return null;
 
@@ -1209,10 +1207,26 @@ namespace gip.core.reporthandlerwpf
                                     }
                                     else
                                     {
-                                        PrintDocumentImageableArea area = null;
-                                        XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(ref area);
-                                        if (writer != null)
-                                            writer.Write(fDocSeq);
+                                        bool isZipUpdateModeReuseError =
+                                            e is IOException ioEx &&
+                                            ioEx.Message != null &&
+                                            ioEx.Message.IndexOf("Entries cannot be opened multiple times in Update mode", StringComparison.OrdinalIgnoreCase) >= 0;
+
+                                        if (!isZipUpdateModeReuseError)
+                                        {
+                                            try
+                                            {
+                                                PrintDocumentImageableArea area = null;
+                                                XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(ref area);
+                                                if (writer != null)
+                                                    writer.Write(fDocSeq);
+                                            }
+                                            catch (Exception exFallback)
+                                            {
+                                                this.Root().Messages.LogException("VBBSOReport", "FlowPrint(10-DialogFallback)",
+                                                    exFallback.InnerException?.Message ?? exFallback.Message);
+                                            }
+                                        }
                                     }
                                 }
                             }
