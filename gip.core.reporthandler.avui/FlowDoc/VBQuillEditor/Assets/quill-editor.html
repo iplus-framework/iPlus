@@ -7,17 +7,27 @@
     <link href="quill.snow.css" rel="stylesheet">
     <link href="quill-table-better.css" rel="stylesheet">
     <style>
+        :root {
+            color-scheme: light !important;
+        }
+        html {
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
         body {
             margin: 0;
             padding: 0;
             font-family: sans-serif;
             overflow: hidden;
-            caret-color: black;
+            background: #ffffff !important;
+            color: #000000 !important;
+            caret-color: #000000 !important;
         }
         #container {
             height: 100vh;
             display: flex;
             flex-direction: column;
+            background: #ffffff !important;
         }
         #toolbar-container {
             flex-shrink: 0;
@@ -25,7 +35,18 @@
         }
         #editor-container {
             flex-grow: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
             overflow-y: auto;
+            background: #ffffff !important;
+            position: relative;
+        }
+        #editor {
+            flex: 1 1 auto;
+            min-height: 0;
+            background: #ffffff !important;
+            height: 100%;
         }
         .ql-toolbar {
             border-top: none !important;
@@ -39,9 +60,37 @@
             border-right: none !important;
             border-radius: 0 !important;
             font-size: 14px;
+            background: #ffffff !important;
+            color: #000000 !important;
+            height: 100% !important;
         }
         .ql-editor {
             min-height: 100%;
+            background: #ffffff !important;
+            color: #000000 !important;
+            caret-color: #000000 !important;
+            -webkit-text-fill-color: currentColor;
+            height: 100% !important;
+        }
+        .ql-editor * {
+            caret-color: #000000 !important;
+        }
+        .ql-editor::before {
+            color: #666666 !important;
+        }
+        #caret-overlay {
+            position: absolute;
+            width: 2px;
+            background: #111111;
+            pointer-events: none;
+            user-select: none;
+            z-index: 2147483647;
+            display: none;
+            animation: caret-overlay-blink 1s step-end infinite;
+        }
+        @keyframes caret-overlay-blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
         }
     </style>
 </head>
@@ -118,6 +167,110 @@
             },
             placeholder: 'Start typing...'
         });
+
+        function enforceCaretVisibility() {
+            try {
+                document.documentElement.style.setProperty('color-scheme', 'light', 'important');
+                quill.root.style.setProperty('caret-color', '#000000', 'important');
+                quill.root.style.setProperty('color', '#000000', 'important');
+                quill.root.style.setProperty('background-color', '#ffffff', 'important');
+
+                // Ensure the current insertion context also carries caret color.
+                var sel = window.getSelection ? window.getSelection() : null;
+                if (sel && sel.anchorNode) {
+                    var el = sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement;
+                    if (el && el.style) {
+                        el.style.setProperty('caret-color', '#000000', 'important');
+                    }
+                }
+            } catch (e) {
+                // Best effort only.
+            }
+        }
+
+        function normalizeInsertionColorIfInvisible() {
+            try {
+                var range = quill.getSelection();
+                if (!range || range.length !== 0) return;
+
+                var fmt = quill.getFormat(range.index, 0) || {};
+                var c = (fmt.color || '').toString().toLowerCase().replace(/\s+/g, '');
+
+                if (
+                    c === 'white' ||
+                    c === '#fff' ||
+                    c === '#ffffff' ||
+                    c === 'rgb(255,255,255)' ||
+                    c === 'rgba(255,255,255,1)' ||
+                    c === 'transparent' ||
+                    c === 'rgba(0,0,0,0)'
+                ) {
+                    quill.format('color', '#000000', Quill.sources.SILENT);
+                }
+            } catch (e) {
+                // Best effort only.
+            }
+        }
+
+        var _caretOverlay = null;
+
+        function ensureCaretOverlay() {
+            if (_caretOverlay && _caretOverlay.parentNode) {
+                return _caretOverlay;
+            }
+
+            var host = document.getElementById('editor-container');
+            if (!host) return null;
+
+            _caretOverlay = document.createElement('div');
+            _caretOverlay.id = 'caret-overlay';
+            _caretOverlay.setAttribute('aria-hidden', 'true');
+            host.appendChild(_caretOverlay);
+            return _caretOverlay;
+        }
+
+        function hideCaretOverlay() {
+            if (_caretOverlay) {
+                _caretOverlay.style.display = 'none';
+            }
+        }
+
+        function updateCaretOverlay() {
+            try {
+                var overlay = ensureCaretOverlay();
+                if (!overlay) return;
+
+                var range = quill.getSelection();
+                if (!range || range.length !== 0 || !quill.hasFocus()) {
+                    overlay.style.display = 'none';
+                    return;
+                }
+
+                var bounds = quill.getBounds(range.index, 0);
+                if (!bounds) {
+                    overlay.style.display = 'none';
+                    return;
+                }
+
+                var rootRect = quill.root.getBoundingClientRect();
+                var host = document.getElementById('editor-container');
+                var hostRect = host.getBoundingClientRect();
+
+                var left = (rootRect.left - hostRect.left) + bounds.left;
+                var top = (rootRect.top - hostRect.top) + bounds.top - quill.root.scrollTop;
+
+                overlay.style.left = Math.max(0, Math.round(left)) + 'px';
+                overlay.style.top = Math.max(0, Math.round(top)) + 'px';
+                overlay.style.height = Math.max(14, Math.round(bounds.height || 16)) + 'px';
+                overlay.style.display = 'block';
+            } catch (e) {
+                hideCaretOverlay();
+            }
+        }
+
+        enforceCaretVisibility();
+        ensureCaretOverlay();
+        updateCaretOverlay();
 
         // ── State: remember the Scryber document wrapper for setContent ──
         // When C# sends a full <!doctype html>…</html> template via setContent,
@@ -197,6 +350,9 @@
 
                 case 'focus':
                     quill.focus();
+                    enforceCaretVisibility();
+                    normalizeInsertionColorIfInvisible();
+                    setTimeout(updateCaretOverlay, 0);
                     break;
 
                 case 'ready':
@@ -214,25 +370,85 @@
         let debounceTimer = null;
         const DEBOUNCE_MS = 300;
 
+        function emitContentChanged() {
+            if (_isSettingContent) return;
+
+            // Remove temporary elements before extracting HTML (required by table-better)
+            var tbl = quill.getModule('table-better');
+            if (tbl && typeof tbl.deleteTableTemporary === 'function') {
+                tbl.deleteTableTemporary();
+            }
+
+            var rawHtml = quill.container.querySelector('.ql-editor').innerHTML;
+
+            // Strip Quill's own trailing <p><br></p> sentinel and any leading/trailing
+            // empty paragraphs so the round-trip to C# stays clean.
+            var bodyHtml = stripQuillSentinel(rawHtml);
+
+            var formattedHtml = bodyHtml;
+            try {
+                formattedHtml = prettyPrintHtml(bodyHtml);
+            } catch (e) {
+                // Never block content synchronization due to formatting errors.
+                formattedHtml = bodyHtml;
+            }
+
+            sendToHost({
+                type: 'content-changed',
+                html: formattedHtml
+            });
+        }
+
+        function flushPendingChanges() {
+            if (debounceTimer) {
+                clearTimeout(debounceTimer);
+                debounceTimer = null;
+            }
+            emitContentChanged();
+        }
+
         quill.on('text-change', function(delta, oldDelta, source) {
             if (source === 'api') return; // Ignore programmatic changes
             if (_isSettingContent) return; // Suppress during setContent to avoid feedback loop
 
+            updateCaretOverlay();
+
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(function() {
-                // Remove temporary elements before extracting HTML (required by table-better)
-                var tbl = quill.getModule('table-better');
-                if (tbl) tbl.deleteTableTemporary();
-                var rawHtml = quill.container.querySelector('.ql-editor').innerHTML;
-                // Strip Quill's own trailing <p><br></p> sentinel and any leading/trailing
-                // empty paragraphs so the round-trip to C# stays clean.
-                var bodyHtml = stripQuillSentinel(rawHtml);
-                sendToHost({
-                    type: 'content-changed',
-                    html: bodyHtml
-                });
+                debounceTimer = null;
+                emitContentChanged();
             }, DEBOUNCE_MS);
         });
+
+        // Flush immediately when focus is lost or page visibility changes,
+        // otherwise quick tab switches can preserve stale HTML in code view.
+        quill.on('selection-change', function(range, oldRange) {
+            enforceCaretVisibility();
+            normalizeInsertionColorIfInvisible();
+            updateCaretOverlay();
+            if (range === null && oldRange !== null) {
+                flushPendingChanges();
+            }
+        });
+        quill.root.addEventListener('focus', updateCaretOverlay);
+        quill.root.addEventListener('keyup', updateCaretOverlay);
+        quill.root.addEventListener('mouseup', updateCaretOverlay);
+        quill.root.addEventListener('input', updateCaretOverlay);
+        quill.root.addEventListener('scroll', updateCaretOverlay);
+        quill.root.addEventListener('blur', function() {
+            hideCaretOverlay();
+            flushPendingChanges();
+        });
+        window.addEventListener('resize', updateCaretOverlay);
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                hideCaretOverlay();
+                flushPendingChanges();
+            } else {
+                setTimeout(updateCaretOverlay, 0);
+            }
+        });
+        window.addEventListener('beforeunload', flushPendingChanges);
 
         /**
          * Remove Quill's internal trailing-blank-paragraph sentinel (&lt;p&gt;&lt;br&gt;&lt;/p&gt;)
@@ -248,7 +464,109 @@
             html = html.replace(/^\s*<(?:p|P)(?:\s[^>]*)?>\s*(?:&nbsp;)?(?:<br\s*\/?>)?\s*<\/(?:p|P)>/gi, '');
             return html.trim();
         }
-
+        /**
+         * Pretty-print HTML with proper indentation and line breaks.
+         * Splits on angle brackets, identifies block-level vs inline tags,
+         * and emits indented output.
+         */
+        function prettyPrintHtml(html) {
+            if (!html) return '';
+            
+            var BLOCK_TAGS = /^(?:div|p|h[1-6]|ul|ol|li|table|thead|tbody|tfoot|tr|td|th|blockquote|pre|dl|dt|dd|section|article|aside|main|nav|header|footer|figure|figcaption)$/i;
+            var VOID_TAGS = /^(?:br|hr|img|input|meta|link|area|base|col|embed|param|source|track|wbr)$/i;
+            var INDENT_STR = '  ';
+            
+            // Split into tokens: text segments and tags
+            var tokens = [];
+            var pos = 0;
+            while (pos < html.length) {
+                var ltPos = html.indexOf('<', pos);
+                if (ltPos === -1) {
+                    var text = html.substring(pos).trim();
+                    if (text) tokens.push({type: 'text', value: text});
+                    break;
+                }
+                if (ltPos > pos) {
+                    var textBefore = html.substring(pos, ltPos).trim();
+                    if (textBefore) tokens.push({type: 'text', value: textBefore});
+                }
+                var gtPos = html.indexOf('>', ltPos);
+                if (gtPos === -1) {
+                    tokens.push({type: 'tag', value: html.substring(ltPos)});
+                    break;
+                }
+                tokens.push({type: 'tag', value: html.substring(ltPos, gtPos + 1)});
+                pos = gtPos + 1;
+            }
+            
+            var depth = 0;
+            var lines_out = [];
+            var currentLine = '';
+            
+            function flushLine() {
+                if (currentLine) {
+                    lines_out.push(currentLine);
+                    currentLine = '';
+                }
+            }
+            
+            function padStr() {
+                return INDENT_STR.repeat(depth);
+            }
+            
+            for (var i = 0; i < tokens.length; i++) {
+                var tok = tokens[i];
+                if (tok.type === 'text') {
+                    currentLine += tok.value;
+                    continue;
+                }
+                var tag = tok.value;
+                var trimmed = tag.trim();
+                var tagLower = trimmed.toLowerCase();
+                var isComment = tagLower.startsWith('<!--');
+                var isClosing = tagLower.startsWith('</');
+                var isSelfClose = tagLower.endsWith('/>') || VOID_TAGS.test(getTagName(trimmed));
+                var tagName = getTagName(trimmed);
+                var isBlock = BLOCK_TAGS.test(tagName);
+                
+                if (isComment) {
+                    flushLine();
+                    lines_out.push(padStr() + tag);
+                    continue;
+                }
+                if (isClosing) {
+                    if (isBlock) {
+                        flushLine();
+                        depth--;
+                        lines_out.push(padStr() + tag);
+                    } else {
+                        currentLine += tag;
+                    }
+                } else if (isSelfClose) {
+                    if (isBlock) {
+                        flushLine();
+                        lines_out.push(padStr() + tag);
+                    } else {
+                        currentLine += tag;
+                    }
+                } else {
+                    if (isBlock) {
+                        flushLine();
+                        lines_out.push(padStr() + tag);
+                        depth++;
+                    } else {
+                        currentLine += tag;
+                    }
+                }
+            }
+            flushLine();
+            return lines_out.join('\n').trim();
+        }
+        
+        function getTagName(tag) {
+            var m = tag.match(/^<\/?\s*([a-zA-Z][a-zA-Z0-9-]*)/);
+            return m ? m[1].toLowerCase() : '';
+        }
         // ── Signal ready to host ──────────────────────────────
         sendToHost({
             type: 'initialized',
