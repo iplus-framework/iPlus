@@ -438,6 +438,21 @@ namespace gip.core.reporthandlerwpf
             }
         }
 
+        bool _WineUseLinuxXpsConversion = false;
+        [ACPropertyInfo(102, "", "en{'Wine: optimize Unicode text (images may be cropped)'}de{'Wine: Unicode-Text optimieren (Bilder koennen abgeschnitten sein)'}")]
+        public bool WineUseLinuxXpsConversion
+        {
+            get
+            {
+                return _WineUseLinuxXpsConversion;
+            }
+            set
+            {
+                _WineUseLinuxXpsConversion = value;
+                OnPropertyChanged("WineUseLinuxXpsConversion");
+            }
+        }
+
         string _PrinterName = "";
         [ACPropertyInfo(9999)]
         public string PrinterName
@@ -1150,6 +1165,7 @@ namespace gip.core.reporthandlerwpf
                 if (reportData == null)
                     return;
 
+                acReportQuery.ForceWineLinuxToolsXpsConversion = WineUseLinuxXpsConversion;
                 acReportQuery.Print(CurrentACClassDesign, WithDialog, PrinterName, reportData, CopyCount);
 
                 if (cloneInstantiated)

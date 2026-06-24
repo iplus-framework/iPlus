@@ -149,6 +149,17 @@ namespace gip.core.reporthandler.avui
             set;
         }
 
+        /// <summary>
+        /// Reserved for parity with WPF report printing options.
+        /// AVUI currently renders Scryber templates directly to PDF and does not use
+        /// the Wine XPS conversion pipeline.
+        /// </summary>
+        public bool? ForceWineLinuxToolsXpsConversion
+        {
+            get;
+            set;
+        }
+
         private ACPropertyConfigValue<int> _WindowsPdfPrintDpiConfig;
         [ACPropertyConfig("en{'Windows PDF print DPI'}de{'Windows PDF-Druck DPI'}")]
         public int WindowsPdfPrintDpi

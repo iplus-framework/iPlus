@@ -41,6 +41,10 @@ namespace gip.core.reporthandlerwpf
             @"@page\s*[^\{]*\{[^\}]*\bsize\s*:\s*(?<size>[^;\}\r\n]+)",
             RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
 
+        private static readonly Regex XamlImageElementRegex = new Regex(
+            @"<\s*Image\b",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         #region c´tors
         public VBBSOReport(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
@@ -141,6 +145,18 @@ namespace gip.core.reporthandlerwpf
         }
 
         public string PrinterName
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Optional Wine-only override for the XPS print route.
+        /// true  => force Linux xpstopdf conversion (better Unicode text mapping, may misrender some images)
+        /// false => force managed serializer path (better image/layout fidelity, may have glyph mapping issues)
+        /// null  => automatic selection (default behavior)
+        /// </summary>
+        public bool? ForceWineLinuxToolsXpsConversion
         {
             get;
             set;
@@ -1110,6 +1126,8 @@ namespace gip.core.reporthandlerwpf
                             if (copies <= 0)
                                 copies = 1;
 
+                            bool useWineLinuxXpsConversion = ShouldUseWineLinuxXpsConversion(CurrentACClassDesign?.XMLDesign, ForceWineLinuxToolsXpsConversion);
+
                             if (withDialog)
                             {
                                 try
@@ -1147,7 +1165,7 @@ namespace gip.core.reporthandlerwpf
                                             }
 
                                             if (gip.core.autocomponent.Environment.IsRunningUnderWine())
-                                                PrintFixedDocumentSequenceToQueue(pQ, fDocSeq, pt, _wineXpsPath);
+                                                PrintFixedDocumentSequenceToQueue(pQ, fDocSeq, pt, _wineXpsPath, useWineLinuxXpsConversion);
                                             else
                                                 writer.Write(fDocSeq, pt);
                                         }
@@ -1196,7 +1214,7 @@ namespace gip.core.reporthandlerwpf
                                                     pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
                                                 }
 
-                                                PrintFixedDocumentSequenceToQueue(pQ, fDocSeq, pt, _wineXpsPath);
+                                                PrintFixedDocumentSequenceToQueue(pQ, fDocSeq, pt, _wineXpsPath, useWineLinuxXpsConversion);
                                             }
                                         }
                                         catch (Exception exFallback)
@@ -1310,7 +1328,7 @@ namespace gip.core.reporthandlerwpf
                                     try
                                     {
                                         if (gip.core.autocomponent.Environment.IsRunningUnderWine())
-                                            PrintFixedDocumentSequenceToQueue(pQ, fDocSeq, pt, _wineXpsPath);
+                                            PrintFixedDocumentSequenceToQueue(pQ, fDocSeq, pt, _wineXpsPath, useWineLinuxXpsConversion);
                                         else
                                             writer.Write(fDocSeq, pt);
                                     }
@@ -1705,6 +1723,24 @@ namespace gip.core.reporthandlerwpf
             return string.Concat(name.Select(c => invalid.Contains(c) ? '_' : c));
         }
 
+        private static bool ShouldUseWineLinuxXpsConversion(string reportXaml, bool? forcedMode)
+        {
+            if (forcedMode.HasValue)
+                return forcedMode.Value;
+
+            // Optional override for troubleshooting:
+            // IPLUS_WINE_XPS_CONVERSION_MODE=always|never|auto (default: auto)
+            string mode = System.Environment.GetEnvironmentVariable("IPLUS_WINE_XPS_CONVERSION_MODE");
+            if (string.Equals(mode, "always", StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (string.Equals(mode, "never", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            // Auto mode: xpstopdf is known to misrender/crop some Image content under Wine,
+            // so use the managed serializer path when the template contains explicit Image tags.
+            return string.IsNullOrWhiteSpace(reportXaml) || !XamlImageElementRegex.IsMatch(reportXaml);
+        }
+
         private object TryCreateNgcSerializationManager(PrintQueue pQ)
         {
             try
@@ -1737,13 +1773,15 @@ namespace gip.core.reporthandlerwpf
             }
         }
 
-        private void PrintFixedDocumentSequenceToQueue(PrintQueue pQ, FixedDocumentSequence fDocSeq, PrintTicket pt, string prebuiltWinXpsPath = null)
+        private void PrintFixedDocumentSequenceToQueue(PrintQueue pQ, FixedDocumentSequence fDocSeq, PrintTicket pt, string prebuiltWinXpsPath = null, bool useLinuxToolsXpsConversion = true)
         {
             EnsureWineLegacySerializationPath();
 
             // On Wine: use the pre-built temp XPS file (created by FlowPrint using the file-based
             // CreateXpsDocument overload which commits and reopens in Read mode) to drive xpstopdf.
-            if (gip.core.autocomponent.Environment.IsRunningUnderWine() && TryPrintViaLinuxTools(prebuiltWinXpsPath, pQ, pt))
+            if (gip.core.autocomponent.Environment.IsRunningUnderWine()
+                && useLinuxToolsXpsConversion
+                && TryPrintViaLinuxTools(prebuiltWinXpsPath, pQ, pt))
                 return;
 
             object manager = null;

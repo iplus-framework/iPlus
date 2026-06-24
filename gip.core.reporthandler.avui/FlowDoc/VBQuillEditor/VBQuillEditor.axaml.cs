@@ -29,6 +29,7 @@ namespace gip.core.reporthandler.avui
         private bool _isReady;
         private bool _pageLoaded;
         private bool _navigationStarted;
+        private bool _hasPushedInitialContent; // guards against dual SetContentToEditor calls
         private int _navigationCounter;
         private DateTime _lastMessageUtc = DateTime.MinValue;
         private readonly SemaphoreSlim _activateGate = new SemaphoreSlim(1, 1);
@@ -159,6 +160,7 @@ namespace gip.core.reporthandler.avui
             // Force a fresh navigate/handshake on next activation.
             _pageLoaded = false;
             _navigationStarted = false;
+            _hasPushedInitialContent = false;
 
             DestroyWebView();
         }
@@ -225,9 +227,10 @@ namespace gip.core.reporthandler.avui
             // Small delay to let Quill initialize
             await Task.Delay(500);
 
-            // If we already had content, push it to the editor
-            if (!string.IsNullOrEmpty(VBText))
+            // If we already had content, push it to the editor (but only once!)
+            if (!string.IsNullOrEmpty(VBText) && !_hasPushedInitialContent)
             {
+                _hasPushedInitialContent = true;
                 await SetContentToEditor(VBText);
             }
         }
@@ -298,6 +301,7 @@ namespace gip.core.reporthandler.avui
         /// If <paramref name="bodyHtml"/> is body-only content (as Quill emits),
         /// re-wraps it using the originally-stored full template.
         /// If it's already a full document, returns it unchanged.
+        /// Strips Quill's trailing/leading empty-paragraph sentinels before wrapping.
         /// </summary>
         private string ReconstructFullDocument(string bodyHtml)
         {
@@ -309,11 +313,36 @@ namespace gip.core.reporthandler.avui
             if (string.IsNullOrEmpty(_originalTemplate))
                 return bodyHtml;
 
+            // Strip Quill's trailing/leading empty-paragraph sentinels
+            bodyHtml = StripQuillSentinelParagraphs(bodyHtml);
+
             // Extract the wrapper (everything up to and including </head>)
             // and the body content from the original template,
             // then splice in the new body content.
             string wrapperOpen = ExtractWrapperOpen(_originalTemplate);
             return wrapperOpen + "\n<body>\n" + bodyHtml + "\n</body>\n</html>";
+        }
+
+        /// <summary>
+        /// Removes Quill's internal trailing/leading empty-paragraph sentinels
+        /// (e.g. &lt;p&gt;&lt;br&gt;&lt;/p&gt;, &lt;p&gt;&amp;nbsp;&lt;/p&gt;)
+        /// from the extracted body HTML.
+        /// </summary>
+        private static string StripQuillSentinelParagraphs(string html)
+        {
+            if (string.IsNullOrWhiteSpace(html))
+                return html;
+
+            // Pattern for an empty paragraph: <p>...</p> where content is only whitespace, &nbsp;, or <br/>
+            string emptyPara = @"<p\b[^>]*>\s*(?:&nbsp;)?(?:<br\s*/?>)?\s*</p>";
+            
+            // Strip trailing empty paragraphs (possibly stacked)
+            html = System.Text.RegularExpressions.Regex.Replace(html, @"\s*" + emptyPara + @"\s*$", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            
+            // Strip leading empty paragraphs
+            html = System.Text.RegularExpressions.Regex.Replace(html, "^\\s*" + emptyPara, "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+            return html.Trim();
         }
 
         /// <summary>
@@ -439,8 +468,9 @@ namespace gip.core.reporthandler.avui
                 }
             }
 
-            if (_pageLoaded && !string.IsNullOrEmpty(VBText))
+            if (_pageLoaded && !string.IsNullOrEmpty(VBText) && !_hasPushedInitialContent)
             {
+                _hasPushedInitialContent = true;
                 await SetContentToEditor(VBText);
             }
 

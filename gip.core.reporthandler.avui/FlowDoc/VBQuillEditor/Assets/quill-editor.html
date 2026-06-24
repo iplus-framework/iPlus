@@ -12,6 +12,7 @@
             padding: 0;
             font-family: sans-serif;
             overflow: hidden;
+            caret-color: black;
         }
         #container {
             height: 100vh;
@@ -90,9 +91,12 @@
             [{ 'align': [] }],
             ['blockquote', 'code-block'],
             ['link', 'image', 'video'],
-            ['table'],
+            ['table-better'],
             ['clean']
         ];
+
+        // ── Register table-better module ─────────────────────
+        Quill.register({'modules/table-better': QuillTableBetter}, true);
 
         // ── Initialize Quill ───────────────────────────────────
         const quill = new Quill('#editor', {
@@ -102,9 +106,14 @@
                     container: toolbarOptions,
                     handlers: {}
                 },
-                table: {
-                    allowTableInTable: true,
-                    html: true
+                table: false,
+                'table-better': {
+                    language: 'en_US',
+                    menus: ['column', 'row', 'merge', 'table', 'cell', 'wrap', 'delete'],
+                    toolbarTable: true
+                },
+                keyboard: {
+                    bindings: QuillTableBetter.keyboardBindings
                 }
             },
             placeholder: 'Start typing...'
@@ -119,7 +128,7 @@
         /**
          * Given a full HTML document or a bare body fragment, populate
          * documentWrapperOpen and return only the body-innerHTML suitable
-         * for dangerouslyPasteHTML.
+         * for updateContents.
          */
         function extractBodyContent(fullHtml) {
             if (!fullHtml.trim().startsWith("<")) {
@@ -150,7 +159,7 @@
             }
 
             // Extract the body content
-            const bodyTagMatch = /<body[\s\S]*?([\s\S]*)<\/body>/i.exec(fullHtml);
+            const bodyTagMatch = /<body[^>]*>([\s\S]*)<\/body>/i.exec(fullHtml);
             if (bodyTagMatch && bodyTagMatch[1]) {
                 return bodyTagMatch[1].trim();
             }
@@ -161,6 +170,9 @@
             return stripped.trim();
         }
 
+        // ── Guard: suppress content-changed while we're actively setting content ──
+        var _isSettingContent = false;
+
         // ── Message bridge: receive from C# ────────────────────
         window.addEventListener('message', function(event) {
             const msg = event.data;
@@ -169,8 +181,17 @@
             switch (msg.type) {
                 case 'setContent':
                     if (msg.html !== undefined) {
-                        const bodyContent = extractBodyContent(msg.html || '');
-                        quill.clipboard.dangerouslyPasteHTML(bodyContent);
+                        var bodyContent = extractBodyContent(msg.html || '');
+                        
+                        // Prevent the text-change → content-changed → C# → setContent feedback loop.
+                        _isSettingContent = true;
+                        
+                        // Clear the editor, then paste the content.
+                        quill.setSelection(0, quill.getLength());
+                        quill.deleteText(0, quill.getLength(), Quill.sources.API);
+                        quill.clipboard.dangerouslyPasteHTML(0, bodyContent);
+                        
+                        _isSettingContent = false;
                     }
                     break;
 
@@ -195,16 +216,38 @@
 
         quill.on('text-change', function(delta, oldDelta, source) {
             if (source === 'api') return; // Ignore programmatic changes
+            if (_isSettingContent) return; // Suppress during setContent to avoid feedback loop
 
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(function() {
-                const bodyHtml = quill.container.querySelector('.ql-editor').innerHTML;
+                // Remove temporary elements before extracting HTML (required by table-better)
+                var tbl = quill.getModule('table-better');
+                if (tbl) tbl.deleteTableTemporary();
+                var rawHtml = quill.container.querySelector('.ql-editor').innerHTML;
+                // Strip Quill's own trailing <p><br></p> sentinel and any leading/trailing
+                // empty paragraphs so the round-trip to C# stays clean.
+                var bodyHtml = stripQuillSentinel(rawHtml);
                 sendToHost({
                     type: 'content-changed',
                     html: bodyHtml
                 });
             }, DEBOUNCE_MS);
         });
+
+        /**
+         * Remove Quill's internal trailing-blank-paragraph sentinel (&lt;p&gt;&lt;br&gt;&lt;/p&gt;)
+         * and any other leading/trailing empty paragraphs from the extracted innerHTML.
+         */
+        function stripQuillSentinel(html) {
+            if (!html) return '';
+            // Trim outer whitespace.
+            html = html.trim();
+            // Strip trailing empty paragraphs (may be stacked: <p><br></p><p><br></p>).
+            html = html.replace(/\s*<(?:p|P)(?:\s[^>]*)?>\s*(?:&nbsp;)?(?:<br\s*\/?>)?\s*<\/(?:p|P)>\s*$/gi, '');
+            // Strip leading empty paragraphs.
+            html = html.replace(/^\s*<(?:p|P)(?:\s[^>]*)?>\s*(?:&nbsp;)?(?:<br\s*\/?>)?\s*<\/(?:p|P)>/gi, '');
+            return html.trim();
+        }
 
         // ── Signal ready to host ──────────────────────────────
         sendToHost({
