@@ -17,6 +17,7 @@ using Splat;
 using System;
 using System.Configuration;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -25,6 +26,8 @@ namespace gip.iplus.client.avui;
 
 public partial class App : Application
 {
+    private const string SettingsFileName = "usersettings.json";
+
     static ACStartUpRoot _StartUpManager = null;
     public static App _GlobalApp = null;
     public static Func<IWPFServices> WpfServicesFactory { get; set; }
@@ -124,10 +127,23 @@ public partial class App : Application
 
         if (desktop != null)
         {
-            // Create the AutoSuspendHelper.
-            var suspension = new ReactiveUI.Avalonia.AutoSuspendHelper(ApplicationLifetime);
-            ConfigureReactiveUISuspension();
-            suspension.OnFrameworkInitializationCompleted();
+            // AutoSuspendHelper subscribes to lifetime Exit and can block shutdown on Linux/X11.
+            // Keep it opt-in via environment variable until the upstream issue is resolved.
+            var enableAutoSuspend = string.Equals(
+                System.Environment.GetEnvironmentVariable("IPLUS_ENABLE_AUTOSUSPEND"),
+                "1",
+                StringComparison.OrdinalIgnoreCase);
+
+            if (enableAutoSuspend)
+            {
+                var suspension = new ReactiveUI.Avalonia.AutoSuspendHelper(ApplicationLifetime);
+                ConfigureReactiveUISuspension();
+                suspension.OnFrameworkInitializationCompleted();
+            }
+            else
+            {
+                _AppSettings = LoadSettingsFromDisk();
+            }
 
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
             // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
@@ -224,13 +240,60 @@ public partial class App : Application
 
         if (suspensionHost == null)
         {
-            _AppSettings = new Settings();
+            _AppSettings = LoadSettingsFromDisk();
             return;
         }
 
         suspensionHost.CreateNewAppState = () => new Settings();
         suspensionHost.SetupDefaultSuspendResume(new NewtonsoftJsonSuspensionDriver("appstate.json"));
-        _AppSettings = suspensionHost.GetAppState<Settings>() ?? new Settings();
+        _AppSettings = suspensionHost.GetAppState<Settings>() ?? LoadSettingsFromDisk();
+    }
+
+    private Settings LoadSettingsFromDisk()
+    {
+        try
+        {
+            var path = GetSettingsFilePath();
+            if (!File.Exists(path))
+                return new Settings();
+
+            var json = File.ReadAllText(path);
+            var settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Settings>(json);
+            return settings ?? new Settings();
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"App: failed to load settings file. {ex.GetType().Name}: {ex.Message}");
+            return new Settings();
+        }
+    }
+
+    private void SaveSettingsToDisk()
+    {
+        if (_AppSettings == null)
+            return;
+
+        try
+        {
+            var path = GetSettingsFilePath();
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(_AppSettings, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText(path, json);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"App: failed to save settings file. {ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    private static string GetSettingsFilePath()
+    {
+        var appData = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData);
+        if (string.IsNullOrWhiteSpace(appData))
+            appData = AppContext.BaseDirectory;
+
+        var settingsDir = Path.Combine(appData, "gip.iplus.client.avui");
+        Directory.CreateDirectory(settingsDir);
+        return Path.Combine(settingsDir, SettingsFileName);
     }
 
     private void DisableAvaloniaDataAnnotationValidation()
@@ -241,9 +304,16 @@ public partial class App : Application
 
     public void ShutdownApplication()
     {
+        SaveSettingsToDisk();
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.Shutdown();
+            // Prefer graceful shutdown first; force-shutdown from a close callback can deadlock
+            // in some X11/GLib cleanup paths.
+            if (!desktop.TryShutdown())
+            {
+                desktop.Shutdown();
+            }
         }
     }
 
@@ -360,6 +430,8 @@ public partial class App : Application
             short result = _StartUpManager.LoginUser(_AppSettings.UserName, _AppSettings.Password, registerACObjects, propPersistenceOff, ref errorMsg, wcfOff, simulation, fullscreen);
             if (result == 1)
             {
+                SaveSettingsToDisk();
+
                 if (cmLineArg.Contains("/autologin"))
                 {
                     var suspensionHost = Locator.Current.GetService<ISuspensionHost>();

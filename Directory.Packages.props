@@ -185,8 +185,8 @@
 		<PackageVersion Include="OPCFoundation.NetStandard.Opc.Ua.Server" Version="1.5.378.145" />
 		<PackageVersion Include="Portable.BouncyCastle" Version="1.9.0" />
 		<PackageVersion Include="QuickGraphCore" Version="1.0.0" />
-		<PackageVersion Include="Scryber.Core" Version="9.5.0" />
-		<PackageVersion Include="iPlus.Scryber.Core" Version="9.5.0.2" />
+		<PackageVersion Include="Scryber.Core" Version="9.6.0.1-beta" />
+		<PackageVersion Include="iPlus.Scryber.Core" Version="9.6.0.1" />
     	<PackageVersion Include="Scryber.Core.OpenType" Version="9.2.0.0" />
 		
 		<!-- <PackageVersion Include="iPlus.RoslynPad.Editor.Windows" Version="$(RoslynVersionIPlus)" />
@@ -239,7 +239,7 @@
 		<PackageVersion Include="Xamarin.AndroidX.Window" Version="1.5.1.2"  />
 		<PackageVersion Include="Xaml.Behaviors" Version="12.0.0" />
 		<!--<PackageVersion Include="System.Text.Json" Version="$(NetCorePackageVersion)" />-->
-		<PackageVersion Include="System.Text.Json" Version="10.0.2" />
+		<PackageVersion Include="System.Text.Json" Version="10.0.8" />
 
 		<!-- Additional Packages for Roslyn Pad -->
 		<PackageVersion Include="AvalonLibrary" Version="4.0.1" />

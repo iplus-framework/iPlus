@@ -461,7 +461,7 @@ namespace gip.core.layoutengine.avui
 
         protected override void foldingUpdateTimer_Tick(object sender, EventArgs e)
         {
-            if (foldingStrategy != null)
+            if (foldingStrategy != null && this.IsLoaded)
             {
                 int firstErrorOffset;
                 IEnumerable<NewFolding> foldings = foldingStrategy.CreateNewFoldings(Document, out firstErrorOffset);

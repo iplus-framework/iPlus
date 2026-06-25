@@ -70,7 +70,7 @@ namespace gip.core.reporthandler.avui.Flowdoc
         ReportDocument _ReportDoc;
         public override void LoadFile()
         {
-            throw new NotImplementedException("Avalonia TODO.");
+            //throw new NotImplementedException("Avalonia TODO.");
             //if (_ReportDoc != null)
             //    _ReportDoc.Dispose();
             //_ReportDoc = null;

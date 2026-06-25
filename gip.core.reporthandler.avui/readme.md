@@ -27,6 +27,34 @@ Example:
 </html>
 ```
 
+### Page Headers, Footers, And Counters
+
+For repeating page chrome in Scryber HTML templates:
+
+- Put repeating top content inside `<header>...</header>`.
+- Put repeating bottom content inside `<footer>...</footer>`.
+- For continuation-only variants, use `<continuation-header>` and `<continuation-footer>`.
+- Use Scryber page counter components, not handlebars tokens:
+	- `<page-number />`
+	- `<page-count />`
+	- or shorthand `<page />` (current page label)
+
+Important:
+
+- `{{PageNumber}}` and `{{PageCount}}` are not resolved in these templates.
+
+### Pagination Guidance For Rich XMLDesign Content
+
+When rendering long `XMLDesign` HTML from data fields:
+
+- Avoid placing rich dynamic HTML inside complex table-cell layouts when possible.
+- For better overflow behavior, render the line row in a table and render rich detail in a normal block below the row.
+- Keep images constrained to page width and sensible height, for example:
+	- `max-width: 100%`
+	- `height: auto`
+	- optional cap such as `max-height: 420pt`
+- Use XML-safe entities in template source (`&#160;` instead of `&nbsp;`).
+
 ## Barcode Syntax For Plugin Interop
 
 Use barcode metadata attributes so downstream printer plugins can detect and render barcodes:

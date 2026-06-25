@@ -1,4 +1,6 @@
+using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using gip.core.autocomponent;
 
 namespace gip.iplus.client.avui;
@@ -47,8 +49,25 @@ public partial class MainWindow : Window
             return;
         }
         _ShutdownInProgress = true;
-        _= ACRoot.SRoot.ACDeInit();
-        App._GlobalApp.ShutdownApplication();
+        e.Cancel = true;
+
+        // Deinit on a background thread to avoid blocking the UI,
+        // then shut down the app on the UI thread once deinit completes.
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await ACRoot.SRoot.ACDeInit().ConfigureAwait(false);
+            }
+            catch
+            {
+                // Swallow exceptions during shutdown to ensure the app still closes.
+            }
+            finally
+            {
+                _ = Dispatcher.UIThread.InvokeAsync(() => App._GlobalApp.ShutdownApplication());
+            }
+        });
     }
 
 }

@@ -110,8 +110,7 @@
 
 	<!-- Use Avalonia Fork -->
 	<Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaInclude.props" />
-	<Import Condition="'$(UseAvaloniaFork)' == 'True'"
-		Project="../build/AvaloniaRichTextBoxInclude.props" />
+	<Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaRichTextBoxInclude.props" />
 	<Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaEditInclude.props" />
 	<Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaWebViewInclude.props" />
 

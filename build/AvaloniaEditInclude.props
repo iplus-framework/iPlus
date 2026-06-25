@@ -8,5 +8,9 @@
 			<HintPath>$(AvaloniaEditIncludeDir)/AvaloniaEdit.TextMate/bin/$(Configuration)/$(AvaloniaBuildFramework)/AvaloniaEdit.TextMate.dll</HintPath>
 			<Private>true</Private>
 		</Reference>
+		<None Include="$(AvaloniaEditIncludeDir)/AvaloniaEdit.TextMate/bin/$(Configuration)/$(AvaloniaBuildFramework)/AvaloniaEdit.TextMate.dll">
+			<Link>AvaloniaEdit.TextMate.dll</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
   </ItemGroup>
 </Project> 

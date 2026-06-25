@@ -636,6 +636,9 @@ namespace gip.core.reporthandler.avui
             if (ucPdfViewer != null)
                 ucPdfViewer.IsVisible = isHtmlTemplate;
 
+            if (ConfigurationTab != null)
+                ConfigurationTab.IsVisible = !HideConfigurationTab;
+
             if (isHtmlTemplate && ucTabControl != null && ucTabControl.SelectedItem == XAMLTab)
                 ucTabControl.SelectedItem = DesignTab;
         }

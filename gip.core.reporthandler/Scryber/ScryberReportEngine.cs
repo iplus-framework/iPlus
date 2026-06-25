@@ -32,12 +32,12 @@ namespace gip.core.reporthandler
         private static readonly Regex XmlDeclarationRegex = new Regex(@"<\?xml[^>]*\?>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex DoctypeRegex = new Regex(@"<!DOCTYPE[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex DoctypeTokenRegex = new Regex(@"<!\s*doctype", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private const string DefaultScryberHtmlTemplate = "<!doctype html>\n"
+        private static readonly string DefaultScryberHtmlTemplate = "<!doctype html>\n"
             + "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n"
             + "<head>\n"
             + "  <meta charset=\"utf-8\" />\n"
             + "  <title>New Scryber Report</title>\n"
-            + "  <style>body { font-family: Helvetica, Arial, sans-serif; font-size: 11pt; margin: 24pt; } h1 { margin: 0 0 12pt 0; } p { margin: 4pt 0; color: #333; }</style>\n"
+            + "  <style>@page { size: A4; margin: 20pt; } body { font-family: Helvetica, Arial, sans-serif; font-size: 11pt; margin: 24pt; } h1 { margin: 0 0 12pt 0; } p { margin: 4pt 0; color: #333; }</style>\n"
             + "</head>\n"
             + "<body>\n"
             + "  <h1>New Scryber Report</h1>\n"

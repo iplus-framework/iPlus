@@ -353,3 +353,4 @@ healthchecksdb
 iplusAvaloniaUI_VSCode.sln
 .continue/mcpServers/iPlus.yaml
 .continue/mcpServers/AvaloniaMCP.yaml
+.venv/

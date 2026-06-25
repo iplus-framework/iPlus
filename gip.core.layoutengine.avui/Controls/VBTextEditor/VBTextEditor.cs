@@ -264,6 +264,31 @@ namespace gip.core.layoutengine.avui
             }
         }
 
+        protected override void OnLoaded(RoutedEventArgs e)
+        {
+            base.OnLoaded(e);
+            if (_FoldingUpdateTimer == null)
+            {
+                _FoldingUpdateTimer = new DispatcherTimer();
+                _FoldingUpdateTimer.Interval = TimeSpan.FromSeconds(2);
+                _FoldingUpdateTimer.Tick += foldingUpdateTimer_Tick;
+                _FoldingUpdateTimer.Start();
+            }
+            else if (!_FoldingUpdateTimer.IsEnabled)
+            {
+                _FoldingUpdateTimer.Start();
+            }
+        }
+
+        protected override void OnUnloaded(RoutedEventArgs e)
+        {
+            base.OnUnloaded(e);
+            if (_FoldingUpdateTimer != null)
+            {
+                _FoldingUpdateTimer.Stop();
+            }
+        }
+
 
         protected void InitStateChanged()
         {
