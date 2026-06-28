@@ -1009,43 +1009,43 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "Search":
+                case nameof(Search):
                     Search();
                     return true;
-                case "SaveConfig":
+                case nameof(SaveConfig):
                     SaveConfig();
                     return true;
-                case "MassUpdateInPoint":
+                case nameof(MassUpdateInPoint):
                     result = MassUpdateInPoint();
                     return true;
-                case "MassUpdateOutPoint":
+                case nameof(MassUpdateOutPoint):
                     result = MassUpdateOutPoint();
                     return true;
-                case "ShowACProgramLog":
+                case nameof(ShowACProgramLog):
                     result = ShowACProgramLog();
                     return true;
-                case "AcknowledgeCurrent":
+                case nameof(AcknowledgeCurrent):
                     AcknowledgeCurrent();
                     return true;
-                case "AcknowledgeAll":
+                case nameof(AcknowledgeAll):
                     AcknowledgeAll();
                     return true;
-                case "EventCallback":
+                case nameof(EventCallback):
                     EventCallback(acParameter[0] as IACPointNetBase, acParameter[1] as ACEventArgs, acParameter[2] as IACObject);
                     return true;
-                case Const.IsEnabledPrefix + "Search":
+                case nameof(IsEnabledSearch):
                     result = IsEnabledSearch();
                     return true;
-                case Const.IsEnabledPrefix + "MassUpdateInPoint":
+                case nameof(IsEnabledMassUpdateInPoint):
                     result = IsEnabledMassUpdateInPoint();
                     return true;
-                case Const.IsEnabledPrefix + "MassUpdateOutPoint":
+                case nameof(IsEnabledMassUpdateOutPoint):
                     result = IsEnabledMassUpdateOutPoint();
                     return true;
-                case Const.IsEnabledPrefix + "AcknowledgeCurrent":
+                case nameof(IsEnabledAcknowledgeCurrent):
                     result = IsEnabledAcknowledgeCurrent();
                     return true;
-                case Const.IsEnabledPrefix + "AcknowledgeAll":
+                case nameof(IsEnabledAcknowledgeAll):
                     result = IsEnabledAcknowledgeAll();
                     return true;
             }
