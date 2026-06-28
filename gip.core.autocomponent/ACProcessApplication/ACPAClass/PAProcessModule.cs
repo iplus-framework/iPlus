@@ -359,6 +359,20 @@ namespace gip.core.autocomponent
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(Reset):
+                case nameof(IsEnabledReset):
+                    return new string[] { nameof(InitState) };
+                case nameof(ResetReservationInfo):
+                case nameof(IsEnabledResetReservationInfo):
+                    return new string[] { nameof(ReservationInfo) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         public static bool HandleExecuteACMethod_PAProcessModule(out object result, IACComponent acComponent, string acMethodName, gip.core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
         {
             result = null;

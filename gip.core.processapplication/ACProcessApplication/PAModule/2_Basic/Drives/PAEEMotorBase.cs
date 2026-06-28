@@ -168,14 +168,25 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "TurnOff":
+                case nameof(TurnOff):
                     TurnOff();
                     return true;
-                case Const.IsEnabledPrefix + "TurnOff":
+                case nameof(IsEnabledTurnOff):
                     result = IsEnabledTurnOff();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(TurnOff):
+                case nameof(IsEnabledTurnOff):
+                    return new string[] { nameof(OperatingMode) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
         #endregion
 

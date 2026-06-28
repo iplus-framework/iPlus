@@ -1625,7 +1625,7 @@ namespace gip.bso.iplus
                     result = IsEnabledShowAlarms();
                     return true;
                 case nameof(UpdateDisplayOrder):
-                    UpdateDisplayOrder(acParameter[0] as ICollectionView);
+                    UpdateDisplayOrder(acParameter[0] as List<ACPropertyLogModel>);
                     return true;
                 case nameof(ShowDetails):
                     ShowDetails();
@@ -1633,12 +1633,40 @@ namespace gip.bso.iplus
                 case nameof(IsEnabledShowDetails):
                     result = IsEnabledShowDetails();
                     return true;
+                case nameof(ShowAllAlarms):
+                    ShowAllAlarms();
+                    return true;
+                case nameof(IsEnabledShowAllAlarms):
+                    result = IsEnabledShowAllAlarms();
+                    return true;
                 case nameof(ShowPropertyLogsWithFilterDialog):
                     ShowPropertyLogsWithFilterDialog(acParameter[0] as ACClass, (DateTime)acParameter[1], (DateTime)acParameter[2]);
+                    return true;
+                case nameof(GoToNextValue):
+                    GoToNextValue();
+                    return true;
+                case nameof(IsEnabledGoToNextValue):
+                    result = IsEnabledGoToNextValue();
                     return true;
                     
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledShowAlarms):
+                    return new string[] { nameof(SelectedItemInTimeline) };
+                case nameof(IsEnabledShowAllAlarms):
+                case nameof(IsEnabledShowDetails):
+                    return new string[] { nameof(SelectedPropertyLog), nameof(SelectedPresenterViewMode) };
+                case nameof(IsEnabledGoToNextValue):
+                    return new string[] { nameof(SelectedPropertyLog), nameof(SelectedTimelineValue) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
         }
 
         #endregion

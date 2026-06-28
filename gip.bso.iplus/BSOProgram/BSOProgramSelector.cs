@@ -614,50 +614,78 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case"ShowACProgramLog":
+                case nameof(ShowACProgramLog):
                     ShowACProgramLog();
                     return true;
-                case"IsEnabledShowACProgramLog":
+                case nameof(IsEnabledShowACProgramLog):
                     result = IsEnabledShowACProgramLog();
                     return true;
-                case "RestoreArchivedProgramLog":
+                case nameof(RestoreArchivedProgramLog):
                     RestoreArchivedProgramLog();
                     return true;
-                case "IsEnabledRestoreArchivedProgramLog":
+                case nameof(IsEnabledRestoreArchivedProgramLog):
                     result = IsEnabledRestoreArchivedProgramLog();
                     return true;
-                case"RefreshProgram":
+                case nameof(RefreshProgram):
                     RefreshProgram();
                     return true;
-                case "ArchiveProgramLogManual":
+                case nameof(ArchiveProgramLogManual):
                     ArchiveProgramLogManual();
                     return true;
-                case "IsEnabledArchiveProgramLogManual":
+                case nameof(IsEnabledArchiveProgramLogManual):
                     result = IsEnabledArchiveProgramLogManual();
                     return true;
-                case"ExportToExcel":
+                case nameof(ExportToExcel):
                     ExportToExcel();
                     return true;
-                case"IsEnabledExportToExcel":
+                case nameof(IsEnabledExportToExcel):
                     result = IsEnabledExportToExcel();
                     return true;
-                case"DlgExport":
+                case nameof(DlgExport):
                     DlgExport();
                     return true;
-                case"IsEnabledDlgExport":
+                case nameof(IsEnabledDlgExport):
                     result = IsEnabledDlgExport();
                     return true;
-                case"DlgCancel":
+                case nameof(DlgCancel):
                     DlgCancel();
                     return true;
-                case"Browse":
+                case nameof(Browse):
                     Browse();
                     return true;
-                case"IsEnabledBrowse":
+                case nameof(IsEnabledBrowse):
                     result = IsEnabledBrowse();
                     return true;
             }
                 return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(ShowACProgramLog):
+                case nameof(IsEnabledShowACProgramLog):
+                case nameof(ArchiveProgramLogManual):
+                case nameof(IsEnabledArchiveProgramLogManual):
+                case nameof(ExportToExcel):
+                case nameof(IsEnabledExportToExcel):
+                    return new string[] { nameof(CurrentACProgram) };
+
+                case nameof(RestoreArchivedProgramLog):
+                case nameof(IsEnabledRestoreArchivedProgramLog):
+                case nameof(DlgExport):
+                case nameof(IsEnabledDlgExport):
+                case nameof(Browse):
+                case nameof(IsEnabledBrowse):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+
+                case nameof(RefreshProgram):
+                case nameof(DlgCancel):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+            }
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

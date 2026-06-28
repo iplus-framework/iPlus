@@ -587,9 +587,9 @@ namespace gip.bso.iplus
                 case nameof(IsEnabledExportDesigns):
                     result = IsEnabledExportDesigns();
                     return true;
-                case nameof(NavigateToDesign):
-                    NavigateToDesign(acParameter[0] as MouseButtonEventArgs, acParameter[1] as string);
-                    return true;
+                //case nameof(NavigateToDesign):
+                    //NavigateToDesign(acParameter[0] as MouseButtonEventArgs, acParameter[1] as string);
+                    //return true;
                 case nameof(DesignOpen):
                     DesignOpen(acParameter[0] as string);
                     return true;
@@ -610,6 +610,55 @@ namespace gip.bso.iplus
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(Save):
+                case nameof(IsEnabledSave):
+                case nameof(UndoSave):
+                case nameof(IsEnabledUndoSave):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+
+                case nameof(New):
+                case nameof(IsEnabledNew):
+                    return new string[] { nameof(InitState) };
+
+                case nameof(Delete):
+                case nameof(IsEnabledDelete):
+                case nameof(SetDefaultVisualisation):
+                case nameof(IsEnabledSetDefaultVisualisation):
+                case nameof(CopyVisualisationToClipboard):
+                case nameof(IsEnabledCopyVisualisationToClipboard):
+                    return new string[] { nameof(CurrentVisualisation) };
+
+                case nameof(NewVisualisationOK):
+                case nameof(IsEnabledNewVisualisationOK):
+                    return new string[] { nameof(CurrentNewVisualisation) };
+
+                case nameof(ExportDesigns):
+                case nameof(IsEnabledExportDesigns):
+                    return new string[] { nameof(VisualisationList) };
+
+                case nameof(SearchComponents):
+                case nameof(IsEnabledSearchComponents):
+                    return new string[] { nameof(SearchText) };
+
+                case nameof(NavigateToComponent):
+                case nameof(IsEnabledNavigateToComponent):
+                    return new string[] { nameof(SelectedAvailableSearchedItem) };
+
+                case nameof(Search):
+                case nameof(NewVisualisationCancel):
+                case nameof(Screenshot):
+                case nameof(DesignOpen):
+                case nameof(ValidateInput):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+            }
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

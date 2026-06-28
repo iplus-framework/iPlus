@@ -643,8 +643,26 @@ namespace gip.bso.iplus
                 case nameof(SelectOutputFile):
                     SelectOutputFile();
                     return true;
+                case nameof(IsEnabledSelectOutputFile):
+                    result = IsEnabledSelectOutputFile();
+                    return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledLoadLogFile):
+                    return new string[] { nameof(SelectedLogFile) };
+                case nameof(IsEnabledStartAnalysis):
+                    return new string[] { nameof(CurrentAnalyzerInstance), nameof(FilteredLogLines) };
+                case nameof(IsEnabledSelectOutputFile):
+                    return new string[] { nameof(CurrentAnalyzerInstance) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
         }
 
         #endregion

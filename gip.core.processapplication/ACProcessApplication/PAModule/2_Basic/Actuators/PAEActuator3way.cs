@@ -90,14 +90,25 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "Position3":
+                case nameof(Position3):
                     Position3();
                     return true;
-                case Const.IsEnabledPrefix + "Position3":
+                case nameof(IsEnabledPosition3):
                     result = IsEnabledPosition3();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(Position3):
+                case nameof(IsEnabledPosition3):
+                    return new string[] { nameof(TurnOnInterlock), nameof(OperatingMode) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
         #endregion
 

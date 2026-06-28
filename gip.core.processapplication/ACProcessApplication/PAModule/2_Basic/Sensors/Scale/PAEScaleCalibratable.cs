@@ -1,6 +1,7 @@
 ﻿using gip.core.datamodel;
 using gip.core.processapplication;
 using System;
+using System.Collections.Generic;
 using gip.core.autocomponent;
 
 namespace gip.core.processapplication
@@ -40,6 +41,17 @@ namespace gip.core.processapplication
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(RegisterAlibiWeight):
+                case nameof(IsEnabledRegisterAlibiWeight):
+                    return new string[] { nameof(InitState) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
         #endregion
 

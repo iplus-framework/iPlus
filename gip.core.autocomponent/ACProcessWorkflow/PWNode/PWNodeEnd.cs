@@ -65,26 +65,39 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "SMStarting":
+                case nameof(SMStarting):
                     SMStarting();
                     return true;
-                case "PWPointInCallback":
+                case nameof(PWPointInCallback):
                     PWPointInCallback(acParameter[0] as IACPointNetBase, acParameter[1] as ACEventArgs, acParameter[2] as IACObject);
                     return true;
-                case "ResetInEvents":
+                case nameof(ResetInEvents):
                     ResetInEvents();
                     return true;
-                case "IsEnabledResetInEvents":
+                case nameof(IsEnabledResetInEvents):
                     result = IsEnabledResetInEvents();
                     return true;
-                case "ReloadInEvents":
+                case nameof(ReloadInEvents):
                     ReloadInEvents();
                     return true;
-                case "IsEnabledReloadInEvents":
+                case nameof(IsEnabledReloadInEvents):
                     result = IsEnabledReloadInEvents();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(ResetInEvents):
+                case nameof(IsEnabledResetInEvents):
+                case nameof(ReloadInEvents):
+                case nameof(IsEnabledReloadInEvents):
+                    return new string[] { nameof(InitState) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
 

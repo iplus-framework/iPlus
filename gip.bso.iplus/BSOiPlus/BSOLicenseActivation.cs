@@ -559,41 +559,54 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case"ShowLicenseActivation":
+                case nameof(ShowLicenseActivation):
                     ShowLicenseActivation();
                     return true;
-                case"GetActivationData":
+                case nameof(GetActivationData):
                     GetActivationData();
                     return true;
-                case"IsEnabledGetActivationData":
+                case nameof(IsEnabledGetActivationData):
                     result = IsEnabledGetActivationData();
                     return true;
-                case"BrowseLicenceFile":
+                case nameof(BrowseLicenceFile):
                     BrowseLicenceFile();
                     return true;
-                case"ActivateProduct":
+                case nameof(ActivateProduct):
                     ActivateProduct();
                     return true;
-                case"IsEnabledActivateProduct":
+                case nameof(IsEnabledActivateProduct):
                     result = IsEnabledActivateProduct();
                     return true;
-                case"AddNewLicense":
+                case nameof(AddNewLicense):
                     AddNewLicense();
                     return true;
-                case"CloseDialog":
+                case nameof(CloseDialog):
                     CloseDialog();
                     return true;
-                case"ExportActivationData":
+                case nameof(ExportActivationData):
                     ExportActivationData();
                     return true;
-                case"ExportActivationDataDialog":
+                case nameof(ExportActivationDataDialog):
                     ExportActivationDataDialog();
                     return true;
-                case"BrowseExportActivationDataDir":
+                case nameof(BrowseExportActivationDataDir):
                     BrowseExportActivationDataDir();
                     return true;
             }
                 return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledGetActivationData):
+                    return new string[] { nameof(CompanyName) };
+                case nameof(IsEnabledActivateProduct):
+                    return new string[] { nameof(LicenceFilePath) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
         }
 
         #endregion

@@ -1276,6 +1276,9 @@ namespace gip.core.autocomponent
                 case nameof(IsEnabledShowHideVBContentInfo):
                     result = IsEnabledShowHideVBContentInfo();
                     return true;
+                // case nameof(OnDynamicLayoutLoaded):
+                //     OnDynamicLayoutLoaded((bool)acParameter[0]);
+                //     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
@@ -1286,9 +1289,12 @@ namespace gip.core.autocomponent
             {
                 case Const.CmdNameSave:
                 case Const.IsEnabledPrefix + Const.CmdNameSave:
-                case Const.CmdNameUndo:
-                case Const.IsEnabledPrefix + Const.CmdNameUndo:
+                case Const.CmdNameUndoSave:
+                case Const.IsEnabledPrefix + Const.CmdNameUndoSave:
                     return new string[] { nameof(DbChangeCount) };
+
+                case nameof(DataExportOk):
+                    return new string[] { nameof(DataExportFilePath) };
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName);
         }

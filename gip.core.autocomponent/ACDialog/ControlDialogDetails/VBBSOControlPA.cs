@@ -1003,47 +1003,85 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "Search":
+                case nameof(Search):
                     Search();
                     return true;
-                case "SaveConfig":
+                case nameof(SaveConfig):
                     SaveConfig();
                     return true;
-                case "MassUpdateInPoint":
+                case nameof(MassUpdateInPoint):
                     MassUpdateInPoint();
                     return true;
-                case "MassUpdateOutPoint":
+                case nameof(MassUpdateOutPoint):
                     MassUpdateOutPoint();
                     return true;
-                case "ShowACProgramLog":
+                case nameof(ShowACProgramLog):
                     ShowACProgramLog();
                     return true;
-                case "AcknowledgeCurrent":
+                case nameof(AcknowledgeCurrent):
                     AcknowledgeCurrent();
                     return true;
-                case "AcknowledgeAll":
+                case nameof(AcknowledgeAll):
                     AcknowledgeAll();
                     return true;
-                case "EventCallback":
+                case nameof(EventCallback):
                     EventCallback(acParameter[0] as IACPointNetBase, acParameter[1] as ACEventArgs, acParameter[2] as IACObject);
                     return true;
-                case Const.IsEnabledPrefix + "Search":
+                case nameof(IsEnabledSearch):
                     result = IsEnabledSearch();
                     return true;
-                case Const.IsEnabledPrefix + "MassUpdateInPoint":
+                case nameof(IsEnabledMassUpdateInPoint):
                     result = IsEnabledMassUpdateInPoint();
                     return true;
-                case Const.IsEnabledPrefix + "MassUpdateOutPoint":
+                case nameof(IsEnabledMassUpdateOutPoint):
                     result = IsEnabledMassUpdateOutPoint();
                     return true;
-                case Const.IsEnabledPrefix + "AcknowledgeCurrent":
+                case nameof(IsEnabledAcknowledgeCurrent):
                     result = IsEnabledAcknowledgeCurrent();
                     return true;
-                case Const.IsEnabledPrefix + "AcknowledgeAll":
+                case nameof(IsEnabledAcknowledgeAll):
                     result = IsEnabledAcknowledgeAll();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                #region Search
+                case "Search":
+                case Const.IsEnabledPrefix + "Search":
+                    return new string[] { nameof(InitState) };
+                #endregion
+
+                #region Mass Update
+                case "MassUpdateInPoint":
+                case Const.IsEnabledPrefix + "MassUpdateInPoint":
+                    return new string[] { nameof(SelectedInPointConfig) };
+                case "MassUpdateOutPoint":
+                case Const.IsEnabledPrefix + "MassUpdateOutPoint":
+                    return new string[] { nameof(SelectedOutPointConfig) };
+                #endregion
+
+                #region Acknowledge
+                case "AcknowledgeCurrent":
+                case Const.IsEnabledPrefix + "AcknowledgeCurrent":
+                    return new string[] { nameof(CurrentACMsgAlarm) };
+                case "AcknowledgeAll":
+                case Const.IsEnabledPrefix + "AcknowledgeAll":
+                    return new string[] { nameof(ACMsgAlarmList) };
+                #endregion
+
+                #region Always Enabled (no IsEnabled method)
+                case "SaveConfig":
+                case "ShowACProgramLog":
+                case "EventCallback":
+                    return new string[] { nameof(InitState) };
+                #endregion
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
         #endregion
     }

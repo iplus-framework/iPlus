@@ -609,50 +609,75 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "Search":
+                case nameof(Search):
                     Search();
                     return true;
-                case "SearchProperties":
+                case nameof(SearchProperties):
                     SearchProperties();
                     return true;
-                case "UpdatePropertyValue":
+                case nameof(UpdatePropertyValue):
                     UpdatePropertyValue();
                     return true;
-                case "MassUpdatePropertyValue":
+                case nameof(MassUpdatePropertyValue):
                     MassUpdatePropertyValue();
                     return true;
-                case "CheckAllProp":
+                case nameof(CheckAllProp):
                     CheckAllProp();
                     return true;
-                case "UnCheckAllProp":
+                case nameof(UnCheckAllProp):
                     UnCheckAllProp();
                     return true;
-                case "UpdateOnServer":
+                case nameof(UpdateOnServer):
                     UpdateOnServer();
                     return true;
-                case Const.IsEnabledPrefix + "Search":
+                case nameof(IsEnabledSearch):
                     result = IsEnabledSearch();
                     return true;
-                case Const.IsEnabledPrefix + "SearchProperties":
+                case nameof(IsEnabledSearchProperties):
                     result = IsEnabledSearchProperties();
                     return true;
-                case Const.IsEnabledPrefix + "UpdatePropertyValue":
+                case nameof(IsEnabledUpdatePropertyValue):
                     result = IsEnabledUpdatePropertyValue();
                     return true;
-                case Const.IsEnabledPrefix + "MassUpdatePropertyValue":
+                case nameof(IsEnabledMassUpdatePropertyValue):
                     result = IsEnabledMassUpdatePropertyValue();
                     return true;
-                case Const.IsEnabledPrefix + "CheckAllProp":
+                case nameof(IsEnabledCheckAllProp):
                     result = IsEnabledCheckAllProp();
                     return true;
-                case Const.IsEnabledPrefix + "UnCheckAllProp":
+                case nameof(IsEnabledUnCheckAllProp):
                     result = IsEnabledUnCheckAllProp();
                     return true;
-                case Const.IsEnabledPrefix + "IsEnabledUpdateOnServer":
+                case nameof(IsEnabledUpdateOnServer):
                     result = IsEnabledUpdateOnServer();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(Search):
+                case nameof(IsEnabledSearch):
+                case nameof(SearchProperties):
+                case nameof(IsEnabledSearchProperties):
+                    return new string[] { nameof(ACUrlInfo) };
+                case nameof(UpdatePropertyValue):
+                case nameof(IsEnabledUpdatePropertyValue):
+                case nameof(UpdateOnServer):
+                case nameof(IsEnabledUpdateOnServer):
+                    return new string[] { nameof(CurrentACMember), nameof(PropertyValue) };
+                case nameof(MassUpdatePropertyValue):
+                case nameof(IsEnabledMassUpdatePropertyValue):
+                case nameof(CheckAllProp):
+                case nameof(IsEnabledCheckAllProp):
+                case nameof(UnCheckAllProp):
+                case nameof(IsEnabledUnCheckAllProp):
+                    return new string[] { nameof(ACMemberLiveList) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 #endregion
 

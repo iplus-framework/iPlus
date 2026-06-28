@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using gip.core.datamodel;
 
 namespace gip.core.autocomponent
@@ -147,6 +148,24 @@ namespace gip.core.autocomponent
                     return true;
             }
                 return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                #region All methods are always enabled (no IsEnabled methods)
+                case "FolderDlg":
+                case "OK":
+                case "Cancel":
+                case "PathVariobatchData":
+                case "PathDesktop":
+                case "PathProgramFiles":
+                case "PathMyDocuments":
+                    return new string[] { nameof(InitState) };
+                #endregion
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

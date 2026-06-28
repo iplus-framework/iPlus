@@ -1027,6 +1027,28 @@ namespace gip.core.autocomponent
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                #region Start / EditValue
+                case nameof(Start):
+                case nameof(IsEnabledStart):
+                    return new string[] { nameof(CurrentACComponent), nameof(SelectedFunction), nameof(SelectedVirtualMethod), nameof(SelectedACMethodParam) };
+                case nameof(EditValue):
+                case nameof(IsEnabledEditValue):
+                    return new string[] { nameof(CurrentACComponent), nameof(SelectedFunction), nameof(SelectedVirtualMethod), nameof(SelectedACMethodParam) };
+                #endregion
+
+                #region Always Enabled (no IsEnabled method)
+                case nameof(EditComplexValueOk):
+                case nameof(EditComplexValueCancel):
+                    return new string[] { nameof(InitState) };
+                #endregion
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         #endregion
 
         #endregion

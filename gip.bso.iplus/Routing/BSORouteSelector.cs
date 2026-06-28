@@ -322,6 +322,35 @@ namespace gip.bso.iplus
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(TestSelectRoutesFromComponent):
+                case nameof(IsEnabledTestSelectRoutesFromComponent):
+                case nameof(TestSelectRoutes):
+                case nameof(IsEnabledTestSelectRoutes):
+                    return new string[] { nameof(IsRoutingServiceAvailable) };
+
+                case nameof(RemoveSource):
+                    return new string[] { nameof(SelectedSourceComponent), nameof(SourceComponentsList) };
+
+                case nameof(RemoveTarget):
+                    return new string[] { nameof(SelectedTargetComponent), nameof(TargetComponentsList) };
+
+                case nameof(GetAvailableRoutes):
+                case nameof(OpenRouteSettings):
+                case nameof(TestMethod):
+                case nameof(SetACClassInfoWithItems):
+                case nameof(RefreshRouteUsageCache):
+                case nameof(ClearRouteUsageCache):
+                case nameof(MarkAll):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+            }
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         //Route oldRoute;
 
         [ACMethodInfo("", "en{'Test routes'}de{'Test routes'}", 401, true)]

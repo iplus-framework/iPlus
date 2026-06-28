@@ -284,6 +284,17 @@ namespace gip.core.autocomponent
             return HandleExecuteACMethod_PWBaseNodeProcess(out result, acComponent, acMethodName, acClassMethod, acParameter);
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(CancelWaiting):
+                case nameof(IsEnabledCancelWaiting):
+                    return new string[] { nameof(CurrentACState) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         public override void Reset()
         {
             UnSubscribeToTimerCycle();

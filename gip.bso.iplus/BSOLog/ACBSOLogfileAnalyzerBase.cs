@@ -242,6 +242,9 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
+                case nameof(StartAnalysis):
+                    StartAnalysis(acParameter.Length == 1 ? acParameter[0] as Action<int, int> : null);
+                    return true;
                 case nameof(IsEnabledStartAnalysis):
                     result = IsEnabledStartAnalysis();
                     return true;
@@ -250,6 +253,17 @@ namespace gip.bso.iplus
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledStartAnalysis):
+                    return new string[] { nameof(OutputFilePath) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
         }
 
         #endregion

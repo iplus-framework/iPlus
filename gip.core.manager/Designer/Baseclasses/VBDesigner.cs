@@ -334,7 +334,16 @@ namespace gip.core.manager
             {
                 OnPropertyChanged("SelectedVBControl");
                 OnPropertyChanged("CurrentContentACObject");
+                SelectionChangeCounter++;
             }
+        }
+
+        int _SelectionChangeCounter;
+        [ACPropertyInfo(9999)]
+        public int SelectionChangeCounter 
+        {
+            get { return _SelectionChangeCounter; }
+            set { _SelectionChangeCounter = value; OnPropertyChanged("SelectionChangeCounter"); }
         }
         #endregion
 

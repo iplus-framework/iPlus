@@ -100,20 +100,33 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "TurnOnLeft":
+                case nameof(TurnOnLeft):
                     TurnOnLeft();
                     return true;
-                case "TurnOnRight":
+                case nameof(TurnOnRight):
                     TurnOnRight();
                     return true;
-                case Const.IsEnabledPrefix + "TurnOnLeft":
+                case nameof(IsEnabledTurnOnLeft):
                     result = IsEnabledTurnOnLeft();
                     return true;
-                case Const.IsEnabledPrefix + "TurnOnRight":
+                case nameof(IsEnabledTurnOnRight):
                     result = IsEnabledTurnOnRight();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(TurnOnLeft):
+                case nameof(IsEnabledTurnOnLeft):
+                case nameof(TurnOnRight):
+                case nameof(IsEnabledTurnOnRight):
+                    return new string[] { nameof(TurnOnInterlock), nameof(OperatingMode), nameof(RunState), nameof(DirectionLeft), nameof(ToggleAllowed) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
         #endregion
 

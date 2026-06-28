@@ -262,17 +262,30 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "ShowSelectionDialog":
+                case nameof(ShowSelectionDialog):
                     ShowSelectionDialog(acParameter[0] as IACInteractiveObject);
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
-        //protected override bool HandleIsEnabledExecuteACMethod(out bool result, string acMethodName, ACClassMethod acClassMethod, params Object[] acParameter)
-        //{
-        //    return base.HandleIsEnabledExecuteACMethod(out result, acMethodName, acClassMethod, acParameter);
-        //}
+        #endregion
+
+
+        #region GetPropsToObserveForIsEnabled
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                #region ShowSelectionDialog
+                case nameof(ShowSelectionDialog):
+                    return new string[] { nameof(InitState) };
+                #endregion
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         #endregion
 
 

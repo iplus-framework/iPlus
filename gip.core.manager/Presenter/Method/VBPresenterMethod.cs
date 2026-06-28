@@ -260,20 +260,36 @@ namespace gip.core.manager
             result = null;
             switch (acMethodName)
             {
-                case"ShowDetail":
+                case nameof(ShowDetail):
                     ShowDetail();
                     return true;
-                case"IsEnabledShowDetail":
+                case nameof(IsEnabledShowDetail):
                     result = IsEnabledShowDetail();
                     return true;
-                case"HideDetail":
+                case nameof(HideDetail):
                     HideDetail();
                     return true;
-                case"IsEnabledHideDetail":
+                case nameof(IsEnabledHideDetail):
                     result = IsEnabledHideDetail();
                     return true;
+            }                
+            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(Load):
+                    return new string[] { nameof(SelectedWFNode)};
+                case nameof(HideDetail):
+                case nameof(IsEnabledHideDetail):
+                    return new string[] { nameof(SelectedRootWFNode), nameof(SelectedWFNode) };
+                case nameof(ShowDetail):
+                case nameof(IsEnabledShowDetail):
+                    return new string[] { nameof(SelectedRootWFNode), nameof(SelectedWFNode) };
             }
-                return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
 #endregion

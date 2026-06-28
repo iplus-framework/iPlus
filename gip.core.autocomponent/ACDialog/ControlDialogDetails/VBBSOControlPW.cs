@@ -2109,6 +2109,62 @@ namespace gip.core.autocomponent
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                #region PWNode Value
+                case nameof(CreatePWNodeValue):
+                case nameof(IsEnabledCreatePWNodeValue):
+                    return new string[] { nameof(CurrentPWNodeMethod), nameof(CurrentPWInfo) };
+                case nameof(DeletePWNodeParamValue):
+                case nameof(IsEnabledDeletePWNodeParamValue):
+                    return new string[] { nameof(SelectedPWNodeParamValue) };
+                #endregion
+
+                #region PAFunction Value
+                case nameof(CreatePAFunctionValue):
+                case nameof(IsEnabledCreatePAFunctionValue):
+                    return new string[] { nameof(CurrentPAFunctionMethod) };
+                case nameof(DeletePAFunctionValue):
+                case nameof(IsEnabledDeletePAFunctionValue):
+                    return new string[] { nameof(SelectedPAFunctionParamValue) };
+                #endregion
+
+                #region Save / Replication
+                case nameof(SaveSolProperties):
+                    return new string[] { nameof(ACState) };
+                case nameof(ReplicationNodeApplyToAll):
+                case nameof(IsEnabledReplicationNodeApplyToAll):
+                    return new string[] { nameof(VBControlMultiselect) };
+                case nameof(ReplicationFunctionApplyToAll):
+                case nameof(IsEnabledReplicationFunctionApplyToAll):
+                    return new string[] { nameof(VBControlMultiselect) };
+                #endregion
+
+                #region Route
+                case nameof(AddRoute):
+                case nameof(IsEnabledAddRoute):
+                    return new string[] { nameof(CurrentRuleType), nameof(RuleObjectSelected) };
+                case nameof(DeleteRoute):
+                case nameof(IsEnabledDeleteRoute):
+                    return new string[] { nameof(SelectedRuleValue), nameof(CurrentRuleType), nameof(RuleObjectSelected) };
+                case nameof(OpenRoute):
+                case nameof(IsEnabledOpenRoute):
+                    return new string[] { nameof(SelectedRuleValue), nameof(RuleObjectSelected) };
+                #endregion
+
+                #region Always Enabled (no IsEnabled method)
+                case nameof(SearchAllHistoryPWNodeParamValue):
+                case nameof(SearchAllHistoryPAFunctionParamValue):
+                case nameof(CopyConfigToSimilarNodes):
+                case nameof(IsEnabledCopyConfigToSimilarNodes):
+                    return new string[] { nameof(InitState) };
+                #endregion
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
         #endregion
 
     }

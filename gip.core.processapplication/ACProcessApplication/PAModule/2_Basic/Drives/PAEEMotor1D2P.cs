@@ -94,20 +94,33 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "TurnOnSlow":
+                case nameof(TurnOnSlow):
                     TurnOnSlow();
                     return true;
-                case "TurnOnFast":
+                case nameof(TurnOnFast):
                     TurnOnFast();
                     return true;
-                case Const.IsEnabledPrefix + "TurnOnSlow":
+                case nameof(IsEnabledTurnOnSlow):
                     result = IsEnabledTurnOnSlow();
                     return true;
-                case Const.IsEnabledPrefix + "TurnOnFast":
+                case nameof(IsEnabledTurnOnFast):
                     result = IsEnabledTurnOnFast();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(TurnOnSlow):
+                case nameof(IsEnabledTurnOnSlow):
+                case nameof(TurnOnFast):
+                case nameof(IsEnabledTurnOnFast):
+                    return new string[] { nameof(TurnOnInterlock), nameof(OperatingMode), nameof(RunState), nameof(SpeedFast), nameof(TransitTimeSlowFast) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
         #endregion
 

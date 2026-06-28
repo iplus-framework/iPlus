@@ -150,17 +150,30 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case"SelectConfigFile":
+                case nameof(SelectConfigFile):
                     SelectConfigFile();
                     return true;
-                case"EncryptConfig":
+                case nameof(EncryptConfig):
                     EncryptConfig();
                     return true;
-                case"DecryptConfig":
+                case nameof(DecryptConfig):
                     DecryptConfig();
                     return true;
             }
                 return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(SelectConfigFile):
+                case nameof(EncryptConfig):
+                case nameof(DecryptConfig):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+            }
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

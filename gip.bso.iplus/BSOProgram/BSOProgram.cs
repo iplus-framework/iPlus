@@ -502,44 +502,68 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case"Save":
+                case nameof(Save):
                     Save();
                     return true;
-                case"IsEnabledSave":
+                case nameof(IsEnabledSave):
                     result = IsEnabledSave();
                     return true;
-                case"UndoSave":
+                case nameof(UndoSave):
                     UndoSave();
                     return true;
-                case"IsEnabledUndoSave":
+                case nameof(IsEnabledUndoSave):
                     result = IsEnabledUndoSave();
                     return true;
-                case"New":
+                case nameof(New):
                     New();
                     return true;
-                case"IsEnabledNew":
+                case nameof(IsEnabledNew):
                     result = IsEnabledNew();
                     return true;
-                case"Delete":
+                case nameof(Delete):
                     Delete();
                     return true;
-                case"IsEnabledDelete":
+                case nameof(IsEnabledDelete):
                     result = IsEnabledDelete();
                     return true;
-                case"Search":
+                case nameof(Search):
                     Search();
                     return true;
-                case"NewACProgramOK":
+                case nameof(NewACProgramOK):
                     NewACProgramOK();
                     return true;
-                case"IsEnabledNewACProgramOK":
+                case nameof(IsEnabledNewACProgramOK):
                     result = IsEnabledNewACProgramOK();
                     return true;
-                case"NewACProgramCancel":
+                case nameof(NewACProgramCancel):
                     NewACProgramCancel();
                     return true;
             }
                 return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(New):
+                case nameof(IsEnabledNew):
+                    return new string[] { nameof(DbChangeCount) };
+
+                case nameof(Delete):
+                case nameof(IsEnabledDelete):
+                    return new string[] { nameof(CurrentACProgram) };
+
+                case nameof(NewACProgramOK):
+                case nameof(IsEnabledNewACProgramOK):
+                    return new string[] { nameof(CurrentNewACProgram) };
+
+                case nameof(Search):
+                case nameof(NewACProgramCancel):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+            }
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

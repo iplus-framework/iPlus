@@ -818,26 +818,44 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case"OnActivate":
+                case nameof(OnActivate):
                     OnActivate((String)acParameter[0]);
                     return true;
-                case"Search":
+                case nameof(Search):
                     Search();
                     return true;
-                case"ShowWorkflow":
+                case nameof(ShowWorkflow):
                     ShowWorkflow();
                     return true;
-                case"IsEnabledShowWorkflow":
+                case nameof(IsEnabledShowWorkflow):
                     result = IsEnabledShowWorkflow();
                     return true;
-                case"DeleteWorkflow":
+                case nameof(DeleteWorkflow):
                     DeleteWorkflow();
                     return true;
-                case"IsEnabledDeleteWorkflow":
+                case nameof(IsEnabledDeleteWorkflow):
                     result = IsEnabledDeleteWorkflow();
                     return true;
             }
-                return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(ShowWorkflow):
+                case nameof(IsEnabledShowWorkflow):
+                case nameof(DeleteWorkflow):
+                case nameof(IsEnabledDeleteWorkflow):
+                    return new string[] { nameof(SelectedACTask) };
+
+                case nameof(Search):
+                case nameof(OnActivate):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+            }
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

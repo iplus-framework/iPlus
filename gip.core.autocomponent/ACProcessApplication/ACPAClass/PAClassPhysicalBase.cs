@@ -75,26 +75,41 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "SwitchToAutomatic":
+                case nameof(SwitchToAutomatic):
                     SwitchToAutomatic();
                     return true;
-                case "SwitchToManual":
+                case nameof(SwitchToManual):
                     SwitchToManual();
                     return true;
-                case "SwitchToMaintenance":
+                case nameof(SwitchToMaintenance):
                     SwitchToMaintenance();
                     return true;
-                case Const.IsEnabledPrefix + "SwitchToAutomatic":
+                case nameof(IsEnabledSwitchToAutomatic):
                     result = IsEnabledSwitchToAutomatic();
                     return true;
-                case Const.IsEnabledPrefix + "SwitchToManual":
+                case nameof(IsEnabledSwitchToManual):
                     result = IsEnabledSwitchToManual();
                     return true;
-                case Const.IsEnabledPrefix + "SwitchToMaintenance":
+                case nameof(IsEnabledSwitchToMaintenance):
                     result = IsEnabledSwitchToMaintenance();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(SwitchToAutomatic):
+                case nameof(SwitchToManual):
+                case nameof(SwitchToMaintenance):
+                case nameof(IsEnabledSwitchToAutomatic):
+                case nameof(IsEnabledSwitchToManual):
+                case nameof(IsEnabledSwitchToMaintenance):
+                    return new string[] { nameof(OperatingMode), nameof(ReqOperatingMode) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
         #endregion
 

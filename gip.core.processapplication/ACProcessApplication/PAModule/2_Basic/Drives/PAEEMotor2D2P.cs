@@ -116,32 +116,49 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "TurnOnSlowLeft":
+                case nameof(TurnOnSlowLeft):
                     TurnOnSlowLeft();
                     return true;
-                case "TurnOnSlowRight":
+                case nameof(TurnOnSlowRight):
                     TurnOnSlowRight();
                     return true;
-                case "TurnOnFastLeft":
+                case nameof(TurnOnFastLeft):
                     TurnOnFastLeft();
                     return true;
-                case "TurnOnFastRight":
+                case nameof(TurnOnFastRight):
                     TurnOnFastRight();
                     return true;
-                case Const.IsEnabledPrefix + "TurnOnSlowLeft":
+                case nameof(IsEnabledTurnOnSlowLeft):
                     result = IsEnabledTurnOnSlowLeft();
                     return true;
-                case Const.IsEnabledPrefix + "TurnOnSlowRight":
+                case nameof(IsEnabledTurnOnSlowRight):
                     result = IsEnabledTurnOnSlowRight();
                     return true;
-                case Const.IsEnabledPrefix + "TurnOnFastLeft":
+                case nameof(IsEnabledTurnOnFastLeft):
                     result = IsEnabledTurnOnFastLeft();
                     return true;
-                case Const.IsEnabledPrefix + "TurnOnFastRight":
+                case nameof(IsEnabledTurnOnFastRight):
                     result = IsEnabledTurnOnFastRight();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(TurnOnSlowLeft):
+                case nameof(IsEnabledTurnOnSlowLeft):
+                case nameof(TurnOnSlowRight):
+                case nameof(IsEnabledTurnOnSlowRight):
+                case nameof(TurnOnFastLeft):
+                case nameof(IsEnabledTurnOnFastLeft):
+                case nameof(TurnOnFastRight):
+                case nameof(IsEnabledTurnOnFastRight):
+                    return new string[] { nameof(TurnOnInterlock), nameof(OperatingMode), nameof(RunState), nameof(ReqDirectionLeft), nameof(SpeedFast), nameof(ToggleAllowed), nameof(TransitTimeSlowFast) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
         #endregion
 

@@ -773,6 +773,11 @@ namespace gip.bso.iplus
             CurrentExportFolder = mediaController.OpenFileDialog(true, CurrentExportFolder, true) ?? CurrentExportFolder;
         }
 
+        public bool IsEnabledExportFolder()
+        {
+            return true;
+        }
+
         [ACMethodInfo("LoadExportTree", "en{'Filter and load'}de{'Filtern und anzeigen'}", 9999, false, false, true)]
         public void LoadExportTree()
         {
@@ -811,6 +816,31 @@ namespace gip.bso.iplus
         public bool IsEnabledLoadExportTree()
         {
             return !BackgroundWorker.IsBusy && CurrentExportACProject != null;
+        }
+
+        [ACMethodCommand("Export", "en{'Filter with this assembly'}de{'Filter mit dieser Assembly'}", 402, false)]
+        public void FilterThisAssembly()
+        {
+            if (!IsEnabledFilterThisAssembly()) 
+                return;
+            string asqn = CurrentExportProjectItem?.ValueT?.ObjectType?.AssemblyQualifiedName;
+            // if (string.IsNullOrEmpty(asqn))
+            //     asqn = CurrentExportProjectItem?.ValueT?.FinalAssemblyQualifiedName;
+            if (string.IsNullOrEmpty(asqn))
+                this.SearchClassText = "";
+            else
+            {
+                asqn = asqn.Substring(0, asqn.IndexOf(','));
+                if (!string.IsNullOrEmpty(asqn))
+                    asqn = asqn.Substring(0, asqn.LastIndexOf('.'));
+                this.SearchClassText = asqn;
+            }
+            LoadExportTree();
+        }
+
+        public bool IsEnabledFilterThisAssembly()
+        {
+            return CurrentExportProjectItem != null;
         }
 
         #endregion
@@ -1246,41 +1276,77 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case "Export":
+                case nameof(Export):
                     Export();
                     return true;
-                case "IsEnabledExport":
+                case nameof(IsEnabledExport):
                     result = IsEnabledExport();
                     return true;
-                case "ExportFolder":
+                case nameof(ExportFolder):
                     ExportFolder();
                     return true;
-                case "LoadExportTree":
+                case nameof(IsEnabledExportFolder):
+                    result = IsEnabledExportFolder();
+                    return true;
+                case nameof(LoadExportTree):
                     LoadExportTree();
                     return true;
-                case "IsEnabledLoadExportTree":
+                case nameof(IsEnabledLoadExportTree):
                     result = IsEnabledLoadExportTree();
                     return true;
-                case "PackageDlg":
+                case nameof(PackageDlg) :
                     PackageDlg();
                     return true;
-                case "IsEnabledPackageDlg":
+                case nameof(IsEnabledPackageDlg):
                     result = IsEnabledPackageDlg();
                     return true;
-                case "PackageDlgOk":
+                case nameof(PackageDlgOk):
                     PackageDlgOk();
                     return true;
-                case "IsEnabledPackageDlgOk":
+                case nameof(IsEnabledPackageDlgOk):
                     result = IsEnabledPackageDlgOk();
                     return true;
-                case "PackageDlgCancel":
+                case nameof(PackageDlgCancel):
                     PackageDlgCancel();
                     return true;
-                case "IsEnabledPackageDlgCancel":
+                case nameof(IsEnabledPackageDlgCancel):
                     result = IsEnabledPackageDlgCancel();
+                    return true;
+                case nameof(FilterThisAssembly):
+                    FilterThisAssembly();
+                    return true;
+                case nameof(IsEnabledFilterThisAssembly):
+                    result = IsEnabledFilterThisAssembly();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(Export):
+                case nameof(IsEnabledExport):
+                case nameof(PackageDlg):
+                case nameof(IsEnabledPackageDlg):
+                    return new string[] { nameof(CurrentExportProjectItemRoot) };
+                case nameof(ExportFolder):
+                case nameof(IsEnabledExportFolder):
+                case nameof(PackageDlgCancel):
+                case nameof(IsEnabledPackageDlgCancel):
+                    return new string[] { nameof(InitState)};
+                case nameof(LoadExportTree):
+                case nameof(IsEnabledLoadExportTree):
+                    return new string[] { nameof(CurrentExportACProject) };
+                case nameof(PackageDlgOk):
+                case nameof(IsEnabledPackageDlgOk):
+                    return new string[] { nameof(CurrentExportFolder), nameof(PackageExportUser) };
+                case nameof(FilterThisAssembly):
+                case nameof(IsEnabledFilterThisAssembly):
+                    return new string[] { nameof(CurrentExportProjectItem) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
 

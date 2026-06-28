@@ -133,20 +133,33 @@ namespace gip.core.processapplication
             result = null;
             switch (acMethodName)
             {
-                case "ForceSignal":
+                case nameof(ForceSignal):
                     ForceSignal();
                     return true;
-                case "ResetSignal":
+                case nameof(ResetSignal):
                     ResetSignal();
                     return true;
-                case Const.IsEnabledPrefix + "ForceSignal":
+                case nameof(IsEnabledForceSignal):
                     result = IsEnabledForceSignal();
                     return true;
-                case Const.IsEnabledPrefix + "ResetSignal":
+                case nameof(IsEnabledResetSignal):
                     result = IsEnabledResetSignal();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(ForceSignal):
+                case nameof(IsEnabledForceSignal):
+                case nameof(ResetSignal):
+                case nameof(IsEnabledResetSignal):
+                    return new string[] { nameof(OperatingMode), nameof(ForceSensorSignal) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
         #endregion
 

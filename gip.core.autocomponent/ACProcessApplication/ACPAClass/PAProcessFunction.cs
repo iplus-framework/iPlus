@@ -904,6 +904,40 @@ namespace gip.core.autocomponent
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case ACStateConst.TMStart:
+                case Const.IsEnabledPrefix + ACStateConst.TMStart:
+                    return new string[] { nameof(CurrentTask), nameof(ACStateConverter), nameof(IsACStateInconsistent) };
+                case ACStateConst.TMRun:
+                case Const.IsEnabledPrefix + ACStateConst.TMRun:
+                case ACStateConst.TMPause:
+                case Const.IsEnabledPrefix + ACStateConst.TMPause:
+                case ACStateConst.TMResume:
+                case Const.IsEnabledPrefix + ACStateConst.TMResume:
+                case ACStateConst.TMHold:
+                case Const.IsEnabledPrefix + ACStateConst.TMHold:
+                case ACStateConst.TMRestart:
+                case Const.IsEnabledPrefix + ACStateConst.TMRestart:
+                case ACStateConst.TMAbort:
+                case Const.IsEnabledPrefix + ACStateConst.TMAbort:
+                case ACStateConst.TMStopp:
+                case Const.IsEnabledPrefix + ACStateConst.TMStopp:
+                case ACStateConst.TMReset:
+                case Const.IsEnabledPrefix + ACStateConst.TMReset:
+                    return new string[] { nameof(CurrentACState) };
+                case nameof(Reset2Repeat):
+                case nameof(IsEnabledReset2Repeat):
+                    return new string[] { nameof(CurrentACState) };
+                case nameof(SendChangedACMethod):
+                case nameof(IsEnabledSendChangedACMethod):
+                    return new string[] { nameof(CurrentACState) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         public static bool HandleExecuteACMethod_PAProcessFunction(out object result, IACComponent acComponent, string acMethodName, gip.core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
         {
             result = null;

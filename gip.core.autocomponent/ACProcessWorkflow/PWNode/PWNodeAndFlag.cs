@@ -108,6 +108,19 @@ namespace gip.core.autocomponent
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(ReinterpretGate):
+                case nameof(IsEnabledReinterpretGate):
+                case nameof(ResetIn2Events):
+                case nameof(IsEnabledResetIn2Events):
+                    return new string[] { nameof(InitState) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         public override void Start()
         {
         }

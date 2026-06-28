@@ -1040,6 +1040,9 @@ namespace gip.bso.iplus
                 case nameof(IsEnabledUnassignAllACProject):
                     result = IsEnabledUnassignAllACProject();
                     return true;
+                    // case nameof(TestMethod):
+                    //     result = TestMethod();
+                    //     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
@@ -1048,11 +1051,15 @@ namespace gip.bso.iplus
         {
             switch (acMethodName)
             {
+                case nameof(Search):
+                    return new string[] { nameof(InitState) };
                 case nameof(Load):
                 case nameof(IsEnabledLoad):
                 case nameof(Delete):
                 case nameof(IsEnabledDelete):
-                    return new string[] { nameof(CurrentUser), nameof(SelectedUser) };
+                case nameof(UserClone):
+                // case nameof(TestMethod):
+                //     return new string[] { nameof(CurrentUser), nameof(SelectedUser) };
                 case nameof(AssignGroup):
                 case nameof(IsEnabledAssignGroup):
                     return new string[] { nameof(CurrentUser), nameof(SelectedGroup) };
@@ -1069,8 +1076,7 @@ namespace gip.bso.iplus
                 case nameof(UnassignAllACProject):
                 case nameof(IsEnabledUnassignAllACProject):
                     return new string[] { nameof(CurrentUserInstance), nameof(SelectedAssignedVBUserACProject) };
-                case nameof(UserClone):
-                    return new string[] { nameof(SelectedUser) };
+
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
