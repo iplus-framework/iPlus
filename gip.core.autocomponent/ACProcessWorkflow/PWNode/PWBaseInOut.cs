@@ -145,6 +145,21 @@ namespace gip.core.autocomponent
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(RaiseOutEvent):
+                case nameof(IsEnabledRaiseOutEvent):
+                case nameof(ResetInEvents):
+                case nameof(IsEnabledResetInEvents):
+                case nameof(ReloadInEvents):
+                case nameof(IsEnabledReloadInEvents):
+                    return new string[] { nameof(InitState) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         [ACMethodInfo("Function", "en{'PWPointInCallback'}de{'PWPointInCallback'}", 9999)]
         public abstract void PWPointInCallback(IACPointNetBase sender, ACEventArgs e, IACObject wrapObject);
 
@@ -197,21 +212,6 @@ namespace gip.core.autocomponent
         public virtual bool IsEnabledReloadInEvents()
         {
             return true;
-        }
-
-        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
-        {
-            switch (acMethodName)
-            {
-                case nameof(RaiseOutEvent):
-                case nameof(IsEnabledRaiseOutEvent):
-                case nameof(ResetInEvents):
-                case nameof(IsEnabledResetInEvents):
-                case nameof(ReloadInEvents):
-                case nameof(IsEnabledReloadInEvents):
-                    return new string[] { nameof(InitState) };
-            }
-            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

@@ -266,23 +266,19 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "OK":
+                case nameof(OK):
                     OK();
                     return true;
-                case "Cancel":
+                case nameof(Cancel):
                     Cancel();
                     return true;
-                case "ACUrlEditorDlg":
+                case nameof(ACUrlEditorDlg):
                     result = ACUrlEditorDlg(acParameter[0] as ACClass, acParameter[1] as string, acParameter[2] as ACValueList);
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
-        //protected override bool HandleIsEnabledExecuteACMethod(out bool result, string acMethodName, ACClassMethod acClassMethod, params Object[] acParameter)
-        //{
-        //    return base.HandleIsEnabledExecuteACMethod(out result, acMethodName, acClassMethod, acParameter);
-        //}
         #endregion
 
         #region GetPropsToObserveForIsEnabled
@@ -292,13 +288,13 @@ namespace gip.core.autocomponent
             switch (acMethodName)
             {
                 #region OK / Cancel
-                case "OK":
-                case "Cancel":
+                case nameof(OK):
+                case nameof(Cancel):
                     return new string[] { nameof(InitState) };
                 #endregion
 
                 #region ACUrlEditorDlg
-                case "ACUrlEditorDlg":
+                case nameof(ACUrlEditorDlg):
                     return new string[] { nameof(InitState) };
                 #endregion
             }

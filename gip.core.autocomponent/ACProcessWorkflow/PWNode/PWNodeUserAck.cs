@@ -204,6 +204,17 @@ namespace gip.core.autocomponent
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(AckStart):
+                case nameof(IsEnabledAckStart):
+                    return new string[] { nameof(CurrentACState) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         public static bool HandleExecuteACMethod_PWNodeUserAck(out object result, IACComponent acComponent, string acMethodName, gip.core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
         {
             result = null;
@@ -457,17 +468,6 @@ namespace gip.core.autocomponent
             ACComponent _this = acComponent as ACComponent;
             ACStateEnum acState = (ACStateEnum) _this.ACUrlCommand("ACState");
             return acState == ACStateEnum.SMRunning || acState == ACStateEnum.SMStarting;
-        }
-
-        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
-        {
-            switch (acMethodName)
-            {
-                case nameof(AckStart):
-                case nameof(IsEnabledAckStart):
-                    return new string[] { nameof(CurrentACState) };
-            }
-            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion
