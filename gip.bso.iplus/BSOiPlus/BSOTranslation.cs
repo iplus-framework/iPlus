@@ -2749,7 +2749,6 @@ namespace gip.bso.iplus
             }
         }
         #endregion
-
         public enum TranslationAutogenerateOption
         {
             FetchTranslation,

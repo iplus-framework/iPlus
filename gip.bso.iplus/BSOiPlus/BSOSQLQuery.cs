@@ -25,7 +25,6 @@ namespace gip.bso.iplus
 
         public short[] SQLMethodKindIndexes = new short[] { (short)Global.ACKinds.MSMethodExt, (short)Global.ACKinds.MSMethodExtClient };
 
-
         #endregion
 
         #region c´tors
