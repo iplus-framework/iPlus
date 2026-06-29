@@ -935,6 +935,46 @@ namespace gip.core.autocomponent
             return null;
         }
 
+        [ACMethodInfo("", "", 9999)]
+        public void SetDatabaseValueListValue(string acClassACIdentifier, object value, string desc)
+        {
+            if (string.IsNullOrEmpty(acClassACIdentifier))
+                return;
+
+            gip.core.datamodel.Database db = Database as gip.core.datamodel.Database;
+            ACClass customValueListClass = db.GetACType(acClassACIdentifier);
+            if (customValueListClass != null)
+            {
+                gip.core.datamodel.ACClassConfig[] allConfigs =
+                     customValueListClass
+                    .ACClassConfig_ACClass
+                    .Where(c => c.LocalConfigACUrl != null && c.LocalConfigACUrl.StartsWith($"{nameof(ACValueItem)}_"))
+                    .ToArray();
+
+                gip.core.datamodel.ACClassConfig config =
+                    allConfigs
+                    .Where(c => string.Equals(c.Value, value))
+                    .FirstOrDefault();
+
+                if(config == null)
+                {
+                    IACConfigStore acConfigHandler = customValueListClass as IACConfigStore;
+                    config = acConfigHandler.NewACConfig(customValueListClass) as gip.core.datamodel.ACClassConfig;
+                    config.ValueTypeACClass = db.GetACType(typeof(String)) as gip.core.datamodel.ACClass;
+                    config.Value = value;
+                    string keyValue = value.ToString();
+                    keyValue = ACUrlHelper.GetTrimmedName(keyValue);
+                    config.LocalConfigACUrl = $"{nameof(ACValueItem)}_{keyValue}";
+                    customValueListClass.ACClassConfig_ACClass.Add(config);
+                }
+                if(config.ACCaption != desc)
+                {
+                    config.ACCaption = desc;
+                }
+            }
+            return;
+        }
+
 
         /// <summary>
         /// Ermittelt den ACType (ACClass o. ACClassProperty) für die übergebene acUrl

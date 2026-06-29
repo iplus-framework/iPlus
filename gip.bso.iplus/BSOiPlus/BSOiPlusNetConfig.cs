@@ -261,22 +261,6 @@ namespace gip.bso.iplus
 
         #region Execute-Helper-Handlers
 
-        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
-        {
-            switch (acMethodName)
-            {
-                case nameof(IsEnabledSave):
-                case nameof(IsEnabledUndoSave):
-                    return new string[] { nameof(DbChangeCount) };
-                case nameof(IsEnabledLoad):
-                    return new string[] { nameof(SelectedUserInstance) };
-                case nameof(IsEnabledDelete):
-                    return new string[] { nameof(InitState) };
-                default:
-                    return base.GetPropsToObserveForIsEnabled(acMethodName);
-            }
-        }
-
         protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
         {
             result = null;
@@ -311,6 +295,22 @@ namespace gip.bso.iplus
                     return true;
             }
                 return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledSave):
+                case nameof(IsEnabledUndoSave):
+                    return new string[] { nameof(DbChangeCount) };
+                case nameof(IsEnabledLoad):
+                    return new string[] { nameof(SelectedUserInstance) };
+                case nameof(IsEnabledDelete):
+                    return new string[] { nameof(InitState) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
         }
 
         #endregion

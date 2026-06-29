@@ -1,15 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using gip.core.datamodel;
-using gip.core.autocomponent;
 using System.IO;
-using System.Diagnostics;
 using System.Text.Json;
 using Newtonsoft.Json.Linq;
+using gip.core.autocomponent.ACDialog.ControlDialogDetails;
 
 namespace gip.core.communication
 {
@@ -83,7 +81,7 @@ namespace gip.core.communication
             JToken newtonsoftToken = null;
             string fileName = eventArgs["FullPath"] as string;
 
-            if (watcherChangeType != WatcherChangeTypes.Deleted)
+            if (watcherChangeType != WatcherChangeTypes.Deleted && IsImporterForJSONDocType(eventArgs, fileName))
             {
                 try
                 {
@@ -222,6 +220,11 @@ namespace gip.core.communication
                 return false;
             }
             return true;
+        }
+
+        public virtual bool IsImporterForJSONDocType(ACEventArgs eventArgs, string fileName)
+        {
+            return File.Exists(fileName) && new string[] { ".json" }.Contains(System.IO.Path.GetExtension(fileName).ToLower());
         }
         #endregion
 

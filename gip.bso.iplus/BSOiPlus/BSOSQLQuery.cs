@@ -25,6 +25,7 @@ namespace gip.bso.iplus
 
         public short[] SQLMethodKindIndexes = new short[] { (short)Global.ACKinds.MSMethodExt, (short)Global.ACKinds.MSMethodExtClient };
 
+
         #endregion
 
         #region c´tors
@@ -190,9 +191,9 @@ namespace gip.bso.iplus
         /// Saves this instance.
         /// </summary>
         [ACMethodCommand(nameof(Save), "en{'Save'}de{'Speichern'}", (short)MISort.Save, false, Global.ACKinds.MSMethodPrePost)]
-        public void Save()
+        public async void Save()
         {
-            OnSave();
+            await OnSave();
         }
 
         /// <summary>
@@ -503,25 +504,6 @@ namespace gip.bso.iplus
 
         #endregion
 
-        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
-        {
-            switch (acMethodName)
-            {
-                case nameof(IsEnabledSave):
-                    return new string[] { nameof(DbChangeCount) };
-                case nameof(IsEnabledExecuteSQL):
-                    return new string[] { nameof(SelectedSQLScript) };
-                case nameof(IsEnabledExportToExcel):
-                    return new string[] { nameof(SQLScriptResult) };
-                case nameof(IsEnabledNewSQLScript):
-                    return new string[] { nameof(InitState) };
-                case nameof(IsEnabledDeleteSQLScript):
-                    return new string[] { nameof(SelectedSQLScript) };
-                default:
-                    return base.GetPropsToObserveForIsEnabled(acMethodName);
-            }
-        }
-
         #region Execute-Helper-Handlers
 
         protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, ACClassMethod acClassMethod, params object[] acParameter)
@@ -565,6 +547,25 @@ namespace gip.bso.iplus
             }
 
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledSave):
+                    return new string[] { nameof(DbChangeCount) };
+                case nameof(IsEnabledExecuteSQL):
+                    return new string[] { nameof(SelectedSQLScript) };
+                case nameof(IsEnabledExportToExcel):
+                    return new string[] { nameof(SQLScriptResult) };
+                case nameof(IsEnabledNewSQLScript):
+                    return new string[] { nameof(InitState) };
+                case nameof(IsEnabledDeleteSQLScript):
+                    return new string[] { nameof(SelectedSQLScript) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
         }
 
         #endregion

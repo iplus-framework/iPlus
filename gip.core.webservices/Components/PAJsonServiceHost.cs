@@ -36,6 +36,7 @@ namespace gip.core.webservices
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
             _UseCustomHttpListener = new ACPropertyConfigValue<bool>(this, nameof(UseCustomHttpListener), false);
+            _UseHTTPS = new ACPropertyConfigValue<bool>(this, nameof(UseHTTPS), false);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -54,16 +55,38 @@ namespace gip.core.webservices
             get => _UseCustomHttpListener.ValueT;
             set => _UseCustomHttpListener.ValueT = value;
         }
+
+        private ACPropertyConfigValue<bool> _UseHTTPS;
+        [ACPropertyConfig("en{'Use HTTPS'}de{'Verwende HTTPS'}")]
+        public bool UseHTTPS
+        {
+            get => _UseHTTPS.ValueT;
+            set => _UseHTTPS.ValueT = value;
+        }
         #endregion
 
         #region Implementation
 
         public override IHost CreateService()
         {
-            if (UseCustomHttpListener)
-                return CreateHttpListenerService();
+            IOAuthTokenValidator oAuthTokenValidator = null;
+            var searchOAuth = FindChildComponents<IOAuthTokenValidator>();
+            if (searchOAuth != null)
+            {
+                oAuthTokenValidator = searchOAuth.FirstOrDefault();
+            }
+
+            if (oAuthTokenValidator != null && oAuthTokenValidator.ConnectionState != ACObjectConnectionState.DisConnected)
+            {
+                return CreateWCFHttpServiceOAuth(oAuthTokenValidator);
+            }
             else
-                return CreateWCFHttpService();
+            {
+                if (UseCustomHttpListener)
+                    return CreateHttpListenerService();
+                else
+                    return CreateWCFHttpService();
+            }
         }
 
         protected IHost CreateWCFHttpService()
@@ -140,6 +163,92 @@ namespace gip.core.webservices
                     metad.HttpGetEnabled = true;
                     foreach (CoreWCF.Description.ServiceEndpoint endpoint in serviceHostBase.Description.Endpoints)
                     {
+                        foreach (OperationDescription opDescr in endpoint.Contract.Operations)
+                        {
+                            OnAddKnownTypesToOperationContract(endpoint, opDescr);
+                        }
+                    }
+                });
+            });
+
+            return app;
+        }
+
+        protected IHost CreateWCFHttpServiceOAuth(IOAuthTokenValidator oAuthTokenValidator)
+        {
+            var builder = WebApplication.CreateBuilder();
+
+            int servicePort = ServicePort;
+            if (servicePort <= 0)
+            {
+                servicePort = 8730;
+                ServicePort = servicePort;
+            }
+
+            builder.WebHost.UseKestrel(options =>
+            {
+                options.ListenAnyIP(servicePort, listenOptions =>
+                {
+                    if (UseHTTPS)
+                        listenOptions.UseHttps();
+                });
+            });
+
+            builder.Services.AddServiceModelWebServices(o =>
+            {
+                o.Title = "Mobile Service API";
+                o.Version = "1";
+                o.Description = "API Description";
+                o.TermsOfService = new("https://github.com/iplus-framework/iPlus");
+                o.ContactName = "Contact";
+                o.ContactEmail = "info@iplus-framework.com";
+            });
+
+            builder.Services.AddSingleton(new SwaggerOptions());
+
+            var app = builder.Build();
+
+            app.UseSwagger();
+            app.UseSwaggerUI();
+
+            ((IApplicationBuilder)app).UseServiceModel(serviceBuilder =>
+            {
+                string scheme = UseHTTPS ? "https" : "http";
+                string strUri = String.Format("{0}://{1}:{2}/", scheme, this.Root.Environment.UserInstance.Hostname, servicePort);
+                Uri uri = new Uri(strUri);
+
+                WebHttpBinding httpBinding = new WebHttpBinding()
+                {
+                    ContentTypeMapper = GetContentTypeMapper()
+                };
+                httpBinding.Security.Mode = UseHTTPS ? WebHttpSecurityMode.Transport : WebHttpSecurityMode.None;
+                httpBinding.MaxReceivedMessageSize = int.MaxValue;
+                httpBinding.ReaderQuotas.MaxStringContentLength = 1000000;
+                httpBinding.MaxBufferSize = int.MaxValue;
+                httpBinding.MaxBufferPoolSize = int.MaxValue;
+
+                serviceBuilder.AddService(ServiceType);
+                serviceBuilder.AddServiceWebEndpoint(ServiceType, ServiceInterfaceType, httpBinding, uri, null);
+
+                serviceBuilder.ConfigureAllServiceHostBase((serviceHostBase) =>
+                {
+                    serviceHostBase.Authorization.ServiceAuthorizationManager = new OAuthBearerAuthorizationManager(oAuthTokenValidator.ValidatePrincipalFromBearerToken);
+                    serviceHostBase.Authorization.PrincipalPermissionMode = PrincipalPermissionMode.None;
+
+                    ServiceMetadataBehavior metad = serviceHostBase.Description.Behaviors.Find<ServiceMetadataBehavior>();
+                    if (metad == null)
+                    {
+                        metad = new ServiceMetadataBehavior();
+                        serviceHostBase.Description.Behaviors.Add(metad);
+                    }
+                    metad.HttpGetEnabled = !UseHTTPS;
+                    metad.HttpsGetEnabled = UseHTTPS;
+
+                    foreach (CoreWCF.Description.ServiceEndpoint endpoint in serviceHostBase.Description.Endpoints)
+                    {
+                        if (!endpoint.EndpointBehaviors.OfType<PAWebServiceBaseErrorBehavior>().Any())
+                            endpoint.EndpointBehaviors.Add(new PAWebServiceBaseErrorBehavior(this.GetACUrl()));
+
                         foreach (OperationDescription opDescr in endpoint.Contract.Operations)
                         {
                             OnAddKnownTypesToOperationContract(endpoint, opDescr);

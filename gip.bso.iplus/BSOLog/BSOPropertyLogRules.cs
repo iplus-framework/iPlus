@@ -749,19 +749,6 @@ namespace gip.bso.iplus
 
         #endregion
 
-        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
-        {
-            switch (acMethodName)
-            {
-                case nameof(IsEnabledApplyRules):
-                    return new string[] { nameof(SelectedRuleType), nameof(ComponentSelector) };
-                case nameof(IsEnabledComponentPropertiesLoggingOn):
-                case nameof(IsEnabledComponentPropertiesLoggingOff):
-                    return new string[] { nameof(PropertyLogService) };
-                default:
-                    return base.GetPropsToObserveForIsEnabled(acMethodName);
-            }
-        }
 
         #region HandleExecuteACMethod
 
@@ -799,6 +786,20 @@ namespace gip.bso.iplus
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledApplyRules):
+                    return new string[] { nameof(SelectedRuleType), nameof(ComponentSelector) };
+                case nameof(IsEnabledComponentPropertiesLoggingOn):
+                case nameof(IsEnabledComponentPropertiesLoggingOff):
+                    return new string[] { nameof(PropertyLogService) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
         }
 
         #endregion

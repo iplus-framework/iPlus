@@ -128,47 +128,43 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case"FolderDlg":
+                case nameof(FolderDlg):
                     result = FolderDlg((String)acParameter[0]);
                     return true;
-                case"OK":
+                case nameof(OK):
                     OK();
                     return true;
-                case"Cancel":
+                case nameof(Cancel):
                     Cancel();
                     return true;
-                case"PathVariobatchData":
+                case nameof(PathVariobatchData):
                     PathVariobatchData();
                     return true;
-                case"PathDesktop":
+                case nameof(PathDesktop):
                     PathDesktop();
                     return true;
-                case"PathProgramFiles":
+                case nameof(PathProgramFiles):
                     PathProgramFiles();
                     return true;
-                case"PathMyDocuments":
+                case nameof(PathMyDocuments):
                     PathMyDocuments();
                     return true;
             }
                 return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
-        #endregion
-
-        #region GetPropsToObserveForIsEnabled
-
         public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
         {
             switch (acMethodName)
             {
                 #region All methods are always enabled (no IsEnabled methods)
-                case "FolderDlg":
-                case "OK":
-                case "Cancel":
-                case "PathVariobatchData":
-                case "PathDesktop":
-                case "PathProgramFiles":
-                case "PathMyDocuments":
+                case nameof(FolderDlg):
+                case nameof(OK):
+                case nameof(Cancel):
+                case nameof(PathVariobatchData):
+                case nameof(PathDesktop):
+                case nameof(PathProgramFiles):
+                case nameof(PathMyDocuments):
                     return new string[] { nameof(InitState) };
                 #endregion
             }
@@ -176,7 +172,5 @@ namespace gip.core.autocomponent
         }
 
         #endregion
-
-
     }
 }

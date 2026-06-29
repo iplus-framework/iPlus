@@ -44,7 +44,6 @@ namespace gip.core.processapplication
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
-        #endregion
 
         public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
         {
@@ -56,6 +55,8 @@ namespace gip.core.processapplication
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
+        #endregion
+
 
 
         [ACPropertyBindingTarget(810, "Read from PLC", "en{'Alibi weight [kg]'}de{'Alibigewicht [kg]'}", "", false, false, RemotePropID = 86)]

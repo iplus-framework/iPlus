@@ -616,21 +616,6 @@ namespace gip.bso.iplus
 
         #endregion
 
-        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
-        {
-            switch (acMethodName)
-            {
-                case nameof(IsEnabledLoadLogFile):
-                    return new string[] { nameof(SelectedLogFile) };
-                case nameof(IsEnabledStartAnalysis):
-                    return new string[] { nameof(CurrentAnalyzerInstance), nameof(FilteredLogLines) };
-                case nameof(IsEnabledSelectOutputFile):
-                    return new string[] { nameof(CurrentAnalyzerInstance) };
-                default:
-                    return base.GetPropsToObserveForIsEnabled(acMethodName);
-            }
-        }
-
         #region HandleExecuteACMethod
 
         protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
@@ -664,6 +649,21 @@ namespace gip.bso.iplus
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledLoadLogFile):
+                    return new string[] { nameof(SelectedLogFile) };
+                case nameof(IsEnabledStartAnalysis):
+                    return new string[] { nameof(CurrentAnalyzerInstance), nameof(FilteredLogLines) };
+                case nameof(IsEnabledSelectOutputFile):
+                    return new string[] { nameof(CurrentAnalyzerInstance) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
         }
 
         #endregion

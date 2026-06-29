@@ -1152,27 +1152,6 @@ namespace gip.bso.iplus
                 VisitedMethods.Add(acClassMethod);
         }
 
-        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
-        {
-            switch (acMethodName)
-            {
-                case nameof(IsEnabledSave):
-                case nameof(IsEnabledUndoSave):
-                case nameof(IsEnabledNew):
-                    return new string[] { nameof(DbChangeCount) };
-                case nameof(IsEnabledLoad):
-                    return new string[] { nameof(SelectedACClassMethod) };
-                case nameof(IsEnabledDelete):
-                case nameof(IsEnabledShowWorkflowsLiveList):
-                case nameof(IsEnabledWFClone):
-                    return new string[] { nameof(CurrentACClassMethod) };
-                case nameof(IsEnabledStartNewWorkflow):
-                case nameof(IsEnabledTestWorkflow):
-                    return new string[] { nameof(CurrentACProject), nameof(CurrentACClassMethod) };
-                default:
-                    return base.GetPropsToObserveForIsEnabled(acMethodName);
-            }
-        }
 
         #endregion
 
@@ -1248,6 +1227,28 @@ namespace gip.bso.iplus
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledSave):
+                case nameof(IsEnabledUndoSave):
+                case nameof(IsEnabledNew):
+                    return new string[] { nameof(DbChangeCount) };
+                case nameof(IsEnabledLoad):
+                    return new string[] { nameof(SelectedACClassMethod) };
+                case nameof(IsEnabledDelete):
+                case nameof(IsEnabledShowWorkflowsLiveList):
+                case nameof(IsEnabledWFClone):
+                    return new string[] { nameof(CurrentACClassMethod) };
+                case nameof(IsEnabledStartNewWorkflow):
+                case nameof(IsEnabledTestWorkflow):
+                    return new string[] { nameof(CurrentACProject), nameof(CurrentACClassMethod) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
         }
 
         #endregion

@@ -58,5 +58,10 @@
     <!--<PackageReference Include="Microsoft.AspNetCore.Hosting"  />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel"  />-->
   </ItemGroup>
+  <ItemGroup>
+    <None Include="_doc\generate-certificate.ps1" />
+    <None Include="_doc\Localhost HTTPS Certificate Cookbook %28Windows%29.md" />
+    <None Include="_doc\remove-certificate.ps1" />
+  </ItemGroup>
   <Import Project="..\gip.core.webservices.shared\gip.core.webservices.shared.projitems" Label="Shared" />
 </Project>

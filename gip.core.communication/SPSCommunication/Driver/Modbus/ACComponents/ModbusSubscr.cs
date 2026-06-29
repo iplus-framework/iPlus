@@ -199,27 +199,39 @@ namespace gip.core.communication
                 Messages.LogDebug(this.GetACUrl(), "ModbusSubscr.InitSubscription(3)", String.Format("Count S7Properties: {0}", s7Properties.Count()));
                 foreach (IACPropertyNetServer opcProperty in s7Properties)
                 {
-                    OPCItemConfig opcConfig = (OPCItemConfig)(opcProperty.ACType as ACClassProperty)["OPCItemConfig"];
-                    if ((opcConfig != null) && !String.IsNullOrEmpty(opcConfig.OPCAddr))
+                    try
                     {
-                        //Messages.LogDebug(this.GetACUrl(), "ModbusSubscr.InitSubscription(4)", String.Format("Addr: {0}", opcConfig.OPCAddr));
-                        ModbusItem daItem = new ModbusItem(opcProperty, opcConfig.OPCAddr, this);
-                        if (daItem.IsValidItemSyntax)
+                        OPCItemConfig opcConfig = (OPCItemConfig)(opcProperty.ACType as ACClassProperty)["OPCItemConfig"];
+                        if ((opcConfig != null) && !String.IsNullOrEmpty(opcConfig.OPCAddr))
                         {
-                            switch (daItem.ItemTableType)
+                            //Messages.LogDebug(this.GetACUrl(), "ModbusSubscr.InitSubscription(4)", String.Format("Addr: {0}", opcConfig.OPCAddr));
+                            ModbusItem daItem = new ModbusItem(opcProperty, opcConfig.OPCAddr, this);
+                            if (daItem.IsValidItemSyntax)
                             {
-                                case modbus.TableType.Input:
-                                case modbus.TableType.Output:
-                                case modbus.TableType.ReadOnlyRegister:
-                                case modbus.TableType.ReadWriteRegister:
-                                    PLCRAMOfDataBlocks.Add(daItem);
-                                    break;
+                                switch (daItem.ItemTableType)
+                                {
+                                    case modbus.TableType.Input:
+                                    case modbus.TableType.Output:
+                                    case modbus.TableType.ReadOnlyRegister:
+                                    case modbus.TableType.ReadWriteRegister:
+                                        PLCRAMOfDataBlocks.Add(daItem);
+                                        break;
+                                }
                             }
-                        }
-                        else
-                            Messages.LogError(this.GetACUrl(), "S7TCPSubscr.InitSubscription(5)", String.Format("Invalid Item-Syntax: {0}", opcConfig.OPCAddr));
+                            else
+                                Messages.LogError(this.GetACUrl(), "S7TCPSubscr.InitSubscription(5)", String.Format("Invalid Item-Syntax: {0}", opcConfig.OPCAddr));
 
-                        //_ItemsStartIndexMap.Where(c => c.Key >= 1 && c.Key < 30).Select(c => c.Value).ToList();
+                            //_ItemsStartIndexMap.Where(c => c.Key >= 1 && c.Key < 30).Select(c => c.Value).ToList();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        string msg = e.Message;
+                        if (e.InnerException != null && e.InnerException.Message != null)
+                            msg += " Inner:" + e.InnerException.Message;
+
+                        if (Messages != null)
+                            Messages.LogException(this.GetACUrl(), "InitSubscription(6) " + opcProperty.GetACUrl(), msg);
                     }
                 }
             }

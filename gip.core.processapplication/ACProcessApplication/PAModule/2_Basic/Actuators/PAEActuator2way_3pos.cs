@@ -71,7 +71,6 @@ namespace gip.core.processapplication
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
-
         #endregion
 
         [ACMethodInteraction("", "en{'Close'}de{'Schliessen'}", 700, true, "", Global.ACKinds.MSMethodPrePost)]

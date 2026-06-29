@@ -1029,10 +1029,6 @@ namespace gip.core.autocomponent
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
-        #endregion
-
-        #region GetPropsToObserveForIsEnabled
-
         public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
         {
             switch (acMethodName)

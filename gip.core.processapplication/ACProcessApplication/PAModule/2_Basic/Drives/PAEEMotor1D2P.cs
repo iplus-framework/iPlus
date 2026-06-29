@@ -112,7 +112,6 @@ namespace gip.core.processapplication
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
-        #endregion
 
         public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
         {
@@ -126,6 +125,8 @@ namespace gip.core.processapplication
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
+        #endregion
+
 
 
         [ACMethodInteraction("", "en{'turn on slow'}de{'Langsam ein'}", 800, true, "", Global.ACKinds.MSMethodPrePost)]

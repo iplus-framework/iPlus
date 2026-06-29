@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.ComponentModel;
+using System.Xml.Serialization;
 
 namespace gip.core.datamodel
 {
@@ -580,6 +581,7 @@ namespace gip.core.datamodel
         /// Returns the parent object
         /// </summary>
         /// <value>Reference to the parent object</value>
+        [XmlIgnore]
         [IgnoreDataMember]
         public IACObject ParentACObject
         {

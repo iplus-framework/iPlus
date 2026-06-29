@@ -97,7 +97,6 @@ namespace gip.core.processapplication
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
-
         #endregion
 
         [ACMethodInteraction("", "en{'turn on'}de{'Einschalten'}", 800, true, "", Global.ACKinds.MSMethodPrePost)]

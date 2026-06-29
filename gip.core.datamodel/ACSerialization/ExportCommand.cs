@@ -66,9 +66,19 @@ namespace gip.core.datamodel
             ExportACClass(aCEntitySerializer, qryACClass, exportProjectItemRoot, folderPath, ref currentItem, totalItems);
         }
 
+        public string GetFolderName(string userName)
+        {
+            return PackageExportFolderTemplate.Replace("{datetime}", DateTime.Now.ToString("yyyy-MM-dd HH-mm")).Replace("{user}", userName);
+        }
+
         public string DoFolder(ACBackgroundWorker worker, DoWorkEventArgs doWorkEventArgs, ACEntitySerializer aCEntitySerializer, ACQueryDefinition qryACProject, ACQueryDefinition qryACClass, ACProject aCProject, ACClassInfoWithItems exportProjectItemRoot, string rootFolder, int currentItem, int totalItems, string userName)
         {
-            string subExportFolderName = PackageExportFolderTemplate.Replace("{datetime}", DateTime.Now.ToString("yyyy-MM-dd HH-mm")).Replace("{user}", userName);
+            string subExportFolderName = GetFolderName(userName);
+            return DoFolderFromName(worker, doWorkEventArgs, aCEntitySerializer, qryACProject, qryACClass, aCProject, exportProjectItemRoot, rootFolder, currentItem, totalItems, subExportFolderName);
+        }
+
+        public string DoFolderFromName(ACBackgroundWorker worker, DoWorkEventArgs doWorkEventArgs, ACEntitySerializer aCEntitySerializer, ACQueryDefinition qryACProject, ACQueryDefinition qryACClass, ACProject aCProject, ACClassInfoWithItems exportProjectItemRoot, string rootFolder, int currentItem, int totalItems, string subExportFolderName)
+        {
             var arhiveDir = Path.Combine(rootFolder, subExportFolderName);
             Directory.CreateDirectory(arhiveDir);
             DoExport(worker, doWorkEventArgs, aCEntitySerializer, qryACProject, qryACClass, aCProject, exportProjectItemRoot, arhiveDir, currentItem, totalItems);

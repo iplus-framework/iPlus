@@ -1600,22 +1600,6 @@ namespace gip.bso.iplus
             }
         }
 
-        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
-        {
-            switch (acMethodName)
-            {
-                case nameof(IsEnabledShowAlarms):
-                    return new string[] { nameof(SelectedItemInTimeline) };
-                case nameof(IsEnabledShowAllAlarms):
-                case nameof(IsEnabledShowDetails):
-                    return new string[] { nameof(SelectedPropertyLog), nameof(SelectedPresenterViewMode) };
-                case nameof(IsEnabledGoToNextValue):
-                    return new string[] { nameof(SelectedPropertyLog), nameof(SelectedTimelineValue) };
-                default:
-                    return base.GetPropsToObserveForIsEnabled(acMethodName);
-            }
-        }
-
         #endregion
 
         #region HandleExecuteACMethod
@@ -1673,6 +1657,22 @@ namespace gip.bso.iplus
                     
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledShowAlarms):
+                    return new string[] { nameof(SelectedItemInTimeline) };
+                case nameof(IsEnabledShowAllAlarms):
+                case nameof(IsEnabledShowDetails):
+                    return new string[] { nameof(SelectedPropertyLog), nameof(SelectedPresenterViewMode) };
+                case nameof(IsEnabledGoToNextValue):
+                    return new string[] { nameof(SelectedPropertyLog), nameof(SelectedTimelineValue) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
         }
 
         #endregion

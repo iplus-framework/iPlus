@@ -191,7 +191,6 @@ namespace gip.core.processapplication
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
-
         #endregion
 
         public override void AcknowledgeAlarms()

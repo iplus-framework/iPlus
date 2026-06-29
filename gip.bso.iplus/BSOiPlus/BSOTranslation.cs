@@ -36,6 +36,7 @@ namespace gip.bso.iplus
         public const int Const_GoogleAPIBytesLimit = 204800;
         // @aagincic: Google limit is 1024 but recive service exception: "grpc_message":"Text is too long.","grpc_status":3} - without any other explanation
         public const int Const_GoogleAPILengthLimit = 250;
+
         #endregion
 
         #region DI
@@ -2572,50 +2573,6 @@ namespace gip.bso.iplus
 
         #endregion
 
-        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
-        {
-            switch (acMethodName)
-            {
-                case nameof(IsEnabledSearch):
-                    return new string[] { nameof(FilterMandatoryClassID), nameof(FilterOnlyACClassTables), nameof(FilterOnlyMDTables), nameof(FilterClassACIdentifier), nameof(FilterACIdentifier), nameof(FilterTranslation), nameof(FilterNotHaveInTranslation) };
-                case nameof(IsEnabledRemoveMandatory):
-                    return new string[] { nameof(FilterMandatoryClassID) };
-                case nameof(IsEnabledMoveBackward):
-                case nameof(IsEnabledMoveForward):
-                    return new string[] { nameof(TranslationViewCount), nameof(SelectedTranslationViewIndex) };
-                case nameof(IsEnabledMoveUp):
-                case nameof(IsEnabledMoveDown):
-                    return new string[] { nameof(TranslationPairCount), nameof(SelectedTranslationPairIndex) };
-                case nameof(IsEnabledGenerateTranslation):
-                    return new string[] { nameof(SelectedSourceLanguage), nameof(SelectedAutoGenerateOption), nameof(TranslationViewList), nameof(SelectedTargetLanguage), nameof(GoogleAPIAvailable) };
-                case nameof(IsEnabledRemoveGeneratedTranslation):
-                    return new string[] { nameof(TranslationViewList), nameof(SelectedTargetLanguage) };
-                case nameof(IsEnabledGenerateTranslationAll):
-                    return new string[] { nameof(SelectedTargetLanguage), nameof(SelectedAutoGenerateOption), nameof(GoogleAPIAvailable) };
-                case nameof(IsEnabledRemoveGeneratedTranslationAll):
-                    return new string[] { nameof(SelectedTargetLanguage) };
-                case nameof(IsEnabledReplace):
-                    return new string[] { nameof(FromText), nameof(ReplaceACIdentifier), nameof(SelectedSourceLanguage), nameof(SelectedTargetLanguage), nameof(TranslationViewList) };
-                case nameof(IsEnabledReplaceAll):
-                    return new string[] { nameof(FromText), nameof(ReplaceACIdentifier), nameof(SelectedSourceLanguage), nameof(SelectedTargetLanguage) };
-                case nameof(IsEnabledExportTranslations):
-                case nameof(IsEnabledExportTranslationsAll):
-                    return new string[] { nameof(TranslationViewList), nameof(CurrentExportFolder), nameof(CurrentExportFileName), nameof(ExportOnlyForSelectedTargetLanguage), nameof(SelectedTargetLanguage) };
-                case nameof(IsEnabledRefreshExportFileTime):
-                    return new string[] { nameof(CurrentExportFolder) };
-                case nameof(IsEnabledImportSource):
-                    return new string[] { nameof(InitState) };
-                case nameof(IsEnabledImportTranslations):
-                    return new string[] { nameof(ImportSourcePath) };
-                case nameof(IsEnabledAddTranslationPair):
-                    return new string[] { nameof(SelectedTargetLanguage), nameof(SelectedTranslationView), nameof(TranslationPairList) };
-                case nameof(IsEnabledRemoveTranslationPair):
-                    return new string[] { nameof(SelectedTranslationPair) };
-                default:
-                    return base.GetPropsToObserveForIsEnabled(acMethodName);
-            }
-        }
-
         #region Execute-Helper-Handlers
 
         protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
@@ -2748,6 +2705,49 @@ namespace gip.bso.iplus
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledSearch):
+                    return new string[] { nameof(FilterMandatoryClassID), nameof(FilterOnlyACClassTables), nameof(FilterOnlyMDTables), nameof(FilterClassACIdentifier), nameof(FilterACIdentifier), nameof(FilterTranslation), nameof(FilterNotHaveInTranslation) };
+                case nameof(IsEnabledRemoveMandatory):
+                    return new string[] { nameof(FilterMandatoryClassID) };
+                case nameof(IsEnabledMoveBackward):
+                case nameof(IsEnabledMoveForward):
+                    return new string[] { nameof(TranslationViewCount), nameof(SelectedTranslationViewIndex) };
+                case nameof(IsEnabledMoveUp):
+                case nameof(IsEnabledMoveDown):
+                    return new string[] { nameof(TranslationPairCount), nameof(SelectedTranslationPairIndex) };
+                case nameof(IsEnabledGenerateTranslation):
+                    return new string[] { nameof(SelectedSourceLanguage), nameof(SelectedAutoGenerateOption), nameof(TranslationViewList), nameof(SelectedTargetLanguage), nameof(GoogleAPIAvailable) };
+                case nameof(IsEnabledRemoveGeneratedTranslation):
+                    return new string[] { nameof(TranslationViewList), nameof(SelectedTargetLanguage) };
+                case nameof(IsEnabledGenerateTranslationAll):
+                    return new string[] { nameof(SelectedTargetLanguage), nameof(SelectedAutoGenerateOption), nameof(GoogleAPIAvailable) };
+                case nameof(IsEnabledRemoveGeneratedTranslationAll):
+                    return new string[] { nameof(SelectedTargetLanguage) };
+                case nameof(IsEnabledReplace):
+                    return new string[] { nameof(FromText), nameof(ReplaceACIdentifier), nameof(SelectedSourceLanguage), nameof(SelectedTargetLanguage), nameof(TranslationViewList) };
+                case nameof(IsEnabledReplaceAll):
+                    return new string[] { nameof(FromText), nameof(ReplaceACIdentifier), nameof(SelectedSourceLanguage), nameof(SelectedTargetLanguage) };
+                case nameof(IsEnabledExportTranslations):
+                case nameof(IsEnabledExportTranslationsAll):
+                    return new string[] { nameof(TranslationViewList), nameof(CurrentExportFolder), nameof(CurrentExportFileName), nameof(ExportOnlyForSelectedTargetLanguage), nameof(SelectedTargetLanguage) };
+                case nameof(IsEnabledRefreshExportFileTime):
+                    return new string[] { nameof(CurrentExportFolder) };
+                case nameof(IsEnabledImportSource):
+                    return new string[] { nameof(InitState) };
+                case nameof(IsEnabledImportTranslations):
+                    return new string[] { nameof(ImportSourcePath) };
+                case nameof(IsEnabledAddTranslationPair):
+                    return new string[] { nameof(SelectedTargetLanguage), nameof(SelectedTranslationView), nameof(TranslationPairList) };
+                case nameof(IsEnabledRemoveTranslationPair):
+                    return new string[] { nameof(SelectedTranslationPair) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
+        }
         #endregion
 
         public enum TranslationAutogenerateOption

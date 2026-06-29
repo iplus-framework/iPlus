@@ -113,7 +113,6 @@ namespace gip.core.processapplication
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
-
         #endregion
 
         [ACMethodInteraction("", "en{'Position 3'}de{'Stellung 3'}", 700, true, "", Global.ACKinds.MSMethodPrePost)]
