@@ -100,6 +100,58 @@ namespace gip.core.communication
 
         #endregion
 
+        #region Additional Properties for OAuth2 Client Credentials
+
+        private string _TenantId;
+        [ACPropertyInfo(false, 210, "", "en{'Tenant ID'}de{'Mandanten-ID'}", "", true)]
+        public string TenantId
+        {
+            get => _TenantId;
+            set
+            {
+                _TenantId = value;
+                OnPropertyChanged("TenantId");
+            }
+        }
+
+        private string _ClientId;
+        [ACPropertyInfo(false, 211, "", "en{'Client ID'}de{'Client-ID'}", "", true)]
+        public string ClientId
+        {
+            get => _ClientId;
+            set
+            {
+                _ClientId = value;
+                OnPropertyChanged("ClientId");
+            }
+        }
+
+        private string _ClientSecret;
+        [ACPropertyInfo(false, 212, "", "en{'Client Secret'}de{'Client-Geheimnis'}", "", true)]
+        public string ClientSecret
+        {
+            get => _ClientSecret;
+            set
+            {
+                _ClientSecret = value;
+                OnPropertyChanged("ClientSecret");
+            }
+        }
+
+        private string _Scope;
+        [ACPropertyInfo(false, 213, "", "en{'Scope'}de{'Bereich'}", "", true)]
+        public string Scope
+        {
+            get => _Scope;
+            set
+            {
+                _Scope = value;
+                OnPropertyChanged("Scope");
+            }
+        }
+
+        #endregion
+
         #region Enhanced Authentication Methods
 
         /// <summary>
@@ -115,6 +167,14 @@ namespace gip.core.communication
 
             switch (AuthenticationType?.ToUpper())
             {
+                case "CLIENT_CREDENTIALS":
+                    string token = GetClientCredentialsToken();
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    }
+                    break;
+
                 case "BEARER":
                     if (!String.IsNullOrEmpty(BearerToken))
                     {
@@ -421,7 +481,7 @@ namespace gip.core.communication
                 // Save the content as a string before it's disposed
                 string contentString = content.ReadAsStringAsync().Result;
                 string mediaType = content.Headers.ContentType?.MediaType ?? "application/json";
-                Encoding encoding = content.Headers.ContentType?.CharSet != null ?
+                Encoding encoding = content.Headers.ContentType?.CharSet != null ? 
                     Encoding.GetEncoding(content.Headers.ContentType.CharSet) : Encoding.UTF8;
 
                 // First request without authorization to get the challenge
@@ -488,7 +548,7 @@ namespace gip.core.communication
                 // Save the content as a string before it's disposed
                 string contentString = content.ReadAsStringAsync().Result;
                 string mediaType = content.Headers.ContentType?.MediaType ?? "application/json";
-                Encoding encoding = content.Headers.ContentType?.CharSet != null ?
+                Encoding encoding = content.Headers.ContentType?.CharSet != null ? 
                     Encoding.GetEncoding(content.Headers.ContentType.CharSet) : Encoding.UTF8;
 
                 // First request without authorization to get the challenge
@@ -688,6 +748,81 @@ namespace gip.core.communication
                 return await PutAsyncWithDigestAuth<TResult>(content, uri);
             }
         }
+        #endregion
+
+        #region OAuth2 Client Credentials Support
+
+        /// <summary>
+        /// Gets an OAuth2 token using client credentials flow (Microsoft Identity Platform)
+        /// </summary>
+        /// <returns>Access token or null</returns>
+        public string GetClientCredentialsToken()
+        {
+            try
+            {
+                Task<string> task = GetClientCredentialsTokenAsync();
+                return task.Result;
+            }
+            catch (Exception ex)
+            {
+                Messages.LogException(this.GetACUrl(), "GetClientCredentialsToken", ex);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously gets an OAuth2 token using client credentials flow
+        /// </summary>
+        /// <returns>Access token or null</returns>
+        public async Task<string> GetClientCredentialsTokenAsync()
+        {
+            if (string.IsNullOrEmpty(TenantId) || string.IsNullOrEmpty(ClientId) || string.IsNullOrEmpty(ClientSecret))
+            {
+                Messages.LogError(this.GetACUrl(), "GetClientCredentialsTokenAsync", "Missing OAuth2 configuration (TenantId, ClientId, or ClientSecret)");
+                return null;
+            }
+
+            try
+            {
+                using (var tokenClient = new HttpClient())
+                {
+                    var dict = new Dictionary<string, string>
+                    {
+                        { "grant_type", "client_credentials" },
+                        { "client_id", ClientId },
+                        { "client_secret", ClientSecret },
+                        { "scope", string.IsNullOrEmpty(Scope) ? "https://api.businesscentral.dynamics.com/.default" : Scope }
+                    };
+
+                    var req = new HttpRequestMessage(HttpMethod.Post, $"https://login.microsoftonline.com/{TenantId}/oauth2/v2.0/token")
+                    {
+                        Content = new FormUrlEncodedContent(dict)
+                    };
+
+                    var res = await tokenClient.SendAsync(req);
+                    var contentResponse = await res.Content.ReadAsStringAsync();
+                    
+                    if (res.IsSuccessStatusCode)
+                    {
+                        var tokenResponse = Newtonsoft.Json.Linq.JObject.Parse(contentResponse);
+                        string token = tokenResponse["access_token"]?.ToString();
+                        return token;
+                    }
+                    else
+                    {
+                        Messages.LogError(this.GetACUrl(), "GetClientCredentialsTokenAsync", $"Failed to get token: {contentResponse}")
+;
+                        return null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Messages.LogException(this.GetACUrl(), "GetClientCredentialsTokenAsync", ex);
+                return null;
+            }
+        }
+
         #endregion
 
         #endregion
