@@ -251,16 +251,16 @@ namespace gip.core.autocomponent.ACDialog
             result = null;
             switch (acMethodName)
             {
-                case "ShowInputBoxValues":
+                case nameof(ShowInputBoxValues):
                     result = ShowInputBoxValues(acParameter[0] as string, acParameter[1] as object[], acParameter[2] as string[], acParameter.Length > 3 ? acParameter[3] as string : null);
                     return true;
-                case "ShowInputBox":
+                case nameof(ShowInputBox):
                     result = ShowInputBox(acParameter[0] as string, acParameter[1] as string, acParameter.Length > 2 ? acParameter[2] as string : null);
                     return true;
-                case "OK":
+                case nameof(OK):
                     OK();
                     return true;
-                case "Cancel":
+                case nameof(Cancel):
                     Cancel();
                     return true;
             }
@@ -272,10 +272,10 @@ namespace gip.core.autocomponent.ACDialog
             switch (acMethodName)
             {
                 #region All methods are always enabled (no IsEnabled methods)
-                case "ShowInputBoxValues":
-                case "ShowInputBox":
-                case "OK":
-                case "Cancel":
+                case nameof(ShowInputBoxValues):
+                case nameof(ShowInputBox):
+                case nameof(OK):
+                case nameof(Cancel):
                     return new string[] { nameof(InitState) };
                 #endregion
             }

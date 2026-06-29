@@ -68,7 +68,6 @@ namespace gip.core.communication
         protected override bool AnalyzeContentBeforeRaising(ACEventArgs eventArgs)
         {
             WatcherChangeTypes watcherChangeType = (WatcherChangeTypes)eventArgs["WatcherChangeType"];
-            string rootNode = "";
             bool importerFound = false;
             string fileName = eventArgs["FullPath"] as string;
 
