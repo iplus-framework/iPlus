@@ -308,7 +308,7 @@ namespace gip.core.communication
 
         public static string GenerateFilePath(DateTime dateTime, string exporterACIdentifier, string exportDir, string fileNameExtension = ".xml")
         {
-            string fileName = GenerateFileName(dateTime, exporterACIdentifier);
+            string fileName = GenerateFileName(dateTime, exporterACIdentifier, fileNameExtension);
             return Path.Combine(exportDir, fileName);
         }
 
