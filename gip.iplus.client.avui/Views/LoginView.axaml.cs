@@ -36,13 +36,14 @@ public partial class LoginView : UserControl
         //this.WhenActivated(disposable => { });
     }
 
-    public LoginView(Action loginAction, Action mainAction) : this()
+    public LoginView(Action loginAction, Action mainAction, IEnumerable<IExternalLoginProvider> externalLoginProviders = null) : this()
     {
         listboxInfo.ItemsSource = MsgDetails;
         listboxInfo.DisplayMemberBinding = new Avalonia.Data.Binding("Message");
         selTheme.ItemsSource = System.Enum.GetValues(typeof(eWpfTheme));
         _LoginAction = loginAction;
         _ShowMainWindowAction = mainAction;
+        _externalLoginProviders = (externalLoginProviders ?? Enumerable.Empty<IExternalLoginProvider>()).ToList();
     }
 
     #endregion
@@ -54,6 +55,10 @@ public partial class LoginView : UserControl
 
     private readonly Action _LoginAction;
     private readonly Action _ShowMainWindowAction;
+    private IReadOnlyList<IExternalLoginProvider> _externalLoginProviders = Array.Empty<IExternalLoginProvider>();
+    private CancellationTokenSource _externalLoginCts;
+    private int _externalLoginStarted = 0;
+    private int _externalLoginCompleted = 0;
 
     private Settings UserSettings => DataContext as Settings;
 
@@ -165,6 +170,8 @@ public partial class LoginView : UserControl
 
     protected override void OnUnloaded(RoutedEventArgs e)
     {
+        StopExternalLoginWatcher();
+
         if (_CollectionChangedSubscr && InfoMessage.MsgDetails != null)
         {
             _CollectionChangedSubscr = false;
@@ -256,11 +263,15 @@ public partial class LoginView : UserControl
                 UserSettings.Password = "";
             }
 
+            Interlocked.Exchange(ref _externalLoginCompleted, 0);
+            StartExternalLoginWatcher();
+
             ProgressGrid.IsVisible = false;
             LoginGrid.IsVisible = true;
         }
         else
         {
+            StopExternalLoginWatcher();
             Monitor.Enter(_WaitOnOkClick);
             LoginGrid.IsVisible = false;
             ProgressGrid.IsVisible = true;
@@ -283,6 +294,7 @@ public partial class LoginView : UserControl
     /// <param name="e"></param>
     private void ButtonLogin_Click(object sender, RoutedEventArgs e)
     {
+        StopExternalLoginWatcher();
         LoginStarted?.Invoke(this, new EventArgs());
 
         Monitor.Exit(_WaitOnOkClick);
@@ -297,6 +309,8 @@ public partial class LoginView : UserControl
 
     private void ButtonCancel_Click(object sender, RoutedEventArgs e)
     {
+        StopExternalLoginWatcher();
+
         UserSettings.UserName = string.Empty;
         UserSettings.Password = string.Empty;
         
@@ -304,6 +318,103 @@ public partial class LoginView : UserControl
             LoginCancelled.Invoke(this, new EventArgs());
 
         Monitor.Exit(_WaitOnOkClick);
+    }
+
+    private void StartExternalLoginWatcher()
+    {
+        if (_externalLoginProviders.Count == 0)
+            return;
+
+        if (Interlocked.Exchange(ref _externalLoginStarted, 1) == 1)
+            return;
+
+        _externalLoginCts = new CancellationTokenSource();
+        _ = ExternalLoginLoopSafeAsync(_externalLoginCts.Token);
+    }
+
+    private async Task ExternalLoginLoopSafeAsync(CancellationToken token)
+    {
+        try
+        {
+            await ExternalLoginLoopAsync(token);
+        }
+        catch
+        {
+            // Keep manual login available even if provider loop fails unexpectedly.
+        }
+    }
+
+    private async Task ExternalLoginLoopAsync(CancellationToken token)
+    {
+        while (!token.IsCancellationRequested)
+        {
+            foreach (IExternalLoginProvider provider in _externalLoginProviders)
+            {
+                ExternalLoginCredentials credentials = new ExternalLoginCredentials(string.Empty, string.Empty, provider.Name);
+                try
+                {
+                    credentials = await provider.TryGetCredentialsAsync(token) ?? credentials;
+                }
+                catch
+                {
+                    // Keep manual login available even if provider calls fail intermittently.
+                }
+
+                if (!string.IsNullOrWhiteSpace(credentials.UserName)
+                    && Interlocked.Exchange(ref _externalLoginCompleted, 1) == 0)
+                {
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        if (token.IsCancellationRequested || !LoginGrid.IsVisible || UserSettings == null)
+                            return;
+
+                        UserSettings.UserName = credentials.UserName;
+                        UserSettings.Password = credentials.Password;
+
+                        try
+                        {
+                            Monitor.Exit(_WaitOnOkClick);
+                        }
+                        catch (SynchronizationLockException)
+                        {
+                        }
+                    });
+                    return;
+                }
+
+                if (token.IsCancellationRequested)
+                    return;
+            }
+
+            try
+            {
+                await Task.Delay(600, token);
+            }
+            catch (TaskCanceledException)
+            {
+                return;
+            }
+        }
+    }
+
+    private void StopExternalLoginWatcher()
+    {
+        CancellationTokenSource cts = _externalLoginCts;
+        _externalLoginCts = null;
+
+        if (cts != null)
+        {
+            try
+            {
+                cts.Cancel();
+                cts.Dispose();
+            }
+            catch
+            {
+            }
+        }
+
+        Interlocked.Exchange(ref _externalLoginStarted, 0);
     }
 
     #endregion

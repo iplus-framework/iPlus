@@ -15,6 +15,7 @@ using ReactiveUI;
 using ReactiveUI.Avalonia;
 using Splat;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
@@ -31,6 +32,7 @@ public partial class App : Application
     static ACStartUpRoot _StartUpManager = null;
     public static App _GlobalApp = null;
     public static Func<IWPFServices> WpfServicesFactory { get; set; }
+    public static Func<IEnumerable<IExternalLoginProvider>> ExternalLoginProvidersFactory { get; set; }
     private LoginWindow _LoginWindow = null;
     private LoginView _LoginView = null;
     private Settings _AppSettings = null;
@@ -120,6 +122,16 @@ public partial class App : Application
             : new core.wpfservices.avui.WPFServices();
         _StartUpManager = new ACStartUpRoot(wpfServices);
 
+        List<IExternalLoginProvider> externalLoginProviders;
+        try
+        {
+            externalLoginProviders = (ExternalLoginProvidersFactory?.Invoke() ?? Enumerable.Empty<IExternalLoginProvider>()).ToList();
+        }
+        catch
+        {
+            externalLoginProviders = new List<IExternalLoginProvider>();
+        }
+
 
         IClassicDesktopStyleApplicationLifetime desktop = ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
 
@@ -177,7 +189,8 @@ public partial class App : Application
                             desktop.Shutdown();
                         }
                     }
-                }
+                },
+                externalLoginProviders
             );
             _LoginWindow.DataContext = _AppSettings;
             _LoginWindow.Show();
@@ -218,7 +231,8 @@ public partial class App : Application
 
                         }
                     }
-                }
+                },
+                externalLoginProviders
             );
 
                 _AppSettings = new Settings();
