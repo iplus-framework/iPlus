@@ -24,6 +24,7 @@ namespace gip.iplus.client.avui.Views
         private bool _CtrlPressed;
         private bool _F1Pressed;
         private eWpfTheme _WPFTheme;
+        private string _Keyword = string.Empty;
 
         public Settings()
         {
@@ -67,6 +68,14 @@ namespace gip.iplus.client.avui.Views
             get => _WPFTheme;
             set => this.RaiseAndSetIfChanged(ref _WPFTheme, value);
         }
+
+        [IgnoreDataMember]
+        public string Keyword
+        {
+            get => _Keyword;
+            set => this.RaiseAndSetIfChanged(ref _Keyword, value);       
+        }
+
     }
 
     public class NewtonsoftJsonSuspensionDriver : ISuspensionDriver

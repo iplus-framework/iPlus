@@ -306,6 +306,8 @@ namespace gip.iplus.client
 
         private void ButtonCancel_Click(object sender, RoutedEventArgs e)
         {
+            _User = "";
+            _Password = "";   
             this.Close();
 
             // Unload-EreignisHandler mit Ereignis=null aufrufen

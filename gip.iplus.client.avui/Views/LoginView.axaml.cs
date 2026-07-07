@@ -67,33 +67,6 @@ public partial class LoginView : UserControl
     #region Properties => Login
 
 
-    private string _User;
-    public string User
-    {
-        get
-        {
-            return _User;
-        }
-    }
-
-    private string _Password;
-    public string Password
-    {
-        get
-        {
-            return _Password;
-        }
-    }
-
-    // private eWpfTheme _WpfTheme;
-    // public eWpfTheme WpfTheme
-    // {
-    //     get
-    //     {
-    //         return _WpfTheme;
-    //     }
-    // }
-
     #endregion
 
     #region Properties => Progress
@@ -273,7 +246,7 @@ public partial class LoginView : UserControl
                 }
                 else
                 {
-                    userMsg = new Msg() { Message = String.Format("User {0} doesn't exist or wrong password!", this.User), MessageLevel = eMsgLevel.Info };
+                    userMsg = new Msg() { Message = String.Format("User {0} doesn't exist or wrong password!", this.UserSettings.UserName), MessageLevel = eMsgLevel.Info };
                 }
                 if (!String.IsNullOrEmpty(errorMsg))
                     userMsg.Message += " // " + errorMsg;
@@ -312,10 +285,6 @@ public partial class LoginView : UserControl
     {
         LoginStarted?.Invoke(this, new EventArgs());
 
-        //_WpfTheme = (eWpfTheme)System.Enum.Parse(typeof(eWpfTheme), selTheme.SelectedValue.ToString());
-        _User = TextboxUser.Text;
-        _Password = TextboxPassword.Text;
-
         Monitor.Exit(_WaitOnOkClick);
     }
 
@@ -328,6 +297,9 @@ public partial class LoginView : UserControl
 
     private void ButtonCancel_Click(object sender, RoutedEventArgs e)
     {
+        UserSettings.UserName = string.Empty;
+        UserSettings.Password = string.Empty;
+        
         if (LoginCancelled != null)
             LoginCancelled.Invoke(this, new EventArgs());
 

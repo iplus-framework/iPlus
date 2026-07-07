@@ -182,6 +182,8 @@ namespace gip.iplus.client
                     PassWord = "autologin";
                 }
 
+                if (string.IsNullOrEmpty(UserName) || string.IsNullOrEmpty(PassWord))
+                    break;
                 ControlManager.WpfTheme = wpfTheme;
                 short result = _StartUpManager.LoginUser(UserName, PassWord, RegisterACObjects, PropPersistenceOff, ref errorMsg, WCFOff, simulation, fullscreen);
                 if (result == 1)

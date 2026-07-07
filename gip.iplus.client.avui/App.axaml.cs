@@ -367,52 +367,6 @@ public partial class App : Application
                 {
                     _LoginView.DisplayLogin(true, errorMsg);
                     _LoginView.WaitOnLoginResult();
-
-                    //ACValueItemList settings = CommandLineHelper.Settings;
-
-                    //string dbSource = settings.Where(c => c.ACCaptionTranslation == nameof(LoginView.DatabaseSource)).FirstOrDefault()?.Value as string;
-                    //string dbName = settings.Where(c => c.ACCaptionTranslation == nameof(LoginView.DatabaseName)).FirstOrDefault()?.Value as string;
-                    //string dbUser = settings.Where(c => c.ACCaptionTranslation == nameof(LoginView.DatabaseUser)).FirstOrDefault()?.Value as string;
-                    //string dbPass = settings.Where(c => c.ACCaptionTranslation == nameof(LoginView.DatabasePassword)).FirstOrDefault()?.Value as string;
-
-                    //var config = CommandLineHelper.ConfigCurrentDir;
-                    //var existingConnection = config?.ConnectionStrings?.ConnectionStrings["iPlusV5_Entities"];
-
-                    //string connSettingsFormat = @"Integrated Security=True; Encrypt=False; data source={0}; initial catalog={1}; Trusted_Connection=False; persist security info=True; user id={2}; password={3}; multipleactiveresultsets=True; application name=iPlus";
-
-                    //var setting = new ConnectionStringSettings(
-                    //        "iPlusV5_Entities",
-                    //        string.Format(connSettingsFormat, dbSource, dbName, dbUser, dbPass),
-                    //        "System.Data.SqlClient");
-
-                    //if (existingConnection != null)
-                    //{
-                    //    existingConnection.ProviderName = setting.ProviderName;
-                    //    existingConnection.ConnectionString = setting.ConnectionString;
-                    //}
-                    //else
-                    //{
-                    //    config.ConnectionStrings.ConnectionStrings.Add(setting);
-                    //}
-
-                    //existingConnection = config?.ConnectionStrings?.ConnectionStrings["iPlusMESV5_Entities"];
-
-                    //setting = new ConnectionStringSettings(
-                    //        "iPlusMESV5_Entities",
-                    //        string.Format(connSettingsFormat, dbSource, dbName, dbUser, dbPass),
-                    //        "System.Data.SqlClient");
-
-                    //if (existingConnection != null)
-                    //{
-                    //    existingConnection.ProviderName = setting.ProviderName;
-                    //    existingConnection.ConnectionString = setting.ConnectionString;
-                    //}
-                    //else
-                    //{
-                    //    config.ConnectionStrings.ConnectionStrings.Add(setting);
-                    //}
-
-
                     errorMsg = "";
                     _LoginView.DisplayLogin(false, errorMsg);
                 }
@@ -425,6 +379,9 @@ public partial class App : Application
                 //UserName = WindowsIdentity.GetCurrent().Name.Split('\\')[1];
                 //PassWord = "autologin";
             }
+
+            if (string.IsNullOrEmpty(_AppSettings.UserName) || string.IsNullOrEmpty(_AppSettings.Password))
+                break;
 
             ControlManager.WpfTheme = _AppSettings.WPFTheme;
             short result = _StartUpManager.LoginUser(_AppSettings.UserName, _AppSettings.Password, registerACObjects, propPersistenceOff, ref errorMsg, wcfOff, simulation, fullscreen);

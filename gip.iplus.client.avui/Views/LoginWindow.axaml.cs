@@ -195,7 +195,7 @@ public partial class LoginWindow : ReactiveWindow<Settings>
                 }
                 else
                 {
-                    userMsg = new Msg() { Message = String.Format("User {0} doesn't exist or wrong password!", this.User), MessageLevel = eMsgLevel.Info };
+                    userMsg = new Msg() { Message = String.Format("User {0} doesn't exist or wrong password!", this.UserSettings.UserName), MessageLevel = eMsgLevel.Info };
                 }
                 if (!String.IsNullOrEmpty(errorMsg))
                     userMsg.Message += " // " + errorMsg;
@@ -205,8 +205,8 @@ public partial class LoginWindow : ReactiveWindow<Settings>
                 UserSettings.Password = "";
             }
 
-            _CtrlPressed = false;
-            _F1Pressed = false;
+            UserSettings.CtrlPressed = false;
+            UserSettings.F1Pressed = false;
 
             ProgressGrid.IsVisible = false;
             LoginGrid.IsVisible = true;
@@ -254,11 +254,11 @@ public partial class LoginWindow : ReactiveWindow<Settings>
     /// <param name="e"></param>
     private void ButtonLogin_Click(object sender, RoutedEventArgs e)
     {
-        if (!string.IsNullOrEmpty(_Keyword))
+        if (!string.IsNullOrEmpty(UserSettings.Keyword))
         {
-            if (_Keyword == TextboxKey.Text)
+            if (UserSettings.Keyword == TextboxKey.Text)
                 return;
-            //if (!License.VerifyRemoteLogin(TextboxKey.Text, _Keyword, Database.GlobalDatabase))
+            //if (!License.VerifyRemoteLogin(TextboxKey.Text, UserSettings.Keyword, Database.GlobalDatabase))
             //    return;
         }
         if (_IsLeftCtrlPressed)
@@ -271,9 +271,7 @@ public partial class LoginWindow : ReactiveWindow<Settings>
             UserSettings.F1Pressed = true;
 
         _WpfTheme = (eWpfTheme)System.Enum.Parse(typeof(eWpfTheme), selTheme.SelectedValue.ToString());
-        _User = TextboxUser.Text;
-        _Password = TextboxPassword.Text;
-        _Keyword = TextboxKey.Text;
+        UserSettings.Keyword = TextboxKey.Text;
         label3.IsVisible = false;
         TextboxKey.IsVisible = false;
         ControlManager.RestoreWindowsOnSameScreen = CheckRestoreSameScreen.IsChecked.HasValue ? !CheckRestoreSameScreen.IsChecked.Value : true;
@@ -292,6 +290,8 @@ public partial class LoginWindow : ReactiveWindow<Settings>
     private void ButtonCancel_Click(object sender, RoutedEventArgs e)
     {
         this.Close();
+        UserSettings.UserName = string.Empty;
+        UserSettings.Password = string.Empty;
 
         // Unload-EreignisHandler mit Ereignis=null aufrufen
         // um Abbruch zu signalisieren
@@ -300,45 +300,6 @@ public partial class LoginWindow : ReactiveWindow<Settings>
         Monitor.Exit(_WaitOnOkClick);
     }
 
-    private string _Keyword = "";
-
-    private string _User;
-    public string User
-    {
-        get
-        {
-            return _User;
-        }
-    }
-
-    private string _Password;
-    public string Password
-    {
-        get
-        {
-            return _Password;
-        }
-    }
-
-
-
-    private bool _CtrlPressed;
-    public bool CtrlPressed
-    {
-        get
-        {
-            return _CtrlPressed;
-        }
-    }
-
-    private bool _F1Pressed;
-    public bool F1Pressed
-    {
-        get
-        {
-            return _F1Pressed;
-        }
-    }
 
     private eWpfTheme _WpfTheme;
     public eWpfTheme WpfTheme
@@ -369,8 +330,8 @@ public partial class LoginWindow : ReactiveWindow<Settings>
                 labelTouchScreen.IsVisible = true;
                 CheckTouchScreen.IsVisible = true;
             }
-            //_Keyword = License.GenerateRemoteLoginCode();
-            TextboxKey.Text = _Keyword;
+            //UserSettings.Keyword = License.GenerateRemoteLoginCode();
+            TextboxKey.Text = UserSettings.Keyword;
             e.Handled = true;
             return;
         }
