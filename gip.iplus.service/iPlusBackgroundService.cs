@@ -2,15 +2,10 @@
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 ﻿using gip.core.autocomponent;
 using gip.core.datamodel;
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting.Systemd;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,48 +13,53 @@ namespace gip.iplus.service
 {
     internal class IPlusBackgroundService : BackgroundService
     {
-        private readonly CommandLineArgs _CmdLineArgs;
+        private readonly CommandLineArgs _cmdLineArgs;
         private readonly ILogger<IPlusBackgroundService> _logger;
 
         public IPlusBackgroundService(ILogger<IPlusBackgroundService> logger, CommandLineArgs cmdArgs)
         {
             _logger = logger;
-            _CmdLineArgs = cmdArgs;
+            _cmdLineArgs = cmdArgs;
         }
 
-        public override Task StartAsync(CancellationToken cancellationToken)
+        public override async Task StartAsync(CancellationToken cancellationToken)
         {
-            string[] args = _CmdLineArgs.Args;
+            string[] args = _cmdLineArgs.Args;
             try
             {
-                AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(iPlusService.CurrentDomain_UnhandledException);
+                AppDomain.CurrentDomain.UnhandledException += iPlusService.CurrentDomain_UnhandledException;
 
                 if (args == null || args.Count() <= 0)
                     args = new string[] { "/U00", "/P00" };
                 CommandLineHelper cmdHelper = new CommandLineHelper(args);
-                bool WCFOff = args.Contains("/WCFOff");
+                bool wcfOff = args.Contains("/WCFOff");
                 bool simulation = args.Contains("/Simulation");
                 bool waitToAttachDebugger = args.Contains("/Debug");
 
                 ACStartUpRoot startUpManager = new ACStartUpRoot(null);
-                String errorMsg = "";
-                _logger.LogInformation(String.Format("Starting iPlus Service with user {0}", cmdHelper.LoginUser));
+                string errorMsg = "";
+                _logger.LogInformation("Starting iPlus Service with user {LoginUser}", cmdHelper.LoginUser);
 
                 if (waitToAttachDebugger)
                 {
-                    Thread.Sleep(60000);
+                    await Task.Delay(TimeSpan.FromSeconds(60), cancellationToken);
                 }
 
-                if (startUpManager.LoginUser(cmdHelper.LoginUser, cmdHelper.LoginPassword, false, false, ref errorMsg, WCFOff, simulation) != 1)
-                    _logger.LogInformation(String.Format("Starting iPlus-Service failed {0}", errorMsg));
+                if (startUpManager.LoginUser(cmdHelper.LoginUser, cmdHelper.LoginPassword, false, false, ref errorMsg, wcfOff, simulation) != 1)
+                {
+                    _logger.LogError("Starting iPlus Service failed: {Error}", errorMsg);
+                    throw new InvalidOperationException($"iPlus service startup failed: {errorMsg}");
+                }
+
                 _logger.LogInformation("iPlus Service started");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                _logger.LogError(ex, ex.StackTrace);
+                throw;
             }
-            return base.StartAsync(cancellationToken);
+
+            await base.StartAsync(cancellationToken);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -73,8 +73,11 @@ namespace gip.iplus.service
 
         public override Task StopAsync(CancellationToken cancellationToken)
         {
+            AppDomain.CurrentDomain.UnhandledException -= iPlusService.CurrentDomain_UnhandledException;
+
             if (ACRoot.SRoot != null)
                 ACRoot.SRoot.ACDeInit();
+
             return base.StopAsync(cancellationToken);
         }
     }
