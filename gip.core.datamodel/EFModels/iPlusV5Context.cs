@@ -67,7 +67,7 @@ public partial class iPlusV5Context : DbContext
     public virtual DbSet<ACClassRouteUsageGroup> ACClassRouteUsageGroup { get; set; }
 
     [ACPropertyInfo(9999)]
-    public virtual DbSet<ACClassRouteUsagePo> ACClassRouteUsagePo { get; set; }
+    public virtual DbSet<ACClassRouteUsagePos> ACClassRouteUsagePos { get; set; }
 
     [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassTask> ACClassTask { get; set; }
@@ -76,7 +76,7 @@ public partial class iPlusV5Context : DbContext
     public virtual DbSet<ACClassTaskValue> ACClassTaskValue { get; set; }
 
     [ACPropertyInfo(9999)]
-    public virtual DbSet<ACClassTaskValuePo> ACClassTaskValuePo { get; set; }
+    public virtual DbSet<ACClassTaskValuePos> ACClassTaskValuePos { get; set; }
 
     [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassText> ACClassText { get; set; }
@@ -139,7 +139,7 @@ public partial class iPlusV5Context : DbContext
     public virtual DbSet<VBSystem> VBSystem { get; set; }
 
     [ACPropertyInfo(9999)]
-    public virtual DbSet<VBSystemColumn> VBSystemColumn { get; set; }
+    public virtual DbSet<VBSystemColumns> VBSystemColumns { get; set; }
 
     [ACPropertyInfo(9999)]
     public virtual DbSet<VBTranslationView> VBTranslationView { get; set; }
@@ -775,13 +775,13 @@ public partial class iPlusV5Context : DbContext
                 .HasConstraintName("FK_ACClassRouteUsageGroup_ACClassRouteUsage");
         });
 
-        modelBuilder.Entity<ACClassRouteUsagePo>(entity =>
+        modelBuilder.Entity<ACClassRouteUsagePos>(entity =>
         {
             entity.HasKey(e => e.ACClassRouteUsagePosID);
 
             entity.Property(e => e.ACClassRouteUsagePosID).ValueGeneratedNever();
 
-           entity.HasOne(d => d.ACClassRouteUsage).WithMany(p => p.ACClassRouteUsagePo_ACClassRouteUsage)
+           entity.HasOne(d => d.ACClassRouteUsage).WithMany(p => p.ACClassRouteUsagePos_ACClassRouteUsage)
                 .HasForeignKey(d => d.ACClassRouteUsageID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACClassRouteUsagePos_ACClassRouteUsage");
@@ -877,7 +877,7 @@ public partial class iPlusV5Context : DbContext
                 .HasConstraintName("FK_ACClassTaskValue_VBUserID");
         });
 
-        modelBuilder.Entity<ACClassTaskValuePo>(entity =>
+        modelBuilder.Entity<ACClassTaskValuePos>(entity =>
         {
             entity.HasKey(e => e.ACClassTaskValuePosID);
 
@@ -919,7 +919,7 @@ public partial class iPlusV5Context : DbContext
                 .IsRequired()
                 .HasColumnType("text");
 
-           entity.HasOne(d => d.ACClassTaskValue).WithMany(p => p.ACClassTaskValuePo_ACClassTaskValue)
+           entity.HasOne(d => d.ACClassTaskValue).WithMany(p => p.ACClassTaskValuePos_ACClassTaskValue)
                 .HasForeignKey(d => d.ACClassTaskValueID)
                 .HasConstraintName("FK_ACClassTaskValuePos_ACClassTaskValueID");
         });
@@ -1646,7 +1646,7 @@ public partial class iPlusV5Context : DbContext
             entity.Property(e => e.SystemRemote).IsUnicode(false);
         });
 
-        modelBuilder.Entity<VBSystemColumn>(entity =>
+        modelBuilder.Entity<VBSystemColumns>(entity =>
         {
             entity
                 .HasNoKey()
