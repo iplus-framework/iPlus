@@ -8,6 +8,8 @@ namespace gip.core.datamodel;
 
 public partial class iPlusV5Context : DbContext
 {
+    private static readonly ACMaterializationInterceptor s_materializationInterceptor = new ACMaterializationInterceptor();
+
     public iPlusV5Context()
     {
     }
@@ -160,11 +162,10 @@ public partial class iPlusV5Context : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.AddInterceptors(new ACMaterializationInterceptor())
+        optionsBuilder.AddInterceptors(s_materializationInterceptor)
             //.UseLazyLoadingProxies()
             //.UseChangeTrackingProxies()
-            .UseModel(iPlusV5ContextModel.Instance)
-            .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
+            .UseModel(iPlusV5ContextModel.Instance);
             //Uncomment connection string when generating new CompiledModels
             //.UseSqlServer(ConfigurationManager.ConnectionStrings["iPlusV5_Entities"].ConnectionString);
     }
