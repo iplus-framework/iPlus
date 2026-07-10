@@ -2651,6 +2651,30 @@ namespace gip.core.autocomponent
         {
             _StaticExecuteHandlersAsync.TryAdd(typeOfClass, refToStaticMethod);
         }
+
+        internal static void EnsureStaticExecuteHandlersInitialized(Type targetForInvocation)
+        {
+            if (targetForInvocation == null)
+                return;
+
+            if (_StaticExecuteHandlers.ContainsKey(targetForInvocation)
+                || _StaticExecuteHandlersAsync.ContainsKey(targetForInvocation))
+                return;
+
+            try
+            {
+                RuntimeHelpers.RunClassConstructor(targetForInvocation.TypeHandle);
+            }
+            catch (Exception e)
+            {
+                string msg = e.Message;
+                if (e.InnerException != null && e.InnerException.Message != null)
+                    msg += " Inner:" + e.InnerException.Message;
+
+                if (gip.core.datamodel.Database.Root != null && gip.core.datamodel.Database.Root.Messages != null)
+                    gip.core.datamodel.Database.Root.Messages.LogException("ACComponent", "EnsureStaticExecuteHandlersInitialized", msg);
+            }
+        }
         internal static readonly ConcurrentDictionary<Type, bool> _HasStaticAskMethods = new ConcurrentDictionary<Type, bool>();
 
         /// <summary>
@@ -2809,6 +2833,7 @@ namespace gip.core.autocomponent
                     {
                         // Ermittle Typ: Falls AttachedFromACClassID gesetzt, dann ist eine Erweterungsmethode aus einer anderen Klasse, sonst eigene Methode in dieser Klasse
                         Type targetForInvocation = acClassMethod.AttachedFromACClassID.HasValue ? acClassMethod.AttachedFromACClass.ObjectType : ACType.ObjectType;
+                        EnsureStaticExecuteHandlersInitialized(targetForInvocation);
                         HandleExecuteACMethodStatic staticHandler = null;
 
                         if (acMethodName.StartsWith(ACUrlHelper.CallAsync))
@@ -2989,6 +3014,7 @@ namespace gip.core.autocomponent
                         {
                             // Ermittle Typ: Falls AttachedFromACClassID gesetzt, dann ist eine Erweterungsmethode aus einer anderen Klasse, sonst eigene Methode in dieser Klasse
                             Type targetForInvocation = acClassMethod.AttachedFromACClassID.HasValue ? acClassMethod.AttachedFromACClass.ObjectType : ACType.ObjectType;
+                            EnsureStaticExecuteHandlersInitialized(targetForInvocation);
 
                             HandleExecuteACMethodStatic staticHandler = null;
                             if (targetForInvocation != null && _StaticExecuteHandlers.TryGetValue(targetForInvocation, out staticHandler))
