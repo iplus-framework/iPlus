@@ -50,6 +50,7 @@ namespace gip.core.reporthandlerwpf
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
             _MaxRecursionDepthConfig = new ACPropertyConfigValue<int>(this, "MaxRecursionDepthConfig", 3);
+            _ForceWineLinuxToolsXpsConversion = new ACPropertyConfigValue<ushort>(this, "ForceWineLinuxToolsXpsConversion", 1);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -60,6 +61,8 @@ namespace gip.core.reporthandlerwpf
             ACInitScriptEngineContent();
 
             _VarioConfigManager = ConfigManagerIPlus.ACRefToServiceInstance(this);
+            _ = _MaxRecursionDepthConfig.ValueT;
+            _ = _ForceWineLinuxToolsXpsConversion.ValueT;
 
             return true;
         }
@@ -150,16 +153,24 @@ namespace gip.core.reporthandlerwpf
             set;
         }
 
+        private ACPropertyConfigValue<ushort> _ForceWineLinuxToolsXpsConversion;
         /// <summary>
         /// Optional Wine-only override for the XPS print route.
         /// true  => force Linux xpstopdf conversion (better Unicode text mapping, may misrender some images)
         /// false => force managed serializer path (better image/layout fidelity, may have glyph mapping issues)
         /// null  => automatic selection (default behavior)
         /// </summary>
-        public bool? ForceWineLinuxToolsXpsConversion
+        [ACPropertyConfig("en{'Force Wine/Linux Tools XPS Conversion [0=Registry,1=Force,2=WindowsXPS]'}de{'Wine/Linux Tools XPS-Konvertierung erzwingenConversion [0=Registry,1=Force,2=WindowsXPS]'}")]
+        public ushort ForceWineLinuxToolsXpsConversion
         {
-            get;
-            set;
+            get
+            {
+                return _ForceWineLinuxToolsXpsConversion.ValueT;
+            }            
+            set
+            {
+                _ForceWineLinuxToolsXpsConversion.ValueT = value;
+            }
         }
 
         bool _ReloadOnServer;
@@ -1723,10 +1734,10 @@ namespace gip.core.reporthandlerwpf
             return string.Concat(name.Select(c => invalid.Contains(c) ? '_' : c));
         }
 
-        private static bool ShouldUseWineLinuxXpsConversion(string reportXaml, bool? forcedMode)
+        private static bool ShouldUseWineLinuxXpsConversion(string reportXaml, ushort forcedMode)
         {
-            if (forcedMode.HasValue)
-                return forcedMode.Value;
+            if (forcedMode != 0)
+                return forcedMode == 1;
 
             // Optional override for troubleshooting:
             // IPLUS_WINE_XPS_CONVERSION_MODE=always|never|auto (default: auto)

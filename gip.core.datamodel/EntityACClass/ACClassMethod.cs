@@ -1095,8 +1095,12 @@ namespace gip.core.datamodel
 
                         resultType = c + resultType;
                     }
-                    Type valueType = TypeAnalyser.GetTypeByShortTypeName(resultType, Database.GlobalDatabase);
-                    acMethod.ResultValueList.Add(new ACValue("result", valueType));
+                    Type valueType = null;
+                    if (!string.IsNullOrEmpty(resultType) && resultType.ToLower() != "void" && resultType.ToLower() != "system.void")
+                    {
+                        valueType = TypeAnalyser.GetTypeByShortTypeName(resultType, Database.GlobalDatabase);
+                        acMethod.ResultValueList.Add(new ACValue("result", valueType));
+                    }
 
                     // Eingabe-Parameter ermitteln
                     int end = Sourcecode.IndexOf(")", found);

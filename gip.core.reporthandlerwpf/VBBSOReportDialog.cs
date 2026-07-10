@@ -1233,7 +1233,7 @@ namespace gip.core.reporthandlerwpf
                 if (reportData == null)
                     return;
 
-                acReportQuery.ForceWineLinuxToolsXpsConversion = WineUseLinuxXpsConversion;
+                acReportQuery.ForceWineLinuxToolsXpsConversion = WineUseLinuxXpsConversion ? (ushort)1 : (ushort)2;
                 acReportQuery.Print(CurrentACClassDesign, WithDialog, PrinterName, reportData, CopyCount);
 
                 if (cloneInstantiated)
