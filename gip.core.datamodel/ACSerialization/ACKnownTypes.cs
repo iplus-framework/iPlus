@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 namespace gip.core.datamodel
 {
@@ -154,9 +155,43 @@ namespace gip.core.datamodel
                 List<Type> allTypes = new List<Type>();
                 allTypes.AddRange(_KnownMessageTypes);
                 allTypes.AddRange(_UnKnownTypes);
-                _AllTypes = allTypes.ToArray();
+
+                _AllTypes = allTypes
+                    .Where(t => t != null)
+                    .GroupBy(t => t.FullName)
+                    .Select(g => g.First())
+                    .Where(IsTypeSupportedForSerialization)
+                    .ToArray();
             }
             return _AllTypes;
+        }
+
+        private static bool IsTypeSupportedForSerialization(Type t)
+        {
+            try
+            {
+                // Accessing custom attributes can trigger dependency resolution.
+                // If this fails (e.g. missing WPF assemblies in Windows service mode),
+                // the type must not be exposed to DataContractSerializer/CoreWCF.
+                t.GetCustomAttributes(false);
+                return true;
+            }
+            catch (FileNotFoundException)
+            {
+                return false;
+            }
+            catch (FileLoadException)
+            {
+                return false;
+            }
+            catch (TypeLoadException)
+            {
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>

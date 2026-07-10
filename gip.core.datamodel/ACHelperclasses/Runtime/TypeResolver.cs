@@ -86,15 +86,8 @@ namespace gip.core.datamodel
                             return _Type;
                         }
                     }
-                    catch (Exception e)
+                    catch
                     {
-                        string msg = e.Message;
-                        if (e.InnerException != null && e.InnerException.Message != null)
-                            msg += " Inner:" + e.InnerException.Message;
-
-                        if (Database.Root != null && Database.Root.Messages != null)
-                            Database.Root.Messages.LogException("TypeResolver", "Type(0)", String.Format("Cant find type {0}, {1}, {2}, {3}, Msg: {4}" , LongTypeName, TypeName, NestedTypeName, Assembly.FullName, msg));
-
                         return null;
                     }
                 }

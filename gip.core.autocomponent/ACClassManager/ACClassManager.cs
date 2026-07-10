@@ -277,29 +277,29 @@ namespace gip.core.autocomponent
 
                 foreach (ACFileItem acFileItem in ACFileItems)
                 {
+                    Assembly classAssembly = null;
                     try
                     {
-                        Assembly classAssembly = Assembly.LoadFrom(acFileItem.Filename);
+                        classAssembly = Assembly.LoadFrom(acFileItem.Filename);
                         RegisterAssemblyTypes(classAssembly);
-
                     }
                     catch (ReflectionTypeLoadException rtExc)
                     {
-                        string msg = rtExc.Message;
-                        if (rtExc.InnerException != null && rtExc.InnerException.Message != null)
-                            msg += " Inner:" + rtExc.InnerException.Message;
-
                         if (Database.Root != null && Database.Root.Messages != null)
-                            Database.Root.Messages.LogException("ACClassManager", "RegisterAndUpdateACObjects(10)", msg);
+                        {
+                            Database.Root.Messages.LogException("ACClassManager", "RegisterAndUpdateACObjects(10)", rtExc, true);
+                            if (classAssembly != null && !string.IsNullOrEmpty(classAssembly.FullName))
+                                Database.Root.Messages.LogDebug("ACClassManager", "RegisterAndUpdateACObjects(30)", "Assembly: " + classAssembly.FullName);
+                        }
                     }
                     catch (Exception e)
                     {
-                        string msg = e.Message;
-                        if (e.InnerException != null && e.InnerException.Message != null)
-                            msg += " Inner:" + e.InnerException.Message;
-
                         if (Database.Root != null && Database.Root.Messages != null)
-                            Database.Root.Messages.LogException("ACClassManager", "RegisterAndUpdateACObjects(20)", msg);
+                        {
+                            Database.Root.Messages.LogException("ACClassManager", "RegisterAndUpdateACObjects(20)", e, true);
+                            if (classAssembly != null && !string.IsNullOrEmpty(classAssembly.FullName))
+                                Database.Root.Messages.LogDebug("ACClassManager", "RegisterAndUpdateACObjects(30)", "Assembly: " + classAssembly.FullName);
+                        }
                     }
 
                     ACKnownTypes.RegisterUnKnownType(typeof(ObservableCollection<string>));
@@ -472,65 +472,120 @@ namespace gip.core.autocomponent
 
         private void RegisterAssemblyTypes(Assembly classAssembly)
         {
+            Type[] classTypeList;
             try
             {
-                var classTypeList2 = classAssembly.GetTypes();
-                foreach (var classType in classTypeList2)
-                {
-                    var querySerializable = classType.GetCustomAttributes(typeof(ACSerializeableInfo), false);
-                    if (querySerializable.Any())
-                    {
-                        var acSerializeableInfo = querySerializable.First() as ACSerializeableInfo;
-                        if (acSerializeableInfo.TypeList != null)
-                        {
-                            foreach (var type in acSerializeableInfo.TypeList)
-                            {
-                                ACKnownTypes.RegisterUnKnownType(type);
-                            }
-                        }
-                        else
-                            ACKnownTypes.RegisterUnKnownType(classType);
-                    }
-
-                    var queryCTors = classType.GetCustomAttributes(typeof(ACInvokeStaticCtor), false);
-                    if (queryCTors.Any())
-                    {
-                        try
-                        {
-                            // Rufe statischen Konstruktor auf um evtl. einen Eintrag in _StaticExecuteHandlers zu erhalten
-                            ConstructorInfo constructor = classType.GetConstructor(BindingFlags.Static | BindingFlags.NonPublic, null, new Type[0], null);
-                            if (constructor != null)
-                                constructor.Invoke(null, null);
-                        }
-                        catch (Exception e)
-                        {
-                            string msg = e.Message;
-                            if (e.InnerException != null && e.InnerException.Message != null)
-                                msg += " Inner:" + e.InnerException.Message;
-
-                            if (Database.Root != null && Database.Root.Messages != null)
-                                Database.Root.Messages.LogException("ACClassManager", "RegisterAndUpdateACObjects", msg);
-                        }
-                    }
-                }
+                classTypeList = classAssembly.GetTypes();
             }
             catch (ReflectionTypeLoadException rtExc)
             {
-                string msg = rtExc.Message;
-                if (rtExc.InnerException != null && rtExc.InnerException.Message != null)
-                    msg += " Inner:" + rtExc.InnerException.Message;
+                // In headless/service mode some UI-dependent assemblies are only partially loadable.
+                // Do not register partial types from such assemblies, because they can pollute ACKnownTypes
+                // and later break DataContractSerializer/CoreWCF deserialization.
+                classTypeList = Array.Empty<Type>();
 
+                // Log aggregated summary of type-load failures instead of individual warnings
                 if (Database.Root != null && Database.Root.Messages != null)
-                    Database.Root.Messages.LogException("ACClassManager", "RegisterAndUpdateACObjects(10)", msg);
+                {
+                    if (classAssembly != null && !string.IsNullOrEmpty(classAssembly.FullName))
+                        Database.Root.Messages.LogDebug("ACClassManager", "RegisterAndUpdateACObjects(30)", "Assembly: " + classAssembly.FullName);
+
+                    if (rtExc.LoaderExceptions != null)
+                    {
+                        var failureCounts = rtExc.LoaderExceptions
+                            .Where(e => e != null)
+                            .GroupBy(e => e.Message)
+                            .ToDictionary(g => g.Key, g => g.Count());
+
+                        var summary = string.Join("; ", failureCounts.Select(f => $"{f.Value}x {f.Key.Substring(0, Math.Min(80, f.Key.Length))}"));
+                        Database.Root.Messages.LogWarning("ACClassManager", "RegisterAndUpdateACObjects(30)-FailedTypes", $"Skipped types ({failureCounts.Values.Sum()} total): {summary}");
+                    }
+                }
             }
             catch (Exception e)
             {
-                string msg = e.Message;
-                if (e.InnerException != null && e.InnerException.Message != null)
-                    msg += " Inner:" + e.InnerException.Message;
-
                 if (Database.Root != null && Database.Root.Messages != null)
-                    Database.Root.Messages.LogException("ACClassManager", "RegisterAndUpdateACObjects(20)", msg);
+                {
+                    Database.Root.Messages.LogException("ACClassManager", "RegisterAndUpdateACObjects(40)", e, true);
+                    if (classAssembly != null && !string.IsNullOrEmpty(classAssembly.FullName))
+                        Database.Root.Messages.LogDebug("ACClassManager", "RegisterAndUpdateACObjects(40)", "Assembly: " + classAssembly.FullName);
+                }
+                return;
+            }
+
+            foreach (var classType in classTypeList)
+            {
+                RegisterSingleType(classType, classAssembly);
+            }
+        }
+
+        private void RegisterSingleType(Type classType, Assembly classAssembly)
+        {
+            // Register ACSerializeableInfo types
+            try
+            {
+                var querySerializable = classType.GetCustomAttributes(typeof(ACSerializeableInfo), false);
+                if (querySerializable.Any())
+                {
+                    var acSerializeableInfo = querySerializable.First() as ACSerializeableInfo;
+                    if (acSerializeableInfo.TypeList != null)
+                    {
+                        foreach (var type in acSerializeableInfo.TypeList)
+                        {
+                            ACKnownTypes.RegisterUnKnownType(type);
+                        }
+                    }
+                    else
+                        ACKnownTypes.RegisterUnKnownType(classType);
+                }
+            }
+            catch (Exception e)
+            {
+                // GetCustomAttributes can throw if the type has attributes depending on unavailable assemblies (e.g. WPF)
+                if (Database.Root != null && Database.Root.Messages != null)
+                {
+                    string msg = e.Message;
+                    if (e.InnerException != null && e.InnerException.Message != null)
+                        msg += " Inner:" + e.InnerException.Message;
+
+                    Database.Root.Messages.LogWarning("ACClassManager", "RegisterAndUpdateACObjects(attr)", $"{msg} [{classType.FullName}]");
+                }
+            }
+
+            // Invoke static constructors marked with ACInvokeStaticCtor
+            try
+            {
+                var queryCTors = classType.GetCustomAttributes(typeof(ACInvokeStaticCtor), false);
+                if (queryCTors.Any())
+                {
+                    try
+                    {
+                        ConstructorInfo constructor = classType.GetConstructor(BindingFlags.Static | BindingFlags.NonPublic, null, new Type[0], null);
+                        if (constructor != null)
+                            constructor.Invoke(null, null);
+                    }
+                    catch (Exception e)
+                    {
+                        string msg = e.Message;
+                        if (e.InnerException != null && e.InnerException.Message != null)
+                            msg += " Inner:" + e.InnerException.Message;
+
+                        if (Database.Root != null && Database.Root.Messages != null)
+                            Database.Root.Messages.LogException("ACClassManager", "RegisterAndUpdateACObjects(static ctor)", msg);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                // GetCustomAttributes can throw if the type has attributes depending on unavailable assemblies
+                if (Database.Root != null && Database.Root.Messages != null)
+                {
+                    string msg = e.Message;
+                    if (e.InnerException != null && e.InnerException.Message != null)
+                        msg += " Inner:" + e.InnerException.Message;
+
+                    Database.Root.Messages.LogWarning("ACClassManager", "RegisterAndUpdateACObjects(attr)", $"{msg} [{classType.FullName}]");
+                }
             }
         }
 

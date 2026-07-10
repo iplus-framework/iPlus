@@ -35,13 +35,18 @@ namespace gip.core.datamodel
     {
         #region Properties
         /// <summary>
-        /// The _ types in assembly
+        /// The _ types in assembly - caches resolved Type by full type name
         /// </summary>
-        private static ConcurrentDictionary<string, TypeResolver> _TypesInAssembly = new ConcurrentDictionary<string, TypeResolver>();
+        private static ConcurrentDictionary<string, Type> _TypesInAssembly = new ConcurrentDictionary<string, Type>();
         /// <summary>
         /// The _ loaded assemblies
         /// </summary>
         private static ConcurrentDictionary<string, Assembly> _LoadedAssemblies = new ConcurrentDictionary<string, Assembly>();
+
+        /// <summary>
+        /// Application base directory for resolving assembly paths
+        /// </summary>
+        private static readonly string _BaseDirectory = AppContext.BaseDirectory;
 
         private static readonly object _Lock = new object();
 
@@ -114,6 +119,7 @@ namespace gip.core.datamodel
             if (string.IsNullOrEmpty(longTypeName))
                 return null;
 
+            // Fast path: built-in type resolution
             var type = Type.GetType(longTypeName);
             if (type != null)
                 return type;
@@ -121,185 +127,192 @@ namespace gip.core.datamodel
             if (longTypeName == "System.Linq.IQueryable`1")
                 return typeof(IQueryable<>);
 
-            TypeResolver typeResolver = null;
+            // 1. Check cache
+            if (_TypesInAssembly.TryGetValue(longTypeName, out Type cachedType))
+                return cachedType;
 
-            // 1. Suche ob Typ schonmal abgefragt worden ist
-            _TypesInAssembly.TryGetValue(longTypeName, out typeResolver);
-            if (typeResolver != null)
-                return typeResolver.Type;
-
-            // 2. Falls nicht gefunden, leite mögliche Assemblynamen aus dem namespace ab
+            // Parse namespace and type name
             string assemblyName = "";
             string assemblyQlfyName = longTypeName;
             if (!GetNSpaceAndTypeName(assemblyQlfyName, ref assemblyName, ref longTypeName, ref typeName, ref nameSpace, ref nestedTypeName))
                 return null;
 
+            // Derive probable assembly names from namespace (e.g. "gip.core.communication" -> ["communication", "core.communication", "gip.core.communication"])
+            string[] probablyAsmblNames = GetProbablyAssemblyNames(nameSpace);
+
+            // 2. Try the explicit assembly name from the type qualifier (if present)
             if (!String.IsNullOrEmpty(assemblyName))
             {
-                try
-                {
-                    Assembly classAssembly;
-                    if (_LoadedAssemblies.TryGetValue(assemblyName, out classAssembly))
-                    {
-                        lock (_Lock)
-                        {
-                            string path = assemblyName + ".dll";
-                            if (!File.Exists(path))
-                                return null;
-                            classAssembly = Assembly.LoadFrom(path);
-                        }
-                        if (classAssembly != null)
-                            _LoadedAssemblies.TryAdd(assemblyName, classAssembly);
-                    }
-
-                    if (classAssembly != null)
-                    {
-                        typeResolver = new TypeResolver(longTypeName, typeName, nestedTypeName, classAssembly);
-                        Type foundType = typeResolver.Type;
-                        if (foundType != null)
-                        {
-                            if (longTypeName != typeResolver.Type.FullName)
-                                return null;
-                            _TypesInAssembly.TryAdd(longTypeName, typeResolver);
-                            return foundType;
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    string msg = e.Message;
-                    if (e.InnerException != null && e.InnerException.Message != null)
-                        msg += " Inner:" + e.InnerException.Message;
-
-                    if (Database.Root != null && Database.Root.Messages != null)
-                        Database.Root.Messages.LogException("TypeAnalyser", "GetTypeInAssembly", msg);
-
-                    return null;
-                }
-            }
-
-            // 3. Durchsuche in bereits durchsuten Assemblies
-            foreach (Assembly loadedAssembly in _LoadedAssemblies.Values)
-            {
-                typeResolver = new TypeResolver(longTypeName, typeName, nestedTypeName, loadedAssembly);
-                Type foundType = typeResolver.Type;
+                Type foundType = TryResolveFromAssembly(assemblyName, typeName, nestedTypeName);
                 if (foundType != null)
                 {
-                    if (longTypeName != typeResolver.Type.FullName)
-                        continue;
-                    _TypesInAssembly.TryAdd(longTypeName, typeResolver);
+                    CacheType(longTypeName, foundType);
                     return foundType;
                 }
             }
 
-
-            // 3. Suche ob es eine Assembly gibt, die ähnlich heisst wie der namespacename 
-            // Falls gefunden, dann suche den Typ in dieser Assembly
-            string[] assemblyNameParts = nameSpace.Split('.');
-            int size = assemblyNameParts.Count();
-            string[] probablyAsmblNames = new string[size]; // vermutlicher Assemblyname
-            string lastAssemblyName = "";
-            int pos = 0;
-            foreach (string namePart in assemblyNameParts)
-            {
-                if (pos > 0)
-                    lastAssemblyName += "." + namePart;
-                else
-                    lastAssemblyName = namePart;
-                pos++;
-                probablyAsmblNames[size - pos] = lastAssemblyName;
-            }
-
+            // 3. Try probable assembly names against already-loaded assemblies
             foreach (string probablyName in probablyAsmblNames)
             {
-                try
+                Type foundType = TryResolveFromAssembly(probablyName, typeName, nestedTypeName);
+                if (foundType != null)
                 {
-                    Assembly classAssembly;
-                    if (!_LoadedAssemblies.TryGetValue(probablyName, out classAssembly))
-                        continue;
-
-                    typeResolver = new TypeResolver(longTypeName, typeName, nestedTypeName, classAssembly);
-                    Type foundType = typeResolver.Type;
-                    if (foundType != null)
-                    {
-                        if (longTypeName != typeResolver.Type.FullName)
-                            continue;
-                        _TypesInAssembly.TryAdd(longTypeName, typeResolver);
-                        return foundType;
-                    }
-                }
-                catch (Exception e)
-                {
-                    string msg = e.Message;
-                    if (e.InnerException != null && e.InnerException.Message != null)
-                        msg += " Inner:" + e.InnerException.Message;
-
-                    if (Database.Root != null && Database.Root.Messages != null)
-                        Database.Root.Messages.LogException("TypeAnalyser", "GetTypeInAssembly(10)", msg);
-
-                    continue;
+                    CacheType(longTypeName, foundType);
+                    return foundType;
                 }
             }
 
-            // 4. Falls Typ noch nicht gefunden, dann suche die entsprechende DLL im Verzeichnis und lade sie in den Speicher
+            // 4. Try loading DLL from disk for probable assembly names
             foreach (string probablyName in probablyAsmblNames)
             {
-                try
+                Type foundType = TryResolveFromFile(probablyName, typeName, nestedTypeName);
+                if (foundType != null)
                 {
-                    Assembly classAssembly = null;
-                    lock (_Lock)
-                    {
-                        string path = probablyName + ".dll";
-                        if (!File.Exists(path))
-                            continue;
-                        classAssembly = Assembly.LoadFrom(path);
-                        if (classAssembly != null)
-                            _LoadedAssemblies.TryAdd(probablyName, classAssembly);
-                    }
-
-                    typeResolver = new TypeResolver(longTypeName, typeName, nestedTypeName, classAssembly);
-                    Type foundType = typeResolver.Type;
-                    if (foundType != null)
-                    {
-                        if (longTypeName != typeResolver.Type.FullName)
-                            continue;
-                        _TypesInAssembly.TryAdd(longTypeName, typeResolver);
-                        return foundType;
-                    }
-                }
-                catch (Exception e)
-                {
-                    string msg = e.Message;
-                    if (e.InnerException != null && e.InnerException.Message != null)
-                        msg += " Inner:" + e.InnerException.Message;
-
-                    if (Database.Root != null && Database.Root.Messages != null)
-                        Database.Root.Messages.LogException("TypeAnalyser", "GetTypeInAssembly(20)", msg);
-
-                    continue;
+                    CacheType(longTypeName, foundType);
+                    return foundType;
                 }
             }
 
-            // 5. Falls Typ noch immer nicht gefunden, dann durchsuche alle im Speicher geladenen dll's nach diesem Typ
-            // aktualisiere Liste
+            // 5. Last resort: scan all currently loaded assemblies in the AppDomain
             Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (Assembly loadedAssembly in loadedAssemblies)
             {
-                string[] fullName = loadedAssembly.FullName.Split(',');
-                typeResolver = new TypeResolver(longTypeName, typeName, nestedTypeName, loadedAssembly);
-                Type foundType = typeResolver.Type;
-                if (foundType != null)
-                {
-                    if (longTypeName != typeResolver.Type.FullName)
-                        continue;
+                string asmSimpleName = loadedAssembly.GetName().Name;
+                if (!_LoadedAssemblies.ContainsKey(asmSimpleName))
+                    _LoadedAssemblies.TryAdd(asmSimpleName, loadedAssembly);
 
-                    if (!_LoadedAssemblies.ContainsKey(fullName[0]))
-                        _LoadedAssemblies.TryAdd(fullName[0], loadedAssembly);
-                    _TypesInAssembly.TryAdd(longTypeName, typeResolver);
+                Type foundType = TryResolveTypeDirect(loadedAssembly, typeName, nestedTypeName);
+                if (foundType != null && longTypeName == foundType.FullName)
+                {
+                    CacheType(longTypeName, foundType);
                     return foundType;
                 }
             }
+
+            // Type not found - log once
+            if (Database.Root != null && Database.Root.Messages != null)
+                Database.Root.Messages.LogException("TypeAnalyser", "GetTypeInAssembly",
+                    $"Could not resolve type '{longTypeName}' (typeName='{typeName}', nested='{nestedTypeName}', namespace='{nameSpace}')");
+
             return null;
+        }
+
+        /// <summary>
+        /// Builds an array of probable assembly name candidates from a namespace,
+        /// ordered shortest-first (most specific prefix last).
+        /// e.g. "gip.core.communication" -> ["communication", "core.communication", "gip.core.communication"]
+        /// </summary>
+        private static string[] GetProbablyAssemblyNames(string nameSpace)
+        {
+            string[] parts = nameSpace.Split('.');
+            int size = parts.Length;
+            string[] probablyAsmblNames = new string[size];
+            string lastAssemblyName = "";
+            int pos = 0;
+            foreach (string namePart in parts)
+            {
+                lastAssemblyName = pos > 0 ? lastAssemblyName + "." + namePart : namePart;
+                pos++;
+                probablyAsmblNames[size - pos] = lastAssemblyName;
+            }
+            return probablyAsmblNames;
+        }
+
+        /// <summary>
+        /// Tries to resolve a type from an assembly that is already in _LoadedAssemblies.
+        /// If the assembly is not yet loaded, attempts to load it from the application base directory.
+        /// </summary>
+        private static Type TryResolveFromAssembly(string assemblyName, string typeName, string nestedTypeName)
+        {
+            Assembly classAssembly;
+            if (_LoadedAssemblies.TryGetValue(assemblyName, out classAssembly))
+            {
+                Type foundType = TryResolveTypeDirect(classAssembly, typeName, nestedTypeName);
+                return foundType;
+            }
+
+            // Try loading from application base directory
+            lock (_Lock)
+            {
+                string fullPath = Path.Combine(_BaseDirectory, assemblyName + ".dll");
+                if (!File.Exists(fullPath))
+                    return null;
+
+                classAssembly = Assembly.LoadFrom(fullPath);
+                if (classAssembly != null)
+                    _LoadedAssemblies.TryAdd(assemblyName, classAssembly);
+            }
+
+            if (classAssembly != null)
+            {
+                return TryResolveTypeDirect(classAssembly, typeName, nestedTypeName);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Tries to resolve a type by loading the assembly DLL from the application base directory.
+        /// </summary>
+        private static Type TryResolveFromFile(string assemblyName, string typeName, string nestedTypeName)
+        {
+            lock (_Lock)
+            {
+                string fullPath = Path.Combine(_BaseDirectory, assemblyName + ".dll");
+                if (!File.Exists(fullPath))
+                    return null;
+
+                Assembly classAssembly = Assembly.LoadFrom(fullPath);
+                if (classAssembly != null)
+                    _LoadedAssemblies.TryAdd(assemblyName, classAssembly);
+
+                if (classAssembly != null)
+                {
+                    return TryResolveTypeDirect(classAssembly, typeName, nestedTypeName);
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Directly resolves a type from an assembly using reflection.
+        /// Handles both regular and nested types, including generic types with '+' notation.
+        /// </summary>
+        private static Type TryResolveTypeDirect(Assembly assembly, string typeName, string nestedTypeName)
+        {
+            try
+            {
+                Type type = assembly.GetType(typeName);
+                // If generic type e.g. "ACPointAsyncRMIWrap`1" then Type must be searched by Query
+                if (type == null)
+                    type = assembly.GetTypes().Where(c => c.Name == typeName).FirstOrDefault();
+
+                if (type == null)
+                    return null;
+
+                if (String.IsNullOrEmpty(nestedTypeName))
+                    return type;
+
+                Type nestedType = type.GetNestedType(nestedTypeName);
+                if (nestedType == null)
+                    nestedType = type.GetNestedTypes().Where(c => c.Name == nestedTypeName).FirstOrDefault();
+
+                return nestedType;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Caches a resolved type and records the owning assembly.
+        /// </summary>
+        private static void CacheType(string longTypeName, Type foundType)
+        {
+            _TypesInAssembly.TryAdd(longTypeName, foundType);
+            string asmSimpleName = foundType.Assembly.GetName().Name;
+            _LoadedAssemblies.TryAdd(asmSimpleName, foundType.Assembly);
         }
 
         /// <summary>
