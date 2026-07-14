@@ -157,7 +157,7 @@ namespace gip.iplus.startup
             }
 
             string pathIPlus = "";
-            string[] extensions = { ".dll", ".exe", ".csdl", ".ssdl", ".msl", ".chm", ".cpl", ".inf", ".llx", ".ocx", ".lng", ".cpl", ".pdb" };
+            string[] extensions = { ".dll", ".exe", ".csdl", ".ssdl", ".msl", ".chm", ".cpl", ".inf", ".llx", ".ocx", ".lng", ".cpl", ".pdb", ".xml", ".json" };
             IEnumerable<string> fileListSourcePath = Directory.EnumerateFiles(sourceInstallPath)
                                                               .Where(f =>      extensions.Any(ext => ext == Path.GetExtension(f).ToLower())
                                                                             || f.ToLower().EndsWith(C_iPlusExeName+ ".config") 
