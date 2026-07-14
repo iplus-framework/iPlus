@@ -180,6 +180,7 @@ namespace gip.iplus.startup
                 }
                 if (copyFile && copyFromServer)
                 {
+                    System.Console.WriteLine("Copying file: " + fileName);
                     File.Copy(sourcefilePath, destFilePath, true);
                 }
             }
@@ -279,6 +280,7 @@ namespace gip.iplus.startup
                 }
                 if (copyFile)
                 {
+                    System.Console.WriteLine("Copying file: " + file.Name);
                     file.CopyTo(destFilePath, true);
                 }
             }
