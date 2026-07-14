@@ -22,7 +22,11 @@ namespace gip.iplus.startup
         private const string InstallScriptsFolderName = "InstallScripts";
         public const string C_iPlusExeName = "gip.iplus.client.exe";
         public const string C_iPlusMESExeName = "gip.mes.client.exe";
-        public const string C_iPlusVBExeName = "gip.variobatch.client.exe";
+
+        public const string C_iPlusDllName = "gip.iplus.client.dll";
+        public const string C_iPlusMESDllName = "gip.mes.client.dll";
+
+        public const string C_ConnectionStringsName = "ConnectionStrings.config";
 
         static void Main(string[] args)
         {
@@ -73,8 +77,7 @@ namespace gip.iplus.startup
                 foreach (Process process in processlist)
                 {
                     if (   C_iPlusExeName.Contains(process.ProcessName)
-                        || C_iPlusMESExeName.Contains(process.ProcessName)
-                        || C_iPlusVBExeName.Contains(process.ProcessName))
+                        || C_iPlusMESExeName.Contains(process.ProcessName))
                     {
                         if (process.MainWindowHandle != IntPtr.Zero)
                         {
@@ -156,19 +159,26 @@ namespace gip.iplus.startup
                     return;
             }
 
+            string connectionStringsSource = Path.Combine(sourceInstallPath, C_ConnectionStringsName);
+            string connectionStringsDest = Path.Combine(localInstallPath, C_ConnectionStringsName);
+            if (copyFromServer && File.Exists(connectionStringsSource) && !File.Exists(connectionStringsDest))
+            {
+                System.Console.WriteLine("Copying file: " + C_ConnectionStringsName);
+                File.Copy(connectionStringsSource, connectionStringsDest, false);
+            }
+
             string pathIPlus = "";
             string[] extensions = { ".dll", ".exe", ".csdl", ".ssdl", ".msl", ".chm", ".cpl", ".inf", ".llx", ".ocx", ".lng", ".cpl", ".pdb", ".xml", ".json" };
             IEnumerable<string> fileListSourcePath = Directory.EnumerateFiles(sourceInstallPath)
                                                               .Where(f =>      extensions.Any(ext => ext == Path.GetExtension(f).ToLower())
-                                                                            || f.ToLower().EndsWith(C_iPlusExeName+ ".config") 
-                                                                            || f.ToLower().EndsWith(C_iPlusMESExeName+ ".config")
-                                                                            || f.ToLower().EndsWith(C_iPlusVBExeName + ".config")
+                                                                            || f.ToLower().EndsWith(C_iPlusDllName + ".config") 
+                                                                            || f.ToLower().EndsWith(C_iPlusMESDllName + ".config")
                                                                      );
             foreach (string sourcefilePath in fileListSourcePath)
             {
                 string fileName = Path.GetFileName(sourcefilePath);
                 string destFilePath = Path.Combine(localInstallPath, fileName);
-                if (fileName == C_iPlusExeName || fileName == C_iPlusMESExeName || fileName == C_iPlusVBExeName)
+                if (fileName == C_iPlusExeName || fileName == C_iPlusMESExeName)
                     pathIPlus = destFilePath;
                 bool copyFile = !File.Exists(destFilePath);
                 if (!copyFile)
@@ -189,13 +199,14 @@ namespace gip.iplus.startup
             {
                 IEnumerable<string> fileListLocalPath = Directory.EnumerateFiles(sourceInstallPath)
                                                                  .Where(f => extensions.Any(ext => ext == Path.GetExtension(f).ToLower())
-                                                                            || f.ToLower().EndsWith(C_iPlusExeName + ".config")
-                                                                            || f.ToLower().EndsWith(C_iPlusMESExeName + ".config")
-                                                                            || f.ToLower().EndsWith(C_iPlusVBExeName + ".config")
+                                                                            || f.ToLower().EndsWith(C_iPlusDllName + ".config")
+                                                                            || f.ToLower().EndsWith(C_iPlusMESDllName + ".config")
                                                                      );
                 foreach (string localFilePath in fileListLocalPath)
                 {
                     string fileName = Path.GetFileName(localFilePath);
+                    if (fileName == C_ConnectionStringsName)
+                        continue;
                     string sourceFilePath = Path.Combine(sourceInstallPath, fileName);
                     if (!File.Exists(sourceFilePath))
                         File.Delete(localFilePath);
