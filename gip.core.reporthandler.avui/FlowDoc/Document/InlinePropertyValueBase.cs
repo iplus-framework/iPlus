@@ -84,5 +84,13 @@ namespace gip.core.reporthandler.avui.Flowdoc
             get { return (int)GetValue(YPosProperty); }
             set { SetValue(YPosProperty, value); }
         }
+
+        public static readonly StyledProperty<string> CustomString01Property = 
+            AvaloniaProperty.Register<InlinePropertyValueBase, string>(nameof(CustomString01), null);
+        public string CustomString01
+        {
+            get { return (string)GetValue(CustomString01Property); }
+            set { SetValue(CustomString01Property, value); }
+        }
     }
 }

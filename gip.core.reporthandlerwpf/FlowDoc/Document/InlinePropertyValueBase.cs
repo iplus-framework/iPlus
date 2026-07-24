@@ -79,5 +79,12 @@ namespace gip.core.reporthandlerwpf.Flowdoc
             get { return (int)GetValue(YPosProperty); }
             set { SetValue(YPosProperty, value); }
         }
+
+        public static readonly DependencyProperty CustomString01Property = DependencyProperty.Register("CustomString01", typeof(string), typeof(InlinePropertyValueBase), new PropertyMetadata(null));
+        public string CustomString01
+        {
+            get { return (string)GetValue(CustomString01Property); }
+            set { SetValue(CustomString01Property, value); }
+        }
     }
 }
