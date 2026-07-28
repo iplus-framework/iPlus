@@ -49,11 +49,11 @@ namespace gip.core.communication
         #region Properties
 
         //Contains file path
-        private List<ERPFileItem> _FilesToSendList = new List<ERPFileItem>();
+        protected List<ERPFileItem> _FilesToSendList = new List<ERPFileItem>();
 
         private bool _IsNowSending = false;
 
-        private ACMonitorObject _OperationLockObject = new ACMonitorObject(10000);
+        protected ACMonitorObject _OperationLockObject = new ACMonitorObject(10000);
 
         public ACMonitorObject SendLockObject = new ACMonitorObject(15000);
 
@@ -85,7 +85,7 @@ namespace gip.core.communication
             base.OnStartScheduling();
         }
 
-        private void ReconstructFilesToSendList()
+        public virtual void ReconstructFilesToSendList()
         {
             using (ACMonitor.Lock(_OperationLockObject))
             {
@@ -285,7 +285,7 @@ namespace gip.core.communication
         public string FilePath
         {
             get;
-            private set;
+            set;
         }
 
         public DateTime SendTime
@@ -308,7 +308,7 @@ namespace gip.core.communication
 
         public static string GenerateFilePath(DateTime dateTime, string exporterACIdentifier, string exportDir, string fileNameExtension = ".xml")
         {
-            string fileName = GenerateFileName(dateTime, exporterACIdentifier);
+            string fileName = GenerateFileName(dateTime, exporterACIdentifier, fileNameExtension);
             return Path.Combine(exportDir, fileName);
         }
 
