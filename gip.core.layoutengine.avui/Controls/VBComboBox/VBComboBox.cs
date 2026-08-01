@@ -310,6 +310,7 @@ namespace gip.core.layoutengine.avui
         private INotifyPropertyChanged _ControlModeUpdateSource;
         private string _ControlModeUpdatePropertyName;
         bool _Loaded = false;
+        private bool _SuppressSelectionWriteback = false;
 
         protected virtual void InitVBControl()
         {
@@ -900,6 +901,9 @@ namespace gip.core.layoutengine.avui
 
         private void OnSelectedItemChanged()
         {
+            if (_SuppressSelectionWriteback)
+                return;
+
             UpdateControlMode();
             if (ACAccessComposite != null)
             {
@@ -1235,6 +1239,29 @@ namespace gip.core.layoutengine.avui
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
+            // When the ItemsSource changes, Avalonia's SelectingItemsControl resets the
+            // selection to null and writes that null back to the source via the TwoWay
+            // SelectedItem binding. This would clear the bound model property (e.g.
+            // CurrentInvoice.IssuerCompanyPerson) even though the user never changed it.
+            // We suppress the write-back during the ItemsSource change so the model keeps
+            // its current value. The selection is re-established from the model afterwards.
+            if (change.Property == ItemsSourceProperty)
+            {
+                _SuppressSelectionWriteback = true;
+                try
+                {
+                    base.OnPropertyChanged(change);
+                }
+                finally
+                {
+                    _SuppressSelectionWriteback = false;
+                }
+                return;
+            }
+
+            if (change.Property == SelectedItemProperty && _SuppressSelectionWriteback)
+                return;
+
             base.OnPropertyChanged(change);
             if (change.Property == ACCompInitStateProperty)
                 InitStateChanged();
