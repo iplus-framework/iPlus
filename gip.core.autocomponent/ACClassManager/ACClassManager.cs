@@ -2147,6 +2147,16 @@ namespace gip.core.autocomponent
 
                 if (acClassConfig.Comment != acPropertyConfig.ACCaptionTranslation)
                     acClassConfig.Comment = acPropertyConfig.ACCaptionTranslation;
+
+                // If property was previously configured as ACClassProperty, delete it now, since it is now a configuration entry
+                ACClassProperty acClassProperty = acClass.ACClassProperty_ACClass.Where(c => c.ACIdentifier == propertyInfo.Name).FirstOrDefault();
+                if (acClassProperty != null)
+                {   
+                    // if (acClassProperty.ACPropUsage != acPropertyConfig.ACPropUsage)
+                    //     acClassProperty.ACPropUsage = acPropertyConfig.ACPropUsage;
+                    acClassProperty.DeleteACObject(_Database, false);
+                }
+
             }
             catch (Exception e)
             {

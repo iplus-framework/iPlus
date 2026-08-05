@@ -636,6 +636,8 @@ namespace gip.core.autocomponent
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
         public virtual bool ReStoreFromDB(bool IsInit)
         {
+            if (PropertyInfo.ACPropUsage == Global.ACPropUsages.Configuration)
+                return false;
             bool restored = RestoreRuntimeValue();
             ACClassTaskValue acClassTaskValue = ACClassTaskValue;
             if (!restored && acClassTaskValue == null)

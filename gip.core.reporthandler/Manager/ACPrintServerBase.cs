@@ -227,10 +227,7 @@ namespace gip.core.reporthandler
             {
                 try
                 {
-                    // @aagincic: is this reqiered by IsPoolable = true?
-                    // with this database context is disposed
-                    // by many concurent request is exception thrown:
-                    // ObjectContext instance has been disposed and can no longer be used for operations that require a connection.
+
                     if (acBSO != null)
                         _ = acBSO.Stop();
                 }
@@ -259,10 +256,6 @@ namespace gip.core.reporthandler
             {
                 try
                 {
-                    // @aagincic: is this reqiered by IsPoolable = true?
-                    // with this database context is disposed
-                    // by many concurent request is exception thrown:
-                    // ObjectContext instance has been disposed and can no longer be used for operations that require a connection.
                     if (acBSO != null)
                         _ = acBSO.Stop();
                 }
@@ -424,7 +417,6 @@ namespace gip.core.reporthandler
 
             if (IsLocalConnection(IPAddress))
             {
-                //IsConnected.ValueT = true;
                 return true;
             }
             try
