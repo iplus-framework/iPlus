@@ -24,6 +24,12 @@ namespace gip.core.reporthandler
             method.ParameterValueList.Add(new ACValue("MaxPrintJobsInSpooler", typeof(int), 0, Global.ParamOption.Optional));
             paramTranslation.Add("MaxPrintJobsInSpooler", "en{'Max. print jobs in spooler'}de{'Maximale Anzahl an Druckaufträgen im Spooler'}");
 
+            method.ParameterValueList.Add(new ACValue("ReportBSOACUrl", typeof(int), null, Global.ParamOption.Optional));
+            paramTranslation.Add("ReportBSOACUrl", "en{'Report BSO ACUrl'}de{'Bericht BSO ACUrl'}");
+
+            method.ParameterValueList.Add(new ACValue("ReportACIdentifier", typeof(string), null, Global.ParamOption.Optional));
+            paramTranslation.Add("ReportACIdentifier", "en{'Report ACIdentifier'}de{'Bericht ACIdentifier'}");
+
             var wrapper = new ACMethodWrapper(method, "en{'Print'}de{'Drucken'}", typeof(PWNodePrint), paramTranslation, null);
             ACMethod.RegisterVirtualMethod(typeof(PWNodePrint), ACStateConst.SMStarting, wrapper);
             RegisterExecuteHandler(typeof(PWNodePrint), HandleExecuteACMethod_PWNodePrint);
@@ -75,6 +81,40 @@ namespace gip.core.reporthandler
                     }
                 }
                 return 0;
+            }
+        }
+
+        public string ReportACIdentifier
+        {
+            get
+            {
+                var method = MyConfiguration;
+                if (method != null)
+                {
+                    var acValue = method.ParameterValueList.GetACValue("ReportACIdentifier");
+                    if (acValue != null)
+                    {
+                        return acValue.ParamAsString;
+                    }
+                }
+                return null;
+            }
+        }
+
+        public string ReportBSOACUrl
+        {
+            get
+            {
+                var method = MyConfiguration;
+                if (method != null)
+                {
+                    var acValue = method.ParameterValueList.GetACValue("ReportBSOACUrl");
+                    if (acValue != null)
+                    {
+                        return acValue.ParamAsString;
+                    }
+                }
+                return null;
             }
         }
 
@@ -130,7 +170,7 @@ namespace gip.core.reporthandler
                 {
                     PAOrderInfo orderInfo = GetPAOrderInfo();
                     if (orderInfo != null)
-                        msg = printManager.Print(orderInfo, NumberOfCopies, null, MaxPrintJobsInSpooler);
+                        msg = printManager.Print(orderInfo, NumberOfCopies, null, MaxPrintJobsInSpooler, ReportACIdentifier, ReportBSOACUrl);
                         //msg = printManager.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + ACPrintManager.MN_Print, orderInfo, NumberOfCopies) as Msg;
                 }
                 if (msg != null && msg.MessageLevel > eMsgLevel.Info)
