@@ -291,8 +291,11 @@ namespace gip.bso.iplus
                  c.ACPropUsageIndex == (Int16)Global.ACPropUsages.ConfigPointProperty ||
                  c.ACPropUsageIndex == (Int16)Global.ACPropUsages.ConfigPointConfig).Select(c => c as IACType).ToList();
             }
-            list.Add(currentACClass);
-            if (list.Any())
+
+            if (list != null)
+                list.Add(currentACClass);
+            
+            if (list != null && list.Any())
                 ConfigPointACClassProperty = list.First();
             else
                 ConfigPointACClassProperty = null;
