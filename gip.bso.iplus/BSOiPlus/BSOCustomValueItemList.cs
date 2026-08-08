@@ -25,7 +25,7 @@ namespace gip.bso.iplus
             bool baseACInit = base.ACInit(startChildMode);
             if (AccessPrimary != null)
             {
-                AccessPrimary.NavSearch(Database);
+                AccessPrimary.NavSearch(Database.ContextIPlus);
                 OnPropertyChanged(nameof(CurrentCustomList));
             }
             return baseACInit;
@@ -99,7 +99,9 @@ namespace gip.bso.iplus
             {
                 List<ACFilterItem> aCFilterItems = new List<ACFilterItem>();
 
-                ACFilterItem filterBaseClass = new ACFilterItem(Global.FilterTypes.filter, $"{nameof(ACClass.ACClass1_BasedOnACClass)}\\{nameof(ACClass.ACIdentifier)}", Global.LogicalOperators.startsWith, Global.Operators.and, nameof(ACValueItemList), true);
+                Guid? acValueItemListID = Database.ContextIPlus.ACClass.Where(c => c.ACIdentifier == nameof(ACValueItemList)).FirstOrDefault()?.ACClassID;
+
+                ACFilterItem filterBaseClass = new ACFilterItem(Global.FilterTypes.filter, $"{nameof(ACClass.BasedOnACClassID)}", Global.LogicalOperators.startsWith, Global.Operators.and, acValueItemListID.HasValue ? acValueItemListID.Value.ToString() : "", true);
                 aCFilterItems.Add(filterBaseClass);
 
                 ACFilterItem filterACKindIndex = new ACFilterItem(Global.FilterTypes.filter, $"{nameof(ACClass.ACKindIndex)}", Global.LogicalOperators.equal, Global.Operators.and, ((short)Global.ACKinds.TACClass).ToString(), true);
@@ -290,8 +292,11 @@ namespace gip.bso.iplus
                  c.ACPropUsageIndex == (Int16)Global.ACPropUsages.ConfigPointProperty ||
                  c.ACPropUsageIndex == (Int16)Global.ACPropUsages.ConfigPointConfig).Select(c => c as IACType).ToList();
             }
-            list.Add(currentACClass);
-            if (list.Any())
+
+            if (list != null)
+                list.Add(currentACClass);
+
+            if (list != null && list.Any())
                 ConfigPointACClassProperty = list.First();
             else
                 ConfigPointACClassProperty = null;
@@ -411,7 +416,7 @@ namespace gip.bso.iplus
         {
             if (AccessPrimary != null)
             {
-                AccessPrimary.NavSearch(Database);
+                AccessPrimary.NavSearch(Database.ContextIPlus);
             }
             OnPropertyChanged(nameof(CustomListList));
         }
