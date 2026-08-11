@@ -295,7 +295,7 @@ namespace gip.bso.iplus
 
             if (list != null)
                 list.Add(currentACClass);
-
+            
             if (list != null && list.Any())
                 ConfigPointACClassProperty = list.First();
             else

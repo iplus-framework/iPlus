@@ -108,7 +108,7 @@ namespace gip.core.reporthandler
         #region Methods -> Public
 
         [ACMethodInfo("Print", "en{'Print on server'}de{'Auf Server drucken'}", 200, true)]
-        public virtual Msg Print(PAOrderInfo pAOrderInfo, int copyCount, string vbUserName = null, int maxPrintJobsInSpooler = 0)
+        public virtual Msg Print(PAOrderInfo pAOrderInfo, int copyCount, string vbUserName = null, int maxPrintJobsInSpooler = 0, string reportACIdentifier = null, string bsoACUrl = null)
         {
             Msg msg = null;
             try
@@ -133,19 +133,28 @@ namespace gip.core.reporthandler
                 //    Messages.LogMessageMsg(new Msg(msgLog, this, eMsgLevel.Info, nameof(ACPrintManager), nameof(Print), 140));
                 //}
 
+                if (string.IsNullOrEmpty(reportACIdentifier))
+                {
+                    reportACIdentifier = printInfo.ReportACIdentifier;
+                }
+
+                if (string.IsNullOrEmpty(bsoACUrl))
+                {
+                    bsoACUrl = printInfo.BSOACUrl;
+                }
 
                 if (String.IsNullOrEmpty(printInfo.PrinterInfo.PrinterACUrl))
                 {
                     ACClass bsoACClass = null;
                     string acIdentifier = null;
-                    if (!string.IsNullOrEmpty(printInfo.BSOACUrl) && printInfo.BSOACUrl.Contains("#") && (printInfo.BSOACUrl.IndexOf("#") + 1) < printInfo.BSOACUrl.Length)
+                    if (!string.IsNullOrEmpty(bsoACUrl) && bsoACUrl.Contains("#") && (bsoACUrl.IndexOf("#") + 1) < bsoACUrl.Length)
                     {
-                        acIdentifier = printInfo.BSOACUrl.Substring(printInfo.BSOACUrl.IndexOf("#") + 1);
+                        acIdentifier = bsoACUrl.Substring(bsoACUrl.IndexOf("#") + 1);
                     }
                     else
                     {
                         // Error50562: Invalid BSOACUrl: {0}!
-                        msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 141, "Error50562", printInfo.BSOACUrl);
+                        msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 141, "Error50562", bsoACUrl);
                         string stackTrace = System.Environment.StackTrace.ToString();
                         Messages.LogMessageMsg(msg);
                         Messages.LogMessage(eMsgLevel.Warning, GetACUrl(), "Print", stackTrace);
@@ -181,11 +190,11 @@ namespace gip.core.reporthandler
                                 if (bso == null)
                                 {
                                     // Error50489: Can't start Businessobject {0}.
-                                    msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 1020, "Error50489", printInfo.BSOACUrl);
+                                    msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 1020, "Error50489", bsoACUrl);
                                     Messages.LogMessageMsg(msg);
                                 }
 
-                                msg = bso.PrintByOrderInfo(pAOrderInfo, printInfo.PrinterInfo.PrinterName, (short)copyCount, printInfo.ReportACIdentifier, maxPrintJobsInSpooler, true);
+                                msg = bso.PrintByOrderInfo(pAOrderInfo, printInfo.PrinterInfo.PrinterName, (short)copyCount, reportACIdentifier, maxPrintJobsInSpooler, true);
                                 if (msg != null)
                                 {
                                     Messages.LogMessageMsg(msg);
@@ -234,7 +243,7 @@ namespace gip.core.reporthandler
                                 return msg;
                             }
 
-                            msg = bso.PrintByOrderInfo(pAOrderInfo, printInfo.PrinterInfo.PrinterName, (short)copyCount, printInfo.ReportACIdentifier, maxPrintJobsInSpooler, true);
+                            msg = bso.PrintByOrderInfo(pAOrderInfo, printInfo.PrinterInfo.PrinterName, (short)copyCount, reportACIdentifier, maxPrintJobsInSpooler, true);
                             if (msg != null)
                                 return msg;
                             else
@@ -272,6 +281,7 @@ namespace gip.core.reporthandler
                         msg = new Msg(this, eMsgLevel.Error, C_ClassName, "Print", 1060, "Error50490", printInfo.PrinterInfo.PrinterACUrl);
                         return msg;
                     }
+
                     if (printServer.ConnectionState == ACObjectConnectionState.DisConnected)
                     {
                         // Error50491, Printserver {0} is disconnected.
@@ -279,7 +289,7 @@ namespace gip.core.reporthandler
                         return msg;
                     }
 
-                    printServer.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(ACPrintServerBase.PrintByACUrl), printInfo.BSOACUrl, printInfo.ReportACIdentifier, pAOrderInfo, copyCount, false);
+                    printServer.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(ACPrintServerBase.PrintByACUrl), bsoACUrl, reportACIdentifier, pAOrderInfo, copyCount, false);
                 }
             }
             catch (Exception ex)
