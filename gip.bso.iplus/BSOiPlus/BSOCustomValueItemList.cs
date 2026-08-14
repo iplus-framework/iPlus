@@ -431,19 +431,18 @@ namespace gip.bso.iplus
         [ACMethodInteraction(nameof(PointConfig), "en{'New Config'}de{'Neue Konfiguration'}", (short)MISort.New, true, nameof(CurrentPointConfig), Global.ACKinds.MSMethodPrePost)]
         public void NewPointConfig()
         {
+            ACClassConfig otherConfig = PointConfigList.OrderBy(c => c.InsertDate).FirstOrDefault();
+
             IACConfigStore acConfigHandler = ConfigPointACClassProperty as IACConfigStore;
-            ACClassConfig acConfig = acConfigHandler.NewACConfig(CurrentCustomList) as ACClassConfig;
+            ACClassConfig acConfig = acConfigHandler.NewACConfig(CurrentCustomList, otherConfig?.ValueTypeACClass) as ACClassConfig;
             Database database = acConfig.GetObjectContext<Database>();
-            ACClassConfig otherConfig = PointConfigList.Where(c => c.ACClassConfigID != acConfig.ACClassConfigID).OrderBy(c => c.InsertDate).FirstOrDefault();
-            if (otherConfig != null)
-            {
-                acConfig.ValueTypeACClass = otherConfig.ValueTypeACClass;
-            }
-            else
+            
+            if (otherConfig == null)
             {
                 acConfig.ValueTypeACClass = database.GetACType(typeof(Int32)) as ACClass;
                 acConfig.Value = 0;
             }
+
             acConfig.LocalConfigACUrl = $"{nameof(ACValueItem)}_";
             acConfig.Comment = "";
             acConfig.ACCaption = " ";
