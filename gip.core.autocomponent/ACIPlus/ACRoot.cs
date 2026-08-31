@@ -917,7 +917,7 @@ namespace gip.core.autocomponent
         }
 
         [ACMethodInfo("", "", 9999)]
-        public IEnumerable<ACValueItem> GetDatabaseACValueList(string acClassACIdentifier)
+        public IEnumerable<ACValueItem> GetDatabaseACValueList(string acClassACIdentifier, Database db = null)
         {
             // ObjectDataProvider.InvokeMethodOnInstance calls this method by extracting the Methodname first and passing the parameter as string.
             // Example - ACClassProperty.GetACSource returns this string:
@@ -928,7 +928,9 @@ namespace gip.core.autocomponent
             if (string.IsNullOrEmpty(acClassACIdentifier))
                 return null;
 
-            gip.core.datamodel.Database db = Database as gip.core.datamodel.Database;
+            if (db == null)
+                db = Database as gip.core.datamodel.Database;
+
             ACClass customValueListClass = db.GetACType(acClassACIdentifier);
             if (customValueListClass != null)
                 return customValueListClass.ACValueListFromDatabase;
@@ -936,12 +938,14 @@ namespace gip.core.autocomponent
         }
 
         [ACMethodInfo("", "", 9999)]
-        public void SetDatabaseValueListValue(string acClassACIdentifier, object value, string desc)
+        public void SetDatabaseValueListValue(string acClassACIdentifier, object value, string desc, Database db = null)
         {
             if (string.IsNullOrEmpty(acClassACIdentifier))
                 return;
 
-            gip.core.datamodel.Database db = Database as gip.core.datamodel.Database;
+            if (db == null)
+                db = Database as gip.core.datamodel.Database;
+
             ACClass customValueListClass = db.GetACType(acClassACIdentifier);
             if (customValueListClass != null)
             {
@@ -959,13 +963,13 @@ namespace gip.core.autocomponent
                 if(config == null)
                 {
                     IACConfigStore acConfigHandler = customValueListClass as IACConfigStore;
-                    config = acConfigHandler.NewACConfig(customValueListClass) as gip.core.datamodel.ACClassConfig;
-                    config.ValueTypeACClass = db.GetACType(typeof(String)) as gip.core.datamodel.ACClass;
+                    config = acConfigHandler.NewACConfig(customValueListClass, db.GetACType(typeof(String)) as gip.core.datamodel.ACClass) as gip.core.datamodel.ACClassConfig;
                     config.Value = value;
                     string keyValue = value.ToString();
                     keyValue = ACUrlHelper.GetTrimmedName(keyValue);
                     config.LocalConfigACUrl = $"{nameof(ACValueItem)}_{keyValue}";
                     customValueListClass.ACClassConfig_ACClass.Add(config);
+                    db.ACClassConfig.Add(config);
                 }
                 if(config.ACCaption != desc)
                 {
