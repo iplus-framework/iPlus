@@ -210,6 +210,7 @@ namespace gip.core.reporthandler.Flowdoc
                 return _XpsDoc;
             }
         }
+        private string _tempFileName = null;
         private XpsPackagingPolicy _PackPolicy;
         private XpsSerializationManager _Rsm;
         private ReportPaginatorBase _ReportPaginator;
@@ -445,13 +446,14 @@ namespace gip.core.reporthandler.Flowdoc
         /// <returns></returns>
         public XpsDocument CreateXpsDocument(ReportData data)
         {
-            _Ms = new MemoryStream();
+            if (!string.IsNullOrEmpty(_tempFileName) && File.Exists(_tempFileName))
+            {
+                try { File.Delete(_tempFileName); } catch { }
+                _tempFileName = null;
+            }
+            _tempFileName = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".xps");
             _ReportData = new List<ReportData>() { data };
-            _pkg = Package.Open(_Ms, FileMode.Create, FileAccess.ReadWrite);
-            string pack = "pack://report.xps";
-            PackageStore.RemovePackage(new Uri(pack));
-            PackageStore.AddPackage(new Uri(pack), _pkg);
-            _XpsDoc = new XpsDocument(_pkg, CompressionOption.NotCompressed, pack);
+            _XpsDoc = new XpsDocument(_tempFileName, FileAccess.ReadWrite);
             _PackPolicy = new XpsPackagingPolicy(_XpsDoc);
             _Rsm = new XpsSerializationManager(_PackPolicy, false);
             {
@@ -577,39 +579,37 @@ namespace gip.core.reporthandler.Flowdoc
                 return xpsDoc;
             }
 
-            _Ms = new MemoryStream();
-            _pkg = Package.Open(_Ms, FileMode.Create, FileAccess.ReadWrite);
-            //using (Package pkg = Package.Open(ms, FileMode.Create, FileAccess.ReadWrite))
+            if (!string.IsNullOrEmpty(_tempFileName) && File.Exists(_tempFileName))
             {
-                string pack = "pack://report.xps";
-                PackageStore.RemovePackage(new Uri(pack));
-                PackageStore.AddPackage(new Uri(pack), _pkg);
-                _XpsDoc = new XpsDocument(_pkg, CompressionOption.NotCompressed, pack);
-                _PackPolicy = new XpsPackagingPolicy(_XpsDoc);
-                _Rsm = new XpsSerializationManager(_PackPolicy, false);
+                try { File.Delete(_tempFileName); } catch { }
+                _tempFileName = null;
+            }
+            _tempFileName = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".xps");
+            _XpsDoc = new XpsDocument(_tempFileName, FileAccess.ReadWrite);
+            _PackPolicy = new XpsPackagingPolicy(_XpsDoc);
+            _Rsm = new XpsSerializationManager(_PackPolicy, false);
+            {
+                if (data != null && data.Any())
+                    data.FirstOrDefault().InformComponents(this, datamodel.ACPrintingPhase.Started);
+                _ReportPaginator = new MultipleReportPaginator(this, data);
+                try
                 {
-                    if (data != null && data.Any())
-                        data.FirstOrDefault().InformComponents(this, datamodel.ACPrintingPhase.Started);
-                    _ReportPaginator = new MultipleReportPaginator(this, data);
-                    try
-                    {
-                        _Rsm.SaveAsXaml(_ReportPaginator);
-                    }
-                    catch (Exception e)
-                    {
-                        if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                        {
-                            datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(10)", e.Message);
-                            if (e.InnerException != null)
-                                datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(20)", e.InnerException.Message);
-                            datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(30)", e.StackTrace);
-                        }
-                    }
-                    if (data != null && data.Any())
-                        data.FirstOrDefault().InformComponents(this, datamodel.ACPrintingPhase.Completed);
-                    _ReportData = null;
-                    return _XpsDoc;
+                    _Rsm.SaveAsXaml(_ReportPaginator);
                 }
+                catch (Exception e)
+                {
+                    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+                    {
+                        datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(10)", e.Message);
+                        if (e.InnerException != null)
+                            datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(20)", e.InnerException.Message);
+                        datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(30)", e.StackTrace);
+                    }
+                }
+                if (data != null && data.Any())
+                    data.FirstOrDefault().InformComponents(this, datamodel.ACPrintingPhase.Completed);
+                _ReportData = null;
+                return _XpsDoc;
             }
         }
 
@@ -836,6 +836,11 @@ namespace gip.core.reporthandler.Flowdoc
             {
                 (_XpsDoc as IDisposable).Dispose();
                 _XpsDoc = null;
+            }
+            if (!string.IsNullOrEmpty(_tempFileName) && File.Exists(_tempFileName))
+            {
+                try { File.Delete(_tempFileName); } catch { }
+                _tempFileName = null;
             }
             if (_pkg != null)
             {
