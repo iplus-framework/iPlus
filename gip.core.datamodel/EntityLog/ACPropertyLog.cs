@@ -138,6 +138,7 @@ namespace gip.core.datamodel
                                                                                             && c.propLog.ACPropertyLog.EventTime < dateTime)
                                                                                    .GroupBy(c => c.propLog.ACPropertyLog)
                                                                                    .Select(c => new ACPropertyLog_ACProgramLog() { PropertyLog = c.Key, ProgramLog = c.SelectMany(x => x.programLog) })
+                                                                                   .OrderByDescending(c => c.PropertyLog.EventTime)
                                                                                    .FirstOrDefault();
 
                 if (previousLog != null)
