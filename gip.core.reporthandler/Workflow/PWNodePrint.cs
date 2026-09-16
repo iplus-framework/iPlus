@@ -24,7 +24,7 @@ namespace gip.core.reporthandler
             method.ParameterValueList.Add(new ACValue("MaxPrintJobsInSpooler", typeof(int), 0, Global.ParamOption.Optional));
             paramTranslation.Add("MaxPrintJobsInSpooler", "en{'Max. print jobs in spooler'}de{'Maximale Anzahl an Druckaufträgen im Spooler'}");
 
-            method.ParameterValueList.Add(new ACValue("ReportBSOACUrl", typeof(int), null, Global.ParamOption.Optional));
+            method.ParameterValueList.Add(new ACValue("ReportBSOACUrl", typeof(string), null, Global.ParamOption.Optional));
             paramTranslation.Add("ReportBSOACUrl", "en{'Report BSO ACUrl'}de{'Bericht BSO ACUrl'}");
 
             method.ParameterValueList.Add(new ACValue("ReportACIdentifier", typeof(string), null, Global.ParamOption.Optional));
