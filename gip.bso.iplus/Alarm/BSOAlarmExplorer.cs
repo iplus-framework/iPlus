@@ -25,7 +25,7 @@ namespace gip.bso.iplus
     {
         #region c'tors
 
-        public BSOAlarmExplorer(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "") : 
+        public BSOAlarmExplorer(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "") :
             base(acType, content, parentACObject, parameter, acIdentifier)
         {
             _EventSubscr = new ACPointEventSubscr(this, "EventSubscr", 0);
@@ -49,6 +49,8 @@ namespace gip.bso.iplus
                 _backgroundWorker.RunWorkerAsync();
 
             SubscribeEvents();
+
+            SelectedAlarmSoruceTextMode = AlarmSoruceTextModeList.Where(c => (AlarmSourceSearchTextModeEnum)c.Value == AlarmSourceSearchTextModeEnum.Exact).FirstOrDefault();
 
             return true;
         }
@@ -253,8 +255,8 @@ namespace gip.bso.iplus
         {
             get
             {
-                if(_ACProjectList == null)
-                    _ACProjectList = Db.ACProject.Where(c => c.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application || 
+                if (_ACProjectList == null)
+                    _ACProjectList = Db.ACProject.Where(c => c.ACProjectTypeIndex == (short)Global.ACProjectTypes.Application ||
                                                         c.ACProjectTypeIndex == (short)Global.ACProjectTypes.Service).ToArray();
                 return _ACProjectList;
             }
@@ -331,7 +333,7 @@ namespace gip.bso.iplus
         }
 
         private ACValueItem _SelectedMessageLevel;
-        [ACPropertySelected(9999,"MessageLevel", "en{'Message level'}de{'Nachrichtenebene'}")]
+        [ACPropertySelected(9999, "MessageLevel", "en{'Message level'}de{'Nachrichtenebene'}")]
         public ACValueItem SelectedMessageLevel
         {
             get
@@ -346,12 +348,12 @@ namespace gip.bso.iplus
         }
 
         private ACValueItemList _MessageLevelList;
-        [ACPropertyList(9999,"MessageLevel")]
+        [ACPropertyList(9999, "MessageLevel")]
         public ACValueItemList MessageLevelList
         {
             get
             {
-                if(_MessageLevelList == null)
+                if (_MessageLevelList == null)
                 {
                     _MessageLevelList = new ACValueItemList("eMsgLevel");
                     _MessageLevelList.Add(new ACValueItem("en{'Default'}de{'Standard'}", eMsgLevel.Default, null));
@@ -362,6 +364,39 @@ namespace gip.bso.iplus
                     _MessageLevelList.Add(new ACValueItem("en{'Exception'}de{'Ausnahme'}", eMsgLevel.Exception, null));
                 }
                 return _MessageLevelList;
+            }
+        }
+
+        private static string AlarmSoruceTextMode = "AlarmSoruceTextMode";
+        private ACValueItem _SelectedAlarmSoruceTextMode;
+        [ACPropertySelected(9999, nameof(AlarmSoruceTextMode), "en{'Mode'}de{'Mode'}")]
+        public ACValueItem SelectedAlarmSoruceTextMode
+        {
+            get
+            {
+                return _SelectedAlarmSoruceTextMode;
+            }
+            set
+            {
+                _SelectedAlarmSoruceTextMode = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ACValueItemList _AlarmSoruceTextModeList;
+        [ACPropertyList(9999, nameof(AlarmSoruceTextMode))]
+        public ACValueItemList AlarmSoruceTextModeList
+        {
+            get
+            {
+                if (_AlarmSoruceTextModeList == null)
+                {
+                    _AlarmSoruceTextModeList = new ACValueItemList(nameof(AlarmSoruceTextMode));
+                    _AlarmSoruceTextModeList.Add(new ACValueItem("en{'Entire'}de{'Gesamt'}", AlarmSourceSearchTextModeEnum.Exact, null));
+                    _AlarmSoruceTextModeList.Add(new ACValueItem("en{'Start with'}de{'Beginnen mit'}", AlarmSourceSearchTextModeEnum.StartWith, null));
+                    _AlarmSoruceTextModeList.Add(new ACValueItem("en{'Contains'}de{'Enthält'}", AlarmSourceSearchTextModeEnum.Contains, null));
+                }
+                return _AlarmSoruceTextModeList;
             }
         }
 
@@ -395,7 +430,7 @@ namespace gip.bso.iplus
         }
 
         private List<MsgAlarmLogStatistic> _AlarmLogStatisticList;
-        [ACPropertyList(999,"AlarmLogStatistic")]
+        [ACPropertyList(999, "AlarmLogStatistic")]
         public List<MsgAlarmLogStatistic> AlarmLogStatisticList
         {
             get => _AlarmLogStatisticList;
@@ -447,7 +482,7 @@ namespace gip.bso.iplus
             _backgroundWorker.WorkerSupportsCancellation = true;
         }
 
-        [ACMethodInfo("","",999)]
+        [ACMethodInfo("", "", 999)]
         public async Task ShowAlarmExplorer()
         {
             if (_backgroundWorker == null)
@@ -574,7 +609,8 @@ namespace gip.bso.iplus
 
             if (CurrentACProject != null)
                 query = query.Where(c => (c.ACClass != null && c.ACClass.ACProjectID == CurrentACProject.ACProjectID) ||
-                                         (c.ACProgramLog != null && c.ACProgramLog.ACUrl.StartsWith("\\"+CurrentACProject.ACProjectName)));
+                                         (c.ACProgramLog != null && c.ACProgramLog.ACUrl.StartsWith("\\" + CurrentACProject.ACProjectName))).AsQueryable();
+            //query = query.Where(c => c.Source.StartsWith("\\" + CurrentACProject.ACProjectName)).AsQueryable();
 
             if (SelectedMessageLevel != null)
                 query = query.Where(c => c.MessageLevelIndex == (short)SelectedMessageLevel.Value);
@@ -583,8 +619,29 @@ namespace gip.bso.iplus
                 query = query.Where(c => c.Message.Contains(SearchText));
 
             if (!string.IsNullOrEmpty(AlarmSourceText))
-                query = query.Where(c => (c.ACClass != null && c.ACClass.ACURLComponentCached == AlarmSourceText) ||
-                                         (c.ACProgramLog != null && c.ACProgramLog.ACUrl == AlarmSourceText));
+            {
+                AlarmSourceSearchTextModeEnum mode = AlarmSourceSearchTextModeEnum.Exact;
+                if (SelectedAlarmSoruceTextMode != null && SelectedAlarmSoruceTextMode.Value != null)
+                {
+                    mode = (AlarmSourceSearchTextModeEnum)SelectedAlarmSoruceTextMode.Value;
+                }
+                switch (mode)
+                {
+                    case AlarmSourceSearchTextModeEnum.StartWith:
+                        query = query.Where(c => (c.ACClass != null && (c.ACClass.ACURLComponentCached ?? "").StartsWith(AlarmSourceText)) ||
+                                        (c.ACProgramLog != null && (c.ACProgramLog.ACUrl ?? "").StartsWith(AlarmSourceText))).AsQueryable();
+                        break;
+                    case AlarmSourceSearchTextModeEnum.Contains:
+                        query = query.Where(c => (c.ACClass != null && (c.ACClass.ACURLComponentCached ?? "").Contains(AlarmSourceText)) ||
+                                        (c.ACProgramLog != null && (c.ACProgramLog.ACUrl ?? "").Contains(AlarmSourceText))).AsQueryable();
+                        break;
+                    default:
+                        query = query.Where(c => (c.ACClass != null && c.ACClass.ACURLComponentCached == AlarmSourceText) ||
+                                       (c.ACProgramLog != null && c.ACProgramLog.ACUrl == AlarmSourceText)).AsQueryable();
+                        break;
+                }
+            }
+
 #if EFCR
             query = query.Refresh(MergeOption.OverwriteChanges);
 #endif
@@ -638,7 +695,7 @@ namespace gip.bso.iplus
 
         #region Methods => AlarmMessengerConfiguration
 
-        [ACMethodInteraction("Msg", "en{'Set alarm to distribution'}de{'Alarm auf Verteiler setzen'}", 150,true, "CurrentACMsgAlarm")]
+        [ACMethodInteraction("Msg", "en{'Set alarm to distribution'}de{'Alarm auf Verteiler setzen'}", 150, true, "CurrentACMsgAlarm")]
         public void SetAlarmMessengerConfig()
         {
             BSOAlarmMessengerConfig config = ACUrlCommand("?BSOAlarmMessengerConfig_Child") as BSOAlarmMessengerConfig;
@@ -667,7 +724,7 @@ namespace gip.bso.iplus
 
         public bool IsEnabledUnsetAlarmMessengerConfig()
         {
-            return CurrentACMsgAlarm != null && CurrentACMsgAlarm.ConfigIconState != Global.ConfigIconState.NoConfig 
+            return CurrentACMsgAlarm != null && CurrentACMsgAlarm.ConfigIconState != Global.ConfigIconState.NoConfig
                                              && CurrentACMsgAlarm.ConfigIconState != Global.ConfigIconState.ExclusionConfig;
         }
 
@@ -1030,7 +1087,7 @@ namespace gip.bso.iplus
                 case nameof(IsEnabledSearch):
                     result = IsEnabledSearch();
                     return true;
-                    
+
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
@@ -1069,5 +1126,12 @@ namespace gip.bso.iplus
         }
 
         #endregion
+    }
+
+    public enum AlarmSourceSearchTextModeEnum
+    {
+        Exact,
+        StartWith,
+        Contains
     }
 }
