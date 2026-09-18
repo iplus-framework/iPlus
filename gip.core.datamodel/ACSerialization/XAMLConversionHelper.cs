@@ -144,6 +144,16 @@ namespace gip.core.datamodel
             // Convert WPF resource dictionary includes to Avalonia ResourceInclude + avares:// URI syntax.
             avaloniaXAML = ConvertResourceDictionarySourceToResourceInclude(avaloniaXAML);
 
+            // Convert WPF pack-style AssemblyResource attribute values (VBStaticResource extension)
+            // to absolute avares:// URIs. Runtime-loaded layouts have no BaseUri, so relative
+            // URIs fail with "Cannot load relative Uri when BaseUri is null".
+            avaloniaXAML = ConvertAssemblyResourceAttributes(avaloniaXAML);
+
+            // WPF allows implicit style keys by TargetType inside Resources. Avalonia requires an
+            // explicit x:Key, so add x:Key="{x:Type ...}" to keyless ControlTheme elements
+            // inside *.Resources property elements.
+            avaloniaXAML = AddImplicitKeysToResourceControlThemes(avaloniaXAML);
+
             // Avalonia parser is strict for VBBinding argument names.
             // Convert {vb:VBBinding vb:VBContent=...} -> {vb:VBBinding VBContent=...}.
             avaloniaXAML = RemovePrefixedVBBindingParameterNames(avaloniaXAML);
@@ -155,6 +165,10 @@ namespace gip.core.datamodel
             // Convert WPF ComboBox attributes to Avalonia equivalents:
             // SelectedValuePath -> SelectedValueBinding, DisplayMemberPath -> *.ItemTemplate.
             avaloniaXAML = ConvertComboBoxSelectionAttributes(avaloniaXAML);
+
+            // Convert WPF Popup attributes to Avalonia equivalents:
+            // StaysOpen="False" -> IsLightDismissEnabled="True", remove PopupAnimation.
+            avaloniaXAML = ConvertPopupAttributes(avaloniaXAML);
 
             // Convert DataGridTextColumn.ElementStyle to supported VBDataGridTextColumn attributes.
             avaloniaXAML = ConvertDataGridTextColumnElementStyle(avaloniaXAML);
@@ -235,6 +249,17 @@ namespace gip.core.datamodel
                     "//*[contains(local-name(), '.Style') " +
                     "or substring(local-name(), string-length(local-name()) - 4) = 'Style' " +
                     "or substring(local-name(), string-length(local-name()) - 4) = 'Theme']");
+
+                // Standalone ControlTheme elements directly inside *.Resources (WPF implicit styles):
+                // <Style TargetType="..." BasedOn="..."><Style.Triggers>...</Style.Triggers></Style>
+                // becomes <ControlTheme x:Key="{x:Type ...}"> with triggers converted to behaviors.
+                // These are not nested in a *.Style/*Theme property element, so the loop below
+                // never sees them. ControlTheme has no Triggers property in Avalonia, so the
+                // leftover ControlTheme.Triggers element would fail to parse.
+                // NOTE: must run before the early return below - a document can contain only
+                // resource-level ControlThemes and no *.Style/*Theme property elements.
+                ConvertResourceControlThemeTriggers(doc, xamlNs);
+
                 if (stylePropertyNodes == null || stylePropertyNodes.Count == 0)
                     return xaml;
 
@@ -647,12 +672,110 @@ namespace gip.core.datamodel
                     controlTheme.RemoveChild(triggersElement);
                 }
 
+                // Standalone ControlTheme elements directly inside *.Resources (WPF implicit styles):
+                // <Style TargetType="..." BasedOn="..."><Style.Triggers>...</Style.Triggers></Style>
+                // becomes <ControlTheme x:Key="{x:Type ...}"> with triggers converted to behaviors.
+                // These are not nested in a *.Style/*Theme property element, so the loop above
+                // never sees them. ControlTheme has no Triggers property in Avalonia, so the
+                // leftover ControlTheme.Triggers element would fail to parse.
+                ConvertResourceControlThemeTriggers(doc, xamlNs);
+
                 return doc.OuterXml;
             }
             catch
             {
                 // Keep conversion resilient: if this pass fails, return the original text.
                 return xaml;
+            }
+        }
+
+        /// <summary>
+        /// Converts ControlTheme.Triggers blocks of standalone ControlTheme elements located
+        /// directly inside *.Resources property elements into Interaction.Behaviors.
+        /// </summary>
+        private static void ConvertResourceControlThemeTriggers(XmlDocument doc, string xamlNs)
+        {
+            // IMPORTANT: use local-name() for the child test. An unprefixed XPath name test
+            // like "/ControlTheme" only matches elements with a NULL namespace URI, but the
+            // ControlTheme elements inherit the default xmlns (avaloniaui) and would never match.
+            var resourceControlThemes = doc.SelectNodes(
+                "//*[contains(local-name(), '.Resources')]/*[local-name() = 'ControlTheme']");
+            if (resourceControlThemes == null)
+                return;
+
+            foreach (var controlTheme in resourceControlThemes.OfType<XmlNode>().OfType<XmlElement>().ToList())
+            {
+                var triggersElement = controlTheme
+                    .ChildNodes
+                    .OfType<XmlElement>()
+                    .FirstOrDefault(e => string.Equals(e.LocalName, "ControlTheme.Triggers", StringComparison.OrdinalIgnoreCase) ||
+                                          string.Equals(e.LocalName, "Style.Triggers", StringComparison.OrdinalIgnoreCase));
+
+                if (triggersElement == null)
+                    continue;
+
+                var interactionBehaviors = doc.CreateElement("Interaction.Behaviors", xamlNs);
+                bool hasBehavior = false;
+
+                foreach (var dataTrigger in triggersElement
+                    .ChildNodes
+                    .OfType<XmlElement>()
+                    .Where(e => string.Equals(e.LocalName, "DataTrigger", StringComparison.OrdinalIgnoreCase)))
+                {
+                    var behavior = doc.CreateElement("DataTriggerBehavior", xamlNs);
+
+                    foreach (var attr in dataTrigger.Attributes.OfType<XmlAttribute>())
+                    {
+                        // Collapse embedded whitespace (newlines, tabs, multiple spaces) into single spaces
+                        // so OuterXml does not emit &#xA; entities for multi-line attribute values.
+                        string value = attr.Value;
+                        if (value.IndexOf('\n') >= 0 || value.IndexOf('\r') >= 0 || value.IndexOf('\t') >= 0)
+                        {
+                            value = string.Join(" ", value
+                                .Split(new[] { '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries)
+                                .Select(v => v.Trim()));
+                        }
+                        behavior.SetAttribute(attr.Name, value);
+                    }
+
+                    int actionCount = 0;
+                    foreach (var setter in dataTrigger
+                        .ChildNodes
+                        .OfType<XmlElement>()
+                        .Where(e => string.Equals(e.LocalName, "Setter", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        var propertyName = setter.GetAttribute("Property");
+                        if (string.IsNullOrWhiteSpace(propertyName))
+                            continue;
+
+                        // ChangePropertyAction expects simple target property names.
+                        if (propertyName.Contains(".") || propertyName.Contains(":"))
+                            continue;
+
+                        propertyName = NormalizeTriggerPropertyName(propertyName);
+                        var propertyValue = NormalizeTriggerPropertyValue(propertyName, setter.GetAttribute("Value"));
+
+                        var action = doc.CreateElement("ChangePropertyAction", xamlNs);
+                        action.SetAttribute("PropertyName", propertyName);
+                        action.SetAttribute("Value", propertyValue);
+                        behavior.AppendChild(action);
+                        actionCount++;
+                    }
+
+                    if (actionCount > 0)
+                    {
+                        interactionBehaviors.AppendChild(behavior);
+                        hasBehavior = true;
+                    }
+                }
+
+                if (hasBehavior)
+                {
+                    controlTheme.AppendChild(interactionBehaviors);
+                }
+
+                // Remove the triggers element in any case - ControlTheme has no Triggers property.
+                controlTheme.RemoveChild(triggersElement);
             }
         }
 
@@ -1197,7 +1320,10 @@ namespace gip.core.datamodel
                         .Where(a =>
                             string.Equals(a.LocalName, "VirtualizingStackPanel.IsVirtualizing", StringComparison.OrdinalIgnoreCase) ||
                             string.Equals(a.LocalName, "VirtualizingStackPanel.VirtualizationMode", StringComparison.OrdinalIgnoreCase) ||
-                            string.Equals(a.LocalName, "EnableRowVirtualization", StringComparison.OrdinalIgnoreCase))
+                            string.Equals(a.LocalName, "EnableRowVirtualization", StringComparison.OrdinalIgnoreCase) ||
+                            // WPF-only: switches between TextBox templates with/without validation triggers.
+                            // The Avalonia port has a single template, so the attribute has no effect.
+                            string.Equals(a.LocalName, "OverrideTemplateTrigger", StringComparison.OrdinalIgnoreCase))
                         .ToList();
 
                     foreach (var attribute in attributesToRemove)
@@ -1242,7 +1368,13 @@ namespace gip.core.datamodel
                         string.Equals(element.LocalName, "ComboBox", StringComparison.OrdinalIgnoreCase) ||
                         string.Equals(element.LocalName, "VBComboBox", StringComparison.OrdinalIgnoreCase);
 
-                    if (!isComboBox)
+                    // WPF DataGridComboBoxColumn has SelectedValuePath, but the Avalonia port
+                    // (VBDataGridComboBoxColumn) only supports SelectedValueBinding.
+                    bool isDataGridComboColumn =
+                        string.Equals(element.LocalName, "DataGridComboBoxColumn", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(element.LocalName, "VBDataGridComboBoxColumn", StringComparison.OrdinalIgnoreCase);
+
+                    if (!isComboBox && !isDataGridComboColumn)
                         continue;
 
                     // WPF: SelectedValuePath="MaterialWFID"
@@ -1258,6 +1390,11 @@ namespace gip.core.datamodel
 
                         element.RemoveAttribute("SelectedValuePath");
                     }
+
+                    // DataGrid columns support DisplayMemberPath natively in Avalonia
+                    // (VBDataGridComboBoxColumn.DisplayMemberPath), so keep the attribute.
+                    if (isDataGridComboColumn)
+                        continue;
 
                     // WPF: DisplayMemberPath="Name"
                     // Avalonia: <*.ItemTemplate><DataTemplate><TextBlock Text="{Binding Path=Name}"/></DataTemplate></*.ItemTemplate>
@@ -1298,6 +1435,131 @@ namespace gip.core.datamodel
                 }
 
                 return doc.OuterXml;
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
+        }
+
+        private static string ConvertPopupAttributes(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                var elements = doc.SelectNodes("//*");
+                if (elements == null || elements.Count == 0)
+                    return xaml;
+
+                foreach (var element in elements.OfType<XmlNode>().OfType<XmlElement>())
+                {
+                    if (!string.Equals(element.LocalName, "Popup", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    // WPF: StaysOpen="False" (popup closes on outside click)
+                    // Avalonia: IsLightDismissEnabled="True"
+                    if (element.HasAttribute("StaysOpen"))
+                    {
+                        string staysOpen = element.GetAttribute("StaysOpen")?.Trim();
+                        element.RemoveAttribute("StaysOpen");
+
+                        bool parsed = bool.TryParse(staysOpen, out var staysOpenValue);
+                        if (parsed && !staysOpenValue && !element.HasAttribute("IsLightDismissEnabled"))
+                        {
+                            element.SetAttribute("IsLightDismissEnabled", "True");
+                        }
+                    }
+
+                    // Avalonia Popup has no PopupAnimation property.
+                    if (element.HasAttribute("PopupAnimation"))
+                    {
+                        element.RemoveAttribute("PopupAnimation");
+                    }
+                }
+
+                return doc.OuterXml;
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
+        }
+
+        private static string AddImplicitKeysToResourceControlThemes(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                string xamlNs = GetDefaultXamlNamespace(doc);
+                if (string.IsNullOrEmpty(xamlNs))
+                    return xaml;
+
+                var resourcesNodes = doc.SelectNodes("//*[contains(local-name(), '.Resources')]");
+                if (resourcesNodes == null || resourcesNodes.Count == 0)
+                    return xaml;
+
+                bool modified = false;
+
+                foreach (var resourcesElement in resourcesNodes.OfType<XmlNode>().OfType<XmlElement>())
+                {
+                    if (!resourcesElement.LocalName.EndsWith(".Resources", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    foreach (var child in resourcesElement.ChildNodes.OfType<XmlElement>().ToList())
+                    {
+                        if (!string.Equals(child.LocalName, "ControlTheme", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        // Skip if a key is already present (x:Key or Key).
+                        if (child.HasAttribute("x:Key") || child.HasAttribute("Key"))
+                            continue;
+
+                        string targetType = child.GetAttribute("TargetType");
+                        if (string.IsNullOrWhiteSpace(targetType))
+                            continue;
+
+                        // TargetType is a markup extension string like "{x:Type vb:VBHeader}";
+                        // strip the wrapper so the key becomes "{x:Type vb:VBHeader}".
+                        targetType = targetType.Trim();
+                        if (targetType.StartsWith("{", StringComparison.Ordinal) && targetType.EndsWith("}", StringComparison.Ordinal))
+                        {
+                            targetType = targetType.Substring(1, targetType.Length - 2).Trim();
+                            if (targetType.StartsWith("x:Type", StringComparison.OrdinalIgnoreCase))
+                                targetType = targetType.Substring("x:Type".Length).Trim();
+                        }
+
+                        if (string.IsNullOrWhiteSpace(targetType))
+                            continue;
+
+                        // WPF implicit style key: TargetType. Avalonia: x:Key="{x:Type TargetType}".
+                        // Create the attribute in the x: namespace so it serializes as x:Key
+                        // (SetAttribute("x:Key", ...) would emit a literal "x:Key" local name).
+                        var keyAttr = doc.CreateAttribute("x", "Key", "http://schemas.microsoft.com/winfx/2006/xaml");
+                        keyAttr.Value = $"{{x:Type {targetType}}}";
+                        child.Attributes.Append(keyAttr);
+                        modified = true;
+                    }
+                }
+
+                return modified ? doc.OuterXml : xaml;
             }
             catch
             {
@@ -1843,6 +2105,62 @@ namespace gip.core.datamodel
             }
         }
 
+        private static string ConvertAssemblyResourceAttributes(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                bool modified = false;
+
+                // 1) AssemblyResource as a real XML attribute (rare).
+                var elements = doc.SelectNodes("//*[@AssemblyResource]");
+                if (elements != null)
+                {
+                    foreach (var element in elements.OfType<XmlNode>().OfType<XmlElement>())
+                    {
+                        string source = element.GetAttribute("AssemblyResource");
+                        string avaresSource = ConvertWpfResourceSourceToAvares(source);
+                        if (!string.IsNullOrWhiteSpace(avaresSource))
+                        {
+                            element.SetAttribute("AssemblyResource", avaresSource);
+                            modified = true;
+                        }
+                    }
+                }
+
+                // 2) AssemblyResource inside markup extension strings, e.g.:
+                //    Theme="{vb:VBStaticResource AssemblyResource=/gip.core.layoutengine;Component/Controls/.../Find.xaml, AssemblyResourceKey=IconFindStyleGip}"
+                // The value runs until the next whitespace, comma or closing brace.
+                string result = Regex.Replace(
+                    doc.OuterXml,
+                    "AssemblyResource=(?<source>[^\"'\\s,}]+)",
+                    m =>
+                    {
+                        string source = m.Groups["source"].Value;
+                        string avaresSource = ConvertWpfResourceSourceToAvares(source);
+                        if (string.IsNullOrWhiteSpace(avaresSource))
+                            return m.Value;
+                        modified = true;
+                        return "AssemblyResource=" + avaresSource;
+                    });
+
+                return modified ? result : xaml;
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
+        }
+
         private static string ConvertWpfResourceSourceToAvares(string source)
         {
             if (string.IsNullOrWhiteSpace(source))
@@ -2205,6 +2523,10 @@ namespace gip.core.datamodel
             ("Property=\"Y2\" Value=\"1\"", "Property=\"EndPoint\" Value=\"0,1\"", false),
             ("RelativeSource={x:Static RelativeSource.Self}}", "RelativeSource={RelativeSource Self}}", false),
             ("StrokeLineJoin=", "StrokeJoin=", false),
+            // Avalonia DataGrid has only RowHeight (no MinRowHeight/MaxRowHeight like WPF).
+            // Map MinRowHeight/MaxRowHeight setters to RowHeight.
+            (@"Property=""MinRowHeight""", @"Property=""RowHeight""", true),
+            (@"Property=""MaxRowHeight""", @"Property=""RowHeight""", true),
             (" RelativeTransform=\"Identity\"", " ", false),
             (" Transform=\"Identity\"", " ", false),
             ("GlassEffect=\"Visible\"", "GlassEffect=\"True\"", false),
@@ -2217,27 +2539,33 @@ namespace gip.core.datamodel
             ("Visibility=\"{vb:VBBinding Converter={vb:ConverterVisibilitySingle UseCollapsed=True,c ACUrlCommand=\\Environment!GetVisibilityForPANotifyState},", "IsVisible=\"{vb:VBBinding Converter={vb:ConverterObject ACUrlCommand=\\Environment!GetVisibilityForPANotifyStateAv},", false),
             ("ListBox.ItemContainerStyle", "ListBox.ItemContainerTheme", false),
             // Visibility to IsVisible converters
-            (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:VisibilityNullConverter\}(.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:IsVisibleNullConverter.Current}$1}""", true),
-            (@"\bVisibility=""\{vb:VBBinding\s+(.*?),\s*Converter=\{vb:VisibilityNullConverter\}\}""", @"IsVisible=""{vb:VBBinding $1, Converter={x:Static vb:IsVisibleNullConverter.Current}}""", true),
-            (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilityBool\}(.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:ConverterIsVisibleBool.Current}$1}""", true),
-            (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilityInverseBool\}(.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}$1}""", true),
-            (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilitySingle(.*?)\}(.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={vb:ConverterIsVisibleSingle$1}$2}""", true),
-            (@"\bVisibility=""\{vb:VBBinding\s+(.*?),\s*Converter=\{vb:ConverterControlModesVisibility\}\}""", @"IsVisible=""{vb:VBBinding $1, Converter={x:Static vb:ConverterControlModesVisibility.Current}}""", true),
-            (@"\bVisibility=""\{Binding\s+Converter=\{vb:VisibilityNullConverter\}(.*?)\}""", @"IsVisible=""{Binding Converter={x:Static vb:IsVisibleNullConverter.Current}$1}""", true),
-            (@"\bVisibility=""\{Binding\s+(.*?),\s*Converter=\{vb:VisibilityNullConverter\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:IsVisibleNullConverter.Current}}""", true),
-            (@"\bVisibility=""\{Binding\s+(.*?),\s*Converter=\{vb:ConverterVisibilityBool\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:ConverterIsVisibleBool.Current}}""", true),
-            (@"\bVisibility=""\{Binding\s+(.*?),\s*Converter=\{vb:ConverterVisibilityInverseBool\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}}""", true),
-            (@"\bVisibility=""\{Binding\s+Converter=\{vb:ConverterVisibilitySingle(.*?)\}(.*?)\}""", @"IsVisible=""{Binding Converter={vb:ConverterIsVisibleSingle$1}$2}""", true),
-            (@"\bVisibility=""\{Binding\s+(.*?),\s*Converter=\{vb:ConverterControlModesVisibility\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:ConverterControlModesVisibility.Current}}""", true),
+            (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:VisibilityNullConverter\}([^""]*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:IsVisibleNullConverter.Current}$1}""", true),
+            (@"\bVisibility=""\{vb:VBBinding\s+([^""]*?),\s*Converter=\{vb:VisibilityNullConverter\}\}""", @"IsVisible=""{vb:VBBinding $1, Converter={x:Static vb:IsVisibleNullConverter.Current}}""", true),
+            (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilityBool\}([^""]*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:ConverterIsVisibleBool.Current}$1}""", true),
+            (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilityInverseBool\}([^""]*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}$1}""", true),
+            (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilitySingle([^""]*?)\}([^""]*?)\}""", @"IsVisible=""{vb:VBBinding Converter={vb:ConverterIsVisibleSingle$1}$2}""", true),
+            (@"\bVisibility=""\{vb:VBBinding\s+([^""]*?),\s*Converter=\{vb:ConverterControlModesVisibility\}\}""", @"IsVisible=""{vb:VBBinding $1, Converter={x:Static vb:ConverterControlModesVisibility.Current}}""", true),
+            (@"\bVisibility=""\{Binding\s+Converter=\{vb:VisibilityNullConverter\}([^""]*?)\}""", @"IsVisible=""{Binding Converter={x:Static vb:IsVisibleNullConverter.Current}$1}""", true),
+            (@"\bVisibility=""\{Binding\s+([^""]*?),\s*Converter=\{vb:VisibilityNullConverter\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:IsVisibleNullConverter.Current}}""", true),
+            (@"\bVisibility=""\{Binding\s+([^""]*?),\s*Converter=\{vb:ConverterVisibilityBool\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:ConverterIsVisibleBool.Current}}""", true),
+            (@"\bVisibility=""\{Binding\s+([^""]*?),\s*Converter=\{vb:ConverterVisibilityInverseBool\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}}""", true),
+            (@"\bVisibility=""\{Binding\s+Converter=\{vb:ConverterVisibilitySingle([^""]*?)\}([^""]*?)\}""", @"IsVisible=""{Binding Converter={vb:ConverterIsVisibleSingle$1}$2}""", true),
+            (@"\bVisibility=""\{Binding\s+([^""]*?),\s*Converter=\{vb:ConverterControlModesVisibility\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:ConverterControlModesVisibility.Current}}""", true),
+            // WPF ObjectEqualsVisbilityConverter: exists in the Avalonia port with a Current
+            // singleton, but Visibility must become IsVisible and the converter must be
+            // referenced as {x:Static vb:ObjectEqualsVisbilityConverter.Current}.
+            // Typical form: Visibility="{vb:VBBinding Converter={vb:ObjectEqualsVisbilityConverter}, VBContent=X, ConverterParameter={x:Static local:SomeEnum.Value}}"
+            (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ObjectEqualsVisbilityConverter\}([^""]*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:ObjectEqualsVisbilityConverter.Current}$1}""", true),
+            (@"\bVisibility=""\{vb:VBBinding\s+([^""]*?),\s*Converter=\{vb:ObjectEqualsVisbilityConverter\}\}""", @"IsVisible=""{vb:VBBinding $1, Converter={x:Static vb:ObjectEqualsVisbilityConverter.Current}}""", true),
             // Visibility to IsVisible converters – {x:Static ...Current} form (Binding with path + x:Static converter)
-            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+(.*?),\s*Converter=\{x:Static\s+vb:VisibilityNullConverter\.Current\}\}""", @"IsVisible=""{$1 $2, Converter={x:Static vb:IsVisibleNullConverter.Current}}""", true),
-            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+Converter=\{x:Static\s+vb:VisibilityNullConverter\.Current\}(.*?)\}""", @"IsVisible=""{$1 Converter={x:Static vb:IsVisibleNullConverter.Current}$2}""", true),
-            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+(.*?),\s*Converter=\{x:Static\s+vb:ConverterVisibilityBool\.Current\}\}""", @"IsVisible=""{$1 $2, Converter={x:Static vb:ConverterIsVisibleBool.Current}}""", true),
-            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+Converter=\{x:Static\s+vb:ConverterVisibilityBool\.Current\}(.*?)\}""", @"IsVisible=""{$1 Converter={x:Static vb:ConverterIsVisibleBool.Current}$2}""", true),
-            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+(.*?),\s*Converter=\{x:Static\s+vb:ConverterVisibilityInverseBool\.Current\}\}""", @"IsVisible=""{$1 $2, Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}}""", true),
-            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+Converter=\{x:Static\s+vb:ConverterVisibilityInverseBool\.Current\}(.*?)\}""", @"IsVisible=""{$1 Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}$2}""", true),
-            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+(.*?),\s*Converter=\{x:Static\s+vb:ConverterControlModesVisibility\.Current\}\}""", @"IsVisible=""{$1 $2, Converter={x:Static vb:ConverterControlModesVisibility.Current}}""", true),
-            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+Converter=\{x:Static\s+vb:ConverterControlModesVisibility\.Current\}(.*?)\}""", @"IsVisible=""{$1 Converter={x:Static vb:ConverterControlModesVisibility.Current}$2}""", true),
+            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+([^""]*?),\s*Converter=\{x:Static\s+vb:VisibilityNullConverter\.Current\}\}""", @"IsVisible=""{$1 $2, Converter={x:Static vb:IsVisibleNullConverter.Current}}""", true),
+            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+Converter=\{x:Static\s+vb:VisibilityNullConverter\.Current\}([^""]*?)\}""", @"IsVisible=""{$1 Converter={x:Static vb:IsVisibleNullConverter.Current}$2}""", true),
+            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+([^""]*?),\s*Converter=\{x:Static\s+vb:ConverterVisibilityBool\.Current\}\}""", @"IsVisible=""{$1 $2, Converter={x:Static vb:ConverterIsVisibleBool.Current}}""", true),
+            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+Converter=\{x:Static\s+vb:ConverterVisibilityBool\.Current\}([^""]*?)\}""", @"IsVisible=""{$1 Converter={x:Static vb:ConverterIsVisibleBool.Current}$2}""", true),
+            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+([^""]*?),\s*Converter=\{x:Static\s+vb:ConverterVisibilityInverseBool\.Current\}\}""", @"IsVisible=""{$1 $2, Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}}""", true),
+            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+Converter=\{x:Static\s+vb:ConverterVisibilityInverseBool\.Current\}([^""]*?)\}""", @"IsVisible=""{$1 Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}$2}""", true),
+            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+([^""]*?),\s*Converter=\{x:Static\s+vb:ConverterControlModesVisibility\.Current\}\}""", @"IsVisible=""{$1 $2, Converter={x:Static vb:ConverterControlModesVisibility.Current}}""", true),
+            (@"\bVisibility=""\{(vb:VBBinding|Binding)\s+Converter=\{x:Static\s+vb:ConverterControlModesVisibility\.Current\}([^""]*?)\}""", @"IsVisible=""{$1 Converter={x:Static vb:ConverterControlModesVisibility.Current}$2}""", true),
 
             // Regex-based patterns for complex multi-line replacements
             (@"<vb:VBTreeView\.TreeItemTemplate>\s*<DataTemplate>", "<TreeView.ItemTemplate>\n    <TreeDataTemplate ItemsSource=\"{Binding VisibleItemsT}\">", true),

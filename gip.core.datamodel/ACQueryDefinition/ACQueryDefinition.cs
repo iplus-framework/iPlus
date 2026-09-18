@@ -1347,6 +1347,7 @@ In business objects, ACQueryDefinitions are stateful because each business objec
             OnPropertyChanged("LINQPredicateOrderBy");
             _EntitySQL_FromEdit = null;
             _EntitySQL_FromItems = null;
+            _SQLParameters = null;
             OnPropertyChanged("EntitySQL_FromItems");
             OnPropertyChanged("EntitySQL");
         }
