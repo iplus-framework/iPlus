@@ -176,6 +176,11 @@ namespace gip.core.datamodel
             // Remove WPF DataGrid virtualization attributes not used by Avalonia.
             avaloniaXAML = RemoveUnsupportedVirtualizationAttributes(avaloniaXAML);
 
+            // The Avalonia Dock ProportionalStackPanel throws when measured with infinite
+            // space (e.g. inside a ScrollViewer or DockPanel). Constrain VBDockingManager
+            // instances in such containers with a MaxHeight.
+            avaloniaXAML = ConstrainDockingManagerInInfiniteContainers(avaloniaXAML);
+
             // Convert WPF Line coordinates to Avalonia points:
             // <Line X1="0" Y1="6" X2="60" Y2="6" ... /> -> <Line StartPoint="0,6" EndPoint="60,6" ... />
             // Run after StartPoint/EndPoint percentage conversion to avoid treating line coordinates as percentages.
@@ -1950,6 +1955,76 @@ namespace gip.core.datamodel
                 }
 
                 return doc.OuterXml;
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
+        }
+
+        /// <summary>
+        /// Adds MaxHeight to VBDockingManager elements that are placed inside containers
+        /// offering infinite measure space (ScrollViewer/VBScrollViewer, DockPanel/VBDockPanel).
+        /// The Avalonia Dock ProportionalStackPanel throws
+        /// "Proportional StackPanel cannot be inside a control that offers infinite space."
+        /// when measured with an infinite constraint.
+        /// </summary>
+        private static string ConstrainDockingManagerInInfiniteContainers(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                var dockingManagers = doc.SelectNodes(
+                    "//*[local-name() = 'DockingManager' or local-name() = 'VBDockingManager']");
+                if (dockingManagers == null || dockingManagers.Count == 0)
+                    return xaml;
+
+                bool modified = false;
+
+                foreach (var dockingManager in dockingManagers.OfType<XmlNode>().OfType<XmlElement>())
+                {
+                    // Skip if a height constraint is already present.
+                    if (dockingManager.HasAttribute("MaxHeight") ||
+                        dockingManager.HasAttribute("Height"))
+                        continue;
+
+                    // Walk up the ancestors looking for containers that measure children
+                    // with infinite space in at least one dimension.
+                    bool insideInfiniteContainer = false;
+                    for (var ancestor = dockingManager.ParentNode as XmlElement; ancestor != null; ancestor = ancestor.ParentNode as XmlElement)
+                    {
+                        string localName = ancestor.LocalName;
+                        if (string.Equals(localName, "ScrollViewer", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(localName, "VBScrollViewer", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(localName, "DockPanel", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(localName, "VBDockPanel", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(localName, "Grid", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(localName, "VBGrid", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(localName, "StackPanel", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(localName, "VBStackPanel", StringComparison.OrdinalIgnoreCase))
+                        {
+                            insideInfiniteContainer = true;
+                            break;
+                        }
+                    }
+
+                    if (!insideInfiniteContainer)
+                        continue;
+
+                    dockingManager.SetAttribute("MaxHeight", "2000");
+                    modified = true;
+                }
+
+                return modified ? doc.OuterXml : xaml;
             }
             catch
             {

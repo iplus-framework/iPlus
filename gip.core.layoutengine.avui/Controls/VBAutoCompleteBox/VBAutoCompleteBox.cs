@@ -921,7 +921,11 @@ namespace gip.core.layoutengine.avui
                 }
             }
 
-            if (BSOACComponent != null && !string.IsNullOrEmpty(OnVBAutoCompleteItemSelected))
+            // Only notify the BSO when an item is actually selected. The view can be
+            // cleared while the drop-down still holds a selection, which raises a
+            // deselection event - the BSO callback should not run for that.
+            if (BSOACComponent != null && !string.IsNullOrEmpty(OnVBAutoCompleteItemSelected)
+                && SelectionAdapter?.SelectedItem != null)
             {
                 BSOACComponent.ACUrlCommand(OnVBAutoCompleteItemSelected, null);
             }

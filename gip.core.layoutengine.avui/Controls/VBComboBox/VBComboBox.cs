@@ -512,6 +512,13 @@ namespace gip.core.layoutengine.avui
                                     if (dbContext.IsACSelectSupported(ACQueryDefinition))
                                     {
                                         IQueryable result = dbContext.ACSelect(ACQueryDefinition, dsPath);
+                                        if (result == null)
+                                        {
+                                            string msg = "ACSelect returned null for query: " + ACQueryDefinition;
+                                            if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
+                                                datamodel.Database.Root.Messages.LogException("VBComboBox", "InitVBControl(6)", msg);                                            
+                                            return;
+                                        }
                                         var binding = new Binding
                                         {
                                             Source = result.AsArrayList()
