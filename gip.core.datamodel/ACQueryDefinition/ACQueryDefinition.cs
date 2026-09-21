@@ -1496,18 +1496,48 @@ In business objects, ACQueryDefinitions are stateful because each business objec
                     string prevAlias = "c";
                     ACClass prevTable = QueryType as ACClass;
                     ACClassProperty prevProperty = null;
+                    IEntityType rootEntityType = (this.QueryContext as DbContext)?.Model.FindEntityType(QueryType.ObjectType);
                     for (int i = 0; i < memberList.Count(); i++)
                     {
                         ACClassProperty acClassProperty = prevTable.Properties.Where(c => c.ACIdentifier == memberList[i]).FirstOrDefault();
-                        if (acClassProperty == null)
-                            return null;
-                        ACClass table = acClassProperty.ValueTypeACClass;
-                        if (table == null)
-                            return null;
+                        ACClass table = null;
+                        string propertyName = memberList[i];
+                        if (acClassProperty != null)
+                        {
+                            table = acClassProperty.ValueTypeACClass;
+                            propertyName = acClassProperty.ACIdentifier;
+                        }
+                        else
+                        {
+                            // Fallback: The property is not registered as ACClassProperty (e.g. a navigation
+                            // property that only exists in the EF partial class, like CompanyPerson.Company).
+                            // Resolve it via reflection and get the ACClass of the property type.
+                            System.Reflection.PropertyInfo propInfo = prevTable.ObjectType != null
+                                ? prevTable.ObjectType.GetProperty(memberList[i], System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.IgnoreCase)
+                                : null;
+                            if (propInfo == null)
+                                return null;
+                            table = Database.GlobalDatabase.GetACType(propInfo.PropertyType) as ACClass;
+                            if (table == null)
+                                return null;
+                        }
 
                         if (i < memberList.Count() - 1)
                         {
-                            joinExpressions.JoinExpressions.Append(string.Format(" LEFT JOIN {0} AS j{1} ON j{1}.{0}ID = {2}.{3}ID", table.ACIdentifier, joinExpressions.JoinCount, prevAlias, acClassProperty.ACIdentifier));
+                            // Resolve the FK column of the current table for this navigation via EF metadata.
+                            // The FK column name is not always "{propertyName}ID" (e.g. self-reference
+                            // InOrderPos1_ParentInOrderPos has FK column ParentInOrderPosID).
+                            string fkColumn = propertyName + "ID";
+                            IEntityType prevEntityType = rootEntityType != null && prevTable.ObjectType != null
+                                ? (this.QueryContext as DbContext).Model.FindEntityType(prevTable.ObjectType)
+                                : null;
+                            if (prevEntityType != null)
+                            {
+                                INavigation nav = prevEntityType.FindNavigation(propertyName);
+                                if (nav != null && nav.ForeignKey != null && nav.ForeignKey.Properties.Count > 0)
+                                    fkColumn = nav.ForeignKey.Properties.First().Name;
+                            }
+                            joinExpressions.JoinExpressions.Append(string.Format(" LEFT JOIN {0} AS j{1} ON j{1}.{0}ID = {2}.{3}", table.ACIdentifier, joinExpressions.JoinCount, prevAlias, fkColumn));
                             prevAlias = "j" + joinExpressions.JoinCount.ToString();
                             joinExpressions.JoinCount++;
                         }
@@ -1515,19 +1545,18 @@ In business objects, ACQueryDefinitions are stateful because each business objec
                         prevTable = table;
                         prevProperty = acClassProperty;
                     }
-                    string filterField = prevProperty.ACIdentifier;
-                    if (prevProperty != null)
+                    // Last segment: if it is an entity reference, filter on the FK column of the previous table;
+                    // otherwise filter on the column itself.
+                    string filterField = prevProperty != null ? prevProperty.ACIdentifier : memberList[memberList.Count() - 1];
+                    if (prevProperty == null || typeof(VBEntityObject).IsAssignableFrom(prevProperty.ObjectType))
                     {
-                        if (typeof(VBEntityObject).IsAssignableFrom(prevProperty.ObjectType))
+                        string navigationPath = memberList.Count() > 1 ? string.Join(".", memberList.Take(memberList.Count() - 1)) : null;
+                        if (rootEntityType != null && !String.IsNullOrEmpty(navigationPath))
                         {
-                            IEntityType entityType = (this.QueryContext as DbContext)?.Model.FindEntityType(QueryType.ObjectType);
-                            if (entityType != null)
+                            INavigation navigation = rootEntityType.FindNavigation(navigationPath);
+                            if (navigation != null && navigation.ForeignKey != null && navigation.ForeignKey.Properties.Count > 0)
                             {
-                                INavigation navigation = entityType.FindNavigation(filterItem.PropertyName);
-                                if (navigation != null && navigation.ForeignKey != null)
-                                {
-                                    filterField = navigation.ForeignKey.Properties.FirstOrDefault().Name;
-                                }
+                                filterField = navigation.ForeignKey.Properties.First().Name;
                             }
                         }
                     }

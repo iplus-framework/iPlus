@@ -165,12 +165,27 @@ namespace gip.core.layoutengine.avui
 
         protected virtual void OnFormatStringChanged(string oldValue, string newValue)
         {
-            if (string.IsNullOrEmpty(newValue) && Format == DateTimeFormat.Custom)
-                throw new ArgumentException("CustomFormat should be specified.", nameof(FormatString));
-
+            // NOTE: Do not throw here. This method is called from OnPropertyChanged, which can be
+            // triggered by bindings (e.g. TemplateBinding during ApplyTemplate) in the middle of a
+            // layout pass. Throwing there crashes the whole render loop.
+            // If Format is Custom but no FormatString was specified, fall back to a default format
+            // instead of throwing.
             if (Format == DateTimeFormat.Custom)
+            {
+                if (string.IsNullOrEmpty(newValue))
+                {
+                    // Fall back to the ShortDate pattern when Custom is set without a FormatString
+                    _customFormatString = DateTimeFormatInfo?.ShortDatePattern ?? "d";
+                }
+                else
+                {
+                    _customFormatString = newValue;
+                }
                 InitializeDateTimeInfoListAndParseValue();
+            }
         }
+
+        private string _customFormatString = string.Empty;
 
         /// <summary>
         /// Handles the OnKeyDown event.
@@ -647,7 +662,11 @@ namespace gip.core.layoutengine.avui
                 case DateTimeFormat.YearMonth:
                     return DateTimeFormatInfo.YearMonthPattern;
                 case DateTimeFormat.Custom:
-                    return FormatString;
+                    // Use the resolved custom format (falls back to ShortDatePattern when
+                    // FormatString is empty, see OnFormatStringChanged)
+                    return string.IsNullOrEmpty(_customFormatString)
+                        ? (DateTimeFormatInfo?.ShortDatePattern ?? "d")
+                        : _customFormatString;
                 default:
                     throw new ArgumentException("Not a supported format");
             }

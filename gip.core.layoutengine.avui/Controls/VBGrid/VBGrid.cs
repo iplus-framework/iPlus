@@ -219,6 +219,16 @@ namespace gip.core.layoutengine.avui
             try
             {
                 Size result = base.MeasureOverride(availableSize);
+                // Avalonia throws "Invalid size returned for Measure." if MeasureOverride
+                // returns an infinite dimension. This can happen when a child (e.g. inside
+                // an unconstrained TabItem / ScrollViewer chain) reports Infinity.
+                // Clamp infinite dimensions to the available size instead.
+                if (double.IsInfinity(result.Width) || double.IsInfinity(result.Height))
+                {
+                    result = new Size(
+                        double.IsInfinity(result.Width) ? availableSize.Width : result.Width,
+                        double.IsInfinity(result.Height) ? availableSize.Height : result.Height);
+                }
                 return result;
             }
             catch (Exception e)
@@ -230,7 +240,10 @@ namespace gip.core.layoutengine.avui
                 if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
                     datamodel.Database.Root.Messages.LogException("VBGrid", "MeasureOverride", msg);
 
-                return availableSize;
+                // Never return an infinite availableSize back to the layout system.
+                return new Size(
+                    double.IsInfinity(availableSize.Width) ? 0 : availableSize.Width,
+                    double.IsInfinity(availableSize.Height) ? 0 : availableSize.Height);
             }
         }
 

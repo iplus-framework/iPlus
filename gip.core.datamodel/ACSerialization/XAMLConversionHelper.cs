@@ -1328,7 +1328,19 @@ namespace gip.core.datamodel
                             string.Equals(a.LocalName, "EnableRowVirtualization", StringComparison.OrdinalIgnoreCase) ||
                             // WPF-only: switches between TextBox templates with/without validation triggers.
                             // The Avalonia port has a single template, so the attribute has no effect.
-                            string.Equals(a.LocalName, "OverrideTemplateTrigger", StringComparison.OrdinalIgnoreCase))
+                            string.Equals(a.LocalName, "OverrideTemplateTrigger", StringComparison.OrdinalIgnoreCase) ||
+                            // WPF-only presentation properties: Avalonia's TemplatedControl does not
+                            // define HorizontalContentAlignment/VerticalContentAlignment as regular
+                            // properties (they exist only in specific templates), so setting them on
+                            // arbitrary controls like VBDataGrid fails XAML compilation.
+                            string.Equals(a.LocalName, "HorizontalContentAlignment", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(a.LocalName, "VerticalContentAlignment", StringComparison.OrdinalIgnoreCase) ||
+                            // WPF TextBox properties not present on Avalonia's MaskedTextBox-based
+                            // VBTextBox (Avalonia TextBox has no VerticalScrollBarVisibility/AcceptsReturn
+                            // as styled properties on the control itself).
+                            string.Equals(a.LocalName, "VerticalScrollBarVisibility", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(a.LocalName, "HorizontalScrollBarVisibility", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(a.LocalName, "AcceptsReturn", StringComparison.OrdinalIgnoreCase))
                         .ToList();
 
                     foreach (var attribute in attributesToRemove)
@@ -2549,7 +2561,10 @@ namespace gip.core.datamodel
             // Fallback: convert Property="Visibility" without value change (may need manual review)
             (@"Property=""Visibility""", @"Property=""IsVisible""", true),
             (" ToolTip=", " ToolTip.Tip=", false),
-            ("DataGrid.Columns", "vb:VBDataGrid.Columns", false),
+            // Regex with negative lookbehind: "DataGrid.Columns" is a substring of
+            // "VBDataGrid.Columns", so a plain replace would corrupt already-prefixed
+            // property elements (vb:VBDataGrid.Columns -> vb:VBvb:VBDataGrid.Columns).
+            (@"(?<!vb:VB)(?<!VB)DataGrid\.Columns", "vb:VBDataGrid.Columns", true),
             (@"<DataGridTextColumn(?=[\s>])", "<vb:VBDataGridTextColumn", true),
             (@"</DataGridTextColumn(?=\s*>)", "</vb:VBDataGridTextColumn", true),
             ("AllowDrop=", "DragDrop.AllowDrop=", false),
@@ -2566,6 +2581,12 @@ namespace gip.core.datamodel
             (" Visibility=\"Visible\"", " IsVisible=\"True\"", false),
             (" Key=\"", " x:Key=\"", false),
             (" SumVisibility=\"Visible\"", " SumVisibility=\"True\"", false),
+            (" SumVisibility=\"Hidden\"", " SumVisibility=\"False\"", false),
+            (" SumVisibility=\"Collapsed\"", " SumVisibility=\"False\"", false),
+            // Prefixed forms (vb:SumVisibility) - keep the prefix, only convert the value
+            (" vb:SumVisibility=\"Visible\"", " vb:SumVisibility=\"True\"", false),
+            (" vb:SumVisibility=\"Hidden\"", " vb:SumVisibility=\"False\"", false),
+            (" vb:SumVisibility=\"Collapsed\"", " vb:SumVisibility=\"False\"", false),
             (" FillRule=\"Nonzero\"", " FillRule=\"NonZero\"", false),
             (" MouseDown=", " PointerPressed=", false),
             (" MouseLeftButtonDown=", " PointerPressed=", false),
@@ -2591,6 +2612,11 @@ namespace gip.core.datamodel
             (@" ?PreviewMouseRightButtonUp=""\{vb:VBDelegateExtension (.*?)\}""", @" PointerReleased=""{vb:VBDelegate $1, HandlePreviewEvents=True}""", true),
             (@" ?PreviewKeyDown=""\{vb:VBDelegateExtension (.*?)\}""", @" KeyDown=""{vb:VBDelegate $1, HandlePreviewEvents=True}""", true),
             (@" ?PreviewKeyUp=""\{vb:VBDelegateExtension (.*?)\}""", @" KeyUp=""{vb:VBDelegate $1, HandlePreviewEvents=True}""", true),
+            // Bare PreviewMouseUp/PreviewMouseDown (without Left/Right) with markup extensions
+            (@" ?PreviewMouseUp=""\{vb:VBDelegate (.*?)\}""", @" PointerReleased=""{vb:VBDelegate $1, HandlePreviewEvents=True}""", true),
+            (@" ?PreviewMouseDown=""\{vb:VBDelegate (.*?)\}""", @" PointerPressed=""{vb:VBDelegate $1, HandlePreviewEvents=True}""", true),
+            (@" ?PreviewMouseUp=""\{vb:VBDelegateExtension (.*?)\}""", @" PointerReleased=""{vb:VBDelegate $1, HandlePreviewEvents=True}""", true),
+            (@" ?PreviewMouseDown=""\{vb:VBDelegateExtension (.*?)\}""", @" PointerPressed=""{vb:VBDelegate $1, HandlePreviewEvents=True}""", true),
             
             (" ColorInterpolationMode=\"SRgbLinearInterpolation\"", " ", false),
             (" MappingMode=\"RelativeToBoundingBox\"", " ", false),
