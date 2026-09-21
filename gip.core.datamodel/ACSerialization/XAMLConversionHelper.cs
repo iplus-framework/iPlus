@@ -2565,6 +2565,13 @@ namespace gip.core.datamodel
             // "VBDataGrid.Columns", so a plain replace would corrupt already-prefixed
             // property elements (vb:VBDataGrid.Columns -> vb:VBvb:VBDataGrid.Columns).
             (@"(?<!vb:VB)(?<!VB)DataGrid\.Columns", "vb:VBDataGrid.Columns", true),
+            // Avalonia's DataGrid does not have an ItemsPanel property (it does not derive
+            // from ItemsControl; row virtualization is built in). Strip the property element
+            // including its content, in both unprefixed (WPF) and prefixed forms.
+            (@"\s*<(?:vb:)?(?:VB)?DataGrid\.ItemsPanel>.*?</(?:vb:)?(?:VB)?DataGrid\.ItemsPanel>", "", true),
+            // RowDetailsTemplate exists on Avalonia DataGrid, but the property element must be
+            // prefixed like Columns so it resolves on the VBDataGrid type.
+            (@"(?<!vb:VB)(?<!VB)DataGrid\.RowDetailsTemplate", "vb:VBDataGrid.RowDetailsTemplate", true),
             (@"<DataGridTextColumn(?=[\s>])", "<vb:VBDataGridTextColumn", true),
             (@"</DataGridTextColumn(?=\s*>)", "</vb:VBDataGridTextColumn", true),
             ("AllowDrop=", "DragDrop.AllowDrop=", false),
