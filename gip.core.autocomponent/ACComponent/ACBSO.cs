@@ -1243,38 +1243,86 @@ namespace gip.core.autocomponent
         protected gip.core.datamodel.ACClassDesign _lastACClassDesign;
 
         /// <summary>
+        /// Persists the converted Avalonia XAML of the given design to XMLDesign2, if it has
+        /// not been stored yet. Can be called by derived BSOs from
+        /// <see cref="OnDynamicLayoutLoaded(bool)"/> or any other custom persistence hook,
+        /// e.g. when designs are composed dynamically (like WorkCenterItem layouts) and the
+        /// ACClassDesign never passes through the standard VBDesign/VBDynamic path.
+        /// </summary>
+        /// <param name="acClassDesign">The design whose converted Avalonia XAML should be persisted.</param>
+        /// <returns>True if the design was persisted (or was already persisted), false otherwise.</returns>
+        protected bool TryPersistConvertedDesign(gip.core.datamodel.ACClassDesign acClassDesign)
+        {
+            if (acClassDesign == null)
+                return false;
+            if (!string.IsNullOrEmpty(acClassDesign.XMLDesign2))
+                return true; // already persisted
+            if (string.IsNullOrEmpty(acClassDesign.XMLDesign))
+                return false; // nothing to convert
+
+            try
+            {
+                // XAMLDesign getter converts the WPF XAML (XMLDesign) to Avalonia XAML when
+                // running in Avalonia mode and XMLDesign2 is empty.
+                string converted = acClassDesign.XAMLDesign;
+                if (string.IsNullOrEmpty(converted))
+                    return false;
+
+                acClassDesign.XMLDesign2 = converted;
+                acClassDesign.XMLDesignUpdateDate = DateTime.Now;
+                acClassDesign.XMLDesign2UpdateDate = acClassDesign.XMLDesignUpdateDate;
+                if (acClassDesign.Context != null)
+                {
+                    var msgWithDetails = acClassDesign.Context.ACSaveChanges();
+                    if (msgWithDetails != null)
+                    {
+                        Root.Messages.LogMessageMsg(msgWithDetails);
+                    }
+                }
+                return true;
+            }
+            catch
+            {
+                // Ignore caching errors, the layout still loaded
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Persists the converted Avalonia XAML of a named design of this component to XMLDesign2.
+        /// Convenience overload for custom persistence scenarios where the design is resolved
+        /// by its ACIdentifier (e.g. "DefaultLayout", "DefaultTabItemLayout").
+        /// </summary>
+        /// <param name="designName">The ACIdentifier of the design (as used with GetDesign()).</param>
+        /// <returns>True if the design was persisted (or was already persisted), false otherwise.</returns>
+        protected bool TryPersistConvertedDesign(string designName)
+        {
+            if (string.IsNullOrEmpty(designName))
+                return false;
+            try
+            {
+                return TryPersistConvertedDesign(GetDesign(designName));
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Callback invoked by VBDynamic when a dynamic layout has been loaded.
         /// Saves the converted Avalonia XAML to XMLDesign2 if the layout was loaded successfully
         /// and there was no Avalonia XAML previously stored.
+        /// Derived classes may override this to implement custom persistence, e.g. when layouts
+        /// are composed dynamically from multiple designs (WorkCenterItem layouts) and the
+        /// ACClassDesign objects are not tracked via <see cref="_lastACClassDesign"/>.
         /// </summary>
         /// <param name="success">True if the layout was loaded successfully, false otherwise.</param>
-        [ACMethodInfo("", "en{'OnDynamicLayoutLoaded'}de{'OnDynamicLayoutLoaded'}", 999)]        
-        public void OnDynamicLayoutLoaded(bool success)
+        [ACMethodInfo("", "en{'OnDynamicLayoutLoaded'}de{'OnDynamicLayoutLoaded'}", 999)]
+        public virtual void OnDynamicLayoutLoaded(bool success)
         {
-            if (success && _lastACClassDesign != null
-                && string.IsNullOrEmpty(_lastACClassDesign.XMLDesign2)
-                && !string.IsNullOrEmpty(_lastACClassDesign.XMLDesign))
-            {
-                try
-                {
-                    // Save the successfully loaded Avalonia XAML to XMLDesign2 for future use
-                    _lastACClassDesign.XMLDesign2 = _lastACClassDesign.XAMLDesign;
-                    _lastACClassDesign.XMLDesignUpdateDate = DateTime.Now;
-                    _lastACClassDesign.XMLDesign2UpdateDate = _lastACClassDesign.XMLDesignUpdateDate;
-                    if (_lastACClassDesign.Context != null)
-                    {
-                        var msgWithDetails = _lastACClassDesign.Context.ACSaveChanges();
-                        if (msgWithDetails != null)
-                        {
-                            Root.Messages.LogMessageMsg(msgWithDetails);
-                        }
-                    }
-                }
-                catch
-                {
-                    // Ignore caching errors, the layout still loaded
-                }
-            }
+            if (success)
+                TryPersistConvertedDesign(_lastACClassDesign);
         }
         #endregion
 

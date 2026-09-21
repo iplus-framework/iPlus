@@ -194,6 +194,17 @@ namespace gip.core.datamodel
             // Xaml.Behaviors-based triggers and copy default Setter values to owner attributes.
             avaloniaXAML = ConvertControlThemeTriggersToBehaviors(avaloniaXAML);
 
+            // Convert WPF InputScope / InputMethod.InputScope attributes to Avalonia's
+            // TextInputOptions.ContentType attached property (on-screen keyboard layout).
+            avaloniaXAML = ConvertInputScopeToTextInputOptions(avaloniaXAML);
+
+            // Remove WPF IsItemsHost attributes from panels. Avalonia's Panel.IsItemsHost is
+            // internal and the runtime XAML compiler emits a call to its setter, which fails
+            // with MethodAccessException. In Avalonia the panel of an ItemsPanelTemplate is
+            // the items host automatically; in ControlTemplates an explicit <ItemsPresenter/>
+            // is used instead.
+            avaloniaXAML = RemoveIsItemsHostAttributes(avaloniaXAML);
+
             // Convert WPF *.LayoutTransform property elements to Avalonia LayoutTransformControl wrappers.
             // WPF: <TextBlock><TextBlock.LayoutTransform><RotateTransform/></TextBlock.LayoutTransform></TextBlock>
             // Avalonia: <LayoutTransformControl><LayoutTransformControl.LayoutTransform><RotateTransform/></LayoutTransformControl.LayoutTransform><TextBlock></TextBlock></LayoutTransformControl>
@@ -402,8 +413,11 @@ namespace gip.core.datamodel
                             if (string.IsNullOrWhiteSpace(propertyName))
                                 continue;
 
-                            // ChangePropertyAction expects simple target property names.
-                            if (propertyName.Contains(".") || propertyName.Contains(":"))
+                            // ChangePropertyAction supports attached properties via dotted names
+                            // (e.g. "Grid.Column") - PropertyHelper.FindAvaloniaAttachedProperty
+                            // resolves them through AvaloniaPropertyRegistry. Only namespace-
+                            // prefixed names ("vb:...") cannot be resolved.
+                            if (propertyName.Contains(":"))
                                 continue;
 
                             propertyName = NormalizeTriggerPropertyName(propertyName);
@@ -466,7 +480,8 @@ namespace gip.core.datamodel
                             if (string.IsNullOrWhiteSpace(propertyName))
                                 continue;
 
-                            if (propertyName.Contains(".") || propertyName.Contains(":"))
+                            // ChangePropertyAction supports attached properties via dotted names.
+                            if (propertyName.Contains(":"))
                                 continue;
 
                             propertyName = NormalizeTriggerPropertyName(propertyName);
@@ -650,7 +665,8 @@ namespace gip.core.datamodel
                             if (string.IsNullOrWhiteSpace(propertyName))
                                 continue;
 
-                            if (propertyName.Contains(".") || propertyName.Contains(":"))
+                            // ChangePropertyAction supports attached properties via dotted names.
+                            if (propertyName.Contains(":"))
                                 continue;
 
                             propertyName = NormalizeTriggerPropertyName(propertyName);
@@ -669,12 +685,36 @@ namespace gip.core.datamodel
                     if (!hasBehavior)
                         continue;
 
-                    // Inject behaviors INTO the ControlTheme instead of replacing the entire style property.
-                    // This preserves the *.GraphEdgeStyle property assignment and its TargetType.
-                    controlTheme.AppendChild(interactionBehaviors);
+                    if (targetsOwner)
+                    {
+                        // The style targets the owner element itself (e.g. TextBlock.Style with
+                        // TargetType=VBTextBlock on a VBTextBlock). Behaviors must be attached to
+                        // the actual control (the owner), NOT to the ControlTheme: behaviors inside
+                        // a ControlTheme bind to the ControlTheme object, which is not an
+                        // AvaloniaObject control and has no styled properties like Foreground -
+                        // ChangePropertyAction would throw
+                        // "Cannot find a property named X on type ControlTheme" at runtime.
+                        ownerElement.AppendChild(interactionBehaviors);
 
-                    // Remove the original triggers element since we've converted it to behaviors.
-                    controlTheme.RemoveChild(triggersElement);
+                        // Remove the triggers element (already converted). Keep the ControlTheme
+                        // itself so the BasedOn resource reference and default setters still apply.
+                        controlTheme.RemoveChild(triggersElement);
+
+                        // If the ControlTheme no longer carries setters or triggers, the Theme
+                        // property element only wraps a BasedOn reference - keep it, it is still
+                        // valid Avalonia XAML.
+                    }
+                    else
+                    {
+                        // Style targets a different type than the owner (e.g. *.GraphEdgeStyle
+                        // property elements). Inject behaviors INTO the ControlTheme instead of
+                        // replacing the entire style property. This preserves the property
+                        // assignment and its TargetType.
+                        controlTheme.AppendChild(interactionBehaviors);
+
+                        // Remove the original triggers element since we've converted it to behaviors.
+                        controlTheme.RemoveChild(triggersElement);
+                    }
                 }
 
                 // Standalone ControlTheme elements directly inside *.Resources (WPF implicit styles):
@@ -776,7 +816,17 @@ namespace gip.core.datamodel
 
                 if (hasBehavior)
                 {
-                    controlTheme.AppendChild(interactionBehaviors);
+                    // NOTE: There is no single owner element for resource-level implicit styles -
+                    // the ControlTheme applies to every instance of its TargetType. Attaching
+                    // behaviors to the ControlTheme itself would make ChangePropertyAction fail at
+                    // runtime ("Cannot find a property named X on type ControlTheme"), because the
+                    // ControlTheme is not a control and has no styled properties. Therefore the
+                    // converted behaviors are NOT emitted here; the triggers are dropped and only
+                    // the default setters of the theme remain effective.
+                    // (Property-element styles like TextBlock.Style are handled by
+                    // ConvertControlThemeTriggersToBehaviors, which attaches behaviors to the
+                    // owner element instead.)
+                    hasBehavior = false;
                 }
 
                 // Remove the triggers element in any case - ControlTheme has no Triggers property.
@@ -807,6 +857,36 @@ namespace gip.core.datamodel
                 if (matches.Count > 0)
                 {
                     return matches[matches.Count - 1].Groups[1].Value.Trim();
+                }
+            }
+
+            return trimmed;
+        }
+
+        /// <summary>
+        /// Converts a WPF ColorAnimation Storyboard.TargetProperty to the equivalent Avalonia
+        /// animation target property. WPF animates the color within a brush, e.g.
+        /// "(Fill).(SolidColorBrush.Color)" - Avalonia animates the brush property itself
+        /// ("Fill") with color values, so only the first property path segment is kept.
+        /// </summary>
+        private static string ConvertColorAnimationTargetProperty(string targetProperty)
+        {
+            if (string.IsNullOrWhiteSpace(targetProperty))
+                return targetProperty;
+
+            string trimmed = targetProperty.Trim();
+            if (trimmed.Contains("(") && trimmed.Contains(")"))
+            {
+                var matches = Regex.Matches(trimmed, @"\(([^)]+)\)");
+                if (matches.Count > 0)
+                {
+                    // First segment: "(Fill).(SolidColorBrush.Color)" -> "Fill"
+                    string first = matches[0].Groups[1].Value.Trim();
+                    // Strip an optional owner-type prefix like "Rectangle.Fill" -> "Fill"
+                    int dotIndex = first.IndexOf('.');
+                    if (dotIndex >= 0)
+                        first = first.Substring(dotIndex + 1);
+                    return first;
                 }
             }
 
@@ -860,7 +940,7 @@ namespace gip.core.datamodel
                     animation.SetAttribute("Duration", duration);
                     animation.SetAttribute("IterationCount", ConvertRepeatBehaviorToIterationCount(doubleAnimation.GetAttribute("RepeatBehavior")));
                     animation.SetAttribute("FillMode", "Forward");
-                    animation.SetAttribute("SetterTargetType", "http://schemas.microsoft.com/winfx/2006/xaml", ownerElement.LocalName);
+                    animation.SetAttribute("SetterTargetType", "http://schemas.microsoft.com/winfx/2006/xaml", GetOwnerSetterTargetTypeName(doc, ownerElement));
 
                     if (IsExplicitTrueLiteral(doubleAnimation.GetAttribute("AutoReverse")))
                     {
@@ -894,9 +974,102 @@ namespace gip.core.datamodel
 
                     actionCount++;
                 }
+
+                // WPF ColorAnimation, e.g. Storyboard.TargetProperty="(Fill).(SolidColorBrush.Color)".
+                // In Avalonia this is expressed as an animation of the brush property itself
+                // (e.g. "Fill") with color values in the key frames - Avalonia interpolates
+                // brush colors automatically.
+                foreach (var colorAnimation in storyboard
+                    .ChildNodes
+                    .OfType<XmlElement>()
+                    .Where(e => string.Equals(e.LocalName, "ColorAnimation", StringComparison.OrdinalIgnoreCase)))
+                {
+                    string targetProperty = ConvertColorAnimationTargetProperty(colorAnimation.GetAttribute("Storyboard.TargetProperty"));
+                    string from = colorAnimation.GetAttribute("From");
+                    string to = colorAnimation.GetAttribute("To");
+                    string duration = colorAnimation.GetAttribute("Duration");
+
+                    if (string.IsNullOrWhiteSpace(targetProperty)
+                        || string.IsNullOrWhiteSpace(to)
+                        || string.IsNullOrWhiteSpace(duration))
+                        continue;
+
+                    var beginAnimationAction = doc.CreateElement("BeginAnimationAction", xamlNs);
+                    var beginAnimationActionProperty = doc.CreateElement("BeginAnimationAction.Animation", xamlNs);
+                    var animation = doc.CreateElement("Animation", xamlNs);
+                    animation.SetAttribute("Duration", duration);
+                    animation.SetAttribute("IterationCount", ConvertRepeatBehaviorToIterationCount(colorAnimation.GetAttribute("RepeatBehavior")));
+                    animation.SetAttribute("FillMode", "Forward");
+                    animation.SetAttribute("SetterTargetType", "http://schemas.microsoft.com/winfx/2006/xaml", GetOwnerSetterTargetTypeName(doc, ownerElement));
+
+                    if (IsExplicitTrueLiteral(colorAnimation.GetAttribute("AutoReverse")))
+                    {
+                        animation.SetAttribute("PlaybackDirection", "Alternate");
+                    }
+
+                    var keyFrameStart = doc.CreateElement("KeyFrame", xamlNs);
+                    keyFrameStart.SetAttribute("Cue", "0%");
+                    var keyFrameStartSetter = doc.CreateElement("Setter", xamlNs);
+                    keyFrameStartSetter.SetAttribute("Property", targetProperty);
+                    if (!string.IsNullOrWhiteSpace(from))
+                        keyFrameStartSetter.SetAttribute("Value", from);
+                    keyFrameStart.AppendChild(keyFrameStartSetter);
+
+                    var keyFrameEnd = doc.CreateElement("KeyFrame", xamlNs);
+                    keyFrameEnd.SetAttribute("Cue", "100%");
+                    var keyFrameEndSetter = doc.CreateElement("Setter", xamlNs);
+                    keyFrameEndSetter.SetAttribute("Property", targetProperty);
+                    keyFrameEndSetter.SetAttribute("Value", to);
+                    keyFrameEnd.AppendChild(keyFrameEndSetter);
+
+                    animation.AppendChild(keyFrameStart);
+                    animation.AppendChild(keyFrameEnd);
+                    beginAnimationActionProperty.AppendChild(animation);
+                    beginAnimationAction.AppendChild(beginAnimationActionProperty);
+                    behavior.AppendChild(beginAnimationAction);
+
+                    if (stopStoryboardFallbackValues != null)
+                    {
+                        stopStoryboardFallbackValues[targetProperty] = to;
+                    }
+
+                    actionCount++;
+                }
             }
 
             return actionCount;
+        }
+
+        /// <summary>
+        /// Returns the type name of the owner element for the x:SetterTargetType directive.
+        /// x:SetterTargetType is resolved against the DEFAULT xmlns (avaloniaui), so a custom
+        /// control like vb:VBTextBlock must be written with its namespace prefix
+        /// (e.g. "vb:VBTextBlock") - otherwise XamlX fails with
+        /// "Unable to resolve type VBTextBlock from namespace https://github.com/avaloniaui".
+        /// The prefix is looked up on the root element (the only place xmlns declarations are
+        /// allowed by XamlX).
+        /// </summary>
+        private static string GetOwnerSetterTargetTypeName(XmlDocument doc, XmlElement ownerElement)
+        {
+            string localName = ownerElement.LocalName;
+            string nsUri = ownerElement.NamespaceURI;
+
+            if (string.IsNullOrEmpty(nsUri))
+                return localName;
+
+            // Find a prefix on the root that maps to the owner's namespace.
+            if (doc?.DocumentElement != null)
+            {
+                foreach (XmlAttribute attr in doc.DocumentElement.Attributes)
+                {
+                    if (attr.Prefix != "xmlns")
+                        continue;
+                    if (string.Equals(attr.Value, nsUri, StringComparison.Ordinal))
+                        return attr.LocalName + ":" + localName;
+                }
+            }
+
+            return localName;
         }
 
         private static string ConvertRepeatBehaviorToIterationCount(string repeatBehavior)
@@ -2496,6 +2669,244 @@ namespace gip.core.datamodel
             }
         }
 
+        /// <summary>
+        /// Converts WPF InputScope / InputMethod.InputScope attributes to Avalonia's
+        /// TextInputOptions.ContentType attached property.
+        ///
+        /// WPF:  &lt;vb:VBTextBox InputScope="CurrencyAmountAndSymbol" /&gt;
+        /// Avalonia: &lt;vb:VBTextBox TextInputOptions.ContentType="Number"
+        ///           xmlns:tio="using:Avalonia.Input.TextInput" /&gt;
+        ///
+        /// Avalonia has no direct equivalent of WPF's fine-grained InputScopeName values
+        /// (CurrencyAmountAndSymbol etc.) - the closest mapping is TextInputContentType:
+        /// Number (numeric keypad incl. decimal separator and sign), Digits, Pin, Email,
+        /// Url, Name, Password, Search, Alpha, Social, Normal.
+        /// The xmlns:tio declaration is added to the element itself because the root
+        /// element only declares the default Avalonia namespace and x:.
+        /// </summary>
+        private static string ConvertInputScopeToTextInputOptions(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml) || xaml.IndexOf("InputScope", StringComparison.OrdinalIgnoreCase) < 0)
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument();
+                doc.LoadXml(xaml);
+
+                const string tioNs = "using:Avalonia.Input.TextInput";
+                string tioPrefix = "tio";
+
+                // XamlX only allows xmlns declarations on the ROOT element
+                // ("xmlns declarations are only allowed on the root element to preserve memory"),
+                // so the tio namespace must be declared on the root, not on the element using it.
+                bool tioDeclared = false;
+                if (doc.DocumentElement != null)
+                {
+                    if (doc.DocumentElement.GetAttribute("xmlns:" + tioPrefix) == tioNs)
+                    {
+                        tioDeclared = true;
+                    }
+                    else if (doc.DocumentElement.HasAttribute("xmlns:" + tioPrefix))
+                    {
+                        // Prefix is used for a different namespace - pick a free one.
+                        for (int suffix = 2; suffix < 100 && !tioDeclared; suffix++)
+                        {
+                            string candidate = tioPrefix + suffix;
+                            if (!doc.DocumentElement.HasAttribute("xmlns:" + candidate))
+                            {
+                                tioPrefix = candidate;
+                                tioDeclared = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        doc.DocumentElement.SetAttribute("xmlns:" + tioPrefix, tioNs);
+                        tioDeclared = true;
+                    }
+                }
+
+                if (!tioDeclared)
+                    return xaml;
+
+                var elements = doc.GetElementsByTagName("*");
+                for (int i = elements.Count - 1; i >= 0; i--)
+                {
+                    if (elements[i] is not XmlElement element)
+                        continue;
+
+                    string scopeValue = null;
+                    bool hasScope = false;
+
+                    // Plain attribute: InputScope="..."
+                    if (element.HasAttribute("InputScope"))
+                    {
+                        scopeValue = element.GetAttribute("InputScope");
+                        element.RemoveAttribute("InputScope");
+                        hasScope = true;
+                    }
+
+                    // Attached property element: <Control.InputMethod.InputScope>...</Control.InputMethod.InputScope>
+                    foreach (var child in element.ChildNodes.OfType<XmlElement>().ToList())
+                    {
+                        if (!string.Equals(child.LocalName, "InputScope", StringComparison.OrdinalIgnoreCase))
+                            continue;
+                        if (!string.Equals(child.NamespaceURI, "http://schemas.microsoft.com/winfx/2006/xaml/presentation", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        scopeValue = child.InnerText?.Trim();
+                        element.RemoveChild(child);
+                        hasScope = true;
+                    }
+
+                    if (!hasScope)
+                        continue;
+
+                    string contentType = MapInputScopeToContentType(scopeValue);
+                    element.SetAttribute(tioPrefix + ":TextInputOptions.ContentType", contentType);
+                }
+
+                return FormatXaml(doc.OuterXml);
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
+        }
+
+        /// <summary>
+        /// Removes WPF IsItemsHost attributes from panel elements.
+        ///
+        /// WPF:  &lt;StackPanel IsItemsHost="True" /&gt; (inside ItemsPanelTemplate or ControlTemplate)
+        /// Avalonia: &lt;StackPanel /&gt;
+        ///
+        /// Avalonia's Panel.IsItemsHost property is internal; the runtime XAML compiler
+        /// emits a call to its setter which fails with System.MethodAccessException
+        /// ("Attempt by method 'Builder_..._XamlClosure...Build_1' to access method
+        /// 'Avalonia.Controls.Panel.set_IsItemsHost(Boolean)' failed.").
+        /// In Avalonia the panel declared in an ItemsPanelTemplate is the items host
+        /// automatically, and inside a ControlTemplate the items are presented by an
+        /// explicit &lt;ItemsPresenter/&gt; - so the attribute is simply dropped.
+        /// </summary>
+        private static string RemoveIsItemsHostAttributes(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml) || xaml.IndexOf("IsItemsHost", StringComparison.OrdinalIgnoreCase) < 0)
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument();
+                doc.LoadXml(xaml);
+
+                var elements = doc.GetElementsByTagName("*");
+                for (int i = elements.Count - 1; i >= 0; i--)
+                {
+                    if (elements[i] is not XmlElement element)
+                        continue;
+
+                    if (element.HasAttribute("IsItemsHost"))
+                        element.RemoveAttribute("IsItemsHost");
+
+                    // Also handle the attached-property element form:
+                    // <StackPanel.Panel><Panel.IsItemsHost>True</Panel.IsItemsHost></StackPanel.Panel> is not
+                    // a real WPF pattern, but <Control.IsItemsHost> property elements can occur in
+                    // machine-generated XAML.
+                    foreach (var child in element.ChildNodes.OfType<XmlElement>().ToList())
+                    {
+                        if (!string.Equals(child.LocalName, "IsItemsHost", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        element.RemoveChild(child);
+                    }
+                }
+
+                return FormatXaml(doc.OuterXml);
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
+        }
+
+        /// <summary>
+        /// Maps a WPF InputScopeName value (or free text) to the closest Avalonia
+        /// TextInputContentType value.
+        /// </summary>
+        private static string MapInputScopeToContentType(string inputScope)
+        {
+            if (string.IsNullOrWhiteSpace(inputScope))
+                return "Normal";
+
+            string normalized = inputScope.Trim();
+
+            // Strip an optional attached-property prefix like "InputMethod.InputScope" or "TextBox.InputScope"
+            int lastDot = normalized.LastIndexOf('.');
+            if (lastDot >= 0)
+                normalized = normalized.Substring(lastDot + 1);
+
+            switch (normalized.ToLowerInvariant())
+            {
+                case "currencyamountandsymbol":
+                case "currencyamount":
+                case "number":
+                case "numberfullwidth":
+                case "defaultnumbers":
+                case "percent":
+                    return "Number";
+                case "digits":
+                case "numberic":
+                case "numeric":
+                case "telephonelocalnumber":
+                case "telephonenumber":
+                case "telephonenumbers":
+                    return "Digits";
+                case "password":
+                case "digitspassword":
+                    return "Password";
+                case "emailnameoraddress":
+                case "emailsmtpaddress":
+                case "emailusername":
+                    return "Email";
+                case "url":
+                case "weburl":
+                case "filefullpath":
+                case "filefolder":
+                case "filename":
+                case "filepath":
+                    return "Url";
+                case "personalfullname":
+                case "personalnameprefix":
+                case "personalgivenname":
+                case "personalmiddlename":
+                case "personalsurname":
+                case "personalsuffix":
+                case "fullname":
+                case "name":
+                    return "Name";
+                case "search":
+                    return "Search";
+                case "pin":
+                    return "Pin";
+                case "alpha":
+                case "alphacamelcase":
+                case "alphalowercase":
+                case "alphauppercase":
+                case "hanssimplified":
+                case "hangulalphabet":
+                case "hiraganajapanese":
+                case "katakanajapanese":
+                    return "Alpha";
+                case "maps":
+                case "social":
+                    return "Social";
+                default:
+                    return "Normal";
+            }
+        }
+
         static public string CheckOrUpdateNamespaceInLayout(string xmlLayout)
         {
             if (String.IsNullOrEmpty(xmlLayout))
@@ -2651,6 +3062,10 @@ namespace gip.core.datamodel
             (@"\bVisibility=""\{vb:VBBinding\s+([^""]*?),\s*Converter=\{vb:VisibilityNullConverter\}\}""", @"IsVisible=""{vb:VBBinding $1, Converter={x:Static vb:IsVisibleNullConverter.Current}}""", true),
             (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilityBool\}([^""]*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:ConverterIsVisibleBool.Current}$1}""", true),
             (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilityInverseBool\}([^""]*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}$1}""", true),
+            // vb:VBBinding with arguments BEFORE the converter, e.g.
+            // Visibility="{vb:VBBinding VBContent=ShowScaleGross, Converter={vb:ConverterVisibilityInverseBool}}"
+            (@"\bVisibility=""\{vb:VBBinding\s+([^""]*?),\s*Converter=\{vb:ConverterVisibilityBool\}\}""", @"IsVisible=""{vb:VBBinding $1, Converter={x:Static vb:ConverterIsVisibleBool.Current}}""", true),
+            (@"\bVisibility=""\{vb:VBBinding\s+([^""]*?),\s*Converter=\{vb:ConverterVisibilityInverseBool\}\}""", @"IsVisible=""{vb:VBBinding $1, Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}}""", true),
             (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilitySingle([^""]*?)\}([^""]*?)\}""", @"IsVisible=""{vb:VBBinding Converter={vb:ConverterIsVisibleSingle$1}$2}""", true),
             (@"\bVisibility=""\{vb:VBBinding\s+([^""]*?),\s*Converter=\{vb:ConverterControlModesVisibility\}\}""", @"IsVisible=""{vb:VBBinding $1, Converter={x:Static vb:ConverterControlModesVisibility.Current}}""", true),
             (@"\bVisibility=""\{Binding\s+Converter=\{vb:VisibilityNullConverter\}([^""]*?)\}""", @"IsVisible=""{Binding Converter={x:Static vb:IsVisibleNullConverter.Current}$1}""", true),

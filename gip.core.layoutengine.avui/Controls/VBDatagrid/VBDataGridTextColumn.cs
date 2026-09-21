@@ -39,6 +39,37 @@ namespace gip.core.layoutengine.avui
         public static readonly StyledProperty<string> VBContentProperty = AvaloniaProperty.Register<VBDataGridTextColumn, string>(nameof(VBContent));
 
         /// <summary>
+        /// WPF-parity property: gets or sets the ControlTheme applied to the display element
+        /// (VBTextBlock) of every cell in this column. In WPF this was a Style assigned to
+        /// ElementStyle; in Avalonia the equivalent is a ControlTheme assigned to the
+        /// element's Theme property. The converted XAML resources (WPF Styles) are already
+        /// ControlThemes, so ElementStyle="{StaticResource ...}" works as before.
+        /// </summary>
+        public static readonly StyledProperty<ControlTheme> ElementStyleProperty =
+            AvaloniaProperty.Register<VBDataGridTextColumn, ControlTheme>(nameof(ElementStyle));
+
+        [Category("VBControl")]
+        public ControlTheme ElementStyle
+        {
+            get { return GetValue(ElementStyleProperty); }
+            set { SetValue(ElementStyleProperty, value); }
+        }
+
+        /// <summary>
+        /// WPF-parity property: gets or sets the ControlTheme applied to the editing element
+        /// (VBTextBox) of this column (WPF EditingElementStyle).
+        /// </summary>
+        public static readonly StyledProperty<ControlTheme> EditingElementStyleProperty =
+            AvaloniaProperty.Register<VBDataGridTextColumn, ControlTheme>(nameof(EditingElementStyle));
+
+        [Category("VBControl")]
+        public ControlTheme EditingElementStyle
+        {
+            get { return GetValue(EditingElementStyleProperty); }
+            set { SetValue(EditingElementStyleProperty, value); }
+        }
+
+        /// <summary>
         /// Represents the property in which you enter the name of property that you want show in this column. Property must be in object, which is bounded to the VBDataGrid.
         /// </summary>
         [Category("VBControl")]
@@ -459,7 +490,11 @@ namespace gip.core.layoutengine.avui
             {
                 Name = "CellTextBox"
             };
-            if (_cellTextBoxTheme.Value is { } theme)
+            if (EditingElementStyle is { } editingTheme)
+            {
+                textBox.Theme = editingTheme;
+            }
+            else if (_cellTextBoxTheme.Value is { } theme)
             {
                 textBox.Theme = theme;
             }
@@ -489,7 +524,11 @@ namespace gip.core.layoutengine.avui
             {
                 Name = "CellTextBlock"
             };
-            if (_cellTextBlockTheme.Value is { } theme)
+            if (ElementStyle is { } elementTheme)
+            {
+                textBlock.Theme = elementTheme;
+            }
+            else if (_cellTextBlockTheme.Value is { } theme)
             {
                 textBlock.Theme = theme;
             }

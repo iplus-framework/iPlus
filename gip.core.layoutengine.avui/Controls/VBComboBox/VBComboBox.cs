@@ -1360,6 +1360,15 @@ namespace gip.core.layoutengine.avui
 
         public void UpdateControlMode()
         {
+            // BSO PropertyChanged notifications can arrive on background threads
+            // (e.g. via ACDelegateQueue / ApplicationQueue). Avalonia properties
+            // may only be set on the UI thread, so marshal if necessary.
+            if (!Dispatcher.UIThread.CheckAccess())
+            {
+                Dispatcher.UIThread.Post(UpdateControlMode, DispatcherPriority.Normal);
+                return;
+            }
+
             IACComponent elementACComponent = ContextACObject as IACComponent;
             if (elementACComponent == null)
                 return;
