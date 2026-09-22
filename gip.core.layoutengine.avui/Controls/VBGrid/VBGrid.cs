@@ -11,6 +11,7 @@ using Avalonia.Threading;
 using Avalonia.Controls;
 using Avalonia;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using gip.core.layoutengine.avui.Helperclasses;
 using Avalonia.Data;
 
@@ -192,8 +193,19 @@ namespace gip.core.layoutengine.avui
 
         #region Loaded Event
 
-        protected override Size MeasureOverride(Size availableSize)
+        bool _DefaultMarginsApplied = false;
+        /// <summary>
+        /// Applies the default margins to the children. This must NOT be done inside
+        /// MeasureOverride: setting properties on children during a layout pass invalidates
+        /// measure and can re-enter template application / logical tree attachment, which
+        /// leads to duplicate style frames (Debug.Assert in ValueStore.InsertFrame).
+        /// </summary>
+        private void ApplyDefaultMargins()
         {
+            if (_DefaultMarginsApplied)
+                return;
+            _DefaultMarginsApplied = true;
+
             foreach (Control uiElement in this.Children)
             {
                 if (uiElement != null)
@@ -201,7 +213,7 @@ namespace gip.core.layoutengine.avui
                     // In Avalonia, we can't use DependencyPropertyHelper.GetValueSource
                     // Instead, we check if margin has been explicitly set
                     bool hasDefaultMargin = uiElement.Margin.Equals(new Thickness(0));
-                    
+
                     if (hasDefaultMargin)
                     {
                         if (uiElement is VBButton)
@@ -215,7 +227,16 @@ namespace gip.core.layoutengine.avui
                     }
                 }
             }
+        }
 
+        protected override void OnAttachedToLogicalTree(LogicalTreeAttachmentEventArgs e)
+        {
+            base.OnAttachedToLogicalTree(e);
+            ApplyDefaultMargins();
+        }
+
+        protected override Size MeasureOverride(Size availableSize)
+        {
             try
             {
                 Size result = base.MeasureOverride(availableSize);
