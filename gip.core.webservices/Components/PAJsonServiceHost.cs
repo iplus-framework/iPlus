@@ -60,7 +60,7 @@ namespace gip.core.webservices
         /// <summary>
         /// 
         /// </summary>
-        [ACPropertyConfig("en{'Json Trash Folder'}de{'Json-Papierkorbordner}")]
+        [ACPropertyConfig("en{'Json Trash Folder'}de{'Json-Papierkorbordner'}")]
         public string JsonTrashFolder
         {
             get
@@ -77,7 +77,7 @@ namespace gip.core.webservices
         /// <summary>
         /// 
         /// </summary>
-        [ACPropertyConfig("en{'Json Archive Folder'}de{'Json-Arhivordner}")]
+        [ACPropertyConfig("en{'Json Archive Folder'}de{'Json-Arhivordner'}")]
         public string JsonArchiveDirectory
         {
             get
