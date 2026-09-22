@@ -41,6 +41,14 @@ namespace gip.core.layoutengine.avui
             : base()
         {
             this.InstanceInfoList = new VBInstanceInfoList();
+
+            // WPF used OnPreviewMouseDown (tunneling, top-down) for control selection.
+            // Avalonia's OnPointerPressed override is bubbling and can be swallowed by
+            // child controls (e.g. ListBoxItem selection handling marks the event as
+            // Handled), so the design never sees clicks inside ItemsControls.
+            // Register a tunneling handler to restore the WPF preview semantics.
+            AddHandler(InputElement.PointerPressedEvent, DesignBase_PreviewPointerPressed,
+                RoutingStrategies.Tunnel);
         }
 
         protected override void OnInitialized()
@@ -839,7 +847,25 @@ namespace gip.core.layoutengine.avui
         #region Mouse-Event
         IVBContent _LastClickedControl;
 
+        /// <summary>
+        /// Tunneling preview handler (WPF OnPreviewMouseDown equivalent).
+        /// Runs top-down before any child control can handle the event.
+        /// </summary>
+        private void DesignBase_PreviewPointerPressed(object sender, PointerPressedEventArgs e)
+        {
+            HandlePointerPressedForSelection(e);
+        }
+
         protected override void OnPointerPressed(PointerPressedEventArgs e)
+        {
+            // Bubbling phase: only run selection logic if the tunneling phase did not
+            // already process this event (e.g. when this design is not the root design).
+            if (!e.Handled)
+                HandlePointerPressedForSelection(e);
+            base.OnPointerPressed(e);
+        }
+
+        private void HandlePointerPressedForSelection(PointerPressedEventArgs e)
         {
             if (!IsDesignerActive && e.Source is Visual)
             {
@@ -904,7 +930,6 @@ namespace gip.core.layoutengine.avui
                     //_LastVBDesignBaseWithInfo = this;
                 }
             }
-            base.OnPointerPressed(e);
         }
 
         private void SetSelectionAtManager(IVBContent controlToSelect)

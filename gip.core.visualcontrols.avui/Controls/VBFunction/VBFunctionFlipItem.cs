@@ -49,6 +49,7 @@ namespace gip.core.visualcontrols.avui
                 if (ACState != ACStateEnum.SMIdle && ACState != ACStateEnum.SMBreakPoint)
                 {
                     IsVisible = true;
+                    SetContainerVisibility(true);
                     VBFunctionFlipView parentFlipView = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBFunctionFlipView)) as VBFunctionFlipView;
                     if (parentFlipView != null)
                     {
@@ -59,7 +60,30 @@ namespace gip.core.visualcontrols.avui
                 else
                 {
                     IsVisible = false;
+                    SetContainerVisibility(false);
                 }
+            }
+        }
+
+        private void SetContainerVisibility(bool visible)
+        {
+            // The VBFunctionFlipItem sits inside a ListBoxItem container (ItemContainerTheme).
+            // Hiding only this control leaves the container occupying space in the
+            // VirtualizingStackPanel, so the container must be collapsed as well.
+            Avalonia.Controls.ListBoxItem container =
+                VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(Avalonia.Controls.ListBoxItem)) as Avalonia.Controls.ListBoxItem;
+            if (container != null)
+            {
+                // If we're currently inside a layout pass (e.g. OnDesignLoaded is called
+                // from OnApplyTemplate during Measure), setting IsVisible here has no
+                // effect on the panel: Layoutable.ChildDesiredSizeChanged is ignored
+                // while the parent is measuring and DesiredSize gets overwritten by the
+                // running Measure pass. Defer to the dispatcher so the change happens
+                // after the current layout pass and the panel re-measures.
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    container.IsVisible = visible;
+                }, Avalonia.Threading.DispatcherPriority.Loaded);
             }
         }
 
@@ -86,7 +110,10 @@ namespace gip.core.visualcontrols.avui
                         {
                             ACStateEnum paState = (ACStateEnum)aCPropertyBase.Value;
                             if (paState == ACStateEnum.SMIdle || paState == ACStateEnum.SMBreakPoint)
+                            {
                                 IsVisible = false;
+                                SetContainerVisibility(false);
+                            }
                         }
                         catch (Exception e)
                         {

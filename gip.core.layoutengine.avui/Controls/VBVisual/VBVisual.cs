@@ -194,7 +194,15 @@ namespace gip.core.layoutengine.avui
                 Control parentControl = this.Parent as Control;
                 if (parentControl == null)
                     return null;
-                return parentControl.DataContext as IACObject;
+                // Skip ACRef instances: inside ItemsControl item templates the parent
+                // ContentPresenter's DataContext is the item itself (an ACRef<T>).
+                // ACRef.ACUrlCommand deliberately returns null (see ACRef.cs), so resolving
+                // VBContent against it would always fail. Fall through to the BSO branch instead,
+                // matching the WPF behavior.
+                IACObject parentACObject = parentControl.DataContext as IACObject;
+                if (parentACObject is IACContainerRef)
+                    return null;
+                return parentACObject;
             }
         }
 
@@ -205,7 +213,10 @@ namespace gip.core.layoutengine.avui
                 Control parentControl = this.Parent as Control;
                 if (parentControl == null)
                     return null;
-                return parentControl.DataContext as IACComponent;
+                IACComponent parentACComponent = parentControl.DataContext as IACComponent;
+                if (parentACComponent is IACContainerRef)
+                    return null;
+                return parentACComponent;
             }
         }
 

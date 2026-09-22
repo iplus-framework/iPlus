@@ -15,11 +15,11 @@
         <Setter Property="Template">
             <ControlTemplate>
               <!--<Grid Margin="0,0,-3,-3">-->
-                <Border x:Name="BorderButton"  
-                        CornerRadius="4" 
+                <Border x:Name="BorderButton"
+                        CornerRadius="4"
                         BorderThickness="1,1,1,1"
-                        Background="{StaticResource ButtonNormalBackground}"
-                        BorderBrush="{StaticResource ButtonNormalBorder}"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
                         BoxShadow="3 3 3 0 #71000000"
                         Margin="0,0,3,3">
                     <Border x:Name="BorderFocus" 

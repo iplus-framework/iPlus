@@ -2,6 +2,7 @@
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
@@ -112,8 +113,23 @@ namespace gip.core.visualcontrols.avui
                             RemoveFromWPFReferenceMap(component, bso);
                     }
                 }
-                SetValue(FunctionListProperty, value);
-                
+                // The collection instance is created once and only mutated afterwards, so that
+                // ItemsControls bound to it react to CollectionChanged regardless of whether the
+                // binding re-assigns ItemsSource or keeps the initial instance (Avalonia).
+                if (prevList is ObservableCollection<IACComponent> stableList)
+                {
+                    stableList.Clear();
+                    if (value != null)
+                    {
+                        foreach (IACComponent component in value)
+                            stableList.Add(component);
+                    }
+                }
+                else
+                {
+                    SetValue(FunctionListProperty, value);
+                }
+
                 if (value != null && bso != null)
                 {
                     foreach (IACComponent component in value)
@@ -155,8 +171,12 @@ namespace gip.core.visualcontrols.avui
             }
             ACComponent processModule = ContextACObject as ACComponent;
             Type typeOfFunction = typeof(PAProcessFunction);
-            FunctionList = new BindingList<IACComponent>(processModule.ACComponentChildsOnServer.Where(c => c.ACType != null && typeOfFunction.IsAssignableFrom(c.ACType.ObjectType)).ToList());
+            FunctionList = new ObservableCollection<IACComponent>(processModule.ACComponentChildsOnServer.Where(c => c.ACType != null && typeOfFunction.IsAssignableFrom(c.ACType.ObjectType)).ToList());
 
+            // Bind ItemsSource directly to the stable FunctionList collection instance.
+            // A self-binding with Path=FunctionList only works reliably when the list instance
+            // is never replaced; with the stable instance a direct source binding is sufficient
+            // and avoids re-binding issues in Avalonia.
             Binding binding = new Binding();
             binding.Source = this;
             binding.Mode = BindingMode.OneWay;
@@ -191,7 +211,7 @@ namespace gip.core.visualcontrols.avui
             if (processModule != null)
             {
                 Type typeOfFunction = typeof(PAProcessFunction);
-                var functionList = new BindingList<IACComponent>(processModule.ACComponentChildsOnServer.Where(c => c.ACType != null && typeOfFunction.IsAssignableFrom(c.ACType.ObjectType)).ToList());
+                var functionList = new ObservableCollection<IACComponent>(processModule.ACComponentChildsOnServer.Where(c => c.ACType != null && typeOfFunction.IsAssignableFrom(c.ACType.ObjectType)).ToList());
                 if (WFNodeList != null && WFNodeList.Any())
                 {
                     foreach (var wfInstanceInfo in WFNodeList)
