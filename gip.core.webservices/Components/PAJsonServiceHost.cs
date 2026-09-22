@@ -19,17 +19,26 @@ namespace gip.core.webservices
         {
             _UseCustomHttpListener = new ACPropertyConfigValue<bool>(this, nameof(UseCustomHttpListener), false);
             _UseHTTPS = new ACPropertyConfigValue<bool>(this, nameof(UseHTTPS), false);
+            _JsonTrashFolder = new ACPropertyConfigValue<string>(this, nameof(JsonTrashFolder), "");
+            _JsonArchiveDirectory = new ACPropertyConfigValue<string>(this, nameof(JsonArchiveDirectory), "");
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
+            _ = UseCustomHttpListener;
+            _ = UseHTTPS;
+            _ = JsonTrashFolder;
+            _ = JsonArchiveDirectory;
+
             if (UseCustomHttpListener)
                 InitPAJsonServiceHostListener();
+
             return base.ACInit(startChildMode);
         }
         #endregion
 
         #region Config
+
         private ACPropertyConfigValue<bool> _UseCustomHttpListener;
         [ACPropertyConfig("en{'Use Custom http listener'}de{'Verwende eigenen http listener'}")]
         public bool UseCustomHttpListener
@@ -45,6 +54,42 @@ namespace gip.core.webservices
             get => _UseHTTPS.ValueT;
             set => _UseHTTPS.ValueT = value;
         }
+
+
+        private ACPropertyConfigValue<string> _JsonTrashFolder;
+        /// <summary>
+        /// 
+        /// </summary>
+        [ACPropertyConfig("en{'Json Trash Folder'}de{'Json-Papierkorbordner}")]
+        public string JsonTrashFolder
+        {
+            get
+            {
+                return _JsonTrashFolder.ValueT;
+            }
+            set
+            {
+                _JsonTrashFolder.ValueT = value;
+            }
+        }
+
+        private ACPropertyConfigValue<string> _JsonArchiveDirectory;
+        /// <summary>
+        /// 
+        /// </summary>
+        [ACPropertyConfig("en{'Json Archive Folder'}de{'Json-Arhivordner}")]
+        public string JsonArchiveDirectory
+        {
+            get
+            {
+                return _JsonArchiveDirectory.ValueT;
+            }
+            set
+            {
+                _JsonArchiveDirectory.ValueT = value;
+            }
+        }
+
         #endregion
 
 
@@ -59,7 +104,7 @@ namespace gip.core.webservices
                 oAuthTokenValidator = searchOAuth.FirstOrDefault();
             }
 
-            if(oAuthTokenValidator != null && oAuthTokenValidator.ConnectionState != ACObjectConnectionState.DisConnected)
+            if (oAuthTokenValidator != null && oAuthTokenValidator.ConnectionState != ACObjectConnectionState.DisConnected)
             {
                 return CreateWCFHttpServiceOAuth(oAuthTokenValidator);
             }
