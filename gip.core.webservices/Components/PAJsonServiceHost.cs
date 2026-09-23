@@ -1,7 +1,9 @@
 ﻿using gip.core.autocomponent;
 using gip.core.datamodel;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
@@ -92,6 +94,10 @@ namespace gip.core.webservices
 
         #endregion
 
+        #region Properties
+        [ACPropertyBindingSource(210, "Error", "en{'Import Alarm'}de{'Import Alarm'}", "", false, false)]
+        public IACContainerTNet<PANotifyState> IsImportAlarm { get; set; }
+        #endregion
 
         #region Implementation
 
@@ -292,6 +298,120 @@ namespace gip.core.webservices
             return vBUserRights;
         }
 
+        #endregion
+
+        #region Log all / incorrect JSON.s
+
+        public virtual string GetJsonFolder(Type type, string rootFolder)
+        {
+            string folder = null;
+
+            if (Directory.Exists(rootFolder))
+            {
+                folder = Path.Combine(rootFolder, type.Name);
+
+                if (!Directory.Exists(folder))
+                {
+                    Directory.CreateDirectory(folder);
+                }
+
+
+                folder = Path.Combine(folder, DateTime.Now.Year.ToString("00"));
+                if (!Directory.Exists(folder))
+                {
+                    Directory.CreateDirectory(folder);
+                }
+
+                folder = Path.Combine(folder, DateTime.Now.Month.ToString("00"));
+                if (!Directory.Exists(folder))
+                {
+                    Directory.CreateDirectory(folder);
+                }
+
+                folder = Path.Combine(folder, DateTime.Now.Day.ToString("00"));
+                if (!Directory.Exists(folder))
+                {
+                    Directory.CreateDirectory(folder);
+                }
+            }
+            else
+            {
+                // Error50769
+                // PAJsonServiceHost
+                // JsonTrashFolder is not defined or not exist! JsonTrashFolder value: {0}
+                // JsonTrashFolder ist nicht definiert oder existiert nicht! JsonTrashFolder-Wert: {0}
+                Msg msg = new Msg(this, eMsgLevel.Error, nameof(PAJsonServiceHost), nameof(GetJsonFolder), 130, "Error50769", JsonTrashFolder);
+                IsImportAlarm.ValueT = PANotifyState.AlarmOrFault;
+                ErrorText.ValueT = msg.Message;
+                Messages.LogMessageMsg(msg);
+                OnNewAlarmOccurred(IsImportAlarm, msg, true);
+            }
+            return folder;
+        }
+
+        public virtual string GetJsonFileName(Type type)
+        {
+            return $"{type.Name}_{DateTime.Now:yyyy-MM_dd-HH-mm-ss-fff}.json";
+        }
+
+        public virtual void WriteJsonToFolder(Type type, string rootFolder, string json)
+        {
+            try
+            {
+                string folder = GetJsonFolder(type, rootFolder);
+                if (!string.IsNullOrEmpty(folder))
+                {
+                    string fileName = GetJsonFileName(type);
+                    string filePath = Path.Combine(folder, fileName);
+                    File.WriteAllText(filePath, json);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Error50770
+                // PAJsonServiceHost
+                // Error write json trash log! Message: {0}
+                // Fehler beim Schreiben des JSON-Papierkorbprotokolls! Meldung: {0}
+                Msg msg = new Msg(this, eMsgLevel.Error, nameof(PAJsonServiceHost), nameof(WriteJsonToFolder), 162, "Error50770", ex.Message);
+                IsImportAlarm.ValueT = PANotifyState.AlarmOrFault;
+                ErrorText.ValueT = msg.Message;
+                Messages.LogMessageMsg(msg);
+                OnNewAlarmOccurred(IsImportAlarm, msg, true);
+            }
+        }
+
+        public virtual (bool success, Msg msg, T item) DeserializeJson<T>(Type declaringType, string json)
+        {
+            try
+            {
+                if(Directory.Exists(JsonArchiveDirectory))
+                {
+                    WriteJsonToFolder(declaringType, JsonArchiveDirectory, json);
+                }
+                T item = JsonConvert.DeserializeObject<T>(json);
+                return (true, null, item);
+            }
+            catch (Exception ex)
+            {
+                string errMsg = "";
+                Exception tmpEx = ex;
+                while (tmpEx != null)
+                {
+                    errMsg += tmpEx.Message + System.Environment.NewLine;
+                    tmpEx = tmpEx.InnerException;
+                }
+                // Error50771
+                // PAJsonServiceHost
+                // Error deserializing json of type {0}! Error: {1}.
+                // Fehler beim Deserialisieren von JSON vom Typ {0}! Fehler: {1}.
+                Msg msg = new Msg(this, eMsgLevel.Error, nameof(PAJsonServiceHost), nameof(DeserializeJson), 190, "Error50771", typeof(T), errMsg);
+                if(Directory.Exists(JsonTrashFolder))
+                {
+                    WriteJsonToFolder(declaringType, JsonTrashFolder, json);
+                }
+                return (false, msg, default);
+            }
+        }
         #endregion
 
     }
