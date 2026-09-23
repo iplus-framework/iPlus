@@ -93,7 +93,7 @@ namespace gip.core.layoutengine.avui
         [ACMethodInteraction("", "en{'Copy to clipboard'}de{'In Zwischenablage kopieren'}", (short)102, false)]
         public virtual void CopyToClipboard()
         {
-            this.ProcessCopyKeyViaReflection(Avalonia.Input.KeyModifiers.Control);
+            this.ProcessCopyKey(Avalonia.Input.KeyModifiers.Control);
             //_CopyToClipboard = true;
             //try
             //{
@@ -134,7 +134,7 @@ namespace gip.core.layoutengine.avui
             {
                 DataGridClipboardCopyMode lastMode = ClipboardCopyMode;
                 ClipboardCopyMode = DataGridClipboardCopyMode.IncludeHeader;
-                this.ProcessCopyKeyViaReflection(Avalonia.Input.KeyModifiers.Control);
+                this.ProcessCopyKey(Avalonia.Input.KeyModifiers.Control);
                 //ApplicationCommands.Copy.Execute(null, this);
                 ClipboardCopyMode = lastMode;
             }
@@ -163,7 +163,7 @@ namespace gip.core.layoutengine.avui
             try
             {
                 Type typeOfString = typeof(string);
-                IDataGridCollectionView collectionView = this.GetDataGridCollectionViewViaReflection();
+                IDataGridCollectionView collectionView = this.DataConnection.CollectionView;
                 if (collectionView == null)
                     return;
 

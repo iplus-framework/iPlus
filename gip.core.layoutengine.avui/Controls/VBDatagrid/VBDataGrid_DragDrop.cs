@@ -284,7 +284,7 @@ namespace gip.core.layoutengine.avui
                             if (contentPresenter.Content is VBCheckBox)
                             {
                                 VBCheckBox vbCheckbox = contentPresenter.Content as VBCheckBox;
-                                DataGridBoundColumn dataGridColumn = ((DataGridCell)(vbCheckbox.Parent)).GetOwningColumnViaReflection() as DataGridBoundColumn;
+                                DataGridBoundColumn dataGridColumn = ((DataGridCell)(vbCheckbox.Parent)).OwningColumn as DataGridBoundColumn;
                                 vbContent = ((Binding)(dataGridColumn.Binding)).Path;
                             }
                         }
@@ -347,7 +347,7 @@ namespace gip.core.layoutengine.avui
                 return;
             var rowItem = this.InputHitTest(e.GetPosition(this));
             var row = Helperclasses.VBVisualTreeHelper.FindParentObjectInVisualTree(rowItem as AvaloniaObject, typeof(DataGridRow)) as DataGridRow;
-            if (row == null || row.GetIsEditingViaReflection()) 
+            if (row == null || row.IsEditing) 
                 return;
             ExchangeItems(row.DataContext);
 
@@ -373,7 +373,7 @@ namespace gip.core.layoutengine.avui
                 string[] vbDragData = _VBOnDrag.Split(',');
                 Dictionary<int, string> newOrderInfo = new Dictionary<int, string>();
                 int nr = 0;
-                foreach (var item in this.GetDataGridCollectionViewViaReflection())
+                foreach (var item in this.DataConnection.CollectionView)
                 {
                     nr++;
                     object itemObject = item.GetValue(vbDragData[1]);
@@ -409,8 +409,8 @@ namespace gip.core.layoutengine.avui
                     //var targetIndex = list.IndexOf(targetItem);
                     //DataGridRow row = (DataGridRow)ItemContainerGenerator.ContainerFromIndex(targetIndex);
 
-                    DataGridRow row = this.GetRowFromItemViaReflection(targetItem);
-                    if (row != null && !row.GetIsEditingViaReflection())
+                    DataGridRow row = this.GetRowFromItem(targetItem);
+                    if (row != null && !row.IsEditing)
                     {
                         int targetIndex = row.Index;
                         //remove the source from the list

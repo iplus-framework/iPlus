@@ -46,7 +46,9 @@
 		<PackageVersion Include="Avalonia.Android" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.Browser" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.Controls.ColorPicker" Version="$(AvaloniaVersionLatest)" />
-		<PackageVersion Include="Avalonia.Controls.DataGrid" Version="$(AvaloniaVersion)" />
+		<!-- <PackageVersion Include="Avalonia.Controls.DataGrid" Version="$(AvaloniaVersion)" /> -->
+		<PackageVersion Include="iPlus.Avalonia.Controls.DataGrid" Version="$(AvaloniaVersionLatest).1" />
+
 		<PackageVersion Include="Avalonia.Desktop" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.Diagnostics" Version="11.3.14" />
 		<PackageVersion Include="Avalonia.Headless.XUnit" Version="$(AvaloniaVersionLatest)" />

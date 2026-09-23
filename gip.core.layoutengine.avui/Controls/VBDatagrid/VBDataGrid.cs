@@ -918,20 +918,20 @@ namespace gip.core.layoutengine.avui
             else if (control is DataGridColumnHeader currentHeader)
             {
                 _ACContentList.Clear();
-                DataGridColumn column = currentHeader.GetOwningColumnViaReflection();
+                DataGridColumn column = currentHeader.OwningColumn;
                 if (column is IGriColumn gridColumn && gridColumn.ACColumnItem != null)
                     _ACContentList.Add(gridColumn.ACColumnItem);
             }
             else if (control is DataGridCell cell)
             {
-                DataGridColumn column = cell.GetOwningColumnViaReflection();
+                DataGridColumn column = cell.OwningColumn;
                 if (column is IGriColumn gridColumn && gridColumn.ACColumnItem != null)
                     _ACContentList.Add(gridColumn.ACColumnItem);
 
                 IACObject rowObject = cell.DataContext as IACObject;
                 if (rowObject == null)
                 {
-                    var row = cell.GetOwningRowViaReflection();
+                    var row = cell.OwningRow;
                     rowObject = row?.DataContext as IACObject;
                 }
                 UpdateACContentList(rowObject, vbContent);

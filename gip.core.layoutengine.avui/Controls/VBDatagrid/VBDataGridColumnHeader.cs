@@ -48,8 +48,8 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         void AddBinding()
         {
-            DataGridColumn dColumn = this.GetOwningColumnViaReflection() as DataGridColumn;
-            IGriColumn column = this.GetOwningColumnViaReflection() as IGriColumn;
+            DataGridColumn dColumn = this.OwningColumn as DataGridColumn;
+            IGriColumn column = this.OwningColumn as IGriColumn;
             Binding bind = null;
             if (column != null && column.VBDataGrid.IsSumEnabled)
             {

@@ -71,7 +71,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         private void CalculateSum()
         {
-            IDataGridCollectionView collectionView = this.GetDataGridCollectionViewViaReflection();
+            IDataGridCollectionView collectionView = this.DataConnection.CollectionView;
             if (collectionView == null)
             {
                 foreach (IGriColumn column in Columns)

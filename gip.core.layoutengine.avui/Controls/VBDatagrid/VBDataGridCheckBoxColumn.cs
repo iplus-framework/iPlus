@@ -369,13 +369,13 @@ namespace gip.core.layoutengine.avui
             {
                 checkBox.Theme = theme;
             }
-            if (EnsureOwningGridViaReflection())
+            if (EnsureOwningGrid())
             {
-                if (cell.GetRowIndexViaReflection() != -1 
-                    && cell.GetColumnIndexViaReflection() != -1
-                    && cell.GetOwningRowViaReflection() != null
-                    && cell.GetOwningRowViaReflection().GetSlotViaReflection() == this.OwningGrid.GetCurrentSlotViaReflection()
-                    && cell.GetColumnIndexViaReflection() == this.OwningGrid.GetCurrentColumnIndexViaReflection())
+                if (cell.RowIndex != -1
+                    && cell.ColumnIndex != -1
+                    && cell.OwningRow != null
+                    && cell.OwningRow.Slot == this.OwningGrid.CurrentSlot
+                    && cell.ColumnIndex == this.OwningGrid.CurrentColumnIndex)
                 {
                     isEnabled = true;
                     if (CurrentCheckBox != null)
@@ -537,70 +537,17 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Calls the private EnsureOwningGrid method from the base class via reflection.
-        /// </summary>
-        /// <returns>Returns true if the owning grid is valid, false otherwise.</returns>
-        private bool EnsureOwningGridViaReflection()
-        {
-            try
-            {
-                var method = this.GetType().BaseType?.GetMethod("EnsureOwningGrid", 
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                
-                if (method != null)
-                {
-                    var result = method.Invoke(this, null);
-                    return result is bool boolResult ? boolResult : false;
-                }
-                
-                return false;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the current checkbox using reflection to access the private field from the base class.
+        /// Gets or sets the current checkbox from the base class (now protected).
         /// </summary>
         private VBCheckBox CurrentCheckBox
         {
             get
             {
-                try
-                {
-                    var @field = this.GetType().BaseType?.GetField("_currentCheckBox", 
-                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    
-                    if (@field != null)
-                    {
-                        return @field.GetValue(this) as VBCheckBox;
-                    }
-                    
-                    return null;
-                }
-                catch (Exception)
-                {
-                    return null;
-                }
+                return base.CurrentCheckBox as VBCheckBox;
             }
             set
             {
-                try
-                {
-                    var @field = this.GetType().BaseType?.GetField("_currentCheckBox", 
-                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    
-                    if (@field != null)
-                    {
-                        @field.SetValue(this, value);
-                    }
-                }
-                catch (Exception)
-                {
-                    // Silently ignore reflection errors
-                }
+                base.CurrentCheckBox = value;
             }
         }
     }
