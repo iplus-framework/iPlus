@@ -46,7 +46,7 @@
 		<PackageVersion Include="Avalonia.Android" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.Browser" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.Controls.ColorPicker" Version="$(AvaloniaVersionLatest)" />
-		<PackageVersion Include="Avalonia.Controls.DataGrid" Version="$(AvaloniaVersion)" />
+		<PackageVersion Include="Avalonia.Controls.DataGrid" Version="12.1.2" /> <!--$(AvaloniaVersionMin)-->
 		<PackageVersion Include="iPlus.Avalonia.Controls.DataGrid" Version="$(AvaloniaVersionLatest).2" />
 
 		<PackageVersion Include="Avalonia.Desktop" Version="$(AvaloniaVersionLatest)" />
@@ -98,7 +98,7 @@
 		<PackageVersion Include="HtmlAgilityPack" Version="1.12.4" />
 		<PackageVersion Include="IM.Xades" Version="3.0.0" />
 		<PackageVersion Include="MdXaml" Version="1.27.0" />
-		<PackageVersion Include="MicroCom.Runtime" Version="0.11.4" />
+		<PackageVersion Include="MicroCom.Runtime" Version="0.11.6" />
 		<PackageVersion Include="Microsoft.AspNetCore" Version="$(ASPNetVersion)" />
 		<PackageVersion Include="Microsoft.AspNetCore.Authentication" Version="$(ASPNetVersion)" />
 		<PackageVersion Include="Microsoft.AspNetCore.Authentication.Abstractions" Version="$(ASPNetVersion)" />
@@ -158,8 +158,8 @@
 		<PackageVersion Include="Microsoft.Windows.Compatibility" Version="$(NetCorePackageVersion)" />
 		<PackageVersion Include="ModelContextProtocol" Version="1.2.0" />
 		<PackageVersion Include="ModelContextProtocol.AspNetCore" Version="1.2.0" />
-    	<PackageVersion Include="MSTest.TestAdapter" Version="4.0.2" />
-		<PackageVersion Include="MSTest.TestFramework" Version="4.0.2" />
+		<PackageVersion Condition="'$(UsingMSTestSdk)' != 'true'" Include="MSTest.TestAdapter" Version="4.3.3" />
+		<PackageVersion Condition="'$(UsingMSTestSdk)' != 'true'" Include="MSTest.TestFramework" Version="4.3.3" />
 		<PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageVersion Include="NModbus" Version="3.0.81" />
 		<PackageVersion Include="OllamaSharp" Version="5.4.12" />
@@ -259,6 +259,7 @@
   		<PackageVersion Include="System.Linq.AsyncEnumerable" Version="$(DotNetExtensionsVersion)" />
   		<PackageVersion Include="System.Reactive.Core" Version="6.1.0" />
 		<PackageVersion Include="System.Reactive.Linq" Version="6.1.0" />
+		<PackageVersion Include="System.Reactive" Version="6.1.0" />
 		<PackageVersion Include="System.Reflection.MetadataLoadContext" Version="$(SystemCompositionVersion)" />
 		<PackageVersion Include="System.Reflection.Metadata" Version="$(SystemCompositionVersion)" />
 		<PackageVersion Include="System.Composition" Version="$(SystemCompositionVersion)" />
@@ -280,7 +281,7 @@
 		<PackageVersion Include="ReactiveGenerator" Version="0.12.0" />
 		<PackageVersion Include="ReactiveMarbles.PropertyChanged" Version="2.0.27" />
 		<PackageVersion Include="ReactiveProperty" Version="9.8.0" />
-		<PackageVersion Include="StaticViewLocator" Version="0.0.1" />
+  		<PackageVersion Include="StaticViewLocator" Version="0.1.0" />
 		<PackageVersion Include="System.Runtime.Serialization.Formatters" Version="$(DotNetExtensionsVersion)" />
 		<PackageVersion Include="WebViewControl-Avalonia" Version="3.120.11" />
 		<PackageVersion Include="WebViewControl-Avalonia-ARM64" Version="3.120.11" />
@@ -292,7 +293,7 @@
 		<PackageVersion Include="xunit.extensibility.core" Version="2.9.3" />
 		<PackageVersion Include="xunit.extensibility.execution" Version="2.9.3" />
 		<PackageVersion Include="xunit.runner.console" Version="2.9.3" />
-		<PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4">
+  		<PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageVersion>
@@ -312,7 +313,7 @@
 		<!-- Additional Packages for Avalonia Labs -->
 		<PackageVersion Include="coverlet.collector" Version="6.0.4" />
 		<PackageVersion Include="Xamarin.AndroidX.AppCompat" Version="1.7.1.3" />
-		<PackageVersion Include="Tmds.DBus.Protocol" Version="0.92.0" />
+		<PackageVersion Include="Tmds.DBus.Protocol" Version="0.94.1" />
 		<PackageVersion Include="Tmds.DBus.SourceGenerator" Version="0.0.22" />
 		<PackageVersion Include="MicroCom.CodeGenerator.Roslyn" Version="0.11.3" />
 		<PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.269" />
@@ -321,6 +322,15 @@
 		<PackageVersion Include="Microsoft.Build.Locator" Version="1.11.2" />
 		<PackageVersion Include="Microsoft.Build.Tasks.Core" Version="18.0.2" />
 		<PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.0.2" />
+
+		<!-- Packages for RoslynPad / Morgania -->
+		<PackageVersion Include="Avalonia.Headless" Version="$(AvaloniaVersionLatest)" />
+		<PackageVersion Include="ICSharpCode.Decompiler" Version="11.0.0.9375" />
+		<PackageVersion Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.87.0" />
+		<PackageVersion Include="Microsoft.VisualStudio.Composition" Version="18.3.36" />
+		<PackageVersion Include="StreamJsonRpc" Version="2.25.29" />
+		<PackageVersion Include="System.ComponentModel.Composition" Version="$(DotNetExtensionsVersion)" />
+		<PackageVersion Include="System.Memory.Data" Version="$(DotNetExtensionsVersion)" />
 
 		<!-- Additional Packages for Avalonia DataGrid -->
 		<PackageVersion Include="JetBrains.dotMemoryUnit" Version="3.2.20220510" />
@@ -342,13 +352,13 @@
 		<PackageVersion Include="System.Memory" Version="4.6.3" />
 		<PackageVersion Include="System.CommandLine" Version="2.0.2" />
 		<PackageVersion Include="SixLabors.ImageSharp" Version="3.1.12" />
-    	<PackageVersion Include="ProDiagnostics" Version="$(AvaloniaVersion)" />
+    	<PackageVersion Include="ProDiagnostics" Version="12.1.0.4" /> <!--$(AvaloniaVersionMin)-->
 
 		<!-- Additional Packages for RichtTextBox -->
 		<PackageVersion Include="DocumentFormat.OpenXml" Version="$(DocumentFormatOpenXmlVersion)" />
 		<PackageVersion Include="DocumentFormat.OpenXml.Framework" Version="$(DocumentFormatOpenXmlVersion)" />
 		<PackageVersion Include="RtfDomParser" Version="7.0.0" />
-		<PackageVersion Include="Avalonia.Controls.ItemsRepeater" Version="$(AvaloniaVersion)" />
+		<PackageVersion Include="Avalonia.Controls.ItemsRepeater" Version="$(AvaloniaVersionMin)" />
 
 		<!-- Force DocumentFormat.OpenXml version resolution -->
 		<PackageVersion Include="DocumentFormat.OpenXml.Packaging" Version="$(DocumentFormatOpenXmlVersion)" />
