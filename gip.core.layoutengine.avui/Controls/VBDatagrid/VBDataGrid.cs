@@ -308,6 +308,9 @@ namespace gip.core.layoutengine.avui
                 CreateSumProperties();
             }
 
+            if (!string.IsNullOrEmpty(VBGroupColumns))
+                ApplyGrouping();
+
             if (this.IsSet(CyclicDataRefreshProperty))
             {
                 if (CyclicDataRefresh > 0)
@@ -843,6 +846,9 @@ namespace gip.core.layoutengine.avui
             {
                 _itemsSourceChangedVersion++;
                 VBDataGrid_TargetUpdated(this, change);
+                // Re-apply grouping when a new ItemsSource (and therefore a new CollectionView) is bound
+                if (!string.IsNullOrEmpty(VBGroupColumns) && _Initialized)
+                    ApplyGrouping();
             }
             else if (change.Property == SelectedItemProperty)
             {

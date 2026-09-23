@@ -72,7 +72,7 @@
   <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
     <PackageReference Include="Avalonia" />
     <PackageReference Include="Avalonia.Controls.ColorPicker"  />
-    <PackageReference Include="Avalonia.Controls.DataGrid"  />   
+    <PackageReference Include="iPlus.Avalonia.Controls.DataGrid"  />   
     <PackageReference Include="ReactiveUI.Avalonia"  />
     <PackageReference Include="Avalonia.Labs.CommandManager"  />
   </ItemGroup>

@@ -122,6 +122,94 @@ namespace gip.core.layoutengine.avui
             }
         }
 
+        #region Grouping
+
+        /// <summary>
+        /// Represents the styled property for VBGroupColumns.
+        /// </summary>
+        public static readonly StyledProperty<string> VBGroupColumnsProperty = AvaloniaProperty.Register<VBDataGrid, string>(nameof(VBGroupColumns));
+
+        /// <summary>
+        /// Defines the columns (property names of the bound items) by which the ItemsSource is grouped.
+        /// Multiple levels are separated by comma, the order defines the group hierarchy.
+        /// The grouping is applied on the DataGridCollectionView which wraps the bound ItemsSource.
+        /// XAML Sample: VBGroupColumns="Category,SubCategory"
+        /// </summary>
+        /// <summary xml:lang="de">
+        /// Definiert die Spalten (Eigenschaftsnamen der gebundenen Items), nach denen das ItemsSource gruppiert wird.
+        /// Mehrere Ebenen werden durch Komma getrennt, die Reihenfolge definiert die Gruppenhierarchie.
+        /// Die Gruppierung wird auf die DataGridCollectionView angewendet, welche das gebundene ItemsSource umschließt.
+        /// XAML-Beispiel: VBGroupColumns="Kategorie,Unterkategorie"
+        /// </summary>
+        [Category("VBControl")]
+        public string VBGroupColumns
+        {
+            get
+            {
+                return GetValue(VBGroupColumnsProperty);
+            }
+            set
+            {
+                SetValue(VBGroupColumnsProperty, value);
+            }
+        }
+
+        /// <summary>
+        /// Represents the styled property for IsGroupHeaderCountVisible.
+        /// </summary>
+        public static readonly StyledProperty<bool> IsGroupHeaderCountVisibleProperty
+            = AvaloniaProperty.Register<VBDataGrid, bool>(nameof(IsGroupHeaderCountVisible), true);
+
+        /// <summary>
+        /// Enables or disables the item count display in the group headers.
+        /// </summary>
+        /// <summary xml:lang="de">
+        /// Aktiviert oder deaktiviert die Anzeige der Item-Anzahl in den Gruppenköpfen.
+        /// </summary>
+        [Category("VBControl")]
+        public bool IsGroupHeaderCountVisible
+        {
+            get
+            {
+                return GetValue(IsGroupHeaderCountVisibleProperty);
+            }
+            set
+            {
+                SetValue(IsGroupHeaderCountVisibleProperty, value);
+            }
+        }
+
+        /// <summary>
+        /// Applies the VBGroupColumns to the underlying DataGridCollectionView of the ItemsSource.
+        /// Because the ItemsSource is always resolved from the Model (BSOACComponent / ACComponent via
+        /// VBContent/VBSource), the grouping is set on the collection view that the DataGrid created
+        /// around the bound collection - the Model collection itself is never modified.
+        /// </summary>
+        /// <summary xml:lang="de">
+        /// Wendet die VBGroupColumns auf die zugrunde liegende DataGridCollectionView des ItemsSource an.
+        /// Da das ItemsSource immer aus dem Model aufgelöst wird (BSOACComponent / ACComponent über
+        /// VBContent/VBSource), wird die Gruppierung auf die CollectionView gesetzt, die das DataGrid
+        /// um die gebundene Collection legt - die Model-Collection selbst wird nie verändert.
+        /// </summary>
+        public void ApplyGrouping()
+        {
+            var collectionView = DataConnection?.CollectionView;
+            if (collectionView == null || !collectionView.CanGroup)
+                return;
+
+            collectionView.GroupDescriptions.Clear();
+            if (string.IsNullOrWhiteSpace(VBGroupColumns))
+                return;
+
+            foreach (string propertyName in VBGroupColumns.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim()))
+            {
+                if (!string.IsNullOrEmpty(propertyName))
+                    collectionView.GroupDescriptions.Add(new DataGridPathGroupDescription(propertyName));
+            }
+        }
+
+        #endregion
+
         #region CyclicDataRefresh
 
         /// <summary>

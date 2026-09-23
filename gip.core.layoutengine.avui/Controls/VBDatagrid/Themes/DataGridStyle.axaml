@@ -177,7 +177,7 @@
     <Setter Property="RowStyle" Value="{StaticResource RowStyle}" />
     <Setter Property="RowHeaderStyle" Value="{StaticResource RowHeaderStyle}" />
     <Setter Property="ColumnHeaderStyle" Value="{StaticResource ColumnHeaderStyle}" />-->
-    <Setter Property="HeadersVisibility" Value="Column" />
+    <Setter Property="HeadersVisibility" Value="All" />
     <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
     <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
     <Setter Property="SelectionMode" Value="Extended" />
