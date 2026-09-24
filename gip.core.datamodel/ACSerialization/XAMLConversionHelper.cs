@@ -2950,8 +2950,25 @@ namespace gip.core.datamodel
                     part1 += " " + nameSpace;
                 }
             }
-            
-            return xmlDeclaration + part1 + part2;
+
+            string result = xmlDeclaration + part1 + part2;
+
+            // OxyPlot: The CLR namespace is "OxyPlot.Avalonia" in both variants, but the assembly
+            // name differs: fork builds "OxyPlot.Avalonia.dll", NuGet package "OxyPlot.Avalonia12.dll".
+            // Stored layouts hard-code assembly=OxyPlot.Avalonia -> rewrite when only the NuGet
+            // assembly is loaded.
+            if (result.Contains("assembly=OxyPlot.Avalonia"))
+            {
+                bool forkLoaded = AppDomain.CurrentDomain.GetAssemblies()
+                    .Any(a => a.GetName().Name == "OxyPlot.Avalonia");
+                if (!forkLoaded)
+                {
+                    result = System.Text.RegularExpressions.Regex.Replace(result,
+                        @"assembly=OxyPlot\.Avalonia(?![0-9A-Za-z.])", "assembly=OxyPlot.Avalonia12");
+                }
+            }
+
+            return result;
         }
 
         public static readonly (string WpfPattern, string AvaloniaReplacement, bool IsRegex)[] C_AvaloniaFindAndReplace = new[]
