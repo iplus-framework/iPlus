@@ -36,7 +36,7 @@ internal static class SkiaExtensions
                 {
                     if (bitmap.Handle != 0)
                     {
-                        lease.SkCanvas.DrawBitmap(bitmap, SKRect.Create((float)Bounds.X, (float)Bounds.Y, (float)Bounds.Width, (float)Bounds.Height));
+                        lease.SkCanvas.DrawBitmap(bitmap, SKRect.Create((float)Bounds.X, (float)Bounds.Y, (float)Bounds.Width, (float)Bounds.Height), SKSamplingOptions.Default);
                     }
                 }
             }

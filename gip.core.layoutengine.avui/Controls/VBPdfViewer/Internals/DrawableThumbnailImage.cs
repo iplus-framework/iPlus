@@ -70,7 +70,7 @@ internal class DrawableThumbnailImage(SizeF size, Stream pdfStream, int index, D
                 ISkiaSharpApiLease lease = leaseFeature.Lease();
                 using (lease)
                 {
-                    lease.SkCanvas.DrawBitmap(skBitmap, SKRect.Create((float)Bounds.X, (float)Bounds.Y, (float)Bounds.Width, (float)Bounds.Height));
+                    lease.SkCanvas.DrawBitmap(skBitmap, SKRect.Create((float)Bounds.X, (float)Bounds.Y, (float)Bounds.Width, (float)Bounds.Height), SKSamplingOptions.Default);
                 }
             }
             Debug.WriteLine("done.");

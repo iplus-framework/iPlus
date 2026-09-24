@@ -34,7 +34,7 @@ public partial class VBPdfViewer : UserControl, IDisposable
     public VBPdfViewer()
     {
         _thumbnailImagesCache.Connect()
-            .ObserveOn(RxSchedulers.MainThreadScheduler)
+            .ObserveOn(new System.Reactive.Concurrency.SynchronizationContextScheduler(Avalonia.Threading.AvaloniaSynchronizationContext.Current ?? System.Threading.SynchronizationContext.Current))
             .SortAndBind(out _thumbnailImages, SortExpressionComparer<DrawableThumbnailImage>.Ascending(i => i.Index))
             .DisposeMany()
             .Subscribe();
@@ -44,7 +44,7 @@ public partial class VBPdfViewer : UserControl, IDisposable
         
         _zoomLevelsCache.Connect()
             .Sort(SortExpressionComparer<PdfZoom>.Ascending(z => z))
-            .ObserveOn(RxSchedulers.MainThreadScheduler)
+            .ObserveOn(new System.Reactive.Concurrency.SynchronizationContextScheduler(Avalonia.Threading.AvaloniaSynchronizationContext.Current ?? System.Threading.SynchronizationContext.Current))
             .Bind(out _zoomLevels)
             .Subscribe();
         

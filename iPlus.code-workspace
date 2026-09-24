@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"chat.tools.terminal.enableAutoApprove": false,
+		"dotnet.defaultSolution": "iPlus/iplusAvaloniaUI_VSCode.slnx"
+	}
+}

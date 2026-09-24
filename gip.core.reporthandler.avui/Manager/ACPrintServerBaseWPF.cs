@@ -221,26 +221,26 @@ namespace gip.core.reporthandler.avui
         protected void OnRenderParagraph(PrintJob printJob, Paragraph paragraph)
         {
             OnRenderParagraphHeader(printJob, paragraph);
-            foreach (Inline inline in paragraph.Inlines)
-            {
-                if (inline is InlineContextValue)
-                    OnRenderInlineContextValue(printJob, (InlineContextValue)inline);
-                else if (inline is InlineDocumentValue)
-                    OnRenderInlineDocumentValue(printJob, (InlineDocumentValue)inline);
-                else if (inline is InlineACMethodValue)
-                    OnRenderInlineACMethodValue(printJob, (InlineACMethodValue)inline);
-                else if (inline is InlineTableCellValue)
-                    OnRenderInlineTableCellValue(printJob, (InlineTableCellValue)inline);
-                else if (inline is InlineBarcode)
-                    OnRenderInlineBarcode(printJob, (InlineBarcode)inline);
-                else if (inline is InlineBoolValue)
-                    OnRenderInlineBoolValue(printJob, (InlineBoolValue)inline);
-                else if (inline is Run)
-                    OnRenderRun(printJob, (Run)inline);
-                else if (inline is LineBreak)
-                    OnRenderLineBreak(printJob, (LineBreak)inline);
+            // foreach (Inline inline in paragraph.Inlines)
+            // {
+            //     if (inline is InlineContextValue)
+            //         OnRenderInlineContextValue(printJob, (InlineContextValue)inline);
+            //     else if (inline is InlineDocumentValue)
+            //         OnRenderInlineDocumentValue(printJob, (InlineDocumentValue)inline);
+            //     else if (inline is InlineACMethodValue)
+            //         OnRenderInlineACMethodValue(printJob, (InlineACMethodValue)inline);
+            //     else if (inline is InlineTableCellValue)
+            //         OnRenderInlineTableCellValue(printJob, (InlineTableCellValue)inline);
+            //     else if (inline is InlineBarcode)
+            //         OnRenderInlineBarcode(printJob, (InlineBarcode)inline);
+            //     else if (inline is InlineBoolValue)
+            //         OnRenderInlineBoolValue(printJob, (InlineBoolValue)inline);
+            //     else if (inline is Run)
+            //         OnRenderRun(printJob, (Run)inline);
+            //     else if (inline is LineBreak)
+            //         OnRenderLineBreak(printJob, (LineBreak)inline);
 
-            }
+            // }
             OnRenderParagraphFooter(printJob, paragraph);
         }
 

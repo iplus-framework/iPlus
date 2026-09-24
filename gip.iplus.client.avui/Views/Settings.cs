@@ -3,6 +3,7 @@
 using gip.core.layoutengine.avui;
 using Newtonsoft.Json;
 using ReactiveUI;
+using RxVoid = ReactiveUI.Primitives.RxVoid;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -88,11 +89,11 @@ namespace gip.iplus.client.avui.Views
 
         public NewtonsoftJsonSuspensionDriver(string file) => _file = file;
 
-        public IObservable<Unit> InvalidateState()
+        public IObservable<RxVoid> InvalidateState()
         {
             if (File.Exists(_file))
                 File.Delete(_file);
-            return Observable.Return(Unit.Default);
+            return Observable.Return(RxVoid.Default);
         }
 
         public IObservable<object> LoadState()
@@ -107,25 +108,25 @@ namespace gip.iplus.client.avui.Views
             throw new NotImplementedException();
         }
 
-        public IObservable<Unit> SaveState(object state)
+        public IObservable<RxVoid> SaveState(object state)
         {
             var lines = JsonConvert.SerializeObject(state, _settings);
             File.WriteAllText(_file, lines);
-            return Observable.Return(Unit.Default);
+            return Observable.Return(RxVoid.Default);
         }
 
-        public IObservable<Unit> SaveState<T>(T state)
+        public IObservable<RxVoid> SaveState<T>(T state)
         {
             var lines = JsonConvert.SerializeObject(state, _settings);
             File.WriteAllText(_file, lines);
-            return Observable.Return(Unit.Default);
+            return Observable.Return(RxVoid.Default);
         }
 
-        public IObservable<Unit> SaveState<T>(T state, JsonTypeInfo<T> typeInfo)
+        public IObservable<RxVoid> SaveState<T>(T state, JsonTypeInfo<T> typeInfo)
         {
             var lines = JsonConvert.SerializeObject(state, _settings);
             File.WriteAllText(_file, lines);
-            return Observable.Return(Unit.Default);
+            return Observable.Return(RxVoid.Default);
         }
     }
 }

@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Media;
 using gip.core.autocomponent;
 using System;
 using System.Diagnostics;
@@ -91,6 +92,11 @@ public static class AppBuilderHelper
                 if (configuredBuilder != null)
                     builder = configuredBuilder;
             }
+            
+            builder = builder.With(new FontManagerOptions
+            {
+                DefaultFamilyName = "Noto Sans"
+            });
         }
         catch
         {

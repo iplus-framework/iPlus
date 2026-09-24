@@ -216,15 +216,22 @@
     <PackageReference Include="PDFtoImage" />
   </ItemGroup>
 
+  <!-- DynamicData: needed in both modes (used by VBPdfViewer/VBDesignController).
+       In fork mode ReactiveUI 23 pulls it transitively; in NuGet mode ReactiveUI 24 does not. -->
+  <ItemGroup Condition="'$(UseAvaloniaFork)' == 'True'">
+    <PackageReference Include="DynamicData" />
+  </ItemGroup>
+
   <!-- Use Avalonia Nuget -->
   <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
     <PackageReference Include="Avalonia" />
+    <PackageReference Include="DynamicData" />
     <PackageReference Include="Dock.Avalonia" />
     <PackageReference Include="Dock.Avalonia.Themes.Fluent" />
     <PackageReference Include="Dock.Model.Avalonia" />
     <!-- <PackageReference Include="System.Text.Json" /> -->
     <!-- <PackageReference Include="Avalonia.AvaloniaEdit" /> -->
-    <PackageReference Include="OxyPlot.Avalonia" />
+    <PackageReference Include="Oxyplot.Avalonia12" />
     <PackageReference Include="Markdown.Avalonia" />
     <PackageReference Include="MessageBox.Avalonia" />
     <!-- <PackageReference Include="iPlus.RoslynPad.Editor.Avalonia" />

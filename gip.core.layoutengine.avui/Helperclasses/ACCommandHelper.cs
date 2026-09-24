@@ -3,6 +3,8 @@ using Avalonia.Labs.Input;
 using Avalonia.Threading;
 using gip.core.datamodel;
 using ReactiveUI;
+// ReactiveUI 24.x (pinned in both fork and NuGet mode) uses RxVoid instead of Unit
+using RxVoid = ReactiveUI.Primitives.RxVoid;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -207,13 +209,13 @@ namespace gip.core.layoutengine.avui.Helperclasses
         /// <param name="canExecuteMethodName">Name of the method that determines if the command can execute (e.g., "IsEnabledUnassignACProject")</param>
         /// <param name="propertiesToObserve">Names of properties to observe for changes</param>
         /// <returns>A ReactiveCommand configured with the specified behavior</returns>
-        public static ReactiveCommand<Unit, Unit> CreateReactiveCommand(
+        public static ReactiveCommand<RxVoid, RxVoid> CreateReactiveCommand(
             Action executeAction,
             string canExecuteMethodName,
             IACComponent propertyOwner,
             IEnumerable<string> propertiesToObserve)
         {
-            var manualRequeryTrigger = new Subject<Unit>();
+            var manualRequeryTrigger = new Subject<RxVoid>();
 
             // Create observables for each property, marshaling PropertyChanged events from background threads
             // (e.g., server communication threads) to the UI thread.
@@ -230,13 +232,13 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return ReactiveCommand.Create(WrapExecuteAction(executeAction, manualRequeryTrigger), canExecuteObservable);
         }
 
-        public static ReactiveCommand<Unit, Unit> CreateReactiveCommand(
+        public static ReactiveCommand<RxVoid, RxVoid> CreateReactiveCommand(
             Action executeAction,
             string canExecuteMethodName,
             IACComponent propertyOwner,
             IEnumerable<Tuple<INotifyPropertyChanged, string>> propertiesToObserve)
         {
-            var manualRequeryTrigger = new Subject<Unit>();
+            var manualRequeryTrigger = new Subject<RxVoid>();
 
             // Create observables for each property, marshaling PropertyChanged events from background threads
             // (e.g., server communication threads) to the UI thread.
@@ -252,13 +254,13 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return ReactiveCommand.Create(WrapExecuteAction(executeAction, manualRequeryTrigger), canExecuteObservable);
         }
 
-        private static Action WrapExecuteAction(Action executeAction, IObserver<Unit> manualRequeryTrigger)
+        private static Action WrapExecuteAction(Action executeAction, IObserver<RxVoid> manualRequeryTrigger)
         {
             return () =>
             {
                 executeAction();
                 TraceReactiveCommand("Manual requery trigger after execute");
-                manualRequeryTrigger.OnNext(Unit.Default);
+                manualRequeryTrigger.OnNext(RxVoid.Default);
             };
         }
 
@@ -270,15 +272,15 @@ namespace gip.core.layoutengine.avui.Helperclasses
         private static IObservable<bool> BuildCanExecuteObservable(
             string canExecuteMethodName,
             IACComponent propertyOwner,
-            IObservable<Unit>[] propertyObservables,
-            IObservable<Unit> manualRequeryTrigger)
+            IObservable<RxVoid>[] propertyObservables,
+            IObservable<RxVoid> manualRequeryTrigger)
         {
             int evaluateInFlight = 0;
 
-            var triggerStream = Observable.Merge(propertyObservables.Concat(new[] { manualRequeryTrigger }))
+            var triggerStream = Observable.Merge<RxVoid>(propertyObservables.Concat(new[] { manualRequeryTrigger }))
                 .Synchronize()
                 .Throttle(TimeSpan.FromMilliseconds(50))
-                .StartWith(Unit.Default);
+                .StartWith(RxVoid.Default);
 
             // Re-evaluate immediately and then at sparse delayed checkpoints.
             // This keeps late-state reliability while reducing remote IsEnabled traffic.
@@ -303,16 +305,16 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return ObserveOnUiThread(backgroundEvaluated);
         }
 
-        private static IObservable<Unit> CreateRequerySchedule()
+        private static IObservable<RxVoid> CreateRequerySchedule()
         {
-            return Observable.Merge(
-                Observable.Return(Unit.Default),
-                Observable.Timer(TimeSpan.FromMilliseconds(200)).Select(_ => Unit.Default),
-                Observable.Timer(TimeSpan.FromMilliseconds(700)).Select(_ => Unit.Default),
-                Observable.Timer(TimeSpan.FromMilliseconds(1500)).Select(_ => Unit.Default),
-                Observable.Timer(TimeSpan.FromMilliseconds(2800)).Select(_ => Unit.Default),
-                Observable.Timer(TimeSpan.FromMilliseconds(4500)).Select(_ => Unit.Default),
-                Observable.Timer(TimeSpan.FromMilliseconds(7000)).Select(_ => Unit.Default));
+            return Observable.Merge<RxVoid>(
+                Observable.Return(RxVoid.Default),
+                Observable.Timer(TimeSpan.FromMilliseconds(200)).Select(_ => RxVoid.Default),
+                Observable.Timer(TimeSpan.FromMilliseconds(700)).Select(_ => RxVoid.Default),
+                Observable.Timer(TimeSpan.FromMilliseconds(1500)).Select(_ => RxVoid.Default),
+                Observable.Timer(TimeSpan.FromMilliseconds(2800)).Select(_ => RxVoid.Default),
+                Observable.Timer(TimeSpan.FromMilliseconds(4500)).Select(_ => RxVoid.Default),
+                Observable.Timer(TimeSpan.FromMilliseconds(7000)).Select(_ => RxVoid.Default));
         }
 
         private static IObservable<bool> EvaluateCanExecuteOnUiThreadAsync(string canExecuteMethodName, IACComponent propertyOwner)
@@ -350,16 +352,16 @@ namespace gip.core.layoutengine.avui.Helperclasses
         /// to the UI thread in a non-blocking way, ensuring cross-thread safety while
         /// keeping communication threads free to process synchronous server responses.
         /// </summary>
-        private static IObservable<Unit> ObservePropertyChangedOnUiThread(INotifyPropertyChanged source, string propertyName)
+        private static IObservable<RxVoid> ObservePropertyChangedOnUiThread(INotifyPropertyChanged source, string propertyName)
         {
-            return Observable.Create<Unit>(observer =>
+            return Observable.Create<RxVoid>(observer =>
             {
                 void Handler(object sender, PropertyChangedEventArgs e)
                 {
                     if (e.PropertyName == propertyName)
                     {
                         TraceReactiveCommand($"PropertyChanged: {source.GetType().Name}.{propertyName}");
-                        observer.OnNext(Unit.Default);
+                        observer.OnNext(RxVoid.Default);
                     }
                 }
                 source.PropertyChanged += Handler;

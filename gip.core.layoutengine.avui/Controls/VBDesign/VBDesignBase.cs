@@ -1215,7 +1215,7 @@ namespace gip.core.layoutengine.avui
             {
                 using (var ms = new MemoryStream())
                 {
-                    bitmap.Save(ms);
+                    bitmap.Save(ms, PngBitmapEncoderOptions.Default);
                     var dataTransfer = new DataTransfer();
                     dataTransfer.Add(DataTransferItem.Create(DataFormat.CreateBytesPlatformFormat("image/png"), ms.ToArray()));
                     _ = clipboard.SetDataAsync(dataTransfer);

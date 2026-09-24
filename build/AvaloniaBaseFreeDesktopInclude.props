@@ -6,6 +6,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Tmds.DBus.Protocol" />
-    <PackageReference Include="Tmds.DBus.SourceGenerator" />
+    <PackageReference Include="Tmds.DBus.Generator" PrivateAssets="all" />
   </ItemGroup>
 </Project> 

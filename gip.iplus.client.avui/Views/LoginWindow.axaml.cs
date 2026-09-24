@@ -35,7 +35,7 @@ public partial class LoginWindow : ReactiveWindow<Settings>
     public LoginWindow()
     {
         InitializeComponent();
-        this.WhenActivated(disposable => { });
+        this.WhenActivated((Action<Action<IDisposable>>)(disposable => { }));
     }
 
     public LoginWindow(Action loginAction, Action mainAction, IEnumerable<IExternalLoginProvider> externalLoginProviders = null) : this()

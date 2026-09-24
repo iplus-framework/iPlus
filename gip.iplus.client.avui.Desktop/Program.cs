@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Avalonia;
+using Avalonia.Media;
 using ReactiveUI.Avalonia;
 
 namespace gip.iplus.client.avui.Desktop;
@@ -35,11 +36,12 @@ sealed class Program
             BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
         }
-        catch (Exception)
-        
+        catch (Exception e)
+
         {
             // here we can work with the exception, for example add it to our log file
-            //Log.Fatal(e, "Something very bad happened");            
+            Console.Error.WriteLine("Startup failed: " + e);
+            //Log.Fatal(e, "Something very bad happened");
         }
         finally
         {

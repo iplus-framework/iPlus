@@ -75,6 +75,9 @@ namespace gip.core.reporthandler.avui
                 return;
 
             _webView = new NativeWebView();
+            // Prefer WPE when available (matches Avalonia docs for NativeWebView on Linux).
+            // Note: AdapterPreference was removed in Avalonia.Controls.WebView 12.1.0 NuGet; adapter selection is automatic now.
+            //_webView.AdapterPreference = new[] { Avalonia.Platform.WebViewAdapterType.WpeWebKit, Avalonia.Platform.WebViewAdapterType.WebKitGtk };
             _webView.WebMessageReceived += WebView_WebMessageReceived;
             _webView.NavigationCompleted += WebView_NavigationCompleted;
             _webView.EnvironmentRequested += WebView_EnvironmentRequested;
@@ -169,12 +172,7 @@ namespace gip.core.reporthandler.avui
 
         private void WebView_EnvironmentRequested(object sender, WebViewEnvironmentRequestedEventArgs e)
         {
-            if (e is LinuxWpeWebViewEnvironmentRequestedEventArgs wpeArgs)
-            {
-                // Prefer WPE when available (matches Avalonia docs for NativeWebView on Linux).
-                wpeArgs.PreferWebKitGtkInstead = false;
-            }
-            else if (e is GtkWebViewEnvironmentRequestedEventArgs gtkArgs)
+            if (e is GtkWebViewEnvironmentRequestedEventArgs gtkArgs)
             {
                 // If WPE isn't available, fallback to GTK native host instead of experimental offscreen path.
                 gtkArgs.ExperimentalOffscreen = false;

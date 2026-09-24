@@ -131,7 +131,7 @@ namespace gip.ext.designer.avui.Extensions
             };
 
             HitTestResultCallback resultCallback = delegate (HitTestResult result) {
-                if (((GeometryHitTestResult)result).IntersectionDetail == IntersectionDetail.FullyInside)
+                if (((gip.ext.design.avui.GeometryHitTestResult)result).IntersectionDetail == IntersectionDetail.FullyInside)
                 {
                     // find the model for the visual contained in the selection area
                     Visual tmp = result.VisualHit;
