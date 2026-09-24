@@ -149,6 +149,10 @@ namespace gip.core.datamodel
             // URIs fail with "Cannot load relative Uri when BaseUri is null".
             avaloniaXAML = ConvertAssemblyResourceAttributes(avaloniaXAML);
 
+                // Avalonia DataTemplate has no Resources property. Move WPF template resources
+                // to the owning control so StaticResource lookups remain available.
+                avaloniaXAML = MoveDataTemplateResourcesToOwner(avaloniaXAML);
+
             // WPF allows implicit style keys by TargetType inside Resources. Avalonia requires an
             // explicit x:Key, so add x:Key="{x:Type ...}" to keyless ControlTheme elements
             // inside *.Resources property elements.
@@ -744,7 +748,7 @@ namespace gip.core.datamodel
             // like "/ControlTheme" only matches elements with a NULL namespace URI, but the
             // ControlTheme elements inherit the default xmlns (avaloniaui) and would never match.
             var resourceControlThemes = doc.SelectNodes(
-                "//*[contains(local-name(), '.Resources')]/*[local-name() = 'ControlTheme']");
+                "//*[contains(local-name(), '.Resources')]//*[local-name() = 'ControlTheme']");
             if (resourceControlThemes == null)
                 return;
 
@@ -2235,9 +2239,44 @@ namespace gip.core.datamodel
                 if (string.IsNullOrEmpty(xamlNs))
                     return xaml;
 
+                bool modified = false;
+
+                // Shared.xaml is a WPF-only dictionary. Remove both already-converted
+                // ResourceInclude elements and any remaining WPF source dictionaries
+                // regardless of where the reference appears in the layout.
+                var obsoleteIncludes = doc
+                    .SelectNodes("//*[local-name()='ResourceInclude']")?
+                    .OfType<XmlNode>()
+                    .OfType<XmlElement>()
+                    .Where(element => IsSupersededWpfSharedResource(element.GetAttribute("Source")))
+                    .ToList();
+                if (obsoleteIncludes != null)
+                {
+                    foreach (var obsoleteInclude in obsoleteIncludes)
+                    {
+                        obsoleteInclude.ParentNode?.RemoveChild(obsoleteInclude);
+                        modified = true;
+                    }
+                }
+
+                var obsoleteSourceDictionaries = doc
+                    .SelectNodes("//*[local-name()='ResourceDictionary' and @Source]")?
+                    .OfType<XmlNode>()
+                    .OfType<XmlElement>()
+                    .Where(element => IsSupersededWpfSharedResource(element.GetAttribute("Source")))
+                    .ToList();
+                if (obsoleteSourceDictionaries != null)
+                {
+                    foreach (var obsoleteSourceDictionary in obsoleteSourceDictionaries)
+                    {
+                        obsoleteSourceDictionary.ParentNode?.RemoveChild(obsoleteSourceDictionary);
+                        modified = true;
+                    }
+                }
+
                 var resourcesNodes = doc.SelectNodes("//*[contains(local-name(), '.Resources')]");
                 if (resourcesNodes == null || resourcesNodes.Count == 0)
-                    return xaml;
+                    return modified ? doc.OuterXml : xaml;
 
                 foreach (var resourcesElement in resourcesNodes.OfType<XmlNode>().OfType<XmlElement>())
                 {
@@ -2255,6 +2294,12 @@ namespace gip.core.datamodel
                     foreach (var sourceDictionary in sourceDictionaries)
                     {
                         string source = sourceDictionary.GetAttribute("Source");
+                        if (IsSupersededWpfSharedResource(source))
+                        {
+                            resourcesElement.RemoveChild(sourceDictionary);
+                            continue;
+                        }
+
                         string avaresSource = ConvertWpfResourceSourceToAvares(source);
                         if (!string.IsNullOrWhiteSpace(avaresSource))
                         {
@@ -2339,6 +2384,12 @@ namespace gip.core.datamodel
                         foreach (var nestedSourceDictionary in nestedSourceDictionaries)
                         {
                             string source = nestedSourceDictionary.GetAttribute("Source");
+                            if (IsSupersededWpfSharedResource(source))
+                            {
+                                mergedDictionariesNode.RemoveChild(nestedSourceDictionary);
+                                continue;
+                            }
+
                             string avaresSource = ConvertWpfResourceSourceToAvares(source);
                             if (string.IsNullOrWhiteSpace(avaresSource))
                                 continue;
@@ -2363,6 +2414,16 @@ namespace gip.core.datamodel
                 // Keep conversion resilient: if this pass fails, return the original text.
                 return xaml;
             }
+        }
+
+        private static bool IsSupersededWpfSharedResource(string source)
+        {
+            if (string.IsNullOrWhiteSpace(source))
+                return false;
+
+            string normalized = source.Trim().Replace('\\', '/');
+            return normalized.IndexOf("gip.core.layoutengine;component/controls/shared.xaml", StringComparison.OrdinalIgnoreCase) >= 0
+                || normalized.IndexOf("avares://gip.core.layoutengine.avui/controls/shared.axaml", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private static string ConvertAssemblyResourceAttributes(string xaml)
@@ -2989,6 +3050,8 @@ namespace gip.core.datamodel
             // Fallback: convert Property="Visibility" without value change (may need manual review)
             (@"Property=""Visibility""", @"Property=""IsVisible""", true),
             (" ToolTip=", " ToolTip.Tip=", false),
+            // Avalonia uses TreeDataTemplate for hierarchical item templates.
+            ("HierarchicalDataTemplate", "TreeDataTemplate", false),
             // Regex with negative lookbehind: "DataGrid.Columns" is a substring of
             // "VBDataGrid.Columns", so a plain replace would corrupt already-prefixed
             // property elements (vb:VBDataGrid.Columns -> vb:VBvb:VBDataGrid.Columns).
@@ -3000,6 +3063,10 @@ namespace gip.core.datamodel
             // RowDetailsTemplate exists on Avalonia DataGrid, but the property element must be
             // prefixed like Columns so it resolves on the VBDataGrid type.
             (@"(?<!vb:VB)(?<!VB)DataGrid\.RowDetailsTemplate", "vb:VBDataGrid.RowDetailsTemplate", true),
+            // GridViewColumn is a custom iPlus type in Avalonia. Property elements must use
+            // the VBGridViewColumn owner so XamlX does not resolve GridViewColumn from Avalonia's default namespace.
+            ("GridViewColumn.CellTemplate", "vb:VBGridViewColumn.CellTemplate", false),
+            ("GridViewColumn.CellTemplateSelector", "vb:VBGridViewColumn.CellTemplateSelector", false),
             (@"<DataGridTextColumn(?=[\s>])", "<vb:VBDataGridTextColumn", true),
             (@"</DataGridTextColumn(?=\s*>)", "</vb:VBDataGridTextColumn", true),
             ("AllowDrop=", "DragDrop.AllowDrop=", false),
@@ -3320,6 +3387,97 @@ namespace gip.core.datamodel
             {
                 return xaml;
             }
+        }
+
+        private static string MoveDataTemplateResourcesToOwner(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                var templates = doc.SelectNodes("//*[local-name()='DataTemplate']")?
+                    .OfType<XmlNode>()
+                    .OfType<XmlElement>()
+                    .ToList();
+                if (templates == null || templates.Count == 0)
+                    return xaml;
+
+                foreach (var template in templates)
+                {
+                    var resourcesProperty = template.ChildNodes
+                        .OfType<XmlElement>()
+                        .FirstOrDefault(element => string.Equals(element.LocalName, "DataTemplate.Resources", StringComparison.OrdinalIgnoreCase));
+                    if (resourcesProperty == null)
+                        continue;
+
+                    var sourceDictionary = resourcesProperty.ChildNodes
+                        .OfType<XmlElement>()
+                        .FirstOrDefault(element => string.Equals(element.LocalName, "ResourceDictionary", StringComparison.OrdinalIgnoreCase));
+                    if (sourceDictionary == null)
+                        continue;
+
+                    var owner = FindDataTemplateResourceOwner(template);
+                    if (owner == null)
+                        continue;
+
+                    var targetResources = owner.ChildNodes
+                        .OfType<XmlElement>()
+                        .FirstOrDefault(element => string.Equals(element.LocalName, owner.LocalName + ".Resources", StringComparison.OrdinalIgnoreCase) ||
+                                                   string.Equals(element.LocalName, "Resources", StringComparison.OrdinalIgnoreCase));
+                    if (targetResources == null)
+                    {
+                        targetResources = doc.CreateElement(owner.Prefix, owner.LocalName + ".Resources", owner.NamespaceURI);
+                        owner.AppendChild(targetResources);
+                    }
+
+                    var targetDictionary = targetResources.ChildNodes
+                        .OfType<XmlElement>()
+                        .FirstOrDefault(element => string.Equals(element.LocalName, "ResourceDictionary", StringComparison.OrdinalIgnoreCase));
+                    if (targetDictionary == null)
+                    {
+                        targetDictionary = doc.CreateElement(sourceDictionary.Prefix, sourceDictionary.LocalName, sourceDictionary.NamespaceURI);
+                        targetResources.AppendChild(targetDictionary);
+                    }
+
+                    foreach (XmlNode resourceNode in sourceDictionary.ChildNodes.Cast<XmlNode>().ToList())
+                        targetDictionary.AppendChild(resourceNode);
+
+                    resourcesProperty.ParentNode?.RemoveChild(resourcesProperty);
+                }
+
+                return doc.OuterXml;
+            }
+            catch
+            {
+                return xaml;
+            }
+        }
+
+        private static XmlElement FindDataTemplateResourceOwner(XmlElement template)
+        {
+            XmlNode current = template.ParentNode;
+            while (current is XmlElement element)
+            {
+                if (string.Equals(element.LocalName, "ResourceDictionary", StringComparison.OrdinalIgnoreCase))
+                {
+                    current = element.ParentNode;
+                    continue;
+                }
+
+                if (!element.LocalName.Contains(".", StringComparison.Ordinal))
+                    return element;
+
+                current = element.ParentNode;
+            }
+
+            return null;
         }
 
         /// <summary>

@@ -183,6 +183,7 @@ namespace gip.core.datamodel
             ("http://www.iplus-framework.com/visual/xaml", "http://www.iplus-framework.com/visual/axaml"),
             ("clr-namespace:gip.core.graphics;assembly=gip.core.graphics", "http://www.iplus-framework.com/shapes/axaml"),
             ("clr-namespace:gip.core.layoutengine;assembly=gip.core.layoutengine", "http://www.iplus-framework.com/axaml"),
+            ("clr-namespace:gip.core.layoutengine.timeline;assembly=gip.core.layoutengine", "clr-namespace:gip.core.layoutengine.avui.timeline;assembly=gip.core.layoutengine.avui"),
             ("clr-namespace:gip.core.reporthandler;assembly=gip.core.reporthandler", "http://www.iplus-framework.com/report/xaml"),
             ("clr-namespace:gip.core.visualcontrols;assembly=gip.core.visualcontrols", "http://www.iplus-framework.com/visual/axaml")
         };
