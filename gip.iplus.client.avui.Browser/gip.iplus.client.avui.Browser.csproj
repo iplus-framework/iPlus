@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia.Browser"  />
+    <PackageReference Include="$(AvaloniaPackagePrefix)Avalonia.Browser"  />
   </ItemGroup>
 
   <ItemGroup>

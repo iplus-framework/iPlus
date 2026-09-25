@@ -31,7 +31,7 @@
   
   <!-- Use Avalonia Nuget -->
   <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
-    <PackageReference Include="Avalonia"  />
+    <PackageReference Include="$(AvaloniaPackagePrefix)Avalonia"  />
   </ItemGroup>
 
   <!-- Use Avalonia Fork -->

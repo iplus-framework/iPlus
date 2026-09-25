@@ -6,6 +6,6 @@
 	],
 	"settings": {
 		"chat.tools.terminal.enableAutoApprove": false,
-		"dotnet.defaultSolution": "iPlus/iplusAvaloniaUI_VSCode.slnx"
+		"dotnet.defaultSolution": "iplusAvaloniaUI_VSCode.slnx"
 	}
 }

@@ -71,8 +71,8 @@
 
   <!-- Use Avalonia Nuget -->
   <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
-    <PackageReference Include="Avalonia" />
-    <PackageReference Include="Avalonia.Controls.ColorPicker"  />
+    <PackageReference Include="$(AvaloniaPackagePrefix)Avalonia" />
+    <PackageReference Include="$(AvaloniaPackagePrefix)Avalonia.Controls.ColorPicker"  />
     <PackageReference Include="iPlus.Avalonia.Controls.DataGrid"  />   
     <PackageReference Include="ReactiveUI.Avalonia"  />
     <PackageReference Include="Avalonia.Labs.CommandManager"  />

@@ -224,7 +224,7 @@
 
   <!-- Use Avalonia Nuget -->
   <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
-    <PackageReference Include="Avalonia" />
+    <PackageReference Include="$(AvaloniaPackagePrefix)Avalonia" />
     <PackageReference Include="DynamicData" />
     <PackageReference Include="Dock.Avalonia" />
     <PackageReference Include="Dock.Avalonia.Themes.Fluent" />

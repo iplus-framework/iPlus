@@ -10,6 +10,19 @@
 		<UseAvaloniaFork Condition="'$(UseAvaloniaFork)' == ''">False</UseAvaloniaFork>
 		<!-- Set to True to use standalone Avalonia.Controls.DataGrid and exclude Avalonia.Diagnostics (which has internal DataGrid) -->
 		<UseStandaloneDataGrid>False</UseStandaloneDataGrid>
+
+		<!-- Switch between original Avalonia packages and the iPlus.* fork packages from nuget.org.
+		     Only effective when UseAvaloniaFork == 'False' (UseAvaloniaFork == 'True' uses the local
+		     fork binaries via HintPaths, see build/AvaloniaBase*.props).
+		     True  = use iPlus.* packages from nuget.org (default, so a fresh clone compiles without
+		             cloning the Avalonia fork repositories)
+		     False = use the original Avalonia packages from nuget.org -->
+		<UseAvaloniaIPlusPackages Condition="'$(UseAvaloniaIPlusPackages)' == ''">True</UseAvaloniaIPlusPackages>
+		<AvaloniaPackagePrefix Condition="'$(UseAvaloniaFork)' != 'True' and '$(UseAvaloniaIPlusPackages)' == 'True'">iPlus.</AvaloniaPackagePrefix>
+		<AvaloniaPackagePrefix Condition="'$(AvaloniaPackagePrefix)' == ''"></AvaloniaPackagePrefix>
+		<!-- Version of the iPlus.* Avalonia packages published on nuget.org
+		     (built with: NUGET_PACKAGES=... ./build.sh Package -force-nuget-version <version>) -->
+		<AvaloniaIPlusPackageVersion Condition="'$(AvaloniaIPlusPackageVersion)' == ''">12.2.901</AvaloniaIPlusPackageVersion>
 		<!-- Specify Avalonia version to use. 11.3.11 are not available for ReactiveUI  -->
 		<!--<AvaloniaVersion>11.3.11</AvaloniaVersion>-->
 

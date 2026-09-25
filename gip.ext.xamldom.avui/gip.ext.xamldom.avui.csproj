@@ -75,8 +75,8 @@
 
   <!-- Use Avalonia Nuget -->
   <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
-    <PackageReference Include="Avalonia"  />
-    <PackageReference Include="Avalonia.Markup.Xaml.Loader"  />
+    <PackageReference Include="$(AvaloniaPackagePrefix)Avalonia"  />
+    <PackageReference Include="$(AvaloniaPackagePrefix)Avalonia.Markup.Xaml.Loader"  />
     <PackageReference Include="Xaml.Behaviors"  />
   </ItemGroup>
 

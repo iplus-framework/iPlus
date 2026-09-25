@@ -50,6 +50,37 @@
 		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'"
 			Include="iPlus.EntityFrameworkCore.Relational" Version="$(EFCorePackageVersionFork)" />
 
+		<!-- iPlus.* Avalonia fork packages from nuget.org.
+		     Used when UseAvaloniaFork == 'False' and UseAvaloniaIPlusPackages == 'True'
+		     (remapping happens centrally in Directory.Build.targets). -->
+		<PackageVersion Include="iPlus.Avalonia" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Base" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Native" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Android" Version="$(AvaloniaIPlusPackageVersion)" />
+		<!-- iPlus.Avalonia.iOS is not published (cannot be built on Linux/Windows);
+		     the iOS client keeps using the original Avalonia.iOS package. -->
+		<PackageVersion Include="iPlus.Avalonia.Browser" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Desktop" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.FreeDesktop" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.FreeDesktop.AtSpi" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Skia" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Remote.Protocol" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Controls.ColorPicker" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Themes.Fluent" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Themes.Simple" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Fonts.Inter" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.HarfBuzz" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Headless" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Headless.XUnit" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Headless.NUnit" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Headless.Vnc" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.LinuxFramebuffer" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Win32" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Win32.Interoperability" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.X11" Version="$(AvaloniaIPlusPackageVersion)" />
+		<PackageVersion Include="iPlus.Avalonia.Wayland" Version="$(AvaloniaIPlusPackageVersion)" />
+
 		<PackageVersion Include="Avalonia" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.Android" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.Browser" Version="$(AvaloniaVersionLatest)" />

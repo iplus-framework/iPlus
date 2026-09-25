@@ -42,7 +42,7 @@
 
   <!-- Use Avalonia Nuget -->
   <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
-    <PackageReference Include="Avalonia.Android"  />
+    <PackageReference Include="$(AvaloniaPackagePrefix)Avalonia.Android"  />
   </ItemGroup>
   
   <!-- Use Avalonia Fork -->
