@@ -71,19 +71,55 @@ namespace gip.core.layoutengine.avui
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            this.GetObservable(SelectedItemProperty).Subscribe(_ => OnSelectedItemChanged());
-            this.GetObservable(SelectedValueProperty).Subscribe(_ => OnSelectedValueChanged());
+            UpdateHasValueState();
         }
 
-        private void OnSelectedValueChanged()
+        private bool _HasValueStatePending = false;
+
+        /// <summary>
+        /// Evaluates whether a value is selected and updates the HasSelectedValue property
+        /// as well as the :has-value / :no-value pseudo classes.
+        /// 
+        /// The evaluation is coalesced (posted to the dispatcher), because a single user
+        /// selection triggers a cascade of property changes:
+        /// 1. SelectedItem/SelectedValue change (selection committed)
+        /// 2. OnSelectedItemChanged() mutates ACAccessComposite (= ItemsSource), which can
+        ///    transiently reset SelectedValue/SelectedItem to null (the removed item was
+        ///    the selected one)
+        /// 3. The TwoWay VBContent binding writes the value to the source and the source
+        ///    change is pushed back
+        /// Evaluating synchronously at step 1 or 2 sees intermediate null values, which
+        /// wrongly removes the :has-value pseudo class (and with it ComboBoxBorderRequired).
+        /// Posting ensures that only the final settled value is evaluated.
+        /// </summary>
+        private void UpdateHasValueState()
         {
-            var selectedValue = SelectedValue;
-            var hasValue = selectedValue != null;
-            HasSelectedValue = hasValue;
-            
-            // Update pseudo classes
-            PseudoClasses.Set(HasValuePseudoClass, hasValue);
-            PseudoClasses.Set(NoValuePseudoClass, !hasValue);
+            if (!Dispatcher.UIThread.CheckAccess())
+            {
+                Dispatcher.UIThread.Post(UpdateHasValueState, DispatcherPriority.Normal);
+                return;
+            }
+
+            if (_HasValueStatePending)
+                return;
+            _HasValueStatePending = true;
+            Dispatcher.UIThread.Post(() =>
+            {
+                _HasValueStatePending = false;
+                bool hasValue = SelectedValue != null || SelectedItem != null;
+                HasSelectedValue = hasValue;
+                PseudoClasses.Set(HasValuePseudoClass, hasValue);
+                PseudoClasses.Set(NoValuePseudoClass, !hasValue);
+
+                // Re-evaluate the ControlMode in this deferred, settled state. During the
+                // synchronous selection change the TwoWay VBContent binding may not yet have
+                // written the new value to the source, so GetControlModes() still sees the
+                // old (null) value and resolves EnabledRequired. Whether the BSO raises a
+                // follow-up notification that re-triggers UpdateControlMode depends on the
+                // BSO implementation (BSOOutOffer does, BSOInvoice doesn't). Evaluating here
+                // guarantees a consistent re-resolution for all BSOs.
+                UpdateControlMode();
+            }, DispatcherPriority.Normal);
         }
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -909,8 +945,12 @@ namespace gip.core.layoutengine.avui
         private void OnSelectedItemChanged()
         {
             if (_SuppressSelectionWriteback)
+            {
+                UpdateHasValueState();
                 return;
+            }
 
+            UpdateHasValueState();
             UpdateControlMode();
             if (ACAccessComposite != null)
             {
@@ -1267,7 +1307,22 @@ namespace gip.core.layoutengine.avui
             }
 
             if (change.Property == SelectedItemProperty && _SuppressSelectionWriteback)
+            {
+                // Selection was transiently reset by an ItemsSource change. Still refresh
+                // the has-value state (coalesced), so the pseudo classes reflect the final value.
+                UpdateHasValueState();
                 return;
+            }
+
+            if (change.Property == SelectedItemProperty)
+            {
+                UpdateHasValueState();
+                OnSelectedItemChanged();
+            }
+            else if (change.Property == SelectedValueProperty)
+            {
+                UpdateHasValueState();
+            }
 
             base.OnPropertyChanged(change);
             if (change.Property == ACCompInitStateProperty)

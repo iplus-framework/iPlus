@@ -854,12 +854,14 @@
     </Style>
 
     <!-- EnabledRequired + Focus -->
-    <Style Selector="^:focus-within:has-value[ControlMode=EnabledRequired]">
+    <!-- Uses HasSelectedValue property selector instead of the :has-value pseudo class,
+         because the pseudo class did not reliably match in style selectors. -->
+    <Style Selector="^:focus-within[ControlMode=EnabledRequired][HasSelectedValue=True]">
       <Setter Property="Background" Value="{StaticResource ComboBoxBgRequired}"/>
       <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderRequired}"/>
       <Setter Property="Foreground" Value="{StaticResource ComboBoxFgRequiredFocus}"/>
     </Style>
-    <Style Selector="^[ControlMode=EnabledRequired]:has-value">
+    <Style Selector="^[ControlMode=EnabledRequired][HasSelectedValue=True]">
       <Setter Property="Background" Value="{StaticResource ComboBoxBgRequired}"/>
       <Setter Property="Foreground" Value="{StaticResource ComboBoxFgRequired}"/>
       <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderRequired}"/>

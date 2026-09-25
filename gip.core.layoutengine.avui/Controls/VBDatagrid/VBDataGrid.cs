@@ -752,7 +752,11 @@ namespace gip.core.layoutengine.avui
                     string dataCurrent = VBContentPropertyInfo.GetACCurrent(DataCurrent);
                     if (!string.IsNullOrEmpty(dataCurrent))
                     {
-                        contextObject.ACUrlCommand(dataCurrent, SelectedItem);
+                        // Avalonia can transiently coerce SelectedItem to null (e.g. when the
+                        // selected item is not yet contained in ItemsSource). Don't propagate
+                        // such nulls back into the BSO property, they would reset the selection.
+                        if (SelectedItem != null)
+                            contextObject.ACUrlCommand(dataCurrent, SelectedItem);
                     }
                 }
             }

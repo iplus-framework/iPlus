@@ -117,7 +117,7 @@
                         </local:VBDateTimePicker>-->
 
                         <Image Grid.Column="4" HorizontalAlignment="Right" x:Name="ImgHelp" 
-                               Source="/gip.core.layoutengine.avui;Component/Images/questionMarkHelp.png" 
+                               Source="avares://gip.core.layoutengine.avui/Images/questionMarkHelp.png" 
                                IsVisible="True"
                                ToolTip.Tip="{x:Null}">
                             <Image.Styles>
@@ -131,18 +131,18 @@
                             <ToolTip.Tip>
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal" Margin="0,0,5,10">
-                                        <Image Height="25" Width="25" Margin="0,0,5,0" Source="/gip.core.layoutengine.avui;Component/Images/noduration.png"/>
+                                        <Image Height="25" Width="25" Margin="0,0,5,0" Source="avares://gip.core.layoutengine.avui/Images/noduration.png"/>
                                         <local:VBTextBlock Text="Duration &lt; 1&quot;" VerticalAlignment="Center" />
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Margin="0,0,5,10">
                                         <Canvas Height="25" Width="25" Margin="0,0,5,0" Background="White">
-                                            <Image Height="25" Width="25" Source="/gip.core.layoutengine.avui;Component/Images/icon_alarm.png" />
+                                            <Image Height="25" Width="25" Source="avares://gip.core.layoutengine.avui/Images/icon_alarm.png" />
                                         </Canvas>
                                         <local:VBTextBlock Text="Alarm" VerticalAlignment="Center" />
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Margin="0,0,5,0">
                                         <Canvas Height="25" Width="25" Margin="0,0,5,0" Background="White">
-                                            <Image Height="25" Width="25" Source="/gip.core.layoutengine.avui;Component/Images/alarmChild.png" />
+                                            <Image Height="25" Width="25" Source="avares://gip.core.layoutengine.avui/Images/alarmChild.png" />
                                         </Canvas>
                                         <local:VBTextBlock Text="SubAlarm" VerticalAlignment="Center" />
                                     </StackPanel>

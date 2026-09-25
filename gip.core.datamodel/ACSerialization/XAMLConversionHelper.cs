@@ -149,6 +149,10 @@ namespace gip.core.datamodel
             // URIs fail with "Cannot load relative Uri when BaseUri is null".
             avaloniaXAML = ConvertAssemblyResourceAttributes(avaloniaXAML);
 
+            // Convert WPF pack-style Source attribute values (e.g. Image.Source="/gip.core.layoutengine;Component/Images/alarmChild.png")
+            // to absolute avares:// URIs (avares://gip.core.layoutengine.avui/Images/alarmChild.png).
+            avaloniaXAML = ConvertSourceAttributesToAvares(avaloniaXAML);
+
                 // Avalonia DataTemplate has no Resources property. Move WPF template resources
                 // to the owning control so StaticResource lookups remain available.
                 avaloniaXAML = MoveDataTemplateResourcesToOwner(avaloniaXAML);
@@ -2525,6 +2529,55 @@ namespace gip.core.datamodel
             }
 
             return $"avares://{assemblyName}/{path}";
+        }
+
+        /// <summary>
+        /// Converts WPF-style resource URIs in Source attributes (e.g.
+        /// "/gip.core.layoutengine;Component/Images/alarmChild.png") to Avalonia avares:// URIs
+        /// (e.g. "avares://gip.core.layoutengine.avui/Images/alarmChild.png").
+        /// Bindings and markup extensions are left untouched.
+        /// </summary>
+        private static string ConvertSourceAttributesToAvares(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                bool modified = false;
+                var sourceAttributes = doc.SelectNodes("//@Source");
+                if (sourceAttributes != null)
+                {
+                    foreach (var attr in sourceAttributes.OfType<XmlNode>().OfType<XmlAttribute>())
+                    {
+                        string source = attr.Value;
+                        // Skip bindings/markup extensions - only plain URIs are converted.
+                        if (string.IsNullOrWhiteSpace(source) || source.TrimStart().StartsWith("{"))
+                            continue;
+
+                        string avaresSource = ConvertWpfResourceSourceToAvares(source);
+                        if (!string.IsNullOrWhiteSpace(avaresSource) &&
+                            !string.Equals(avaresSource, source, StringComparison.Ordinal))
+                        {
+                            attr.Value = avaresSource;
+                            modified = true;
+                        }
+                    }
+                }
+
+                return modified ? doc.OuterXml : xaml;
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
         }
 
         private static string NormalizeAvaresExtension(string avaresUri)
