@@ -72,6 +72,13 @@ namespace gip.core.layoutengine.avui
         /// <returns>The arrange size.</returns>
         protected override Size ArrangeOverride(Size arrangeSize)
         {
+            // Unlike WPF, arrange can run before the template is applied in Avalonia.
+            // Build the cells now if the visual tree is out of date.
+            if (NeedUpdateVisualTree)
+            {
+                UpdateVisualTree();
+            }
+
             Size s = base.ArrangeOverride(arrangeSize);
 
             if (this.Columns == null || this.Columns.Count == 0) return s;
@@ -84,7 +91,9 @@ namespace gip.core.layoutengine.avui
                 GridViewColumn column = this.Columns[x];
 
                 // Actual index needed for column reorder
-                Control uiColumn = GetVisualChild((int)ActualIndexProperty.GetValue(column, null)) as Control;
+                int columnIndex = (int)ActualIndexProperty.GetValue(column, null);
+                Control uiColumn = GetVisualChild(columnIndex) as Control;
+                if (uiColumn == null) { continue; }
 
                 // Compute column width
                 double w = Math.Min(max, (Double.IsNaN(column.Width)) ? (double)DesiredWidthProperty.GetValue(column, null) : column.Width);
@@ -108,7 +117,7 @@ namespace gip.core.layoutengine.avui
             {
                 expander.Arrange(new Rect(this.FirstColumnIndent, 0, expander.DesiredSize.Width, expander.DesiredSize.Height));
             }
-            
+
             return s;
         }
 
@@ -142,7 +151,7 @@ namespace gip.core.layoutengine.avui
         {
             // Last element is always the expander
             // called by render engine
-            if (index < base.VisualChildren.Count)
+            if (index >= 0 && index < base.VisualChildren.Count)
                 return VisualChildren[index];
             else
                 return this.Expander;

@@ -35,6 +35,88 @@ namespace gip.core.layoutengine.avui
 
         #region Protected Methods
 
+        // NOTE: In WPF this collection overrode InsertItem/RemoveItem/SetItem/MoveItem/ClearItems
+        // to maintain ActualIndex bookkeeping and produce the internal event args.
+        // Avalonia's AvaloniaList<T> has no such virtual hooks, so the bookkeeping is done
+        // in the CollectionChanged handler (GridViewColumnCollection_CollectionChanged) instead.
+
+        /// <summary>
+        /// Maintains ActualIndex bookkeeping and produces the internal event args,
+        /// replacing the WPF-era InsertItem/RemoveItem/SetItem/MoveItem/ClearItems overrides.
+        /// </summary>
+        private void MaintainColumnBookkeeping(NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    {
+                        int startIndex = e.NewStartingIndex < 0 ? Count - e.NewItems.Count : e.NewStartingIndex;
+                        // Reassign all ActualIndex values (order of insertion == actual order)
+                        for (int i = 0; i < Count; i++)
+                            this[i].ActualIndex = i;
+                        // Keep _actualIndices in sync for column reorder support
+                        for (int i = 0; i < e.NewItems.Count; i++)
+                        {
+                            int insertPos = startIndex + i;
+                            if (insertPos <= _actualIndices.Count)
+                                _actualIndices.Insert(insertPos, this[startIndex + i].ActualIndex);
+                            else
+                                _actualIndices.Add(this[startIndex + i].ActualIndex);
+                        }
+                        _internalEventArg = new GridViewColumnCollectionChangedEventArgs(
+                            NotifyCollectionChangedAction.Add, e.NewItems[0] as GridViewColumn, startIndex, startIndex);
+                        break;
+                    }
+
+                case NotifyCollectionChangedAction.Remove:
+                    {
+                        int actualIndex = (e.NewStartingIndex >= 0 && e.NewStartingIndex < _actualIndices.Count)
+                            ? _actualIndices[e.NewStartingIndex] : -1;
+                        if (e.NewStartingIndex >= 0 && e.NewStartingIndex < _actualIndices.Count)
+                            _actualIndices.RemoveAt(e.NewStartingIndex);
+                        for (int i = 0; i < Count; i++)
+                            this[i].ActualIndex = i;
+                        _internalEventArg = new GridViewColumnCollectionChangedEventArgs(
+                            NotifyCollectionChangedAction.Remove, e.OldItems[0] as GridViewColumn, e.NewStartingIndex, actualIndex);
+                        break;
+                    }
+
+                case NotifyCollectionChangedAction.Replace:
+                    {
+                        int actualIndex = (e.NewStartingIndex >= 0 && e.NewStartingIndex < _actualIndices.Count)
+                            ? _actualIndices[e.NewStartingIndex] : e.NewStartingIndex;
+                        if (e.NewStartingIndex >= 0 && e.NewStartingIndex < _actualIndices.Count)
+                            this[e.NewStartingIndex].ActualIndex = actualIndex;
+                        _internalEventArg = new GridViewColumnCollectionChangedEventArgs(
+                            NotifyCollectionChangedAction.Replace, e.NewItems[0] as GridViewColumn, e.OldItems[0] as GridViewColumn, e.NewStartingIndex, actualIndex);
+                        break;
+                    }
+
+                case NotifyCollectionChangedAction.Move:
+                    {
+                        int oldIndex = e.OldStartingIndex;
+                        int newIndex = e.NewStartingIndex;
+                        if (oldIndex >= 0 && oldIndex < _actualIndices.Count)
+                        {
+                            int actualIndex = _actualIndices[oldIndex];
+                            _actualIndices.RemoveAt(oldIndex);
+                            _actualIndices.Insert(newIndex, actualIndex);
+                            _internalEventArg = new GridViewColumnCollectionChangedEventArgs(
+                                NotifyCollectionChangedAction.Move, e.NewItems[0] as GridViewColumn, newIndex, oldIndex, actualIndex);
+                        }
+                        break;
+                    }
+
+                case NotifyCollectionChangedAction.Reset:
+                    {
+                        _columns.Clear();
+                        _actualIndices.Clear();
+                        _internalEventArg = ClearPreprocess();
+                        break;
+                    }
+            }
+        }
+
         //protected override void ClearItems()
         //{
         //    VerifyAccess();
@@ -101,6 +183,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         private void GridViewColumnCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
+            MaintainColumnBookkeeping(e);
             OnInternalCollectionChanged();
         }
 

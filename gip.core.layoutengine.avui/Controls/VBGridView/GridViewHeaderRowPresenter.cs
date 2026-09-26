@@ -215,6 +215,10 @@ namespace gip.core.layoutengine.avui
 
         protected override Size MeasureOverride(Size availableSize)
         {
+            // Lazy-build the header tree: a bare presenter inside a foreign template
+            // (e.g. VBTreeListView) never receives OnApplyTemplate.
+            UpdateVisualTree();
+
             GridViewColumnCollection columns = Columns;
 
             AvaloniaList<Control> children = InternalChildren;
@@ -224,7 +228,10 @@ namespace gip.core.layoutengine.avui
             double constraintHeight = availableSize.Height;
             bool desiredWidthListEnsured = false;
 
-            if (columns != null)
+            // In Avalonia MeasureOverride can run before OnApplyTemplate has built the
+            // headers (children = padding + indicator + floating + working headers).
+            // Skip until the header tree exists; OnApplyTemplate invalidates measure.
+            if (columns != null && children.Count >= columns.Count + 3)
             {
                 // Measure working headers
                 for (int i = 0; i < columns.Count; ++i)
@@ -274,9 +281,11 @@ namespace gip.core.layoutengine.avui
             }
 
             // Measure padding header
-            Debug.Assert(_paddingHeader != null, "padding header is null");
-            _paddingHeader.Measure(new Size(0.0, constraintHeight));
-            maxHeight = Math.Max(maxHeight, _paddingHeader.DesiredSize.Height);
+            if (_paddingHeader != null)
+            {
+                _paddingHeader.Measure(new Size(0.0, constraintHeight));
+                maxHeight = Math.Max(maxHeight, _paddingHeader.DesiredSize.Height);
+            }
 
             // reserve space for padding header next to the last column
             accumulatedWidth += c_PaddingHeaderMinWidth;
@@ -314,7 +323,7 @@ namespace gip.core.layoutengine.avui
 
             HeadersPositionList.Clear();
 
-            if (columns != null)
+            if (columns != null && children.Count >= columns.Count + 3)
             {
                 // Arrange working headers
                 for (int i = 0; i < columns.Count; ++i)
@@ -357,11 +366,13 @@ namespace gip.core.layoutengine.avui
                 }
             }
 
-            // Arrange padding header
-            Debug.Assert(_paddingHeader != null, "padding header is null");
-            rect = new Rect(accumulatedWidth, 0.0, Math.Max(remainingWidth, 0.0), finalSize.Height);
-            _paddingHeader.Arrange(rect);
-            HeadersPositionList.Add(rect);
+            // Arrange padding header (may not exist yet if measured before OnApplyTemplate)
+            if (_paddingHeader != null)
+            {
+                rect = new Rect(accumulatedWidth, 0.0, Math.Max(remainingWidth, 0.0), finalSize.Height);
+                _paddingHeader.Arrange(rect);
+                HeadersPositionList.Add(rect);
+            }
 
             // if re-order started, arrange floating header & indicator
             if (_isHeaderDragging)
@@ -498,6 +509,22 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
+            // NOTE: In Avalonia OnApplyTemplate only fires for the control whose own
+            // Template was applied. When this presenter is embedded inside another
+            // control's template (e.g. VBTreeListView), it never receives this callback.
+            // Therefore the header tree is built lazily in MeasureOverride -> UpdateVisualTree().
+            UpdateVisualTree();
+
+            base.OnApplyTemplate(e);
+        }
+
+        /// <summary>
+        /// Builds the header visual tree (padding header, working headers, indicator,
+        /// floating header). Called from OnApplyTemplate and lazily from MeasureOverride,
+        /// because a bare presenter inside a foreign template never gets OnApplyTemplate.
+        /// </summary>
+        private void UpdateVisualTree()
+        {
             //  +-- GridViewHeaderRowPresenter ----------------------------+
             //  |                                                          |
             //  |  +- Header1 ---+ +- Header2 ---+ +- PaddingHeader -+     |
@@ -536,6 +563,7 @@ namespace gip.core.layoutengine.avui
 
             if (NeedUpdateVisualTree)
             {
+                System.Diagnostics.Debug.WriteLine($"[HDR] UpdateVisualTree: Columns={(Columns == null ? "null" : Columns.Count.ToString())}, children={InternalChildren.Count}");
                 // build the whole collection from draft.
 
                 // IMPORTANT!
@@ -599,15 +627,11 @@ namespace gip.core.layoutengine.avui
 
                 _isColumnChangedOrCreated = true;
             }
-
-            base.OnApplyTemplate(e);
-
         }
 
         /// <summary>
-        /// Override column's PropertyChanged event handler. Update  correspondent
-        /// property if change is of Width / Header /
-        /// HeaderContainerStyle / Template / Selector.
+        /// GridViewHeaderRowPresenter computes the position of its children inside each child's Margin and calls Arrange
+        /// on each child.
         /// </summary>
         internal override void OnColumnPropertyChanged(GridViewColumn column, string propertyName)
         {
@@ -868,6 +892,7 @@ namespace gip.core.layoutengine.avui
         private GridViewColumnHeader CreateAndInsertHeader(GridViewColumn column, int index)
         {
             object header = column.Header;
+            System.Diagnostics.Debug.WriteLine($"[HDR] CreateAndInsertHeader: col={column.GetHashCode()}, header={(header == null ? "NULL" : header.ToString())}");
             GridViewColumnHeader headerContainer = header as GridViewColumnHeader;
 
             //
@@ -1349,6 +1374,7 @@ namespace gip.core.layoutengine.avui
             if (header != null && header.IsInternalGenerated)
             {
                 GridViewColumn column = header.Column;
+                System.Diagnostics.Debug.WriteLine($"[HDR] UpdateHeaderContent: column={(column == null ? "null" : column.Header?.ToString() ?? "HeaderNULL")}, internalGen={header.IsInternalGenerated}");
                 if (column != null)
                 {
                     if (column.Header == null)
@@ -1418,6 +1444,13 @@ namespace gip.core.layoutengine.avui
             AvaloniaProperty gvDP         // the DP on GridView as 2nd source
             )
         {
+            // s_DPList contains null entries for properties that have no Avalonia
+            // counterpart (ContentTemplateSelector, ContentStringFormat) - skip them.
+            if (targetDP == null)
+            {
+                return;
+            }
+
             if (gvDP == ColumnHeaderContainerStyleProperty
                 && header.Role == GridViewColumnHeaderRole.Padding)
             {

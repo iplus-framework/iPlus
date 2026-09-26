@@ -52,6 +52,10 @@ namespace gip.core.layoutengine.avui
             InitVBControl();
         }
 
+#if DEBUG
+        internal bool _dumpDone = false;
+#endif
+
         /// <summary>
         /// Initializes the VBControl.
         /// </summary>
@@ -73,6 +77,8 @@ namespace gip.core.layoutengine.avui
             if (!ContextACObject.ACUrlBinding(VBContent, ref _PropertyInfoOfACPropertySelected, ref sourceOfBindingForSelItm, ref pathOfBindingForSelItm, ref rightControlMode))
             {
                 this.Root().Messages.LogDebug("Error00003", "VBTreeListView", VBContent);
+                // Allow retry from OnLoaded - BSO may not be resolvable yet during measure
+                _Initialized = false;
                 return;
             }
 
@@ -87,6 +93,8 @@ namespace gip.core.layoutengine.avui
             if (!ContextACObject.ACUrlBinding(_ACURLOfPropertyForItemsSource, ref _ItemsSourceACTypeInfo, ref sourceOfBindingForItmSrc, ref pathOfBindingForItmSrc, ref dsRightControlMode))
             {
                 this.Root().Messages.LogDebug("Error00004", "VBTreeListView", _ACURLOfPropertyForItemsSource + " " + VBContent);
+                // Allow retry from OnLoaded - ItemsSource may not be resolvable yet during measure
+                _Initialized = false;
                 return;
             }
 
@@ -149,6 +157,34 @@ namespace gip.core.layoutengine.avui
                         column.Header = dsColACTypeInfo.ACCaption;
                     }
                 }
+
+                // If columns exist but none got a header caption, initialization is
+                // incomplete (e.g. ACCaption resolution failed) - allow retry from OnLoaded.
+                bool anyHeaderAssigned = false;
+                foreach (var col in this.Columns)
+                {
+                    if (col.Header != null)
+                    {
+                        anyHeaderAssigned = true;
+                        break;
+                    }
+                }
+                if (!anyHeaderAssigned && this.Columns.Count > 0)
+                    _Initialized = false;
+
+                // Headers may have been built by the presenter before the captions were
+                // assigned (measure ran ahead of InitVBControl). Force the header row to
+                // rebuild so it picks up the now-assigned column headers.
+                if (anyHeaderAssigned)
+                {
+                    GridViewHeaderRowPresenter headerPresenter =
+                        VBVisualTreeHelper.FindChildObjectInVisualTree(this, typeof(GridViewHeaderRowPresenter)) as GridViewHeaderRowPresenter;
+                    if (headerPresenter != null)
+                    {
+                        headerPresenter.NeedUpdateVisualTree = true;
+                        headerPresenter.InvalidateMeasure();
+                    }
+                }
             }
         }
 
@@ -158,9 +194,32 @@ namespace gip.core.layoutengine.avui
             if (_IsColumnHeadersInitialized)
                 return;
 
+            // InitVBControl may have early-returned in OnApplyTemplate because
+            // ContextACObject wasn't resolvable yet (logical tree not complete).
+            // Retry here - the _Initialized guard makes this safe.
+            if (!_Initialized)
+                InitVBControl();
+
+            TryInitializeColumnHeaders();
+        }
+
+        private void TryInitializeColumnHeaders()
+        {
+            if (_IsColumnHeadersInitialized)
+                return;
+
             GridViewHeaderRowPresenter presenter = VBVisualTreeHelper.FindChildObjectInVisualTree(this, typeof(GridViewHeaderRowPresenter)) as GridViewHeaderRowPresenter;
             if (presenter != null)
             {
+                // Force a rebuild so headers are created from the current column
+                // headers (captions may have been assigned after the last build).
+                presenter.NeedUpdateVisualTree = true;
+                presenter.InvalidateMeasure();
+                // The rebuild happens during measure - run a synchronous layout pass
+                // so the headers exist before we scan for them.
+                presenter.UpdateLayout();
+
+                bool anyHeaderHooked = false;
                 foreach (Visual child in presenter.GetVisualChildren())
                 {
                     GridViewColumnHeader header = child as GridViewColumnHeader;
@@ -171,11 +230,82 @@ namespace gip.core.layoutengine.avui
                         {
                             header.Click += Header_Click;
                             _ColumnHeaders.Add(header, sortIcon);
+                            anyHeaderHooked = true;
                         }
                     }
                 }
-                _IsColumnHeadersInitialized = true;
+
+                if (anyHeaderHooked)
+                {
+                    _IsColumnHeadersInitialized = true;
+                    // Headers created during the forced synchronous layout pass can have
+                    // cached degenerate desired sizes (e.g. TextBlock height collapsed).
+                    // Force a re-measure of every header and run one more layout pass.
+                    foreach (var entry in _ColumnHeaders)
+                        entry.Key.InvalidateMeasure();
+                    presenter.InvalidateMeasure();
+                    presenter.UpdateLayout();
+                    System.Diagnostics.Debug.WriteLine($"[TLV] Headers hooked: {_ColumnHeaders.Count}");
+                    DumpHeaderVisuals(presenter);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[TLV] No headers hooked after UpdateLayout - presenter children: {string.Join(",", System.Linq.Enumerable.Select(presenter.GetVisualChildren(), c => c.GetType().Name + (c is GridViewColumnHeader h ? (":" + (h.Content?.ToString() ?? "null-content")) : "")))}");
+                    // Headers not built yet or column headers not yet assigned
+                    // (measure pass pending / InitVBControl deferred). Retry after
+                    // the next layout pass instead of failing permanently.
+                    ScheduleHeaderRetry(presenter);
+                }
             }
+            else
+            {
+                // Presenter not materialized yet (nested template not applied).
+                ScheduleHeaderRetry(null);
+            }
+        }
+
+        private void ScheduleHeaderRetry(GridViewHeaderRowPresenter presenter)
+        {
+            if (_headerRetryScheduled)
+                return;
+
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                if (!_IsColumnHeadersInitialized && !_headerRetryScheduled)
+                {
+                    _headerRetryScheduled = true;
+                    EventHandler handler = null;
+                    handler = (s, a) =>
+                    {
+                        LayoutUpdated -= handler;
+                        _headerRetryScheduled = false;
+                        TryInitializeColumnHeaders();
+                    };
+                    LayoutUpdated += handler;
+                    // Force the header presenter to rebuild with current column headers
+                    presenter?.NeedUpdateVisualTree = true;
+                    presenter?.InvalidateMeasure();
+                }
+            });
+        }
+
+        private bool _headerRetryScheduled = false;
+
+        private void DumpHeaderVisuals(Visual visual, int depth = 0)
+        {
+            string indent = new string(' ', depth * 2);
+            string info = $"{indent}{visual.GetType().Name}";
+            if (visual is Avalonia.Layout.Layoutable l)
+                info += $" [bounds={l.Bounds}]";
+            if (visual is Avalonia.Controls.TextBlock tb)
+                info += $" text='{tb.Text}' fg={tb.Foreground}";
+            if (visual is Avalonia.Controls.Presenters.ContentPresenter cp)
+                info += $" content='{cp.Content}' vis={cp.IsEffectivelyVisible}";
+            if (visual is Control c)
+                info += $" vis={c.IsEffectivelyVisible} opacity={c.Opacity}";
+            System.Diagnostics.Debug.WriteLine("[DUMP]" + info);
+            foreach (Visual child in visual.GetVisualChildren())
+                DumpHeaderVisuals(child, depth + 1);
         }
 
         private void Header_Click(object sender, RoutedEventArgs e)

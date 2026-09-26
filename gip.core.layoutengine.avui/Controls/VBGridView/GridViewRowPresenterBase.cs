@@ -228,11 +228,80 @@ namespace gip.core.layoutengine.avui
             {
                 if (_uiElementCollection == null) //nobody used it yet
                 {
+                    // In WPF, UIElementCollection attached each cell to the visual tree
+                    // automatically. In Avalonia we must do this ourselves, otherwise the
+                    // cells are measured but never rendered.
                     _uiElementCollection = new AvaloniaList<Control>();
+                    _uiElementCollection.CollectionChanged += OnInternalChildrenChanged;
                 }
 
                 return _uiElementCollection;
             }
+        }
+
+        private void OnInternalChildrenChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    foreach (Control item in e.NewItems)
+                    {
+                        if (item != null && !VisualChildren.Contains(item))
+                        {
+                            VisualChildren.Add(item);
+                            // Also register as logical child so VB controls inside cell
+                            // templates can resolve their BSO context via the logical tree
+                            // (ContextACObject, FindParentObjectInLogicalTree etc.)
+                            if (!LogicalChildren.Contains(item))
+                                LogicalChildren.Add(item);
+                        }
+                    }
+                    break;
+
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (Control item in e.OldItems)
+                    {
+                        if (item != null)
+                        {
+                            VisualChildren.Remove(item);
+                            LogicalChildren.Remove(item);
+                        }
+                    }
+                    break;
+
+                case NotifyCollectionChangedAction.Replace:
+                    foreach (Control item in e.OldItems)
+                    {
+                        if (item != null)
+                        {
+                            VisualChildren.Remove(item);
+                            LogicalChildren.Remove(item);
+                        }
+                    }
+                    foreach (Control item in e.NewItems)
+                    {
+                        if (item != null && !VisualChildren.Contains(item))
+                        {
+                            VisualChildren.Add(item);
+                            if (!LogicalChildren.Contains(item))
+                                LogicalChildren.Add(item);
+                        }
+                    }
+                    break;
+
+                case NotifyCollectionChangedAction.Reset:
+                    for (int i = VisualChildren.Count - 1; i >= 0; i--)
+                    {
+                        if (VisualChildren[i] is Control child && _uiElementCollection != null && !_uiElementCollection.Contains(child))
+                        {
+                            VisualChildren.RemoveAt(i);
+                            LogicalChildren.Remove(child);
+                        }
+                    }
+                    break;
+            }
+
+            InvalidateMeasure();
         }
 
         // the minimum width for dummy header when measure

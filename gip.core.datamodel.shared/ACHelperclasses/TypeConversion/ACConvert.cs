@@ -651,6 +651,21 @@ namespace gip.core.datamodel
                 else if (conversionType.IsAssignableFrom(value.GetType()))
                     return value;
 
+                // Single item to IEnumerable<T>: wrap into a one-element list
+                // (e.g. a selected tree item pushed into a list-typed property)
+                else if (conversionType.IsGenericType
+                    && conversionType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                {
+                    Type itemType = conversionType.GetGenericArguments()[0];
+                    if (itemType.IsAssignableFrom(value.GetType()))
+                    {
+                        var listType = typeof(List<>).MakeGenericType(itemType);
+                        var list = (System.Collections.IList)Activator.CreateInstance(listType);
+                        list.Add(value);
+                        return list;
+                    }
+                }
+
                 throw new InvalidCastException("Not supported Type");
             }
         }
@@ -1035,6 +1050,21 @@ namespace gip.core.datamodel
                 }
                 else if (conversionType.IsAssignableFrom(value.GetType()))
                     return value;
+
+                // Single item to IEnumerable<T>: wrap into a one-element list
+                // (e.g. a selected tree item pushed into a list-typed property)
+                else if (conversionType.IsGenericType
+                    && conversionType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                {
+                    Type itemType = conversionType.GetGenericArguments()[0];
+                    if (itemType.IsAssignableFrom(value.GetType()))
+                    {
+                        var listType = typeof(List<>).MakeGenericType(itemType);
+                        var list = (System.Collections.IList)Activator.CreateInstance(listType);
+                        list.Add(value);
+                        return list;
+                    }
+                }
 
                 throw new InvalidCastException("Not supported Type");
             }

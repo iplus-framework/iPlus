@@ -48,9 +48,11 @@
     <Setter Property="Template">
       <ControlTemplate>
         <Border BorderBrush="{TemplateBinding BorderBrush}"
-                BorderThickness="{TemplateBinding BorderThickness}">
+                BorderThickness="{TemplateBinding BorderThickness}" 
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Stretch">
 
-          <Grid ClipToBounds="True">
+          <Grid>
 
             <timeline:DateTimeAxesPanel x:Name="PART_DateTimeAxesPanel" 
                                         VerticalAlignment="Top" 

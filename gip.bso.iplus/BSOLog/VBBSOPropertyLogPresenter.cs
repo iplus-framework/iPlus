@@ -977,7 +977,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Builds the propertyLog models and shows it in a timeline control.
         /// </summary>
-        [ACMethodInfo("", "en{'Show/Refesh'}de{'Anzeigen/neu laden'}", 401)]
+        [ACMethodCommand("", "en{'Show/Refresh'}de{'Anzeigen/neu laden'}", 401)]
         public void ShowLogsOnTimeline()
         {
             CreateTimelineModel();
@@ -990,6 +990,11 @@ namespace gip.bso.iplus
             {
                 _NeedStatisticsRefresh = true;
             }
+        }
+
+        public bool IsEnabledShowLogsOnTimeline()
+        {
+            return true;
         }
 
         /// <summary>
@@ -1621,6 +1626,9 @@ namespace gip.bso.iplus
                 case nameof(ShowLogsOnTimeline):
                     ShowLogsOnTimeline();
                     return true;
+                case nameof(IsEnabledShowLogsOnTimeline):
+                    result = IsEnabledShowLogsOnTimeline();
+                    return true;
                 case nameof(ShowPropertyLogsDialog):
                     ShowPropertyLogsDialog(acParameter[0] as ACClass);
                     return true;
@@ -1661,15 +1669,21 @@ namespace gip.bso.iplus
 
         public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
         {
+            // Note: acMethodName is the command name WITHOUT the "IsEnabled" prefix
+            // (see ACCommandHelper.ApplyACCommand).
             switch (acMethodName)
             {
-                case nameof(IsEnabledShowAlarms):
+                case nameof(ShowLogsOnTimeline):
+                    return new string[] { nameof(InitState) };
+                case nameof(ShowAlarms):
                     return new string[] { nameof(SelectedItemInTimeline) };
-                case nameof(IsEnabledShowAllAlarms):
-                case nameof(IsEnabledShowDetails):
+                case nameof(ShowAllAlarms):
+                case nameof(ShowDetails):
                     return new string[] { nameof(SelectedPropertyLog), nameof(SelectedPresenterViewMode) };
-                case nameof(IsEnabledGoToNextValue):
+                case nameof(GoToNextValue):
                     return new string[] { nameof(SelectedPropertyLog), nameof(SelectedTimelineValue) };
+                case nameof(DataExportDialog):
+                    return new string[] { nameof(PropertyLogSumList) };
                 default:
                     return base.GetPropsToObserveForIsEnabled(acMethodName);
             }

@@ -11,7 +11,7 @@ using System.Diagnostics;
 namespace gip.core.layoutengine.avui
 {
     //[StyleTypedProperty(Property = "HeaderContainerStyle", StyleTargetType = typeof(GridViewColumnHeader))]
-    public class GridViewColumn : StyledElement
+    public class GridViewColumn : StyledElement, INotifyPropertyChanged
     {
         //-------------------------------------------------------------------
         //
@@ -321,6 +321,22 @@ namespace gip.core.layoutengine.avui
         {
             base.OnPropertyChanged(change);
 
+            // Forward property changes as INotifyPropertyChanged.PropertyChanged so the
+            // owning GridViewColumnCollection (ColumnPropertyChanged handler) can notify
+            // header/row presenters. In WPF this happened implicitly via the DP system;
+            // StyledElement does not raise INPC, so it must be done explicitly here.
+            // Skip internal layout properties (ActualWidth/Width) to avoid feedback
+            // loops during measure.
+            if (change.Property != ActualWidthProperty
+                && change.Property != WidthProperty)
+            {
+                // Explicit INPC event (distinct from AvaloniaObject.PropertyChanged which
+                // expects AvaloniaPropertyChangedEventArgs). Subscribed by
+                // GridViewColumnCollection.ColumnPropertyChanged.
+                _inpcPropertyChanged?.Invoke(this,
+                    new PropertyChangedEventArgs(change.Property.Name));
+            }
+
             if (change.Property == HeaderTemplateProperty)
             {
                 OnHeaderTemplateChanged(change.OldValue as IDataTemplate, change.NewValue as IDataTemplate);
@@ -615,6 +631,17 @@ namespace gip.core.layoutengine.avui
         private double _desiredWidth;
         private int _actualIndex;
         private ColumnMeasureState _state;
+
+        // Explicit INotifyPropertyChanged implementation - AvaloniaObject already
+        // implements the interface with a different event signature, so re-implement
+        // it explicitly with the classic PropertyChangedEventArgs.
+        event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
+        {
+            add { _inpcPropertyChanged += value; }
+            remove { _inpcPropertyChanged -= value; }
+        }
+
+        private event PropertyChangedEventHandler _inpcPropertyChanged;
 
         #endregion
     }

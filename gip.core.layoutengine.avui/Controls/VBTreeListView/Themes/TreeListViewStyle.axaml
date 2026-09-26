@@ -21,6 +21,8 @@
     <Setter Property="Height" Value="22" />
     <Setter Property="Padding" Value="4,4,5,4" />
     <Setter Property="Foreground" Value="Black" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="FontFamily" Value="Inter, Segoe UI, sans-serif" />
     <Setter Property="HorizontalContentAlignment" Value="Center" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="FontWeight" Value="Bold" />
@@ -43,23 +45,29 @@
                          Stretch="Fill" Stroke="{StaticResource NormalBorderBrush}" StrokeThickness="1" />
               <Rectangle x:Name="HoverRectangle" Grid.RowSpan="2" Grid.ColumnSpan="2" Stretch="Fill"
                          Fill="{StaticResource HoverShineBrush}" Opacity="0" />
-
-              <ContentPresenter Grid.ColumnSpan="2"
-                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                Margin="{TemplateBinding Padding}" />
               <Rectangle x:Name="ShineRectangle"
                          Fill="{StaticResource ShineBrush}"
                          Stretch="Fill"
                          Stroke="{StaticResource NormalBorderBrush}"
                          StrokeThickness="1" Grid.RowSpan="2" Grid.ColumnSpan="2" />
+
+              <!-- Content painted ABOVE the shine/background rectangles -->
+              <ContentPresenter Grid.RowSpan="2" Grid.ColumnSpan="2"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                TextElement.Foreground="{TemplateBinding Foreground}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                Margin="{TemplateBinding Padding}"
+                                MinHeight="14"
+                                x:Name="PART_ContentPresenter" />
               <Path x:Name="SortArrow" Grid.Column="1" IsVisible="False"
                     VerticalAlignment="Top" Width="8" HorizontalAlignment="Right" Margin="0,2,3,0"
                     Fill="Black"
                     Stretch="Uniform"
                     Data="M -5.215,6.099L 5.215,6.099L 0,0L -5.215,6.099 Z ">
                 <Path.RenderTransform>
-                    <ScaleTransform ScaleX=".9" ScaleY=".9" />
+                    <ScaleTransform ScaleX="0.9" ScaleY="0.9" />
                 </Path.RenderTransform>
               </Path>
             </Grid>
@@ -164,15 +172,23 @@
     <Setter Property="ScrollViewer.IsScrollChainingEnabled" Value="True"/>
     <Setter Property="Template">
       <ControlTemplate>
-        <Border BorderBrush="{TemplateBinding BorderBrush}" 
-                BorderThickness="{TemplateBinding BorderThickness}" 
-                Name="Bd" 
+        <Border BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                Name="Bd"
                 Background="{TemplateBinding Background}">
-          <ScrollViewer Background="{TemplateBinding Background}"
-                        Focusable="false"
-                        Padding="{TemplateBinding Padding}">
-            <ItemsPresenter />
-          </ScrollViewer>
+          <Grid RowDefinitions="Auto,*">
+            <!-- Header row: measures column captions and drives auto-width columns -->
+            <ScrollViewer Grid.Row="0" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+              <local:GridViewHeaderRowPresenter Margin="2,0,2,0" x:Name="PART_GWHRPresenter"
+                                          Columns="{Binding Path=Columns,RelativeSource={RelativeSource TemplatedParent}}"
+                                          ColumnHeaderContainerStyle="{StaticResource CustomHeaderStyle}"/>
+            </ScrollViewer>
+            <ScrollViewer Grid.Row="1" Background="{TemplateBinding Background}"
+                          Focusable="false"
+                          Padding="{TemplateBinding Padding}">
+              <ItemsPresenter />
+            </ScrollViewer>
+          </Grid>
         </Border>
       </ControlTemplate>
     </Setter>

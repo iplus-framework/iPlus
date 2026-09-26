@@ -120,6 +120,13 @@ namespace gip.core.layoutengine.avui
             GridViewColumnCollection columns = Columns;
             if (columns == null) { return new Size(); }
 
+            // Unlike WPF, MeasureOverride can run before OnApplyTemplate in Avalonia.
+            // Build the cells now if the visual tree is out of date.
+            if (NeedUpdateVisualTree)
+            {
+                UpdateVisualTree();
+            }
+
             AvaloniaList<Control> children = InternalChildren;
             double maxHeight = 0.0;           // Max height of children.
             double accumulatedWidth = 0.0;    // Total width consumed by children.
@@ -128,7 +135,9 @@ namespace gip.core.layoutengine.avui
 
             foreach (GridViewColumn column in columns)
             {
-                Control child = children[column.ActualIndex];
+                int columnIndex = column.ActualIndex;
+                if (columnIndex < 0 || columnIndex >= children.Count) { continue; }
+                Control child = children[columnIndex];
                 if (child == null) { continue; }
 
                 double childConstraintWidth = Math.Max(0.0, availableSize.Width - accumulatedWidth);
@@ -197,6 +206,11 @@ namespace gip.core.layoutengine.avui
             GridViewColumnCollection columns = Columns;
             if (columns == null) { return finalSize; }
 
+            if (NeedUpdateVisualTree)
+            {
+                UpdateVisualTree();
+            }
+
             AvaloniaList<Control> children = InternalChildren;
 
             double accumulatedWidth = 0.0;
@@ -204,7 +218,9 @@ namespace gip.core.layoutengine.avui
 
             foreach (GridViewColumn column in columns)
             {
-                Control child = children[column.ActualIndex];
+                int columnIndex = column.ActualIndex;
+                if (columnIndex < 0 || columnIndex >= children.Count) { continue; }
+                Control child = children[columnIndex];
                 if (child == null) { continue; }
 
                 // has a given value or 'auto'
@@ -245,23 +261,33 @@ namespace gip.core.layoutengine.avui
 
             if (NeedUpdateVisualTree)
             {
-                InternalChildren.Clear();
-
-                // build the whole collection from draft.
-                GridViewColumnCollection columns = Columns;
-                if (columns != null)
-                {
-                    foreach (GridViewColumn column in columns)
-                    {
-                        InternalChildren.Add(CreateCell(column));
-                    }
-                }
-
-                NeedUpdateVisualTree = false;
+                UpdateVisualTree();
             }
 
             // invalidate viewPort cache
             _viewPortValid = false;
+        }
+
+        /// <summary>
+        /// Builds the cell visuals from the Columns collection.
+        /// In Avalonia this must be callable from MeasureOverride as well, because
+        /// unlike WPF, measure can run before the template is applied.
+        /// </summary>
+        protected void UpdateVisualTree()
+        {
+            InternalChildren.Clear();
+
+            // build the whole collection from draft.
+            GridViewColumnCollection columns = Columns;
+            if (columns != null)
+            {
+                foreach (GridViewColumn column in columns)
+                {
+                    InternalChildren.Add(CreateCell(column));
+                }
+            }
+
+            NeedUpdateVisualTree = false;
         }
 
         /// <summary>

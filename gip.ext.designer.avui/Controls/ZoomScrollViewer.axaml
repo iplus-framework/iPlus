@@ -68,13 +68,13 @@
               <RepeatButton x:Name="uxPlus"
                 Width="16" Height="16" Padding="0" BorderThickness="0"
                 Classes="ZoomButtonStyle">
-                <Image Source="/gip.ext.designer.avui;component/Images/ZoomIn.png"
+                <Image Source="avares://gip.ext.designer.avui/Images/ZoomIn.png"
          Stretch="Uniform"/>
               </RepeatButton>
               <RepeatButton x:Name="uxMinus"
                 Width="16" Height="16" Padding="0" BorderThickness="0"
                 Classes="ZoomButtonStyle">
-                <Image Source="/gip.ext.designer.avui;component/Images/ZoomOut.png"
+                <Image Source="avares://gip.ext.designer.avui/Images/ZoomOut.png"
          Stretch="Uniform" />
               </RepeatButton>
               <RepeatButton x:Name="uxReset"

@@ -470,7 +470,11 @@ namespace gip.ext.designer.avui.Converters
             if (values[0] is Point p)
                 return new Point(p.X, p.Y);
 
-            return new Point((double)values[0], (double)values[1]);
+            // During startup bindings may deliver UnsetValue / null / non-double values.
+            // Fall back to 0 instead of throwing InvalidCastException.
+            double x = values.Count > 0 && values[0] is double d0 ? d0 : 0.0;
+            double y = values.Count > 1 && values[1] is double d1 ? d1 : 0.0;
+            return new Point(x, y);
         }
     }
 }
