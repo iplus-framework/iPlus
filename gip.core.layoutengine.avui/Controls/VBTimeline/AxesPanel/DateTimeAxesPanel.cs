@@ -516,7 +516,7 @@ namespace gip.core.layoutengine.avui.timeline
             lastMousePos = e.GetPosition(this).X + 25;
             startMousePos = e.GetPosition(TimelineChart._ItemsPresenter).X + 25;
             ZoomRectWidth = 0;
-            System.Diagnostics.Debug.WriteLine($"[ZOOM] Start: lastMousePos={lastMousePos}, startMousePos={startMousePos}, panelMin={MinimumDate}, panelMax={MaximumDate}, panelTick={TickTimeSpan}, chartTick={TimelineChart?.TickTimeSpan}");
+            //System.Diagnostics.Debug.WriteLine($"[ZOOM] Start: lastMousePos={lastMousePos}, startMousePos={startMousePos}, panelMin={MinimumDate}, panelMax={MaximumDate}, panelTick={TickTimeSpan}, chartTick={TimelineChart?.TickTimeSpan}");
             if (this.Parent is Control parentControl)
                 parentControl.Cursor = new Cursor(StandardCursorType.SizeWestEast);
         }
@@ -541,7 +541,7 @@ namespace gip.core.layoutengine.avui.timeline
             }
 
             ZoomRectWidth = Math.Abs(offset);
-            System.Diagnostics.Debug.WriteLine($"[ZOOM] Move: newPosition={newPosition}, offset={offset}, margin={ZoomBorderMargin}, width={ZoomRectWidth}");
+            //System.Diagnostics.Debug.WriteLine($"[ZOOM] Move: newPosition={newPosition}, offset={offset}, margin={ZoomBorderMargin}, width={ZoomRectWidth}");
         }
 
         internal void OnZoomEnd(PointerReleasedEventArgs e)
@@ -553,7 +553,7 @@ namespace gip.core.layoutengine.avui.timeline
                 if (this.Parent is Control parentControl)
                     parentControl.Cursor = new Cursor(StandardCursorType.Arrow);
                 var pos = e.GetPosition(TimelineChart._ItemsPresenter).X;
-                System.Diagnostics.Debug.WriteLine($"[ZOOM] End: startPos={startMousePos}, endPos={pos}");
+                //System.Diagnostics.Debug.WriteLine($"[ZOOM] End: startPos={startMousePos}, endPos={pos}");
                 DoZoom(startMousePos, pos);
                 _IsZoomCaptured = false;
             }
@@ -601,7 +601,7 @@ namespace gip.core.layoutengine.avui.timeline
         {
             DateTime date1 = Timeline.OffsetToDate(pos1, this);
             DateTime date2 = Timeline.OffsetToDate(pos2, this);
-            System.Diagnostics.Debug.WriteLine($"[ZOOM] DoZoom: pos1={pos1}, pos2={pos2}, date1={date1}, date2={date2}, panelMin={MinimumDate}, panelTick={TickTimeSpan}, tfCount={_TimeframeDateTimes.Count}");
+            //System.Diagnostics.Debug.WriteLine($"[ZOOM] DoZoom: pos1={pos1}, pos2={pos2}, date1={date1}, date2={date2}, panelMin={MinimumDate}, panelTick={TickTimeSpan}, tfCount={_TimeframeDateTimes.Count}");
 
             var temp = date1;
             if (date1 > date2)
@@ -612,7 +612,7 @@ namespace gip.core.layoutengine.avui.timeline
 
             if (date2 - date1 <= TimeSpan.FromSeconds(1))
             {
-                System.Diagnostics.Debug.WriteLine("[ZOOM] DoZoom aborted: range <= 1s");
+                //System.Diagnostics.Debug.WriteLine("[ZOOM] DoZoom aborted: range <= 1s");
                 return;
             }
 
@@ -660,7 +660,7 @@ namespace gip.core.layoutengine.avui.timeline
             _CurrentTimeSpan = ts;
 
             TimelineChart.SetTickTimeSpan(_CurrentTimeSpan);
-            System.Diagnostics.Debug.WriteLine($"[ZOOM] DoZoom applying: date1={date1}, date2={date2}, newTick={ts}");
+            //System.Diagnostics.Debug.WriteLine($"[ZOOM] DoZoom applying: date1={date1}, date2={date2}, newTick={ts}");
 
             _TimeframeDateTimes = GenerateTimeframeDateTimes(_StartDateTime, MaximumDate.Value, _CurrentTimeSpan);
 
