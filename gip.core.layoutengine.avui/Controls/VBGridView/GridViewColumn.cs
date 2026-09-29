@@ -325,10 +325,10 @@ namespace gip.core.layoutengine.avui
             // owning GridViewColumnCollection (ColumnPropertyChanged handler) can notify
             // header/row presenters. In WPF this happened implicitly via the DP system;
             // StyledElement does not raise INPC, so it must be done explicitly here.
-            // Skip internal layout properties (ActualWidth/Width) to avoid feedback
-            // loops during measure.
-            if (change.Property != ActualWidthProperty
-                && change.Property != WidthProperty)
+            // Skip only ActualWidth (set BY the presenters during measure - forwarding it
+            // would feed back). Width MUST be forwarded: user resizes via the gripper set
+            // Column.Width and the presenters rely on that notification to re-layout.
+            if (change.Property != ActualWidthProperty)
             {
                 // Explicit INPC event (distinct from AvaloniaObject.PropertyChanged which
                 // expects AvaloniaPropertyChangedEventArgs). Subscribed by

@@ -84,7 +84,7 @@ namespace gip.core.layoutengine.avui
 
             if (role == GridViewColumnHeaderRole.Normal)
             {
-                HookupGripperEvents();
+                HookupGripperEvents(e.NameScope);
             }
             else if (role == GridViewColumnHeaderRole.Floating)
             {
@@ -572,6 +572,10 @@ namespace gip.core.layoutengine.avui
         {
             MakeParentGotFocus();
             _originalWidth = ColumnActualWidth;
+            // Avalonia layout is asynchronous - Column.ActualWidth is stale during the
+            // drag, so we accumulate deltas from the width captured at drag start
+            // instead of recomputing from ActualWidth on every delta.
+            _resizeDeltaAccumulated = 0.0;
             e.Handled = true;
         }
 
@@ -585,7 +589,8 @@ namespace gip.core.layoutengine.avui
         // Resize the header
         private void OnColumnHeaderResize(object sender, VectorEventArgs e)
         {
-            double width = ColumnActualWidth + e.Vector.X;
+            _resizeDeltaAccumulated += e.Vector.X;
+            double width = _originalWidth + _resizeDeltaAccumulated;
             if (DoubleUtil.LessThanOrClose(width, 0.0))
             {
                 width = 0.0;
@@ -618,11 +623,13 @@ namespace gip.core.layoutengine.avui
         /// +            +----------+
         /// +-----------------+
         /// </summary>
-        private void HookupGripperEvents()
+        private void HookupGripperEvents(INameScope nameScope)
         {
             UnhookGripperEvents();
 
-            _headerGripper = this.FindNameScope()?.Find(HeaderGripperTemplateName) as Thumb;
+            // Template parts must be resolved via the template's NameScope passed from
+            // OnApplyTemplate - this.FindNameScope() does not contain template names.
+            _headerGripper = nameScope?.Find(HeaderGripperTemplateName) as Thumb;
 
             if (_headerGripper != null)
             {
@@ -633,8 +640,26 @@ namespace gip.core.layoutengine.avui
                 _headerGripper.PointerEntered += OnGripperPointerEnterLeave;
                 _headerGripper.PointerExited += OnGripperPointerEnterLeave;
 
+                // Avalonia's Thumb does not capture the pointer on press (unlike WPF).
+                // Without capture, DragDelta stops as soon as the pointer leaves the
+                // narrow gripper, so resizing/reordering dies immediately. Capture here.
+                _headerGripper.AddHandler(PointerPressedEvent, OnGripperPointerPressed,
+                    RoutingStrategies.Bubble, handledEventsToo: true);
+                _headerGripper.AddHandler(PointerReleasedEvent, OnGripperPointerReleased,
+                    RoutingStrategies.Bubble, handledEventsToo: true);
+
                 _headerGripper.Cursor = SplitCursor;
             }
+        }
+
+        private void OnGripperPointerPressed(object sender, PointerPressedEventArgs e)
+        {
+            e.Pointer.Capture(_headerGripper);
+        }
+
+        private void OnGripperPointerReleased(object sender, PointerReleasedEventArgs e)
+        {
+            e.Pointer.Capture(null);
         }
 
         private void OnGripperDoubleTapped(object sender, TappedEventArgs e)
@@ -666,6 +691,8 @@ namespace gip.core.layoutengine.avui
                 _headerGripper.DoubleTapped -= OnGripperDoubleTapped;
                 _headerGripper.PointerEntered -= OnGripperPointerEnterLeave;
                 _headerGripper.PointerExited -= OnGripperPointerEnterLeave;
+                _headerGripper.RemoveHandler(PointerPressedEvent, OnGripperPointerPressed);
+                _headerGripper.RemoveHandler(PointerReleasedEvent, OnGripperPointerReleased);
                 _headerGripper = null;
             }
         }
@@ -897,6 +924,7 @@ namespace gip.core.layoutengine.avui
         private IPointer _capturedPointer;
 
         private double _originalWidth;
+        private double _resizeDeltaAccumulated;
 
         // canvas for floating header
         private Canvas _floatingHeaderCanvas;

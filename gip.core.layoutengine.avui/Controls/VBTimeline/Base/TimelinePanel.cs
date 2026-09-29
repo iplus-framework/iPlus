@@ -29,13 +29,17 @@ namespace gip.core.layoutengine.avui.timeline
         #region StyledProperties and AttachedProperties
 
         public static readonly StyledProperty<DateTime?> MaximumDateProperty =
-            AvaloniaProperty.Register<TimelinePanel, DateTime?>(nameof(MaximumDate));
-        
+            Timeline.MaximumDateProperty.AddOwner<TimelinePanel>();
+
         public static readonly StyledProperty<DateTime?> MinimumDateProperty =
-            AvaloniaProperty.Register<TimelinePanel, DateTime?>(nameof(MinimumDate));
-        
+            Timeline.MinimumDateProperty.AddOwner<TimelinePanel>();
+
+        // IMPORTANT: these must be AddOwner of the Timeline attached properties,
+        // NOT fresh registrations. A local Register shadows the inherited attached
+        // property, so the panel never sees the chart's TickTimeSpan and
+        // PixelsPerTick stays constant -> zoom has no effect on item rendering.
         public static readonly StyledProperty<TimeSpan> TickTimeSpanProperty =
-            AvaloniaProperty.Register<TimelinePanel, TimeSpan>(nameof(TickTimeSpan));
+            Timeline.TickTimeSpanProperty.AddOwner<TimelinePanel>();
 
         public static readonly AttachedProperty<DateTime?> StartDateProperty =
             AvaloniaProperty.RegisterAttached<TimelinePanel, AvaloniaObject, DateTime?>("StartDate");
@@ -45,6 +49,36 @@ namespace gip.core.layoutengine.avui.timeline
         
         public static readonly AttachedProperty<int> RowIndexProperty =
             AvaloniaProperty.RegisterAttached<TimelinePanel, AvaloniaObject, int>("RowIndex");
+
+        // Track children whose StartDate/EndDate/RowIndex attached properties
+        // change, so the panel can re-measure when bindings deliver values late
+        // (Avalonia does not invalidate the parent panel on child property changes).
+        private readonly HashSet<AvaloniaObject> _observedChildren = new HashSet<AvaloniaObject>();
+
+        protected void ObserveChildren()
+        {
+            foreach (Control child in Children)
+            {
+                if (_observedChildren.Add(child))
+                {
+                    child.PropertyChanged += Child_PropertyChanged;
+                }
+            }
+        }
+
+        private void Child_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if (sender is Control child && !Children.Contains(child))
+            {
+                child.PropertyChanged -= Child_PropertyChanged;
+                _observedChildren.Remove(child);
+                return;
+            }
+            if (e.Property == StartDateProperty || e.Property == EndDateProperty || e.Property == RowIndexProperty)
+            {
+                InvalidateMeasure();
+            }
+        }
 
         private static readonly AttachedProperty<int> ActualRowIndexPropertyKey =
             AvaloniaProperty.RegisterAttached<TimelinePanel, AvaloniaObject, int>("ActualRowIndex");

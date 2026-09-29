@@ -34,14 +34,27 @@ namespace gip.ext.design.avui.Extensions
 		/// </summary>
 		public virtual object CreateInstance(Type type, params object[] arguments)
 		{
+			if ((arguments == null || arguments.Length == 0) && type.GetConstructor(Type.EmptyTypes) == null)
 			{
-				var instance = Activator.CreateInstance(type, arguments);
-				// Not available in Avalonia:
-				//var uiElement = instance as Control;
-				//if (uiElement != null)
-				//    DesignerProperties.SetIsInDesignMode(uiElement, true);
-				return instance;
+				var ctorWithUri = type.GetConstructor(new[] { typeof(Uri) });
+				if (ctorWithUri != null)
+				{
+					return ctorWithUri.Invoke(new object[] { (Uri)null });
+				}
+
+				var ctorWithSp = type.GetConstructor(new[] { typeof(IServiceProvider) });
+				if (ctorWithSp != null)
+				{
+					return ctorWithSp.Invoke(new object[] { (IServiceProvider)null });
+				}
 			}
+
+			var instance = Activator.CreateInstance(type, arguments);
+			// Not available in Avalonia:
+			//var uiElement = instance as Control;
+			//if (uiElement != null)
+			//    DesignerProperties.SetIsInDesignMode(uiElement, true);
+			return instance;
 		}
 	}
 }

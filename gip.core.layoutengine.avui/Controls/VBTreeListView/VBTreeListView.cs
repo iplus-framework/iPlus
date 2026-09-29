@@ -52,10 +52,6 @@ namespace gip.core.layoutengine.avui
             InitVBControl();
         }
 
-#if DEBUG
-        internal bool _dumpDone = false;
-#endif
-
         /// <summary>
         /// Initializes the VBControl.
         /// </summary>
@@ -154,7 +150,11 @@ namespace gip.core.layoutengine.avui
                                 binding.StringFormat = column.StringFormat;
                             column.DisplayMemberBinding = binding;
                         }
-                        column.Header = dsColACTypeInfo.ACCaption;
+                        // Fall back to the VBContent path when the caption cannot be
+                        // resolved (design mode / BSO not running). Without a non-null
+                        // Header the header retry logic in TryInitializeColumnHeaders
+                        // would loop forever rebuilding the header row.
+                        column.Header = dsColACTypeInfo?.ACCaption ?? (object)column.VBContent;
                     }
                 }
 
@@ -223,7 +223,9 @@ namespace gip.core.layoutengine.avui
                 foreach (Visual child in presenter.GetVisualChildren())
                 {
                     GridViewColumnHeader header = child as GridViewColumnHeader;
-                    if (header != null && header.Content != null)
+                    // In design mode captions may legitimately stay null (no BSO to
+                    // resolve ACCaption) - hook anyway so we don't retry forever.
+                    if (header != null && (header.Content != null || Design.IsDesignMode))
                     {
                         Path sortIcon = Helperclasses.VBVisualTreeHelper.FindChildObjectInVisualTree(header, "SortArrow") as Path;
                         if (sortIcon != null)
@@ -245,15 +247,21 @@ namespace gip.core.layoutengine.avui
                         entry.Key.InvalidateMeasure();
                     presenter.InvalidateMeasure();
                     presenter.UpdateLayout();
-                    System.Diagnostics.Debug.WriteLine($"[TLV] Headers hooked: {_ColumnHeaders.Count}");
-                    DumpHeaderVisuals(presenter);
+                }
+                else if (Design.IsDesignMode)
+                {
+                    // Design mode: never schedule the layout-driven retry loop - it
+                    // feeds InvalidateMeasure back into LayoutUpdated and locks the
+                    // designer surface in an endless measure cycle.
+                    _IsColumnHeadersInitialized = true;
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine($"[TLV] No headers hooked after UpdateLayout - presenter children: {string.Join(",", System.Linq.Enumerable.Select(presenter.GetVisualChildren(), c => c.GetType().Name + (c is GridViewColumnHeader h ? (":" + (h.Content?.ToString() ?? "null-content")) : "")))}");
                     // Headers not built yet or column headers not yet assigned
                     // (measure pass pending / InitVBControl deferred). Retry after
-                    // the next layout pass instead of failing permanently.
+                    // the next layout pass instead of failing permanently - but only
+                    // a limited number of times, otherwise a permanently unresolvable
+                    // caption spins an endless layout cycle.
                     ScheduleHeaderRetry(presenter);
                 }
             }
@@ -266,8 +274,12 @@ namespace gip.core.layoutengine.avui
 
         private void ScheduleHeaderRetry(GridViewHeaderRowPresenter presenter)
         {
-            if (_headerRetryScheduled)
+            const int MaxHeaderRetries = 3;
+            if (_headerRetryScheduled || _headerRetryCount >= MaxHeaderRetries)
+            {
                 return;
+            }
+            _headerRetryCount++;
 
             Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
@@ -290,23 +302,7 @@ namespace gip.core.layoutengine.avui
         }
 
         private bool _headerRetryScheduled = false;
-
-        private void DumpHeaderVisuals(Visual visual, int depth = 0)
-        {
-            string indent = new string(' ', depth * 2);
-            string info = $"{indent}{visual.GetType().Name}";
-            if (visual is Avalonia.Layout.Layoutable l)
-                info += $" [bounds={l.Bounds}]";
-            if (visual is Avalonia.Controls.TextBlock tb)
-                info += $" text='{tb.Text}' fg={tb.Foreground}";
-            if (visual is Avalonia.Controls.Presenters.ContentPresenter cp)
-                info += $" content='{cp.Content}' vis={cp.IsEffectivelyVisible}";
-            if (visual is Control c)
-                info += $" vis={c.IsEffectivelyVisible} opacity={c.Opacity}";
-            System.Diagnostics.Debug.WriteLine("[DUMP]" + info);
-            foreach (Visual child in visual.GetVisualChildren())
-                DumpHeaderVisuals(child, depth + 1);
-        }
+        private int _headerRetryCount = 0;
 
         private void Header_Click(object sender, RoutedEventArgs e)
         {

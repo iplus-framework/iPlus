@@ -4,7 +4,7 @@
     xmlns:local="clr-namespace:gip.core.layoutengine.avui"
     >
 
-  <!--<ControlTheme x:Key="TimelineChartScrollViewerStyle" TargetType="ScrollViewer">
+  <ControlTheme x:Key="TimelineChartScrollViewerStyle" TargetType="timeline:FrictionScrollViewer">
     <Setter Property="Template">
       <ControlTemplate>
         <Grid Background="{TemplateBinding Background}">
@@ -13,36 +13,28 @@
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
 
-          <timeline:FrictionScrollViewer Grid.Row="0" Grid.Column="0"
-                        Margin="{TemplateBinding Padding}"
-                        HorizontalScrollBarVisibility="Hidden"
-                        VerticalScrollBarVisibility="Hidden"
-                        Focusable="false" >
-          </timeline:FrictionScrollViewer>
-
-          <ScrollContentPresenter Grid.Row="1" Grid.Column="0" Name="PART_ScrollContentPresenter"
+          <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Name="PART_ScrollContentPresenter"
                                   Content="{TemplateBinding Content}"
                                   ContentTemplate="{TemplateBinding ContentTemplate}"
-                                  CanHorizontallyScroll="True" 
-                                  CanVerticallyScroll="False"/>
+                                  CanHorizontallyScroll="True"
+                                  CanVerticallyScroll="True"/>
 
           <ScrollBar Name="PART_HorizontalScrollBar"
                      Orientation="Horizontal"
-                     Grid.Row="2" Grid.Column="0" />
+                     Grid.Row="1" Grid.Column="0" />
 
           <ScrollBar Name="PART_VerticalScrollBar"
                      Orientation="Vertical"
-                     Grid.Row="1" Grid.Column="1" />
+                     Grid.Row="0" Grid.Column="1" />
 
         </Grid>
       </ControlTemplate>
     </Setter>
-  </ControlTheme>-->
+  </ControlTheme>
 
   <ControlTheme x:Key="{x:Type local:VBTimelineChart}" TargetType="local:VBTimelineChart">
     <Setter Property="Template">
@@ -68,7 +60,7 @@
                     BorderBrush="Black" BorderThickness="1" Background="White" Opacity="0.2"
                     Margin="{Binding #PART_DateTimeAxesPanel.ZoomBorderMargin}"
                     HorizontalAlignment="{Binding #PART_DateTimeAxesPanel.ZoomBorderAlignment}"
-                    IsVisible="{Binding #PART_DateTimeAxesPanel.ZoomRectWidth, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    IsVisible="{Binding #PART_DateTimeAxesPanel.IsZoomActive}">
             </Border>
 
             <Border Height="{Binding #PART_DateTimeAxesPanel.Bounds.Height}" 
@@ -79,9 +71,9 @@
                     BorderThickness="24,0,0,0"
                     BorderBrush="{StaticResource ThemeBackgroundBrush}"/>
 
-            <!--Theme="{StaticResource TimelineChartScrollViewerStyle}"-->
-            <timeline:FrictionScrollViewer x:Name="PART_ScrollViewer" 
+            <timeline:FrictionScrollViewer x:Name="PART_ScrollViewer"
                             Margin="25,25,0,0"
+                            Theme="{StaticResource TimelineChartScrollViewerStyle}"
                             VerticalScrollBarVisibility="Auto"
                             HorizontalScrollBarVisibility="Auto">
 

@@ -4,9 +4,12 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Styling;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
+using gip.core.layoutengine.avui.timeline;
+using Avalonia.VisualTree;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -199,11 +202,31 @@ namespace gip.core.layoutengine.avui.timeline
 
         private void ItemsSourceChanged(AvaloniaPropertyChangedEventArgs e)
         {
+            //System.Diagnostics.Debug.WriteLine($"[TL] ItemsSourceChanged: new={(e.NewValue == null ? "null" : $"{(e.NewValue as System.Collections.IEnumerable)?.Cast<object>().Count() ?? -1} items")}");
             Items.Clear();
             if (e.NewValue != null)
             {
                 IEnumerable items = (IEnumerable)e.NewValue;
                 AddItemsInternal(items);
+
+                // Items is a plain List<> mutated in place - the presenter's
+                // ItemsControl bound to the (empty) list instance at template
+                // time and a plain List raises no change notifications, so it
+                // never rebuilt its containers. Reset the presenter's ItemsSource
+                // so it re-wraps the now-populated list.
+                if (_ItemsPresenter != null)
+                {
+                    //System.Diagnostics.Debug.WriteLine($"[TL] Resetting presenter ItemsSource, items={Items.Count}, presenterType={_ItemsPresenter.GetType().Name}");
+                    _ItemsPresenter.SetValue(ItemsControl.ItemsSourceProperty, null);
+                    _ItemsPresenter.SetValue(ItemsControl.ItemsSourceProperty, Items);
+                    _ItemsPresenter.InvalidateMeasure();
+                    _ItemsPresenter.UpdateLayout();
+                    //System.Diagnostics.Debug.WriteLine($"[TL] Reset done, presenterItems={_ItemsPresenter.Items.Count}, itemCount={_ItemsPresenter.ItemCount}");
+                }
+                else
+                {
+                    //System.Diagnostics.Debug.WriteLine("[TL] Reset SKIPPED - _ItemsPresenter is null");
+                }
 
                 INotifyCollectionChanged oldCollectionChanged = e.OldValue as INotifyCollectionChanged;
                 if (oldCollectionChanged != null)
@@ -339,6 +362,25 @@ namespace gip.core.layoutengine.avui.timeline
         {
             setCurrentTimePending = true;
             UpdateDisplayTimeSpan();
+            // Avalonia: inherited attached-property changes do not reliably reach
+            // the nested item panel (created at runtime inside an inner
+            // ItemsPresenter). Push the new value explicitly and force a layout
+            // pass so bar widths are recalculated with the new pixels-per-tick.
+            var panel = GetTimelineItemPanel();
+            if (panel != null)
+            {
+                panel.TickTimeSpan = (TimeSpan)e.NewValue;
+                panel.InvalidateMeasure();
+                panel.UpdateLayout();
+            }
+            _ItemsPresenter?.InvalidateMeasure();
+            _ItemsPresenter?.UpdateLayout();
+        }
+
+        internal TimelinePanel GetTimelineItemPanel()
+        {
+            return _ItemsPresenter?.GetVisualDescendants().OfType<TimelinePanel>().FirstOrDefault()
+                ?? _ItemsPresenter?.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.ItemsPresenter>().FirstOrDefault()?.Panel as TimelinePanel;
         }
 
         /// <summary>
@@ -526,7 +568,17 @@ namespace gip.core.layoutengine.avui.timeline
 
         public static void ZoomChanged(VBTimelineChartBase timelineChart, AvaloniaPropertyChangedEventArgs e)
         {
-            // Zoom change logic can be implemented here if needed
+            if (timelineChart == null || e.NewValue == null)
+                return;
+
+            switch (e.NewValue.ToString())
+            {
+                case "Default":
+                    // Fit the whole date range into the viewport (WPF behavior).
+                    if (timelineChart.MaximumTickTimeSpan.Ticks > 0)
+                        timelineChart.TickTimeSpan = timelineChart.MaximumTickTimeSpan;
+                    break;
+            }
         }
 
         /// <summary>
@@ -660,6 +712,29 @@ namespace gip.core.layoutengine.avui.timeline
                     _PART_Line.ArrangeLine();
                 UpdateDisplayTimeSpan();
             }
+            else if (change.Property == MinimumDateProperty || change.Property == MaximumDateProperty)
+            {
+                // Dates arrived after the initial arrange - recalculate the zoom
+                // factor so TickTimeSpan fits the range into the viewport.
+                if (Bounds.Width > 0)
+                {
+                    recalcMaxZoom = true;
+                    SetMaximumZoomFactor(Bounds.Size);
+                    // SetZoom() only assigns Zoom="Default", which is a no-op when
+                    // Zoom is already "Default" (no change -> no callback). Assign
+                    // the tick span directly so the scale is really applied.
+                    if (MaximumTickTimeSpan.Ticks > 0)
+                    {
+                        TickTimeSpan = MaximumTickTimeSpan;
+                        // Force the item panel to re-measure with the new tick span
+                        // immediately - otherwise the initial extent stays huge and
+                        // the items only snap to the correct zoom after a manual
+                        // window/grid-splitter resize.
+                        _ItemsPresenter?.InvalidateMeasure();
+                        _ItemsPresenter?.UpdateLayout();
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -667,6 +742,7 @@ namespace gip.core.layoutengine.avui.timeline
         /// </summary>
         public void SetMinMaxBounds()
         {
+            //System.Diagnostics.Debug.WriteLine($"[TL] SetMinMaxBounds: items={Items.Count}");
             if (Items.Any())
             {
                 DateTime maxDate = DateTime.Now;
@@ -797,7 +873,16 @@ namespace gip.core.layoutengine.avui.timeline
             if (MaximumDate.HasValue && MinimumDate.HasValue)
             {
                 TimeSpan timeframe = MaximumDate.Value - MinimumDate.Value;
-                double tickPerTimeSpan = timeframe.Ticks / MathUtil.ReduceUntilOne(actualSize.Width, maxZoomMargin);
+                // PixelsPerTick = 60 / TickTimeSpan.Ticks, so fitting the whole
+                // range into the viewport requires:
+                //   range.Ticks * (60 / tick) = width  =>  tick = range * 60 / width
+                // The WPF source divided WITHOUT the *60 factor, but there the
+                // ZoomChanged handler was commented out so the wrong value was
+                // never applied - the axes panel kept its own (correct) tick.
+                // Activating the handler in the Avalonia port exposed the bug:
+                // the tick came out 60x too small and items spread over ~60
+                // viewport widths.
+                double tickPerTimeSpan = timeframe.Ticks * 60d / MathUtil.ReduceUntilOne(actualSize.Width, maxZoomMargin);
                 MaximumTickTimeSpan = TimeSpan.FromTicks((long)(tickPerTimeSpan));
             }
             else
@@ -806,6 +891,18 @@ namespace gip.core.layoutengine.avui.timeline
                 MinimumTickTimeSpan = TimeSpan.Zero;
             }
             SetZoom();
+
+            // SetZoom() only assigns Zoom="Default", which is a no-op when Zoom is
+            // already "Default" (no property change -> ZoomChanged never runs).
+            // During initial population the Min/Max dates typically arrive BEFORE
+            // the control has a width, so the OnPropertyChanged recalc branch is
+            // skipped too - the tick span then stays at its tiny default while the
+            // axes panel shows the full range. Assign the fitted tick span directly
+            // so the initial scale always matches the axes.
+            if (Zoom == "Default" && MaximumTickTimeSpan.Ticks > 0 && TickTimeSpan != MaximumTickTimeSpan)
+            {
+                TickTimeSpan = MaximumTickTimeSpan;
+            }
         }
 
         /// <summary>
@@ -1091,27 +1188,74 @@ namespace gip.core.layoutengine.avui.timeline
 
         #region Pointer events - overrides
 
-        protected override void OnPointerPressed(PointerPressedEventArgs e)
+        // True while a Ctrl+left-button range-zoom drag is active.
+        private bool _IsRangeDragActive;
+
+        // Registered in OnInitialized with handledEventsToo:true: children
+        // (items presenter, scroll content, timeline items) mark pointer events
+        // as handled, and overridden On* methods never receive handled events -
+        // that is why Ctrl+drag only worked when starting on an item and why
+        // PointerReleased was swallowed (zoom never applied).
+        protected override void OnInitialized()
         {
-            if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+            base.OnInitialized();
+
+            this.AddHandler(PointerPressedEvent, ZoomPointerPressed,
+                RoutingStrategies.Bubble, handledEventsToo: true);
+            this.AddHandler(PointerMovedEvent, ZoomPointerMoved,
+                RoutingStrategies.Bubble, handledEventsToo: true);
+            this.AddHandler(PointerReleasedEvent, ZoomPointerReleased,
+                RoutingStrategies.Bubble, handledEventsToo: true);
+            this.AddHandler(PointerCaptureLostEvent, ZoomPointerCaptureLost,
+                RoutingStrategies.Bubble, handledEventsToo: true);
+        }
+
+        private void ZoomPointerPressed(object sender, PointerPressedEventArgs e)
+        {
+            if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed
+                && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+            {
+                // Capture the pointer on the chart so moves/releases keep
+                // arriving even when the pointer crosses timeline items.
+                _IsRangeDragActive = true;
+                e.Pointer.Capture(this);
+                e.Handled = true;
                 PART_AxesPanel?.OnZoomStart(e);
-            else if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            }
+            else if (e.KeyModifiers.HasFlag(KeyModifiers.Shift)
+                && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+            {
+                e.Handled = true;
                 PART_AxesPanel?.OnZoomOut(e);
-
-            base.OnPointerPressed(e);
+            }
         }
 
-        protected override void OnPointerMoved(PointerEventArgs e)
+        private void ZoomPointerMoved(object sender, PointerEventArgs e)
         {
-            if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+            if (_IsRangeDragActive && e.Pointer.Captured == this
+                && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+            {
                 PART_AxesPanel?.OnZoomMove(e);
-            base.OnPointerMoved(e);
+                e.Handled = true;
+            }
         }
 
-        protected override void OnPointerReleased(PointerReleasedEventArgs e)
+        private void ZoomPointerReleased(object sender, PointerReleasedEventArgs e)
         {
-            PART_AxesPanel?.OnZoomEnd(e);
-            base.OnPointerReleased(e);
+            if (_IsRangeDragActive)
+            {
+                _IsRangeDragActive = false;
+                if (e.Pointer.Captured == this)
+                    e.Pointer.Capture(null);
+                PART_AxesPanel?.OnZoomEnd(e);
+                e.Handled = true;
+            }
+        }
+
+        private void ZoomPointerCaptureLost(object sender, PointerCaptureLostEventArgs e)
+        {
+            _IsRangeDragActive = false;
+            PART_AxesPanel?.OnZoomCancelled();
         }
 
         #endregion

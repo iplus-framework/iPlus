@@ -394,9 +394,18 @@ namespace gip.core.layoutengine.avui
         {
             GridViewColumnHeader header = e.Source as GridViewColumnHeader;
 
+            // The hit-test source is often the gripper Thumb (deepest visual), not the
+            // header itself - resolve the owning header via the visual tree.
+            if (header == null)
+                header = (e.Source as Visual)?.FindAncestorOfType<GridViewColumnHeader>();
+
             if (header != null && AllowsColumnReorder && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
             {
                 PrepareHeaderDrag(header, e.GetPosition(this), e.GetPosition(header), false);
+
+                // Capture the pointer so PointerMoved keeps firing while the pointer
+                // travels outside the header row during a reorder drag.
+                e.Pointer.Capture(this);
 
                 MakeParentItemsControlGotFocus();
             }
@@ -453,6 +462,11 @@ namespace gip.core.layoutengine.avui
 
                             // need to measure indicator because floating header is updated
                             InvalidateMeasure();
+                            // Avalonia layout is asynchronous. The floating header must be
+                            // measured/arranged NOW, otherwise its Bounds.Height is still 0
+                            // when the pointer is released and IsPointerPositionValid fails
+                            // (WPF updated layout synchronously here).
+                            UpdateLayout();
                         }
                     }
                     else // NOTE: Not-Dragging/Dragging should be divided into two stages in PointerMoved
@@ -563,7 +577,6 @@ namespace gip.core.layoutengine.avui
 
             if (NeedUpdateVisualTree)
             {
-                System.Diagnostics.Debug.WriteLine($"[HDR] UpdateVisualTree: Columns={(Columns == null ? "null" : Columns.Count.ToString())}, children={InternalChildren.Count}");
                 // build the whole collection from draft.
 
                 // IMPORTANT!
@@ -892,7 +905,6 @@ namespace gip.core.layoutengine.avui
         private GridViewColumnHeader CreateAndInsertHeader(GridViewColumn column, int index)
         {
             object header = column.Header;
-            System.Diagnostics.Debug.WriteLine($"[HDR] CreateAndInsertHeader: col={column.GetHashCode()}, header={(header == null ? "NULL" : header.ToString())}");
             GridViewColumnHeader headerContainer = header as GridViewColumnHeader;
 
             //
@@ -1374,7 +1386,6 @@ namespace gip.core.layoutengine.avui
             if (header != null && header.IsInternalGenerated)
             {
                 GridViewColumn column = header.Column;
-                System.Diagnostics.Debug.WriteLine($"[HDR] UpdateHeaderContent: column={(column == null ? "null" : column.Header?.ToString() ?? "HeaderNULL")}, internalGen={header.IsInternalGenerated}");
                 if (column != null)
                 {
                     if (column.Header == null)
@@ -1545,7 +1556,13 @@ namespace gip.core.layoutengine.avui
             if (!isCancel)
             {
                 // Display floating header if vertical move not exceeds header.Height * 2
-                bool isMoveHeader = IsPointerPositionValid(_floatingHeader, _currentPos, 2.0);
+                // Fall back to the source header's height if the floating header was
+                // never laid out (its Bounds.Height would be 0 and the check would
+                // always fail).
+                double floatingHeight = _floatingHeader.Bounds.Height;
+                if (floatingHeight <= 0 && _draggingSrcHeader != null)
+                    floatingHeight = _draggingSrcHeader.Bounds.Height;
+                bool isMoveHeader = IsPointerPositionValid(_floatingHeader, _currentPos, 2.0, floatingHeight);
 
                 Debug.Assert(Columns != null, "Columns is null in OnHeaderDragCompleted");
 
@@ -1562,9 +1579,14 @@ namespace gip.core.layoutengine.avui
         // check if the Pointer position is in the given valid area
         private static bool IsPointerPositionValid(Control floatingHeader, Point currentPos, double arrange)
         {
+            return IsPointerPositionValid(floatingHeader, currentPos, arrange, floatingHeader.Bounds.Height);
+        }
+
+        private static bool IsPointerPositionValid(Control floatingHeader, Point currentPos, double arrange, double height)
+        {
             // valid area: - height * arrange <= currentPos.Y <= height * ( arrange + 1)
-            return DoubleUtil.LessThanOrClose(-floatingHeader.Bounds.Height * arrange, currentPos.Y) &&
-                   DoubleUtil.LessThanOrClose(currentPos.Y, floatingHeader.Bounds.Height * (arrange + 1));
+            return DoubleUtil.LessThanOrClose(-height * arrange, currentPos.Y) &&
+                   DoubleUtil.LessThanOrClose(currentPos.Y, height * (arrange + 1));
         }
 
         #endregion Private Methods

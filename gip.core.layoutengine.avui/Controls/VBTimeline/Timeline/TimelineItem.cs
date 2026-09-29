@@ -73,7 +73,7 @@ namespace gip.core.layoutengine.avui.timeline
                     VBTimelineChart.container.Children.Add(contentControl);
             }
 
-            ToolTip.SetTip(this, VBTimelineChart.container);
+            SetSharedToolTip(this, VBTimelineChart.container);
 
             if (VBTreeListViewItemMap == null)
             {
@@ -104,7 +104,12 @@ namespace gip.core.layoutengine.avui.timeline
                 }
             }
 
-            if (TLItemType != TimelineItemType.TimelineItem)
+            // Only container / empty items are excluded from tooltips. Note: the
+            // default value of TLItemType is 0 (undefined) - it is not set by any
+            // template or container-generation code in the Avalonia port -, so
+            // checking "!= TimelineItem" here would wrongly disable tooltips for
+            // every regular item.
+            if (TLItemType == TimelineItemType.ContainerItem || TLItemType == TimelineItemType.EmptyItem)
                 IsToolTipEnabled = false;
 
             //_IsInitialized = true;

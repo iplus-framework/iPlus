@@ -66,7 +66,7 @@
                     BorderBrush="Black" BorderThickness="1" Background="White" Opacity="0.2"
                     Margin="{Binding #PART_DateTimeAxesPanel.ZoomBorderMargin}"
                     HorizontalAlignment="{Binding #PART_DateTimeAxesPanel.ZoomBorderAlignment}"
-                    IsVisible="{Binding #PART_DateTimeAxesPanel.ZoomRectWidth, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    IsVisible="{Binding #PART_DateTimeAxesPanel.IsZoomActive}">
             </Border>
 
             <Border Height="{Binding #PART_DateTimeAxesPanel.Bounds.Height}" 

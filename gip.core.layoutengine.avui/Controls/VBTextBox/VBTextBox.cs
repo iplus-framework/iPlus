@@ -26,7 +26,7 @@ namespace gip.core.layoutengine.avui
     /// Stellt ein Steuerelement dar, mit dem unformatierter Text angezeigt oder bearbeitet werden kann.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBTextBox'}de{'VBTextBox'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBTextBox : MaskedTextBox, IVBContent, IACMenuBuilderWPFTree, IACObject, IClearVBContent
+    public class VBTextBox : MaskedTextBox, IVBContent, IACMenuBuilderWPFTree, IACObject, IClearVBContent, IVBContentReInitializable
     {
         private IACBSO _LastKnownBSOACComponent = null;
         private INotifyPropertyChanged _contextPropertyChangedSource;
@@ -457,6 +457,19 @@ namespace gip.core.layoutengine.avui
             _ValidationRule = null;
             this.ClearAllBindings();
             _LastKnownBSOACComponent = null;
+        }
+
+        /// <summary>
+        /// Forces a re-resolution of the VBContent-Binding against the current
+        /// DataContext. Used by shared tooltip content, which must re-bind to the
+        /// currently hovered item each time a tooltip opens.
+        /// </summary>
+        public void ReInitVBContent()
+        {
+            if (!_Initialized || String.IsNullOrEmpty(VBContent))
+                return;
+            _Initialized = false;
+            InitVBControl();
         }
 
         /// <summary>

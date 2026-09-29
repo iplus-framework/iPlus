@@ -323,11 +323,7 @@ namespace gip.core.layoutengine.avui
             if (oldCollection != null)
             {
                 // Unsubscribe from the old collection's change notifications
-                if (_collectionChangedSubscription != null)
-                {
-                    _collectionChangedSubscription.Dispose();
-                    _collectionChangedSubscription = null;
-                }
+                oldCollection.InternalCollectionChanged -= OnCollectionChanged;
 
                 // NOTE:
                 // If the collection is NOT in view mode (a.k.a owner isn't GridView),
@@ -341,25 +337,17 @@ namespace gip.core.layoutengine.avui
 
             if (newCollection != null)
             {
-                // Subscribe to the new collection's change notifications using Avalonia's weak event handling
-                if (newCollection is INotifyCollectionChanged notifyCollection)
-                {
-                    // Use Observable.FromEventPattern or direct event subscription instead of WeakEventHandlerManager.Subscribe
-                    notifyCollection.CollectionChanged += OnCollectionChanged;
-                }
-
-                //// Similar to what we do to oldCollection. But, of course, in a reverse way.
-                //if (!newCollection.InViewMode && newCollection.Owner == null)
-                //{
-                //    newCollection.Owner = GetStableAncester();
-                //}
+                // Subscribe to the INTERNAL collection-changed event: it carries both
+                // structural changes AND per-column property changes (Width, Header, ...)
+                // raised by GridViewColumnCollection.ColumnPropertyChanged. The public
+                // CollectionChanged event only fires for structural changes, so listening
+                // to it alone meant column resizes/reorders were never delivered.
+                newCollection.InternalCollectionChanged += OnCollectionChanged;
             }
 
             NeedUpdateVisualTree = true;
             InvalidateMeasure();
         }
-
-        private IDisposable _collectionChangedSubscription;
 
         //
         // NOTE:
@@ -430,16 +418,12 @@ namespace gip.core.layoutengine.avui
         {
             base.OnDetachedFromVisualTree(e);
 
-            // Clean up event subscription
+            // Clean up event subscriptions
             if (Columns is INotifyCollectionChanged notifyCollection)
             {
                 notifyCollection.CollectionChanged -= OnCollectionChanged;
             }
-            if (_collectionChangedSubscription != null)
-            {
-                _collectionChangedSubscription.Dispose();
-                _collectionChangedSubscription = null;
-            }
+            Columns?.InternalCollectionChanged -= OnCollectionChanged;
         }
 
         #endregion

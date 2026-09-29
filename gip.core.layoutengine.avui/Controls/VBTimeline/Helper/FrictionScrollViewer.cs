@@ -40,7 +40,9 @@ namespace gip.core.layoutengine.avui.timeline
         /// </summary>
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            PART_scp = e.NameScope.Find("PART_ScrollContentPresenter") as ScrollContentPresenter;
+            // Support both the WPF-style name and Avalonia's default part name.
+            PART_scp = e.NameScope.Find("PART_ScrollContentPresenter") as ScrollContentPresenter
+                       ?? e.NameScope.Find("PART_ContentPresenter") as ScrollContentPresenter;
             if (PART_scp != null)
                 PART_scp.SizeChanged += PART_scp_SizeChanged;
             base.OnApplyTemplate(e);

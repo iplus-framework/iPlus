@@ -1536,14 +1536,30 @@ namespace gip.core.layoutengine.avui
                 return;
             if (TreeValue != null)
             {
-                if (always || ContextACObject.ACUrlCommand(VBContent, null) != TreeValue)
+                object currentValue = ContextACObject.ACUrlCommand(VBContent, null);
+                // VBContent can resolve to the ITEMS SOURCE (a collection) rather than
+                // the selected-item property (e.g. in VBTimelineView scenarios where the
+                // SelectedItem binding uses a different path). Writing a single model
+                // object into a collection-valued property corrupts the BSO state - it
+                // then re-evaluates and hands back a filtered 1-item list, wiping all
+                // other rows. Skip the write in that case.
+                if (currentValue is System.Collections.IEnumerable && currentValue is not string)
+                {
+                    return;
+                }
+                if (always || currentValue != TreeValue)
                 {
                     ContextACObject.ACUrlCommand(VBContent, TreeValue);
                 }
             }
             else if (SelectedItem is IACObject selectedModel)
             {
-                if (always || ContextACObject.ACUrlCommand(VBContent, null) != selectedModel)
+                object currentValue = ContextACObject.ACUrlCommand(VBContent, null);
+                if (currentValue is System.Collections.IEnumerable && currentValue is not string)
+                {
+                    return;
+                }
+                if (always || currentValue != selectedModel)
                 {
                     ContextACObject.ACUrlCommand(VBContent, selectedModel);
                 }

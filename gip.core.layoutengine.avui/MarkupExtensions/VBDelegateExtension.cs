@@ -141,23 +141,19 @@ namespace gip.core.layoutengine.avui
 
         private Delegate CreateDummyDelegateForEventName(string eventName)
         {
+            // The runtime XAML compiler (SRE) binds markup-extension event values via the
+            // non-generic AddHandler(RoutedEvent, EventHandler<RoutedEventArgs>, ...) overload,
+            // so the returned dummy delegate must be of type EventHandler<RoutedEventArgs>
+            // to avoid an InvalidCastException in the generated populate method.
+            // The real subscription was already performed via AddHandler in ProvideValue,
+            // therefore the dummy delegate stays a no-op (like OnRoutedEvent).
             if (eventName == nameof(IInputElement.PointerEntered)
                 || eventName == nameof(IInputElement.PointerExited)
-                || eventName == nameof(IInputElement.PointerMoved))
+                || eventName == nameof(IInputElement.PointerMoved)
+                || eventName == nameof(IInputElement.KeyDown)
+                || eventName == nameof(IInputElement.KeyUp)
+                || eventName == nameof(IInputElement.PointerPressed))
             {
-                return new EventHandler<PointerEventArgs>(OnPointerEventNoOp);
-            }
-
-            if (eventName == nameof(IInputElement.KeyDown)
-                || eventName == nameof(IInputElement.KeyUp))
-            {
-                return new EventHandler<KeyEventArgs>(OnKeyEventNoOp);
-            }
-
-            if (eventName == nameof(IInputElement.PointerPressed))
-            {
-                // XamlIl can choose the EventHandler<RoutedEventArgs> setter overload for PointerPressed.
-                // Return a compatible delegate type to avoid runtime InvalidCastException.
                 return new EventHandler<RoutedEventArgs>(OnRoutedEvent);
             }
 
@@ -168,6 +164,20 @@ namespace gip.core.layoutengine.avui
         {
             if (eventInfo == null || eventInfo.EventHandlerType == null)
                 return null;
+
+            // Routed input events are bound by the runtime XAML compiler via the
+            // non-generic AddHandler(RoutedEvent, EventHandler<RoutedEventArgs>, ...) overload.
+            // Return a compatible delegate type to avoid runtime InvalidCastException.
+            switch (eventInfo.Name)
+            {
+                case nameof(IInputElement.PointerEntered):
+                case nameof(IInputElement.PointerExited):
+                case nameof(IInputElement.PointerMoved):
+                case nameof(IInputElement.KeyDown):
+                case nameof(IInputElement.KeyUp):
+                case nameof(IInputElement.PointerPressed):
+                    return new EventHandler<RoutedEventArgs>(OnRoutedEvent);
+            }
 
             if (typeof(EventHandler<PointerEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
             {

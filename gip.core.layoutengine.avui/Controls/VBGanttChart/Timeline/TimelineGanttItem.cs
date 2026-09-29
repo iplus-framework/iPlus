@@ -59,7 +59,7 @@ namespace gip.core.layoutengine.avui.ganttchart
                     VBTimelineChart.container.Children.Add(contentControl);
             }
 
-            ToolTip.SetTip(this, VBTimelineChart.container);
+            SetSharedToolTip(this, VBTimelineChart.container);
 
             if (VBTreeListViewItemMap == null)
             {

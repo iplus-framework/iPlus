@@ -30,12 +30,13 @@ namespace gip.core.layoutengine.avui.timeline
                 axisColor = Brushes.Gray;
             }
 
-            DateTimeTextBlock = new TextBlock() { Margin = new Thickness(0, 5, 0, 2), TextAlignment = TextAlignment.Center };
+            DateTimeTextBlock = new TextBlock() { Margin = new Thickness(0, 5, 0, 2), TextAlignment = TextAlignment.Center, FontSize = 10 };
             this.Width = DateTimeAxesPanel.TextBlockWidth;
 
             Axis = new Line() { Stroke = axisColor, Fill = axisColor, Stretch = Stretch.Fill, HorizontalAlignment = HorizontalAlignment.Center };
 
-            Binding binding = new Binding("ActualHeight");
+            // Avalonia has no ActualHeight CLR property (WPF) - use Bounds.Height.
+            Binding binding = new Binding("Bounds.Height");
             binding.Source = parent;
             MultiBinding multiBinding = new MultiBinding();
             multiBinding.Bindings.Add(binding);
@@ -117,20 +118,26 @@ namespace gip.core.layoutengine.avui.timeline
             if (_ParentPanel == null || DateTimeTextBlock == null)
                 return;
 
+            // Respect the user's regional settings: use the current culture for
+            // all formats. Day/month names ("ddd") are culture-aware anyway; for
+            // pure numeric dates use the culture's short-date pattern instead of
+            // the hard-coded English "dd/MM/yy" / "MM/yy".
+            var culture = System.Globalization.CultureInfo.CurrentCulture;
+
             TimeSpan currentTS = _ParentPanel.TickTimeSpan;
 
             if (currentTS < TimeSpan.FromMinutes(30))
-                DateTimeTextBlock.Text = dateTime.ToString("HH:mm:ss");
+                DateTimeTextBlock.Text = dateTime.ToString("HH:mm:ss", culture);
             else if (currentTS < TimeSpan.FromDays(1))
-                DateTimeTextBlock.Text = dateTime.ToString("ddd HH:mm");
+                DateTimeTextBlock.Text = dateTime.ToString("ddd HH:mm", culture);
             else if (currentTS < TimeSpan.FromDays(30))
-                DateTimeTextBlock.Text = dateTime.ToString("dd/MM/yy");
+                DateTimeTextBlock.Text = dateTime.ToString(culture.DateTimeFormat.ShortDatePattern);
             else if (currentTS < TimeSpan.FromDays(360))
-                DateTimeTextBlock.Text = dateTime.ToString("MM/yy");
+                DateTimeTextBlock.Text = dateTime.ToString(culture.DateTimeFormat.YearMonthPattern);
             else
-                DateTimeTextBlock.Text = dateTime.ToString("yyyy");
+                DateTimeTextBlock.Text = dateTime.ToString("yyyy", culture);
 
-            ToolTip.SetTip(this, dateTime.ToString());
+            ToolTip.SetTip(this, dateTime.ToString(culture));
         }
 
         public void SetPosition(double offset, bool isDefault = false)

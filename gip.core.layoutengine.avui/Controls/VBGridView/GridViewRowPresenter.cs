@@ -608,7 +608,10 @@ namespace gip.core.layoutengine.avui
                 {
                     // Needed this. Otherwise can't size to content at startup time.
                     // The reason is cell.Text is empty after the first round of measure.
-                    DataContext = Content
+                    DataContext = Content,
+                    // TextBlock does not clip overflowing text by default in Avalonia -
+                    // long text would paint over the next cell's content.
+                    ClipToBounds = true
                 };
 
                 cell.Bind(TextBlock.TextProperty, binding);
@@ -617,7 +620,8 @@ namespace gip.core.layoutengine.avui
             {
                 ContentPresenter cp = new ContentPresenter
                 {
-                    Content = Content
+                    Content = Content,
+                    ClipToBounds = true
                 };
 
                 IDataTemplate dt;

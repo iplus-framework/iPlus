@@ -5,6 +5,7 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml.Templates;
+using Avalonia.VisualTree;
 using Avalonia.Media;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.ganttchart;
@@ -15,6 +16,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using Avalonia.Controls.Presenters;
 
 
 namespace gip.core.layoutengine.avui.timeline
@@ -50,6 +52,8 @@ namespace gip.core.layoutengine.avui.timeline
         {
             if (_IsInitialized)
                 return;
+
+            //System.Diagnostics.Debug.WriteLine($"[TLITEM] InitVBControl: content={(Content?.GetType().Name ?? "NULL")}, view={(VBTimelineView?.GetType().Name ?? "NULL")}, ganttStart='{VBTimelineView?.GanttStart}', ganttEnd='{VBTimelineView?.GanttEnd}'");
 
             Binding binding = new Binding();
             binding.Source = this.Content;
@@ -120,22 +124,85 @@ namespace gip.core.layoutengine.avui.timeline
 
         internal virtual void TimelineItem_ToolTipOpening(object sender, CancelRoutedEventArgs e)
         {
-            // Avalonia Change Designs in iPlus
-            //if (!IsToolTipEnabled)
-            //{
-            //    ToolTip.SetTip(this, null);
-            //    return;
-            //}
+            if (!IsToolTipEnabled)
+            {
+                // Do NOT clear the Tip here: ToolTipOpening fires while IsOpen is
+                // already true, and clearing the Tip would trigger ToolTipService
+                // to close the popup permanently for this control. Just cancel the
+                // opening - Avalonia resets IsOpen back to false.
+                e.Cancel = true;
+                return;
+            }
 
-            //if (ToolTipContent != null)
-            //{
-            //    foreach (TemplatedControl element in ToolTipContent.Children)
-            //    {
-            //        element.DataContext = DataContext;
-            //        //element.OnApplyTemplate();
-            //    }
-            //    ToolTip.SetTip(this, VBTimelineChart.container);
-            //}
+            // The chart shares a single StackPanel (VBTimelineChart.container) as ToolTip
+            // content between all timeline items. The ToolTip of the previously hovered
+            // item stays alive (cached in its control's ToolTipProperty) and still hosts
+            // the shared panel inside its popup's ContentPresenter. Detach it here -
+            // ToolTipOpening fires before the new ToolTip is created - otherwise
+            // ContentPresenter.UpdateChild throws "already has a visual parent".
+            // IMPORTANT: clear the owning ToolTip's Content, NOT the presenter's.
+            // The presenter's Content is template-bound ({TemplateBinding Content});
+            // setting a local value on it would break that binding permanently and
+            // produce an EMPTY tooltip when the same item is hovered again.
+            var container = VBTimelineChart.container;
+            DetachSharedContainer(container);
+
+            // WPF-Parity: re-target the shared tooltip content to THIS item. Without
+            // this the tooltip keeps showing the data of the first / previously
+            // hovered item, because the shared VB-Controls cache their bindings.
+            if (ToolTipContent != null)
+            {
+                foreach (var element in ToolTipContent.Children)
+                {
+                    element.DataContext = DataContext;
+                    if (element is IVBContentReInitializable reInit)
+                        reInit.ReInitVBContent();
+                }
+            }
+        }
+
+        /// <summary>
+        /// The chart shares a single StackPanel instance as ToolTip content between all
+        /// timeline items. If a previous ToolTip is still hosting that panel inside its
+        /// ContentPresenter, re-using it for another ToolTip throws
+        /// "The control ... already has a visual parent ContentPresenter". Detach it from
+        /// any previous host before assigning it as Tip again.
+        /// </summary>
+        protected static void SetSharedToolTip(Control item, StackPanel sharedContainer)
+        {
+            if (sharedContainer == null)
+                return;
+
+            DetachSharedContainer(sharedContainer);
+
+            ToolTip.SetTip(item, sharedContainer);
+        }
+
+        /// <summary>
+        /// Detaches the shared tooltip container from a ToolTip that currently hosts it.
+        /// Clears the owning ToolTip's Content (the template-bound ContentPresenter
+        /// follows automatically) instead of setting the presenter's Content directly,
+        /// which would break its TemplateBinding and yield an empty tooltip on reuse.
+        /// </summary>
+        internal static void DetachSharedContainer(StackPanel sharedContainer)
+        {
+            if (sharedContainer == null)
+                return;
+
+            if (sharedContainer.GetVisualParent() is ContentPresenter oldPresenter)
+            {
+                var owningToolTip = oldPresenter.TemplatedParent as ToolTip;
+                if (owningToolTip != null)
+                {
+                    if (ReferenceEquals(owningToolTip.Content, sharedContainer))
+                        owningToolTip.Content = null;
+                }
+                else
+                {
+                    // Fallback: presenter not owned by a ToolTip template
+                    oldPresenter.Content = null;
+                }
+            }
         }
 
 
@@ -182,7 +249,7 @@ namespace gip.core.layoutengine.avui.timeline
         /// Represents the styled property for IsCollapsed.
         /// </summary>
         public static readonly StyledProperty<bool> IsCollapsedProperty =
-            AvaloniaProperty.Register<TimelineItemBase, bool>(nameof(IsCollapsed), true);
+            AvaloniaProperty.Register<TimelineItemBase, bool>(nameof(IsCollapsed), false);
 
         /// <summary>
         /// Gets or sets whether this timeline item is collapsed.

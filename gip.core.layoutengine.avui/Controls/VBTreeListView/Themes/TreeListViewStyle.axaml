@@ -43,8 +43,6 @@
               <Rectangle x:Name="BackgroundRectangle" Grid.RowSpan="2" Grid.ColumnSpan="2" 
                          Fill="{StaticResource NormalBrush}"
                          Stretch="Fill" Stroke="{StaticResource NormalBorderBrush}" StrokeThickness="1" />
-              <Rectangle x:Name="HoverRectangle" Grid.RowSpan="2" Grid.ColumnSpan="2" Stretch="Fill"
-                         Fill="{StaticResource HoverShineBrush}" Opacity="0" />
               <Rectangle x:Name="ShineRectangle"
                          Fill="{StaticResource ShineBrush}"
                          Stretch="Fill"
@@ -80,20 +78,11 @@
     </Setter>
     
     <!-- Mouse over animations -->
-    <Style Selector="^:pointerover /template/ Rectangle#HoverRectangle">
-      <Style.Animations>
-        <Animation Duration="0:0:0.2">
-          <KeyFrame Cue="0%">
-            <Setter Property="Opacity" Value="0"/>
-          </KeyFrame>
-          <KeyFrame Cue="100%">
-            <Setter Property="Opacity" Value="1"/>
-          </KeyFrame>
-        </Animation>
-      </Style.Animations>
+    <Style Selector="^:pointerover /template/ Rectangle#BackgroundRectangle">
+      <Setter Property="Fill" Value="{StaticResource HoverShineBrush}" />
     </Style>
     
-    <Style Selector="^:not(:pointerover) /template/ Rectangle#HoverRectangle">
+    <!-- <Style Selector="^:not(:pointerover) /template/ Rectangle#HoverRectangle">
       <Style.Animations>
         <Animation Duration="0:0:0.2">
           <KeyFrame Cue="0%">
@@ -104,7 +93,7 @@
           </KeyFrame>
         </Animation>
       </Style.Animations>
-    </Style>
+    </Style> -->
   </ControlTheme>
 
   <!--<ControlTheme x:Key="TreeListViewScroll" TargetType="ScrollViewer">

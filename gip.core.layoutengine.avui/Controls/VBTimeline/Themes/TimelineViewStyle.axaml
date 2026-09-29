@@ -112,7 +112,7 @@
                         </local:VBDateTimePicker>-->
                     </Grid>
                     
-                    <local:VBTimelineChart Grid.Column="2" Grid.Row="1" Width="200" x:Name="PART_TimelineChart"
+                    <local:VBTimelineChart Grid.Column="2" Grid.Row="1" x:Name="PART_TimelineChart"
                                         Zoom="{Binding #PART_Combo.SelectedValue}" TimelineItemTemplate="{TemplateBinding TimelineItemTemplate}">
                         <local:VBTimelineChart.ItemsPanel>
                             <ItemsPanelTemplate>

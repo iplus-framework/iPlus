@@ -6,7 +6,11 @@
     <ControlTheme x:Key="{x:Type local:TimelineItem}" TargetType="local:TimelineItem">
         <Setter Property="Template">
             <ControlTemplate>
-                <ContentPresenter />
+                <!-- Avalonia: ContentPresenter does not auto-bind to the templated
+                     parent's Content/ContentTemplate (unlike WPF) - bind explicitly,
+                     otherwise the DataTemplate is never materialized. -->
+                <ContentPresenter Content="{TemplateBinding Content}"
+                                  ContentTemplate="{TemplateBinding ContentTemplate}" />
             </ControlTemplate>
         </Setter>
     </ControlTheme>

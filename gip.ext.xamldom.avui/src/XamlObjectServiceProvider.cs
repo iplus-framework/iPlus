@@ -60,6 +60,10 @@ namespace gip.ext.xamldom.avui
             {
                 return this;
             }
+            if (serviceType == typeof(INameScope))
+            {
+                return NameScopeHelper.GetNameScopeFromObject(this.XamlObject);
+            }
 #if AVALONIA_SUPPORTS_FROM_WPF
             if (serviceType == typeof(IXamlSchemaContextProvider))
                 return SchemaContext;

@@ -54,6 +54,15 @@ namespace gip.core.layoutengine.avui
                         // Reassign all ActualIndex values (order of insertion == actual order)
                         for (int i = 0; i < Count; i++)
                             this[i].ActualIndex = i;
+                        // Subscribe each added column's INPC so per-column property changes
+                        // (Width, Header, ...) reach the presenters via ColumnPropertyChanged.
+                        // In WPF this happened in InsertItem -> InsertPreprocess; the Avalonia
+                        // port routes Add() through this handler instead.
+                        foreach (GridViewColumn added in e.NewItems)
+                        {
+                            if (added != null)
+                                ((INotifyPropertyChanged)added).PropertyChanged += ColumnPropertyChanged;
+                        }
                         // Keep _actualIndices in sync for column reorder support
                         for (int i = 0; i < e.NewItems.Count; i++)
                         {
@@ -74,6 +83,12 @@ namespace gip.core.layoutengine.avui
                             ? _actualIndices[e.NewStartingIndex] : -1;
                         if (e.NewStartingIndex >= 0 && e.NewStartingIndex < _actualIndices.Count)
                             _actualIndices.RemoveAt(e.NewStartingIndex);
+                        // Unsubscribe removed columns' INPC notifications
+                        foreach (GridViewColumn removed in e.OldItems)
+                        {
+                            if (removed != null)
+                                ((INotifyPropertyChanged)removed).PropertyChanged -= ColumnPropertyChanged;
+                        }
                         for (int i = 0; i < Count; i++)
                             this[i].ActualIndex = i;
                         _internalEventArg = new GridViewColumnCollectionChangedEventArgs(

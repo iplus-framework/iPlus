@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Markup.Xaml;
 using Avalonia.SourceGenerator;
@@ -128,6 +129,8 @@ namespace gip.ext.xamldom.avui
                 TrySetBindingDefaultAnchor(binding, anchor);
             }
 
+            TrySetBindingNameScope(binding, xamlContext, target, anchor);
+
             target.Bind(property, binding);
         }
 
@@ -185,6 +188,18 @@ namespace gip.ext.xamldom.avui
 
         protected static void TrySetBindingDefaultAnchor(BindingBase binding, object anchor)
         {
+            if (binding == null || anchor == null)
+                return;
+
+            if (binding is MultiBinding multiBinding)
+            {
+                foreach (var childBinding in multiBinding.Bindings)
+                {
+                    TrySetBindingDefaultAnchor(childBinding, anchor);
+                }
+                return;
+            }
+
             try
             {
                 var property = binding.GetType().GetProperty(
@@ -199,6 +214,66 @@ namespace gip.ext.xamldom.avui
             catch
             {
                 // Best-effort anchor injection.
+            }
+        }
+
+        protected static void TrySetBindingNameScope(BindingBase binding, XamlObject xamlContext, AvaloniaObject target, object anchor)
+        {
+            if (binding == null)
+                return;
+
+            if (binding is MultiBinding multiBinding)
+            {
+                foreach (var childBinding in multiBinding.Bindings)
+                {
+                    TrySetBindingNameScope(childBinding, xamlContext, target, anchor);
+                }
+                return;
+            }
+
+            try
+            {
+                var property = binding.GetType().GetProperty(
+                    "NameScope",
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+
+                if (property != null)
+                {
+                    // If NameScope is already assigned, don't overwrite.
+                    var existingVal = property.GetValue(binding, null);
+                    if (existingVal != null)
+                    {
+                        if (existingVal is WeakReference<INameScope> existingWeakRef && existingWeakRef.TryGetTarget(out var targetScope) && targetScope != null)
+                            return;
+                    }
+
+                    INameScope nameScope = null;
+                    if (xamlContext != null)
+                        nameScope = NameScopeHelper.GetNameScopeFromObject(xamlContext);
+
+                    if (nameScope == null && anchor is StyledElement anchorStyled)
+                        nameScope = NameScope.GetNameScope(anchorStyled);
+
+                    if (nameScope == null && target is StyledElement targetStyled)
+                        nameScope = NameScope.GetNameScope(targetStyled);
+
+                    if (nameScope != null)
+                    {
+                        var propType = property.PropertyType;
+                        if (propType == typeof(WeakReference<INameScope>))
+                        {
+                            property.SetValue(binding, new WeakReference<INameScope>(nameScope), null);
+                        }
+                        else if (typeof(INameScope).IsAssignableFrom(propType))
+                        {
+                            property.SetValue(binding, nameScope, null);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Best-effort NameScope injection.
             }
         }
 
