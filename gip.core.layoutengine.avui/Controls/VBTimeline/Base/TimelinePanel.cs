@@ -74,7 +74,8 @@ namespace gip.core.layoutengine.avui.timeline
                 _observedChildren.Remove(child);
                 return;
             }
-            if (e.Property == StartDateProperty || e.Property == EndDateProperty || e.Property == RowIndexProperty)
+            if (e.Property == StartDateProperty || e.Property == EndDateProperty || e.Property == RowIndexProperty
+                || e.Property == TimelineItemBase.IsCollapsedProperty)
             {
                 InvalidateMeasure();
             }

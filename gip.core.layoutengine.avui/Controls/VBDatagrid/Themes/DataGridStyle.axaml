@@ -171,6 +171,8 @@
     <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource DataGridLineBrush}" />
     <Setter Property="VerticalGridLinesBrush" Value="{StaticResource DataGridLineBrush}" />
     <Setter Property="RowDetailsVisibilityMode" Value="Collapsed" />
+    <Setter Property="CanUserReorderColumns" Value="True" />
+    <Setter Property="CanUserResizeColumns" Value="True" />
     <Setter Property="IsReadOnly" Value="False" />
     <Setter Property="AutoGenerateColumns" Value="False" />
     <!--<Setter Property="CellStyle" Value="{StaticResource CellStyle}" />

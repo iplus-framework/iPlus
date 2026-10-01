@@ -2,10 +2,12 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
+using Avalonia.Interactivity;
 using Avalonia.Input;
 using Avalonia.Threading;
 using gip.core.layoutengine.avui.Helperclasses;
 using System;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui.timeline
 {
@@ -46,6 +48,84 @@ namespace gip.core.layoutengine.avui.timeline
             if (PART_scp != null)
                 PART_scp.SizeChanged += PART_scp_SizeChanged;
             base.OnApplyTemplate(e);
+
+            // Diagnostics: listen at the visual ROOT (tunneling) to see whether
+            // wheel events occur at all and where they are targeted.
+            if (VisualRoot is Avalonia.Interactivity.Interactive rootInteractive)
+            {
+                rootInteractive.AddHandler(InputElement.PointerWheelChangedEvent,
+                    Root_PointWheelTunnel, Avalonia.Interactivity.RoutingStrategies.Tunnel);
+            }
+        }
+
+        private void Root_PointWheelTunnel(object sender, PointerWheelEventArgs e)
+        {
+            // Let Ctrl+wheel pass through untouched (used for zoom elsewhere).
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+                return;
+
+            // Only act when the pointer is over THIS viewer. The hit-tested Source
+            // may lie OUTSIDE our subtree (e.g. an overlay Border/VBDockPanel over
+            // empty chart areas), so we rely on geometry, not e.Source.
+            Point pos = e.GetPosition(this);
+            if (pos.X < 0 || pos.Y < 0 || pos.X > Bounds.Width || pos.Y > Bounds.Height)
+                return;
+
+            // The outer viewer often has no scrollable extent of its own - the real
+            // scrollable content lives in the INNER ScrollViewers of the nested
+            // ItemsControls. Pick the inner ScrollViewer whose bounds contain the
+            // pointer; fall back to this viewer.
+            ScrollViewer target = FindScrollViewerAt(pos) ?? this;
+            double delta = e.Delta.Y * 50;
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            {
+                // Shift+wheel: horizontal scroll.
+                target.SetCurrentValue(ScrollViewer.OffsetProperty,
+                    new Vector(target.Offset.X + delta, target.Offset.Y));
+            }
+            else
+            {
+                // Plain wheel: vertical scroll.
+                target.SetCurrentValue(ScrollViewer.OffsetProperty,
+                    new Vector(target.Offset.X, target.Offset.Y - delta));
+            }
+            e.Handled = true;
+        }
+
+        /// <summary>
+        /// Finds the innermost ScrollViewer below this viewer whose bounds contain
+        /// the given point (in this viewer's coordinates).
+        /// </summary>
+        private ScrollViewer FindScrollViewerAt(Point posLocal)
+        {
+            ScrollViewer best = null;
+            foreach (var sv in Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(this).OfType<ScrollViewer>())
+            {
+                if (ReferenceEquals(sv, this))
+                    continue;
+                Matrix? transform = this.TransformToVisual(sv);
+                if (transform == null)
+                    continue;
+                Point p = posLocal * transform.Value;
+                if (sv.Bounds.Contains(p))
+                {
+                    // Prefer the deepest (innermost) match.
+                    if (best == null || IsDescendantOf(sv, best))
+                        best = sv;
+                }
+            }
+            return best;
+        }
+
+        private static bool IsDescendantOf(Avalonia.Visual node, Avalonia.Visual ancestor)
+        {
+            while (node != null)
+            {
+                if (ReferenceEquals(node, ancestor))
+                    return true;
+                node = Avalonia.VisualTree.VisualExtensions.GetVisualParent(node);
+            }
+            return false;
         }
 
         void PART_scp_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -100,16 +180,30 @@ namespace gip.core.layoutengine.avui.timeline
         {
             if (e.Properties.IsLeftButtonPressed && !e.KeyModifiers.HasFlag(KeyModifiers.Control) && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
-                _ShouldAutoScroll = false;
-                _isPointerCaptured = true;
-                // Save starting point, used later when determining how much to scroll.
-                _ScrollStartPoint = e.GetPosition(this);
-                _ScrollStartOffset = new Point(Offset.X, Offset.Y);
-                // Update the cursor if can scroll or not. 
-                Cursor = (Extent.Width > Viewport.Width) ||
-                    (Extent.Height > Viewport.Height) ?
-                    new Cursor(StandardCursorType.SizeAll) : new Cursor(StandardCursorType.Arrow);
-                e.Pointer.Capture(this);
+                // Do NOT steal the pointer when the press landed on a timeline item -
+                // capturing here redirects all subsequent events (incl. the release)
+                // to the ScrollViewer, so the item's OnPointerReleased never fires
+                // and click-selection breaks. Drag-scrolling still works everywhere
+                // else (empty areas, tree, etc.).
+                // e.Source is the deepest hit element (e.g. the template's Border),
+                // so walk up the visual tree to detect a timeline item.
+                bool pressedOnTimelineItem = e.Source is TimelineItemBase ||
+                    (e.Source is Avalonia.Visual v &&
+                     gip.core.layoutengine.avui.Helperclasses.VBVisualTreeHelper.FindParentObjectInVisualTree(v, typeof(TimelineItemBase)) != null);
+                if (!pressedOnTimelineItem)
+                {
+                    _ShouldAutoScroll = false;
+                    _isPointerCaptured = true;
+                    _AnimationTimer.Start();   // Restart idle-stopped timer.
+                    // Save starting point, used later when determining how much to scroll.
+                    _ScrollStartPoint = e.GetPosition(this);
+                    _ScrollStartOffset = new Point(Offset.X, Offset.Y);
+                    // Update the cursor if can scroll or not.
+                    Cursor = (Extent.Width > Viewport.Width) ||
+                        (Extent.Height > Viewport.Height) ?
+                        new Cursor(StandardCursorType.SizeAll) : new Cursor(StandardCursorType.Arrow);
+                    e.Pointer.Capture(this);
+                }
             }
             base.OnPointerPressed(e);
         }
@@ -140,11 +234,24 @@ namespace gip.core.layoutengine.avui.timeline
         {
             if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
             {
+                // Ctrl+wheel: horizontal zoom-scroll.
+                var newOffset = new Vector(Offset.X + e.Delta.Y * 50, Offset.Y);
+                SetCurrentValue(ScrollViewer.OffsetProperty, newOffset);
+            }
+            else if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            {
+                // Shift+wheel: horizontal scroll.
                 var newOffset = new Vector(Offset.X + e.Delta.Y * 50, Offset.Y);
                 SetCurrentValue(ScrollViewer.OffsetProperty, newOffset);
             }
             else
-                base.OnPointerWheelChanged(e);
+            {
+                // Plain wheel: vertical scroll (handled explicitly because the
+                // base implementation does not react in this template setup).
+                var newOffset = new Vector(Offset.X, Offset.Y - e.Delta.Y * 50);
+                SetCurrentValue(ScrollViewer.OffsetProperty, newOffset);
+                e.Handled = true;
+            }
         }
 
 
@@ -200,11 +307,16 @@ namespace gip.core.layoutengine.avui.timeline
                         SetCurrentValue(ScrollViewer.OffsetProperty, newOffset);
                         _ScrollTarget = new Point(_Velocity.X, _Velocity.Y);
                         _Velocity *= Friction;
-                        //System.Diagnostics.Debug.WriteLine("Scroll @ " + Offset.X + ", " + Offset.Y);
                     }
                 }
 
-                InvalidateVisual();
+                // Only force re-render while an animation is actually running.
+                // Unconditional InvalidateVisual() every 10ms starves the UI thread
+                // on large charts (thousands of items after Expand-All).
+                if (_ShouldAutoScroll || _Velocity.Length > 1)
+                    InvalidateVisual();
+                else
+                    _AnimationTimer.Stop();   // Idle: no 100Hz ticking overhead.
             }
         }
         #endregion
@@ -215,6 +327,7 @@ namespace gip.core.layoutengine.avui.timeline
             {
                 _AutoScrollTarget = value;
                 _ShouldAutoScroll = true;
+                _AnimationTimer.Start();   // Restart idle-stopped timer.
             }
         }
 

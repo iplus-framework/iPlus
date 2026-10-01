@@ -46,18 +46,30 @@ namespace gip.core.layoutengine.avui.timeline
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
             base.OnApplyTemplate(e);
-            //System.Diagnostics.Debug.WriteLine($"[TL] Presenter OnApplyTemplate: items={Items.Count}, templateApplied={Template != null}");
 
             // The ItemsPanel set on VBTimelineChart (TimelineItemPanel via the
             // chart's ItemsPanelTemplate) does not propagate through this nested
             // ItemsControl - the inner ItemsPresenter falls back to the default
             // StackPanel, which cannot position timeline bars. Enforce the panel.
-            // via the ItemsPanel template (Panel itself is read-only).
+            //
+            // IMPORTANT: use the CHART's ItemsPanel (which carries the view's
+            // ItemsPanelTemplate with the bound RowHeight/RowVerticalMargin), NOT a
+            // freshly constructed default TimelineItemPanel - the latter discards
+            // the configured row dimensions and the rows fall back to the
+            // hardcoded defaults (18/5).
+            var chart = this.GetVisualAncestors().OfType<VBTimelineChartBase>().FirstOrDefault();
             var innerPresenter = this.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.ItemsPresenter>().FirstOrDefault();
             if (innerPresenter != null && !(innerPresenter.Panel is TimelineItemPanel))
             {
-                //System.Diagnostics.Debug.WriteLine($"[TL] Replacing default panel {innerPresenter.Panel?.GetType().Name} with TimelineItemPanel");
-                innerPresenter.ItemsPanel = new FuncTemplate<Panel>(() => new TimelineItemPanel());
+                if (chart?.ItemsPanel != null)
+                {
+                    innerPresenter.ItemsPanel = chart.ItemsPanel;
+                    ItemsPanel = chart.ItemsPanel;
+                }
+                else
+                {
+                    innerPresenter.ItemsPanel = new FuncTemplate<Panel>(() => new TimelineItemPanel());
+                }
                 innerPresenter.InvalidateMeasure();
             }
         }
@@ -66,7 +78,6 @@ namespace gip.core.layoutengine.avui.timeline
         {
             var result = base.MeasureOverride(availableSize);
             var innerPresenter = this.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.ItemsPresenter>().FirstOrDefault();
-            //System.Diagnostics.Debug.WriteLine($"[TL] Presenter measure: items={Items.Count}, desired={result}, avail={availableSize}, innerPresenter={(innerPresenter != null ? "found" : "NULL")}, panel={(innerPresenter?.Panel?.GetType().Name ?? "NULL")}, panelChildren={(innerPresenter?.Panel?.Children.Count.ToString() ?? "-")}");
             return result;
         }
 

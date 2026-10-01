@@ -119,7 +119,7 @@ namespace gip.core.autocomponent
         /// <returns>ControlModesInfo</returns>
         public override Global.ControlModes OnGetControlModes(IVBContent vbControl)
         {
-            if (vbControl == null)
+            if (vbControl == null || ACState == null)
                 return base.OnGetControlModes(vbControl);
             if (String.IsNullOrEmpty(vbControl.DisabledModes))
                 return base.OnGetControlModes(vbControl);

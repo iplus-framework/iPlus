@@ -132,7 +132,12 @@ namespace gip.core.autocomponent
                 bso = caller.Root.Businessobjects.StartComponent(bsoName, null, new object[] { }) as ACComponent;
             if (bso == null)
                 return;
-            bso.ACUrlCommand("!ShowACProgramLog", param);
+            // ShowACProgramLog is an async method. Its Task is returned by ACUrlCommand
+            // (via HandleExecuteACMethod). Await it, otherwise bso.Stop() would run
+            // immediately while the dialog is still open.
+            object result = bso.ACUrlCommand("!ShowACProgramLog", param);
+            if (result is Task showTask)
+                await showTask;
             await bso.Stop();
             return;
         }
@@ -150,7 +155,12 @@ namespace gip.core.autocomponent
                 bso = caller.Root.Businessobjects.StartComponent(bsoName, null, new object[] { }) as ACComponent;
             if (bso == null)
                 return;
-            bso.ExecuteMethod("ShowPropertyLogsDialog", caller.ComponentClass);
+            // Dialog methods are async. Their Task is returned by ExecuteMethod
+            // (via HandleExecuteACMethod). Await it, otherwise bso.Stop() would run
+            // immediately while the dialog is still open.
+            object result = bso.ExecuteMethod("ShowPropertyLogsDialog", caller.ComponentClass);
+            if (result is Task showTask)
+                await showTask;
             await bso.Stop();
         }
 
@@ -167,7 +177,9 @@ namespace gip.core.autocomponent
                 bso = caller.Root.Businessobjects.StartComponent(bsoName, null, new object[] { }) as ACComponent;
             if (bso == null)
                 return;
-            bso.ExecuteMethod("ShowPropertyLogsWithFilterDialog", selectedItem, from, to);
+            object result = bso.ExecuteMethod("ShowPropertyLogsWithFilterDialog", selectedItem, from, to);
+            if (result is Task showTask)
+                await showTask;
             await bso.Stop();
         }
 
@@ -187,7 +199,11 @@ namespace gip.core.autocomponent
                 bso = caller.Root.Businessobjects.StartComponent(bsoName, null, new object[] { }) as ACComponent;
             if (bso == null)
                 return null;
+            // SelectMessage is async and shows a modal dialog. Await its Task,
+            // otherwise bso.Stop() would run immediately while the dialog is still open.
             object result = bso.ACUrlCommand("!SelectMessage", new object[] { messagesList, acCaption, buttonACCaption, dialogHeader });
+            if (result is Task showTask)
+                await showTask;
             await bso.Stop();
             return result;
         }

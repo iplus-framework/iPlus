@@ -9,9 +9,26 @@ namespace gip.core.layoutengine.avui.timeline
 {
     public class ScrollViewerSyncer
     {
+        // Both sides consist of NESTED ItemsControls - the actual scrolling may
+        // happen in ANY of the inner ScrollViewers, so all of them are hooked and
+        // the one that really scrolls drives the counterpart.
+        private readonly List<ScrollViewer> _sv1List = new List<ScrollViewer>();
+        private readonly List<ScrollViewer> _sv2List = new List<ScrollViewer>();
+        private bool _isSyncing;
 
-        private ScrollViewer _sv1;
-        private ScrollViewer _sv2;
+        public ScrollViewerSyncer(IEnumerable<ScrollViewer> sv1List, IEnumerable<ScrollViewer> sv2List)
+        {
+            if (sv1List == null) throw new ArgumentNullException("sv1List");
+            if (sv2List == null) throw new ArgumentNullException("sv2List");
+
+            _sv1List.AddRange(sv1List);
+            _sv2List.AddRange(sv2List);
+
+            foreach (var sv in _sv1List)
+                sv.ScrollChanged += sv1_ScrollChanged;
+            foreach (var sv in _sv2List)
+                sv.ScrollChanged += sv2_ScrollChanged;
+        }
 
         //private ScrollBar _sv1HSB;
         //private ScrollBar sv1HSB
@@ -35,96 +52,50 @@ namespace gip.core.layoutengine.avui.timeline
         //    }
         //}
 
-        private bool sv1HorizontalVisible;
-        private bool sv2HorizontalVisible;
-
-        public ScrollViewerSyncer(ScrollViewer sv1, ScrollViewer sv2)
-        {
-            if (sv1 == null) throw new ArgumentNullException("sv1");
-            if (sv2 == null) throw new ArgumentNullException("sv2");
-
-            this._sv1 = sv1;
-            this._sv2 = sv2;
-
-            sv1HorizontalVisible =
-                sv1.HorizontalScrollBarVisibility == ScrollBarVisibility.Visible;
-            sv2HorizontalVisible =
-                sv2.HorizontalScrollBarVisibility == ScrollBarVisibility.Visible;
-
-
-            sv1.ScrollChanged += sv1_ScrollChanged;
-            sv2.ScrollChanged += sv2_ScrollChanged;
-        }
-
-        
-
         public void DeInitControl()
         {
-            if (_sv1 != null)
-                _sv1.ScrollChanged -= sv1_ScrollChanged;
-
-            if (_sv2 != null)
-                _sv2.ScrollChanged -= sv2_ScrollChanged;
-
-            _sv1 = null;
-            _sv2 = null;
-            //_sv1HSB = null;
-            //_sv2HSB = null;
+            foreach (var sv in _sv1List)
+                sv.ScrollChanged -= sv1_ScrollChanged;
+            foreach (var sv in _sv2List)
+                sv.ScrollChanged -= sv2_ScrollChanged;
+            _sv1List.Clear();
+            _sv2List.Clear();
         }
 
         private void sv2_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            if (e.Source != _sv2) 
+            if (_isSyncing || e.OffsetDelta.Y == 0)
                 return;
-
-            if (e.OffsetDelta != null && e.OffsetDelta.Y != 0)
-            {
-                _sv1.Offset = _sv2.Offset;
-            }
-
-            bool sv2NewHV = _sv2.HorizontalScrollBarVisibility == ScrollBarVisibility.Visible;// && sv2HSB != null && sv2HSB.IsEnabled;
-            if (sv2HorizontalVisible != sv2NewHV)
-            {
-                sv2HorizontalVisible = sv2NewHV;
-                MatchHeightDifferences();
-            }
+            Sync(_sv2List, _sv1List);
         }
 
         private void sv1_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            if (e.Source != _sv1) 
+            if (_isSyncing || e.OffsetDelta.Y == 0)
                 return;
-
-            if (e.OffsetDelta != null && e.OffsetDelta.Y != 0)
-            {
-                _sv2.Offset = _sv1.Offset;
-            }
-
-            bool sv1NewHV = _sv1.HorizontalScrollBarVisibility == ScrollBarVisibility.Visible;// && sv1HSB != null && sv1HSB.IsEnabled;
-            if (sv1HorizontalVisible != sv1NewHV)
-            {
-                sv1HorizontalVisible = sv1NewHV;
-                MatchHeightDifferences();
-            }
+            Sync(_sv1List, _sv2List);
         }
 
-
-        private void MatchHeightDifferences()
+        private void Sync(List<ScrollViewer> fromList, List<ScrollViewer> toList)
         {
-                if (!sv1HorizontalVisible && sv2HorizontalVisible)
+            // The driver is the viewer that actually scrolled.
+            ScrollViewer driver = fromList.FirstOrDefault(sv => sv.Offset.Y != 0)
+                                  ?? fromList.FirstOrDefault();
+            if (driver == null)
+                return;
+            _isSyncing = true;
+            try
+            {
+                foreach (var target in toList)
                 {
-                    _sv1.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
+                    if (driver.Offset.Y != target.Offset.Y)
+                        target.Offset = new Avalonia.Vector(target.Offset.X, driver.Offset.Y);
                 }
-                else if (sv1HorizontalVisible && !sv2HorizontalVisible)
-                {
-                    _sv2.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
-                }
-                else if(!sv1HorizontalVisible && !sv2HorizontalVisible)
-                {
-                    _sv1.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
-                    _sv2.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
-                }
-
+            }
+            finally
+            {
+                _isSyncing = false;
+            }
         }
     }
 }

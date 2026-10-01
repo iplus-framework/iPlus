@@ -13,13 +13,21 @@
         <Setter Property="Height" Value="20"/>
         <Setter Property="Template">
             <ControlTemplate>
-                <Border Background="Transparent" Height="22" Padding="5,7,5,5" Width="20"
+                <Border Background="Transparent" Height="22" Padding="0,0,0,0" Width="20"
                         ToolTip.Tip="Expand/Collapse all">
-                    <Path x:Name="ExpandPath" Data="{StaticResource TreeArrow}" Fill="Transparent" Stroke="#F5F5F5">
-                        <Path.RenderTransform>
-                            <RotateTransform Angle="135" CenterY="3" CenterX="3"/>
-                        </Path.RenderTransform>
-                    </Path>
+                    <LayoutTransformControl x:Name="Transform" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="-2,0,0,0">
+                        <Path x:Name="ExpandPath"
+                              Data="{StaticResource TreeArrow}"
+                              Fill="Transparent"
+                              Stroke="#FF989898"
+                              StrokeThickness="1"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center">
+                        </Path>
+                        <LayoutTransformControl.LayoutTransform>
+                            <RotateTransform Angle="135" />
+                        </LayoutTransformControl.LayoutTransform>
+                    </LayoutTransformControl>
                 </Border>
             </ControlTemplate>
         </Setter>
@@ -51,6 +59,8 @@
     </ControlTheme>
 
     <ControlTheme x:Key="{x:Type local:VBGanttChartView}" TargetType="local:VBGanttChartView">
+        <Setter Property="TimelineItemHeight" Value="20"/>
+        <Setter Property="TimelineItemVerticalMargin" Value="3.15"/>
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid>
@@ -59,7 +69,7 @@
                     </Grid.Resources>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />
-                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="2"/>
                         <ColumnDefinition Width="3*" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
@@ -80,13 +90,11 @@
                         <ContentControl Grid.Column="2" Margin="15,0,0,0" x:Name="PART_TopContentControl" Height="23" />
                     </Grid>
 
-                    <local:VBTreeListView Grid.Column="0" Grid.Row="1" x:Name="PART_TreeListView">
+                    <local:VBTreeListView Grid.Column="0" Grid.Row="1" x:Name="PART_TreeListView" Margin="0,4,0,0">
                         <local:VBTreeListView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding Items}" />
                         </local:VBTreeListView.ItemTemplate>
                     </local:VBTreeListView>
-
-                    <local:VBGridSplitter Grid.Column="1" Grid.Row="1" Width="3" HorizontalAlignment="Stretch" />
 
                     <Grid Grid.Column="2">
                         <Grid.ColumnDefinitions>
@@ -155,10 +163,20 @@
                                         Zoom="{Binding #PART_Combo.SelectedValue}" TimelineItemTemplate="{TemplateBinding TimelineItemTemplate}">
                         <local:VBGanttChart.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <local:TimelineGanttPanel RowHeight="18" RowVerticalMargin="4" />
+                                <!-- Row pitch must match the TreeListView row height
+                                     (content-driven, 24px with the current theme:
+                                     20px row presenter + 2x1px InnerBorder + padding).
+                                     18 + 6 = 24 keeps timeline bars aligned with their
+                                     tree rows; a smaller pitch makes bars drift upwards
+                                     cumulatively per row. -->
+                                <local:TimelineGanttPanel 
+                                    RowVerticalMargin="{Binding $parent[local:VBGanttChartView].TimelineItemVerticalMargin}" 
+                                    RowHeight="{Binding $parent[local:VBGanttChartView].TimelineItemHeight}" />
                             </ItemsPanelTemplate>
                         </local:VBGanttChart.ItemsPanel>
                     </local:VBGanttChart>
+
+                    <GridSplitter Grid.Column="1" Grid.Row="1" Width="2" VerticalAlignment="Stretch" HorizontalAlignment="Center" Background="Red" />
                 </Grid>
             </ControlTemplate>
         </Setter>    

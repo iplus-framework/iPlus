@@ -153,9 +153,9 @@ namespace gip.core.datamodel
             // to absolute avares:// URIs (avares://gip.core.layoutengine.avui/Images/alarmChild.png).
             avaloniaXAML = ConvertSourceAttributesToAvares(avaloniaXAML);
 
-                // Avalonia DataTemplate has no Resources property. Move WPF template resources
-                // to the owning control so StaticResource lookups remain available.
-                avaloniaXAML = MoveDataTemplateResourcesToOwner(avaloniaXAML);
+            // Avalonia DataTemplate has no Resources property. Move WPF template resources
+            // to the owning control so StaticResource lookups remain available.
+            avaloniaXAML = MoveDataTemplateResourcesToOwner(avaloniaXAML);
 
             // WPF allows implicit style keys by TargetType inside Resources. Avalonia requires an
             // explicit x:Key, so add x:Key="{x:Type ...}" to keyless ControlTheme elements
@@ -584,9 +584,9 @@ namespace gip.core.datamodel
 
                         var behaviorBindingProperty = doc.CreateElement("DataTriggerBehavior.Binding", xamlNs);
                         var multiBinding = doc.CreateElement("MultiBinding", xamlNs);
-                        multiBinding.SetAttribute("Converter", "{x:Static BoolConverters.And}");
 
                         bool allConditionsConverted = true;
+                        var expectedValues = new List<string>();
                         foreach (var condition in conditionElements)
                         {
                             var conditionBinding = condition.GetAttribute("Binding");
@@ -603,42 +603,21 @@ namespace gip.core.datamodel
                                 break;
                             }
 
-                            string expectedValue = condition.GetAttribute("Value");
-                            bool expectedIsTrue = IsTrueLiteral(expectedValue);
-                            bool hasConverter = BindingElementHasConverter(bindingElement);
-
-                            // Preserve existing converter behavior for boolean True checks.
-                            // For value comparisons, attach ObjectEqualsConverter if none exists.
-                            if (!expectedIsTrue)
-                            {
-                                if (hasConverter)
-                                {
-                                    allConditionsConverted = false;
-                                    break;
-                                }
-
-                                var converterProperty = CreateElementWithResolvedNamespace(doc, xamlNs, $"{bindingElement.Name}.Converter");
-                                var objectEqualsConverter = CreateElementWithResolvedNamespace(doc, xamlNs, "vb:ObjectEqualsConverter");
-                                if (converterProperty == null || objectEqualsConverter == null)
-                                {
-                                    allConditionsConverted = false;
-                                    break;
-                                }
-
-                                converterProperty.AppendChild(objectEqualsConverter);
-                                bindingElement.AppendChild(converterProperty);
-
-                                if (!string.IsNullOrWhiteSpace(expectedValue))
-                                {
-                                    bindingElement.SetAttribute("ConverterParameter", expectedValue);
-                                }
-                            }
+                            // The expected value of each condition is collected and evaluated
+                            // centrally by ConverterMultiDataTrigger on the MultiBinding level.
+                            // This keeps the original condition converters intact (e.g.
+                            // {StaticResource TimelineStatusConverter}) and supports both
+                            // boolean checks and value comparisons (via ObjectEqualsConverter).
+                            expectedValues.Add(condition.GetAttribute("Value"));
 
                             multiBinding.AppendChild(bindingElement);
                         }
 
                         if (!allConditionsConverted)
                             continue;
+
+                        multiBinding.SetAttribute("Converter", "{x:Static vb:ConverterMultiDataTrigger.Current}");
+                        multiBinding.SetAttribute("ConverterParameter", string.Join(",", expectedValues));
 
                         behaviorBindingProperty.AppendChild(multiBinding);
                         behavior.AppendChild(behaviorBindingProperty);
@@ -1159,6 +1138,16 @@ namespace gip.core.datamodel
             if (bindingElement == null)
                 return null;
 
+            // Positional markup argument, e.g. {Binding Status, ...}: for Binding elements
+            // the positional value is the binding path and MUST be emitted as Path,
+            // otherwise the binding loses its source property.
+            if (!string.IsNullOrWhiteSpace(extension.PositionalValue) &&
+                string.Equals(extension.TypeName, "Binding", StringComparison.OrdinalIgnoreCase) &&
+                !bindingElement.HasAttribute("Path"))
+            {
+                bindingElement.SetAttribute("Path", extension.PositionalValue);
+            }
+
             foreach (var kvp in extension.Properties)
             {
                 if (string.Equals(kvp.Key, "Converter", StringComparison.OrdinalIgnoreCase))
@@ -1168,10 +1157,28 @@ namespace gip.core.datamodel
                     continue;
                 }
 
-                bindingElement.SetAttribute(kvp.Key, kvp.Value);
+                bindingElement.SetAttribute(kvp.Key, StripSurroundingQuotes(kvp.Value));
             }
 
             return bindingElement;
+        }
+
+        /// <summary>
+        /// Removes surrounding single quotes from a markup argument value.
+        /// In WPF markup extensions, ConverterParameter='Alarm' denotes the literal Alarm;
+        /// when emitted as an XML attribute the quotes must not be kept, otherwise value
+        /// comparisons (e.g. ObjectEqualsConverter) compare against 'Alarm' incl. quotes.
+        /// </summary>
+        private static string StripSurroundingQuotes(string value)
+        {
+            if (string.IsNullOrEmpty(value) || value.Length < 2)
+                return value;
+
+            if ((value.StartsWith("'", StringComparison.Ordinal) && value.EndsWith("'", StringComparison.Ordinal)) ||
+                (value.StartsWith("\"", StringComparison.Ordinal) && value.EndsWith("\"", StringComparison.Ordinal)))
+                return value.Substring(1, value.Length - 2);
+
+            return value;
         }
 
         private static bool TryAppendConverterFromMarkup(XmlDocument doc, string xamlNs, XmlElement owner, string converterMarkup)
@@ -1191,6 +1198,16 @@ namespace gip.core.datamodel
             foreach (var kvp in converterExtension.Properties)
             {
                 converterElement.SetAttribute(kvp.Key, kvp.Value);
+            }
+
+            // Positional markup argument, e.g. {StaticResource TimelineStatusConverter}:
+            // the parser stores it as PositionalValue. For StaticResource it is the
+            // resource key and MUST be emitted as ResourceKey, otherwise Avalonia throws
+            // 'StaticResourceExtension.ResourceKey must be set.' at load time.
+            if (!string.IsNullOrWhiteSpace(converterExtension.PositionalValue) &&
+                converterElement.HasAttribute("ResourceKey") == false)
+            {
+                converterElement.SetAttribute("ResourceKey", converterExtension.PositionalValue);
             }
 
             converterProperty.AppendChild(converterElement);
@@ -1254,6 +1271,11 @@ namespace gip.core.datamodel
         private sealed class ParsedMarkupExtension
         {
             public string TypeName { get; set; }
+
+            // Positional (unnamed) argument, e.g. the resource key in
+            // {StaticResource SomeKey}. Null when only named properties exist.
+            public string PositionalValue { get; set; }
+
             public Dictionary<string, string> Properties { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
@@ -1292,20 +1314,32 @@ namespace gip.core.datamodel
 
                 int equalsIndex = assignment.IndexOf('=');
                 if (equalsIndex <= 0 || equalsIndex >= assignment.Length - 1)
+                {
+                    // No '=' -> positional argument, e.g. the resource key in
+                    // {StaticResource SomeKey}. Store it separately so callers can
+                    // map it to the extension's default property (ResourceKey).
+                    if (parsed.PositionalValue == null)
+                        parsed.PositionalValue = Unquote(assignment);
                     continue;
+                }
 
                 string key = assignment.Substring(0, equalsIndex).Trim();
                 string value = assignment.Substring(equalsIndex + 1).Trim();
-                if (value.Length >= 2 && value.StartsWith("\"", StringComparison.Ordinal) && value.EndsWith("\"", StringComparison.Ordinal))
-                {
-                    value = value.Substring(1, value.Length - 2);
-                }
 
                 if (!string.IsNullOrWhiteSpace(key))
-                    parsed.Properties[key] = value;
+                    parsed.Properties[key] = Unquote(value);
             }
 
             return parsed;
+        }
+
+        private static string Unquote(string value)
+        {
+            if (value == null)
+                return null;
+            if (value.Length >= 2 && value.StartsWith("\"", StringComparison.Ordinal) && value.EndsWith("\"", StringComparison.Ordinal))
+                return value.Substring(1, value.Length - 2);
+            return value;
         }
 
         private static List<string> SplitTopLevel(string input, char separator)
@@ -3290,6 +3324,16 @@ namespace gip.core.datamodel
             // Convert WPF pack://application URIs to Avalonia avares:// URIs
             // e.g. pack://application:,,,/MyAssembly;component/Images/icon.png → avares://MyAssembly/Images/icon.png
             (@"pack://application:[,\s]*/([^\s;""']+?);component/([^\s>""']+)", @"avares://$1/$2", true),
+
+            // Convert clr-namespace references to the gip.core.layoutengine assembly (including
+            // sub-namespaces like gip.core.layoutengine.gantt) to the Avalonia .avui variants.
+            // e.g. clr-namespace:gip.core.layoutengine.gantt;assembly=gip.core.layoutengine
+            //   -> clr-namespace:gip.core.layoutengine.avui.gantt;assembly=gip.core.layoutengine.avui
+            // Already-converted namespaces (containing .avui) don't match because the assembly
+            // part must be exactly 'gip.core.layoutengine' without the .avui suffix.
+            // Capture only the sub-namespace suffix (e.g. ".gantt"), so it can be appended
+            // after the ".avui" prefix without duplicating the base namespace.
+            (@"clr-namespace:gip\.core\.layoutengine((?:\.[\w]+)*);assembly=gip\.core\.layoutengine(?=[\s"">])", @"clr-namespace:gip.core.layoutengine.avui$1;assembly=gip.core.layoutengine.avui", true),
 
             // Note: xmlns removal from child elements is handled separately in XAMLDesign property to preserve root element xmlns
         };

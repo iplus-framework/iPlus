@@ -202,7 +202,6 @@ namespace gip.core.layoutengine.avui.timeline
 
         private void ItemsSourceChanged(AvaloniaPropertyChangedEventArgs e)
         {
-            //System.Diagnostics.Debug.WriteLine($"[TL] ItemsSourceChanged: new={(e.NewValue == null ? "null" : $"{(e.NewValue as System.Collections.IEnumerable)?.Cast<object>().Count() ?? -1} items")}");
             Items.Clear();
             if (e.NewValue != null)
             {
@@ -216,16 +215,13 @@ namespace gip.core.layoutengine.avui.timeline
                 // so it re-wraps the now-populated list.
                 if (_ItemsPresenter != null)
                 {
-                    //System.Diagnostics.Debug.WriteLine($"[TL] Resetting presenter ItemsSource, items={Items.Count}, presenterType={_ItemsPresenter.GetType().Name}");
                     _ItemsPresenter.SetValue(ItemsControl.ItemsSourceProperty, null);
                     _ItemsPresenter.SetValue(ItemsControl.ItemsSourceProperty, Items);
                     _ItemsPresenter.InvalidateMeasure();
                     _ItemsPresenter.UpdateLayout();
-                    //System.Diagnostics.Debug.WriteLine($"[TL] Reset done, presenterItems={_ItemsPresenter.Items.Count}, itemCount={_ItemsPresenter.ItemCount}");
                 }
                 else
                 {
-                    //System.Diagnostics.Debug.WriteLine("[TL] Reset SKIPPED - _ItemsPresenter is null");
                 }
 
                 INotifyCollectionChanged oldCollectionChanged = e.OldValue as INotifyCollectionChanged;
@@ -742,7 +738,6 @@ namespace gip.core.layoutengine.avui.timeline
         /// </summary>
         public void SetMinMaxBounds()
         {
-            //System.Diagnostics.Debug.WriteLine($"[TL] SetMinMaxBounds: items={Items.Count}");
             if (Items.Any())
             {
                 DateTime maxDate = DateTime.Now;
@@ -758,6 +753,13 @@ namespace gip.core.layoutengine.avui.timeline
                 MaximumDate = new DateTime(maxDate.Year, maxDate.Month, maxDate.Day, maxDate.Hour, 0, 0);
 
                 PART_AxesPanel?.InitControl(true);
+
+                // InitControl overwrites MaximumDate with its own EndAxis.CurrentDateTime
+                // (computed from the axes layout, which can lag the real data range).
+                // Re-assert the data-derived bounds so the item panels measure with the
+                // correct time range.
+                MinimumDate = new DateTime(minDate.Year, minDate.Month, minDate.Day, minDate.Hour, 0, 0);
+                MaximumDate = new DateTime(maxDate.Year, maxDate.Month, maxDate.Day, maxDate.Hour, 0, 0);
             }
             else
                 PART_AxesPanel?.ClearControl();
@@ -1191,27 +1193,52 @@ namespace gip.core.layoutengine.avui.timeline
         // True while a Ctrl+left-button range-zoom drag is active.
         private bool _IsRangeDragActive;
 
-        // Registered in OnInitialized with handledEventsToo:true: children
-        // (items presenter, scroll content, timeline items) mark pointer events
-        // as handled, and overridden On* methods never receive handled events -
-        // that is why Ctrl+drag only worked when starting on an item and why
-        // PointerReleased was swallowed (zoom never applied).
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
+        // Registered on the VISUAL ROOT in the TUNNELING phase with
+        // handledEventsToo:true. Over empty chart areas the hit-tested source is
+        // an ANCESTOR outside this control (transparent background -> hit-test
+        // falls through), so bubbled events never traverse this control and
+        // bubble-phase handlers never fire. Tunneling from the root always passes
+        // THROUGH this control; a bounds check restricts handling to presses over
+        // the chart.
+        private Interactive _RootInteractive;
 
-            this.AddHandler(PointerPressedEvent, ZoomPointerPressed,
-                RoutingStrategies.Bubble, handledEventsToo: true);
-            this.AddHandler(PointerMovedEvent, ZoomPointerMoved,
-                RoutingStrategies.Bubble, handledEventsToo: true);
-            this.AddHandler(PointerReleasedEvent, ZoomPointerReleased,
-                RoutingStrategies.Bubble, handledEventsToo: true);
-            this.AddHandler(PointerCaptureLostEvent, ZoomPointerCaptureLost,
-                RoutingStrategies.Bubble, handledEventsToo: true);
+        protected override void OnAttachedToVisualTree(Avalonia.VisualTreeAttachmentEventArgs e)
+        {
+            base.OnAttachedToVisualTree(e);
+            if (_RootInteractive == null && VisualRoot is Interactive root)
+            {
+                _RootInteractive = root;
+                root.AddHandler(PointerPressedEvent, ZoomPointerPressed,
+                    RoutingStrategies.Tunnel, handledEventsToo: true);
+                root.AddHandler(PointerMovedEvent, ZoomPointerMoved,
+                    RoutingStrategies.Tunnel, handledEventsToo: true);
+                root.AddHandler(PointerReleasedEvent, ZoomPointerReleased,
+                    RoutingStrategies.Tunnel, handledEventsToo: true);
+                root.AddHandler(PointerCaptureLostEvent, ZoomPointerCaptureLost,
+                    RoutingStrategies.Tunnel, handledEventsToo: true);
+            }
+        }
+
+        protected override void OnDetachedFromVisualTree(Avalonia.VisualTreeAttachmentEventArgs e)
+        {
+            base.OnDetachedFromVisualTree(e);
+            if (_RootInteractive != null)
+            {
+                _RootInteractive.RemoveHandler(PointerPressedEvent, ZoomPointerPressed);
+                _RootInteractive.RemoveHandler(PointerMovedEvent, ZoomPointerMoved);
+                _RootInteractive.RemoveHandler(PointerReleasedEvent, ZoomPointerReleased);
+                _RootInteractive.RemoveHandler(PointerCaptureLostEvent, ZoomPointerCaptureLost);
+                _RootInteractive = null;
+            }
         }
 
         private void ZoomPointerPressed(object sender, PointerPressedEventArgs e)
         {
+            // Only react to presses that land within this chart's bounds.
+            Point pos = e.GetPosition(this);
+            if (pos.X < 0 || pos.Y < 0 || pos.X > Bounds.Width || pos.Y > Bounds.Height)
+                return;
+
             if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed
                 && e.KeyModifiers.HasFlag(KeyModifiers.Control))
             {

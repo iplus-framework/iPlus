@@ -149,12 +149,15 @@ namespace gip.core.layoutengine.avui
         /// <returns>The visual child.</returns>
         protected Visual GetVisualChild(int index)
         {
-            // Last element is always the expander
-            // called by render engine
-            if (index >= 0 && index < base.VisualChildren.Count)
-                return VisualChildren[index];
-            else
-                return this.Expander;
+            // The cells live in InternalChildren (built from Columns in
+            // UpdateVisualTree). The expander is additionally registered in
+            // VisualChildren (so it renders), but must NOT participate in this
+            // index mapping - depending on when the Expander property was set,
+            // it can sit before the cells and would otherwise shift every
+            // column by one (invisible first column, clipped toggle).
+            if (index >= 0 && index < InternalChildren.Count)
+                return InternalChildren[index];
+            return this.Expander;
         }
 
         ///// <summary>
@@ -176,8 +179,25 @@ namespace gip.core.layoutengine.avui
         {
             if (change.Property == ExpanderProperty)
             {
-                this._Childs.Remove(change.OldValue as Control);
-                this._Childs.Add((Control)change.NewValue);
+                Control oldExpander = change.OldValue as Control;
+                Control newExpander = change.NewValue as Control;
+                if (oldExpander != null)
+                {
+                    this._Childs.Remove(oldExpander);
+                    // The expander is arranged manually (not part of InternalChildren),
+                    // so it must be attached to the visual/logical tree explicitly -
+                    // otherwise it is measured/arranged but never rendered in Avalonia.
+                    this.VisualChildren.Remove(oldExpander);
+                    this.LogicalChildren.Remove(oldExpander);
+                }
+                if (newExpander != null)
+                {
+                    this._Childs.Add(newExpander);
+                    if (!this.VisualChildren.Contains(newExpander))
+                        this.VisualChildren.Add(newExpander);
+                    if (!this.LogicalChildren.Contains(newExpander))
+                        this.LogicalChildren.Add(newExpander);
+                }
             }
             base.OnPropertyChanged(change);
         }

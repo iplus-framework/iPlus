@@ -48,9 +48,11 @@
     <Setter Property="Template">
       <ControlTemplate>
         <Border BorderBrush="{TemplateBinding BorderBrush}"
-                BorderThickness="{TemplateBinding BorderThickness}">
+                BorderThickness="{TemplateBinding BorderThickness}"
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Stretch">
 
-          <Grid ClipToBounds="True">
+          <Grid>
 
             <timeline:DateTimeAxesPanel x:Name="PART_DateTimeAxesPanel" 
                                         VerticalAlignment="Top" 
@@ -69,42 +71,30 @@
                     IsVisible="{Binding #PART_DateTimeAxesPanel.IsZoomActive}">
             </Border>
 
-            <Border Height="{Binding #PART_DateTimeAxesPanel.Bounds.Height}" 
+            <!-- <Border Height="{Binding #PART_DateTimeAxesPanel.Bounds.Height}" 
                     Margin="0,23,0,0" 
                     VerticalAlignment="Top" 
                     HorizontalAlignment="Left"
                     Width="{Binding #PART_ScrollViewer.Bounds.Width}" 
                     BorderThickness="24,0,0,0"
-                    BorderBrush="{StaticResource ThemeBackgroundBrush}"/>
+                    BorderBrush="{StaticResource ThemeBackgroundBrush}"/> -->
 
             <!--Theme="{StaticResource GanttChartScrollViewerStyle}"-->
             <timeline:FrictionScrollViewer x:Name="PART_ScrollViewer" 
                             Margin="25,25,0,0"
+                            Theme="{StaticResource TimelineChartScrollViewerStyle}"
                             VerticalScrollBarVisibility="Auto"
                             HorizontalScrollBarVisibility="Auto">
 
               <Grid>
-
-                <!--<gantt:TimelineGanttItemsPresenter x:Name="PART_ItemsPresenter"
-                          Margin="0,1,0,0"
-                          ItemsSource="{TemplateBinding Items}"
-                          ItemsPanel="{TemplateBinding ItemsPanel}"
-                          ItemContainerTheme="{TemplateBinding ItemContainerTheme}"
-                          ItemThemeSelector="{TemplateBinding ItemThemeSelector}"
-                          ItemTemplate="{TemplateBinding TimelineItemTemplate}"/>-->
                 <gantt:TimelineGanttItemsPresenter x:Name="PART_ItemsPresenter"
                           Margin="0,1,0,0"
                           ItemsSource="{TemplateBinding Items}"
                           ItemsPanel="{TemplateBinding ItemsPanel}"
                           ItemTemplate="{TemplateBinding TimelineItemTemplate}"/>
-
-                <!--<gantt:ConnectionsPresenter x:Name="PART_ConnectionsPresenter"
-                            ItemsSource="{TemplateBinding Connections}"
-                            ItemThemeSelector="{TemplateBinding ConnectionThemeSelector}"/>-->
-                
+               
                 <gantt:ConnectionsPresenter x:Name="PART_ConnectionsPresenter"
                             ItemsSource="{TemplateBinding Connections}" />
-
               </Grid>
 
             </timeline:FrictionScrollViewer>

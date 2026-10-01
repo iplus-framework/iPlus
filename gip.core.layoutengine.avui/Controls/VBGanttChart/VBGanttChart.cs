@@ -16,6 +16,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Controls.Templates;
 
 namespace gip.core.layoutengine.avui
 {
@@ -33,6 +34,17 @@ namespace gip.core.layoutengine.avui
         {
             Items = new ObservableCollection<IACTimeLog>();
             _Connections = new ObservableCollection<object>();
+        }
+
+        static VBGanttChart()
+        {
+            // VBTimelineChartBase defaults ItemsPanel to TimelineItemPanel, which casts
+            // children to TimelineItem. Gantt items are TimelineGanttItem (derived from
+            // TimelineItemBase) and must be arranged by a gantt panel, otherwise the
+            // measure pass throws InvalidCastException and nothing is displayed.
+            ItemsPanelProperty.OverrideMetadata(typeof(VBGanttChart),
+                new StyledPropertyMetadata<ITemplate<Panel>>(
+                    new FuncTemplate<Panel>(() => new TimelineCompactPanel())));
         }
 
         #endregion

@@ -493,7 +493,22 @@ namespace gip.core.layoutengine.avui
 
         protected override Control CreateContainerForItemOverride(object item, int index, object recycleKey)
         {
-            return new VBTreeListViewItem();
+            // Mirror VBTreeView.CreateContainerForItemOverride: the container must
+            // receive Header/HeaderTemplate/ContentACObject, otherwise the
+            // TreeDataTemplate's child-selector never runs and expanding an item
+            // produces no child containers.
+            VBTreeListViewItem container = new VBTreeListViewItem();
+
+            if (this.ItemTemplate != null && item is IACObject acObject)
+            {
+                container.ContentACObject = acObject;
+                container.HeaderTemplate = this.ItemTemplate;
+                container.Header = acObject;
+                container.DataContext = acObject;
+                container.PrepareItemContainerForParent(this);
+            }
+
+            return container;
         }
 
         protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
@@ -551,6 +566,21 @@ namespace gip.core.layoutengine.avui
         {
             base.PrepareContainerForItemOverride(container, item, index);
 
+            // Robustness: bind the child items explicitly. The TreeDataTemplate
+            // (ItemsSource="{Binding Items}") should do this via
+            // HeaderedItemsControl.PrepareItemContainer -> BindChildren, but that
+            // path proved unreliable for recycled/pre-built containers. Bind for
+            // items that expose their children through an "Items" property
+            // (e.g. ProgramLogWrapper).
+            if (container is VBTreeListViewItem child && child.Header != null
+                && child.Header.GetType().GetProperty("Items") != null)
+            {
+                Binding itemsBinding = new Binding("Items");
+                itemsBinding.Source = child.Header;
+                itemsBinding.Mode = BindingMode.OneWay;
+                child.Bind(ItemsSourceProperty, itemsBinding);
+            }
+
             //TreeViewItem tvi = element as TreeViewItem;
             //if (tvi != null)
             //{
@@ -559,10 +589,14 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Expands all tree view items.
+        /// Expands all tree view items asynchronously in batches. Expanding a node
+        /// realizes its child containers only after a layout pass, so expansion is
+        /// inherently level-by-level. Doing this synchronously (with per-item
+        /// UpdateLayout) freezes the UI for large trees; yielding to the dispatcher
+        /// between levels keeps it responsive.
         /// </summary>
-        /// <param name="items">The items parameter.</param>
-        public static void ExpandAll(Visual items)
+        /// <param name="items">The root visual to start from.</param>
+        public static async void ExpandAll(Visual items)
         {
             if (items == null)
                 return;
@@ -573,18 +607,32 @@ namespace gip.core.layoutengine.avui
                 frameworkElement.ApplyTemplate();
             }
 
+            // Level-by-level: expand everything currently realized, then yield so
+            // the layout pass realizes the children of the newly expanded nodes.
+            while (true)
+            {
+                List<TreeViewItem> toExpand = new List<TreeViewItem>();
+                CollectCollapsed(items, toExpand);
+                if (toExpand.Count == 0)
+                    break;
+
+                foreach (TreeViewItem treeViewItem in toExpand)
+                    treeViewItem.IsExpanded = true;
+
+                // Give the UI thread a chance to paint and run layout, which
+                // materializes the child containers of the expanded nodes.
+                await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(
+                    () => { }, Avalonia.Threading.DispatcherPriority.Background);
+            }
+        }
+
+        private static void CollectCollapsed(Visual items, List<TreeViewItem> accumulator)
+        {
             foreach (Visual child in items.GetVisualChildren())
             {
-                var treeViewItem = child as TreeViewItem;
-                if (treeViewItem != null)
-                {
-                    if (!treeViewItem.IsExpanded)
-                    {
-                        treeViewItem.IsExpanded = true;
-                        treeViewItem.UpdateLayout();
-                    }
-                }
-                ExpandAll(child);
+                if (child is TreeViewItem treeViewItem && !treeViewItem.IsExpanded)
+                    accumulator.Add(treeViewItem);
+                CollectCollapsed(child, accumulator);
             }
         }
 

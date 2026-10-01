@@ -55,7 +55,11 @@ namespace gip.core.layoutengine.avui.ganttchart
                 bind.Path = nameof(ToolTipContent);
                 contentControl = new ContentControl();
                 contentControl.Bind(ContentControl.ContentProperty, bind);
-                if (VBTimelineChart.container.Children.Count == 2)
+                // Compare against toolTipChildrenCount (0 in the Avalonia port, the
+                // ToolTipStatus branch is commented out) - NOT against a hardcoded 2,
+                // otherwise the shared tooltip content host is never added and every
+                // tooltip shows up empty.
+                if (VBTimelineChart.container.Children.Count == 0)
                     VBTimelineChart.container.Children.Add(contentControl);
             }
 
@@ -68,8 +72,16 @@ namespace gip.core.layoutengine.avui.ganttchart
                 if (VBTreeListViewItemMap != null)
                 {
                     VBTreeListViewItemMap.TimelineItemMap = this;
-                    if (VBTreeListViewItemMap.IsVisible)
-                        this.IsCollapsed = false;
+                    // Sync with the tree's EFFECTIVE visibility (a child of a collapsed
+                    // ancestor must stay hidden even though its own IsVisible is true).
+                    this.IsCollapsed = !VBTreeListViewItemMap.IsEffectivelyVisible();
+                }
+                else
+                {
+                    // No tree counterpart realized yet (e.g. root collapsed -> children
+                    // not realized). Hide the row until the tree item maps in and
+                    // confirms visibility, otherwise ALL rows show initially.
+                    this.IsCollapsed = true;
                 }
             }
         }

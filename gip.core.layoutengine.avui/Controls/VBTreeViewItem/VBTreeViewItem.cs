@@ -554,6 +554,27 @@ namespace gip.core.layoutengine.avui
 
         }
 
+        private void DumpVisualTree(Avalonia.Visual visual, string indent)
+        {
+            if (visual == null || indent.Length > 60)
+                return;
+            foreach (var child in Avalonia.VisualTree.VisualExtensions.GetVisualChildren(visual))
+            {
+                var c = child as Control;
+                if (c != null)
+                {
+                    var clip = c.Clip;
+                    string clipInfo = clip == null ? "-" : clip.ToString();
+                    string extra = "";
+                    var tb = c as Avalonia.Controls.TextBlock;
+                    if (tb != null)
+                        extra = $" text='{tb.Text}' fg={(tb.Foreground != null ? tb.Foreground.ToString() : "null")} dc={(tb.DataContext != null ? tb.DataContext.GetType().Name : "null")}";
+                    System.Diagnostics.Debug.WriteLine($"{indent}{c.GetType().Name} name={c.Name ?? "-"} vis={c.IsVisible} op={c.Opacity} clipToBounds={c.ClipToBounds} clip={clipInfo} z={c.ZIndex} bounds={c.Bounds}{extra}");
+                }
+                DumpVisualTree(child, indent + "  ");
+            }
+        }
+
         private void VBTreeViewItem_Expanded(object sender, RoutedEventArgs e)
         {
             if ((BSOACComponent != null || ContextACObject != null) && !IsTreeFilled)

@@ -84,10 +84,13 @@ namespace gip.core.layoutengine.avui.timeline
             if (_IsFirstInit || forceInit)
             {
                 MaximumDate = EndAxis.CurrentDateTime;
-                TimelineChart.MaximumDate = MaximumDate;
+                // Do NOT overwrite the chart's MaximumDate here: the chart derives it
+                // from the actual item data (SetMinMaxBounds). The axis end can lag or
+                // round differently, and clobbering the data range made the item
+                // panels compute totalWidth = 0 (min == max) -> nothing rendered.
                 TimelinePanel timelinePanel = VBVisualTreeHelper.FindChildObjects<TimelinePanel>(TimelineChart._ItemsPresenter)?.FirstOrDefault();
                 if (timelinePanel != null)
-                    timelinePanel.MaximumDate = MaximumDate;
+                    timelinePanel.MaximumDate = TimelineChart.MaximumDate ?? MaximumDate;
                 _IsFirstInit = false;
             }
 
@@ -103,7 +106,8 @@ namespace gip.core.layoutengine.avui.timeline
         public void DeInitControl()
         {
             this.ClearAllBindings();
-            foreach (DateTimeAxis axis in Children)
+            // Children also contains the GridLinesOverlay - only deinit the axes.
+            foreach (DateTimeAxis axis in Children.OfType<DateTimeAxis>())
             {
                 axis.DeInitControl();
             }
@@ -316,6 +320,32 @@ namespace gip.core.layoutengine.avui.timeline
             if (!Children.Contains(_GridLinesOverlay))
                 Children.Add(_GridLinesOverlay);
             _GridLinesOverlay.InvalidateVisual();
+            HookTimelinePanelSizeChanges();
+        }
+
+        // The grid lines span the full scrollable content height (see GridLinesOverlay.
+        // Render). When rows are added/removed (expand/collapse in the TreeListView)
+        // the timeline panel's height changes - re-render the lines accordingly.
+        private TimelinePanel _ObservedTimelinePanel;
+
+        private void HookTimelinePanelSizeChanges()
+        {
+            var timelinePanel = TimelineChart?._ItemsPresenter != null
+                ? VBVisualTreeHelper.FindChildObjects<TimelinePanel>(TimelineChart._ItemsPresenter)?.FirstOrDefault()
+                : null;
+            if (ReferenceEquals(_ObservedTimelinePanel, timelinePanel))
+                return;
+            if (_ObservedTimelinePanel != null)
+                _ObservedTimelinePanel.PropertyChanged -= TimelinePanel_PropertyChanged;
+            _ObservedTimelinePanel = timelinePanel;
+            if (_ObservedTimelinePanel != null)
+                _ObservedTimelinePanel.PropertyChanged += TimelinePanel_PropertyChanged;
+        }
+
+        private void TimelinePanel_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.Property == Visual.BoundsProperty)
+                InvalidateGridLines();
         }
 
         /// <summary>
@@ -349,6 +379,18 @@ namespace gip.core.layoutengine.avui.timeline
                 double height = _Panel.Bounds.Height;
                 if (height <= 0 || _Panel.Children.Count == 0)
                     return;
+
+                // The axes panel is sized to the VIEWPORT (its Height is bound to the
+                // template grid's Bounds.Height). The grid lines must span the full
+                // SCROLLABLE content height instead - otherwise they keep a fixed
+                // length and are not extended when rows are added (e.g. expanding
+                // the TreeListView). Take the height of the timeline items panel
+                // (inside the ScrollViewer) if it is larger.
+                var timelinePanel = _Panel.TimelineChart?._ItemsPresenter != null
+                    ? gip.core.layoutengine.avui.Helperclasses.VBVisualTreeHelper.FindChildObjects<TimelinePanel>(_Panel.TimelineChart._ItemsPresenter)?.FirstOrDefault()
+                    : null;
+                if (timelinePanel != null && timelinePanel.Bounds.Height > height)
+                    height = timelinePanel.Bounds.Height;
 
                 // Draw beneath the axis text (~23px) down to the bottom of the panel
                 const double lineTop = 23;
@@ -449,7 +491,7 @@ namespace gip.core.layoutengine.avui.timeline
                 if (reverse && dtAxis != null && startDT.Date != dtAxis.CurrentDateTime.Date)
                     dtAxisForeground = dtAxisForeground == _dtAxisColor1 ? _dtAxisColor2 : _dtAxisColor1;
 
-                foreach (DateTimeAxis axis in thisControl.Children)
+                foreach (DateTimeAxis axis in thisControl.Children.OfType<DateTimeAxis>())
                 {
                     axis.SetPosition(axis.DefaultPosition + offsetCorrection);
 
@@ -477,7 +519,7 @@ namespace gip.core.layoutengine.avui.timeline
             }
             else
             {
-                foreach (DateTimeAxis axis in thisControl.Children)
+                foreach (DateTimeAxis axis in thisControl.Children.OfType<DateTimeAxis>())
                     axis.SetPosition(Canvas.GetLeft(axis) - newOffset);
                 thisControl.InvalidateGridLines();
             }
@@ -516,7 +558,6 @@ namespace gip.core.layoutengine.avui.timeline
             lastMousePos = e.GetPosition(this).X + 25;
             startMousePos = e.GetPosition(TimelineChart._ItemsPresenter).X + 25;
             ZoomRectWidth = 0;
-            //System.Diagnostics.Debug.WriteLine($"[ZOOM] Start: lastMousePos={lastMousePos}, startMousePos={startMousePos}, panelMin={MinimumDate}, panelMax={MaximumDate}, panelTick={TickTimeSpan}, chartTick={TimelineChart?.TickTimeSpan}");
             if (this.Parent is Control parentControl)
                 parentControl.Cursor = new Cursor(StandardCursorType.SizeWestEast);
         }
@@ -541,7 +582,6 @@ namespace gip.core.layoutengine.avui.timeline
             }
 
             ZoomRectWidth = Math.Abs(offset);
-            //System.Diagnostics.Debug.WriteLine($"[ZOOM] Move: newPosition={newPosition}, offset={offset}, margin={ZoomBorderMargin}, width={ZoomRectWidth}");
         }
 
         internal void OnZoomEnd(PointerReleasedEventArgs e)
@@ -553,7 +593,6 @@ namespace gip.core.layoutengine.avui.timeline
                 if (this.Parent is Control parentControl)
                     parentControl.Cursor = new Cursor(StandardCursorType.Arrow);
                 var pos = e.GetPosition(TimelineChart._ItemsPresenter).X;
-                //System.Diagnostics.Debug.WriteLine($"[ZOOM] End: startPos={startMousePos}, endPos={pos}");
                 DoZoom(startMousePos, pos);
                 _IsZoomCaptured = false;
             }
@@ -578,7 +617,10 @@ namespace gip.core.layoutengine.avui.timeline
         internal void OnZoomOut(PointerPressedEventArgs e)
         {
             startMousePos = e.GetPosition(TimelineChart._ItemsPresenter).X + 25;
-            DateTime dt = Timeline.OffsetToDate(startMousePos, this);
+            // Use the CHART as owner: the axes panel's MaximumDate only extends to the
+            // last DRAWN axis, so dates near the right edge would be clamped to it and
+            // the zoom range collapses to zero. The chart holds the full data range.
+            DateTime dt = Timeline.OffsetToDate(startMousePos, TimelineChart);
 
             int indexOfLogicalTS = LogicalDateTimeSpans.IndexOf(_CurrentTimeSpan);
             if (indexOfLogicalTS >= LogicalDateTimeSpans.Count)
@@ -599,9 +641,11 @@ namespace gip.core.layoutengine.avui.timeline
 
         private void DoZoom(double pos1, double pos2)
         {
-            DateTime date1 = Timeline.OffsetToDate(pos1, this);
-            DateTime date2 = Timeline.OffsetToDate(pos2, this);
-            //System.Diagnostics.Debug.WriteLine($"[ZOOM] DoZoom: pos1={pos1}, pos2={pos2}, date1={date1}, date2={date2}, panelMin={MinimumDate}, panelTick={TickTimeSpan}, tfCount={_TimeframeDateTimes.Count}");
+            // Use the CHART as owner (see OnZoomOut): the axes panel's Min/Max only
+            // cover the drawn axes, clamping positions at the edges to the same
+            // timestamp and collapsing the zoom range to zero.
+            DateTime date1 = Timeline.OffsetToDate(pos1, TimelineChart);
+            DateTime date2 = Timeline.OffsetToDate(pos2, TimelineChart);
 
             var temp = date1;
             if (date1 > date2)
@@ -612,7 +656,6 @@ namespace gip.core.layoutengine.avui.timeline
 
             if (date2 - date1 <= TimeSpan.FromSeconds(1))
             {
-                //System.Diagnostics.Debug.WriteLine("[ZOOM] DoZoom aborted: range <= 1s");
                 return;
             }
 
@@ -660,9 +703,13 @@ namespace gip.core.layoutengine.avui.timeline
             _CurrentTimeSpan = ts;
 
             TimelineChart.SetTickTimeSpan(_CurrentTimeSpan);
-            //System.Diagnostics.Debug.WriteLine($"[ZOOM] DoZoom applying: date1={date1}, date2={date2}, newTick={ts}");
 
-            _TimeframeDateTimes = GenerateTimeframeDateTimes(_StartDateTime, MaximumDate.Value, _CurrentTimeSpan);
+            // Use the CHART's MaximumDate: the panel's own MaximumDate only extends
+            // to the last DRAWN axis (it can lag the real data range after a
+            // degenerate first init). Generating the timeframe up to the panel max
+            // produced a single-entry list (tfCount=1) and broke the snapping below.
+            DateTime timeframeEnd = TimelineChart.MaximumDate ?? MaximumDate ?? _StartDateTime;
+            _TimeframeDateTimes = GenerateTimeframeDateTimes(_StartDateTime, timeframeEnd, _CurrentTimeSpan);
 
             UpdateDateTimeAxes(date1, date2, _CurrentTimeSpan);
         }
@@ -698,6 +745,12 @@ namespace gip.core.layoutengine.avui.timeline
                 itemsPresenter.InvalidateMeasure();
                 itemsPresenter.UpdateLayout();
             }
+
+            // Diagnostics removed: after the forced layout pass the ScrollViewer
+            // must know the new (much wider) extent, otherwise the zoomed content
+            // is not reachable and no scrollbar appears.
+            var sv = TimelineChart?.ScrollViewer;
+            sv?.UpdateLayout();
 
             // Use the CHART as owner for DateToOffset: it is where the new
             // TickTimeSpan was set, so the conversion always uses the new

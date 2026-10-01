@@ -6,7 +6,11 @@
     <ControlTheme x:Key="{x:Type local:TimelineGanttItem}" TargetType="local:TimelineGanttItem">
         <Setter Property="Template">
             <ControlTemplate>
-                <ContentPresenter />
+                <!-- Explicit bindings: unlike WPF, a bare ContentPresenter inside a
+                     ControlTemplate does not automatically inherit the templated
+                     parent's Content/ContentTemplate, leaving the bar visually empty. -->
+                <ContentPresenter Content="{TemplateBinding Content}"
+                                  ContentTemplate="{TemplateBinding ContentTemplate}" />
             </ControlTemplate>
         </Setter>
     </ControlTheme>

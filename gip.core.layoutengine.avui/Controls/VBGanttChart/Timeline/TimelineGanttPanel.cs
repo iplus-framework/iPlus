@@ -29,6 +29,29 @@ namespace gip.core.layoutengine.avui
 
         protected override Size MeasureOverride(Size availableSize)
         {
+            // The inherited Timeline.MinimumDate/MaximumDate attached properties do NOT
+            // reliably propagate through the nested ItemsControl/ItemsPresenter chain -
+            // the panel keeps stale values (min == max -> totalTimeSpan = 0 ->
+            // totalWidth = 0 -> nothing rendered). Like TimelineItemPanel, pull the
+            // authoritative values from the owning chart on every measure pass.
+            var chart = _VBGanttChart;
+            if (chart != null)
+            {
+                if (chart.MinimumDate != MinimumDate)
+                    MinimumDate = chart.MinimumDate;
+                if (chart.MaximumDate != MaximumDate)
+                    MaximumDate = chart.MaximumDate;
+                if (chart.TickTimeSpan != TickTimeSpan)
+                    TickTimeSpan = chart.TickTimeSpan;
+            }
+
+            // The item's StartDate/EndDate/RowIndex are bound to its Content (DataContext)
+            // and typically resolve AFTER the first measure pass. Without observing the
+            // children, the panel would keep measuring with NULL dates -> empty rects ->
+            // invisible bars. ObserveChildren re-invalidates measure when a binding
+            // delivers a value (same mechanism as TimelineItemPanel).
+            ObserveChildren();
+
             rowsCount = -1;
             List<Control> measuredChildren = new List<Control>();
             Dictionary<Control, int> logicalToActualMap = new Dictionary<Control, int>();
@@ -89,6 +112,12 @@ namespace gip.core.layoutengine.avui
             double totalHeight = Math.Max(0, nextActualRowIndex * RowHeight + nextActualRowIndex * RowVerticalMargin);
 
             return totalWidth <= 0 || totalHeight <= 0 ? new Size() : new Size(totalWidth, totalHeight);
+        }
+
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            var size = base.ArrangeOverride(finalSize);
+            return size;
         }
 
         private bool IsChildHasNoStartAndEndTime(Control child)

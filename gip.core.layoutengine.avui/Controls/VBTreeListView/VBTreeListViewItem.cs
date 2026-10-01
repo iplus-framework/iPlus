@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Avalonia;
 using Avalonia.Controls;
@@ -84,8 +85,9 @@ namespace gip.core.layoutengine.avui
             if (TimelineItemMap.VBTreeListViewItemMap == null)
                 TimelineItemMap.VBTreeListViewItemMap = this;
             
-            if (this.IsVisible)
-                TimelineItemMap.IsCollapsed = !IsVisible;
+            // Sync the timeline row with the EFFECTIVE visibility (considering
+            // collapsed ancestors), not just this item's own IsVisible.
+            TimelineItemMap.IsCollapsed = !IsEffectivelyVisible();
             if (this.IsSelected)
                 TimelineItemMap.IsSelected = this.IsSelected;
         }
@@ -148,7 +150,23 @@ namespace gip.core.layoutengine.avui
 
         protected override Control CreateContainerForItemOverride(object item, int index, object recycleKey)
         {
-            return new VBTreeListViewItem();
+            // Child containers are created by THIS item (it is the ItemsControl of
+            // its own children). Like VBTreeListView.CreateContainerForItemOverride,
+            // the container must receive Header/HeaderTemplate/ContentACObject,
+            // otherwise the TreeDataTemplate's child-selector never runs for the
+            // grandchildren and expanded rows stay empty.
+            VBTreeListViewItem container = new VBTreeListViewItem();
+
+            if (this.HeaderTemplate != null && item is IACObject acObject)
+            {
+                container.ContentACObject = acObject;
+                container.HeaderTemplate = this.HeaderTemplate;
+                container.Header = acObject;
+                container.DataContext = acObject;
+                container.PrepareItemContainerForParent(this);
+            }
+
+            return container;
         }
 
         protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
@@ -161,9 +179,23 @@ namespace gip.core.layoutengine.avui
         {
             base.PrepareContainerForItemOverride(container, item, index);
 
+            // The TreeDataTemplate (ItemsSource="{Binding Items}") binds the child
+            // items via HeaderedItemsControl.PrepareItemContainer -> BindChildren.
+            // That path relies on the template being resolvable at prepare time;
+            // to be robust, bind ItemsSource explicitly here for items that expose
+            // their children through an "Items" property (e.g. ProgramLogWrapper).
+            if (container is VBTreeListViewItem child && child.Header != null
+                && child.Header.GetType().GetProperty("Items") != null)
+            {
+                Binding itemsBinding = new Binding("Items");
+                itemsBinding.Source = child.Header;
+                itemsBinding.Mode = BindingMode.OneWay;
+                child.Bind(ItemsSourceProperty, itemsBinding);
+            }
+
             VBTreeListView parent = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBTreeListView)) as VBTreeListView;
-            TreeViewItem child = container as TreeViewItem;
-            if (parent != null && child != null)
+            TreeViewItem childItem = container as TreeViewItem;
+            if (parent != null && childItem != null)
             {
                 //parent.ApplySorting(child.Items);
             }
@@ -173,16 +205,93 @@ namespace gip.core.layoutengine.avui
         {
             if (change.Property == IsVisibleProperty)
             {
-                TimelineItemMap.IsCollapsed = !IsVisible;
+                // IsVisible alone is not enough: it stays true for children of a
+                // COLLAPSED ancestor (they are merely not realized/laid out). Compute
+                // the effective visibility over the whole ancestor chain so the
+                // timeline rows stay in sync with what the TreeListView actually
+                // displays (only expanded branches).
+                if (TimelineItemMap != null)
+                    TimelineItemMap.IsCollapsed = !IsEffectivelyVisible();
+            }
+            else if (change.Property == IsExpandedProperty)
+            {
+                // Expanding/collapsing this item changes the effective visibility of
+                // all realized descendants - update their timeline rows as well.
+                UpdateDescendantTimelineRows();
             }
             else if (change.Property == IsSelectedProperty)
             {
+                if (this.IsSelected)
+                {
+                    // Enforce single selection: the tree items live in nested
+                    // ItemsControls, so the TreeView does not deselect the
+                    // previously selected container automatically.
+                    DeselectOtherTreeItems();
+                }
                 if (TimelineItemMap != null)
                 {
                     TimelineItemMap.IsSelected = this.IsSelected;
                 }
             }
             base.OnPropertyChanged(change);
+        }
+
+        private void UpdateDescendantTimelineRows()
+        {
+            foreach (var container in GetRealizedDescendantContainers())
+            {
+                if (container.TimelineItemMap != null)
+                    container.TimelineItemMap.IsCollapsed = !container.IsEffectivelyVisible();
+                container.UpdateDescendantTimelineRows();
+            }
+        }
+
+        /// <summary>
+        /// Deselects every other selected VBTreeListViewItem in the whole tree.
+        /// Needed because the containers are spread over nested ItemsControls,
+        /// where no automatic single-selection exists.
+        /// NOTE: ContainerFromItem only resolves TOP-LEVEL items (children live
+        /// in nested ItemsControls), therefore the visual tree is searched.
+        /// </summary>
+        private void DeselectOtherTreeItems()
+        {
+            ItemsControl owner = ItemsControl.ItemsControlFromItemContainer(this);
+            while (owner is VBTreeListViewItem parentItem)
+                owner = ItemsControl.ItemsControlFromItemContainer(parentItem);
+            if (owner == null)
+                return;
+            foreach (var container in Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(owner).OfType<VBTreeListViewItem>())
+            {
+                if (!ReferenceEquals(container, this) && container.IsSelected)
+                    container.SetCurrentValue(IsSelectedProperty, false);
+            }
+        }
+
+        private IEnumerable<VBTreeListViewItem> GetRealizedDescendantContainers()
+        {
+            foreach (object item in Items)
+            {
+                if (ContainerFromItem(item) is VBTreeListViewItem child)
+                    yield return child;
+            }
+        }
+
+        /// <summary>
+        /// True if this item AND all its ancestor items are effectively visible
+        /// (i.e. no collapsed TreeListViewItem in the chain hides this row).
+        /// </summary>
+        public bool IsEffectivelyVisible()
+        {
+            if (!IsVisible)
+                return false;
+            var parent = ItemsControl.ItemsControlFromItemContainer(this) as VBTreeListViewItem;
+            while (parent != null)
+            {
+                if (!parent.IsVisible || !parent.IsExpanded)
+                    return false;
+                parent = ItemsControl.ItemsControlFromItemContainer(parent) as VBTreeListViewItem;
+            }
+            return true;
         }
 
         #endregion

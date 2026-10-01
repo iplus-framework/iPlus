@@ -340,7 +340,7 @@ namespace gip.core.layoutengine.avui.timeline
         /// Represents the styled property for TimelineItemVerticalMargin.
         /// </summary>
         public static readonly StyledProperty<double> TimelineItemVerticalMarginProperty =
-            AvaloniaProperty.Register<VBTimelineViewBase, double>(nameof(TimelineItemVerticalMargin), defaultValue: 4.0);
+            AvaloniaProperty.Register<VBTimelineViewBase, double>(nameof(TimelineItemVerticalMargin), defaultValue: 5.0);
 
         public double TimelineItemVerticalMargin
         {
@@ -413,11 +413,26 @@ namespace gip.core.layoutengine.avui.timeline
         {
             PART_TreeListView.ApplyTemplate();
             PART_TimelineChart.ApplyTemplate();
-            ScrollViewer treeSV = VBVisualTreeHelper.FindChildObjects<ScrollViewer>(PART_TreeListView)?.FirstOrDefault();
-            ScrollViewer timelineSV = VBVisualTreeHelper.FindChildObjects<ScrollViewer>(PART_TimelineChart)?.FirstOrDefault();
-            if (treeSV != null && timelineSV != null)
+            // Both sides consist of NESTED ItemsControls - the actual scrolling
+            // happens in INNER ScrollViewers, so hook ALL of them in both subtrees.
+            List<ScrollViewer> treeSVs = VBVisualTreeHelper.FindChildObjects<ScrollViewer>(PART_TreeListView)?.ToList();
+            List<ScrollViewer> timelineSVs = VBVisualTreeHelper.FindChildObjects<ScrollViewer>(PART_TimelineChart)?.ToList();
+            if (treeSVs != null && treeSVs.Count > 0 && timelineSVs != null && timelineSVs.Count > 0)
             {
-                _Syncer = new ScrollViewerSyncer(treeSV, timelineSV);
+                _Syncer = new ScrollViewerSyncer(treeSVs, timelineSVs);
+            }
+            else
+            {
+                // Templates / items not realized yet - retry after layout.
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    if (_Syncer != null)
+                        return;
+                    List<ScrollViewer> treeSVRetry = VBVisualTreeHelper.FindChildObjects<ScrollViewer>(PART_TreeListView)?.ToList();
+                    List<ScrollViewer> timelineSVRetry = VBVisualTreeHelper.FindChildObjects<ScrollViewer>(PART_TimelineChart)?.ToList();
+                    if (treeSVRetry != null && treeSVRetry.Count > 0 && timelineSVRetry != null && timelineSVRetry.Count > 0)
+                        _Syncer = new ScrollViewerSyncer(treeSVRetry, timelineSVRetry);
+                }, Avalonia.Threading.DispatcherPriority.Loaded);
             }
         }
 

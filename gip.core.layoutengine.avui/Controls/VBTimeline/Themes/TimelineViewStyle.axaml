@@ -50,6 +50,8 @@
     </ControlTheme>
 
     <ControlTheme x:Key="{x:Type local:VBTimelineView}" TargetType="local:VBTimelineView">
+        <Setter Property="TimelineItemHeight" Value="19"/>
+        <Setter Property="TimelineItemVerticalMargin" Value="3"/>
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid>
@@ -58,7 +60,7 @@
                     </Grid.Resources>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="{Binding $parent[local:VBTimelineView].TreeListViewWidth}" />
-                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="2"/>
                         <ColumnDefinition Width="{Binding $parent[local:VBTimelineView].TimelineViewWidth}"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
@@ -79,7 +81,7 @@
                         <ContentControl Grid.Column="2" Margin="15,0,0,0" x:Name="PART_TopContentControl"  Height="23" />
                     </Grid>
 
-                    <local:VBTreeListView Grid.Column="0" Grid.Row="1" x:Name="PART_TreeListView">
+                    <local:VBTreeListView Grid.Column="0" Grid.Row="1" x:Name="PART_TreeListView" Margin="0,4,0,0">
                         <local:VBTreeListView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding Items}" />
                         </local:VBTreeListView.ItemTemplate>
@@ -118,12 +120,12 @@
                             <ItemsPanelTemplate>
                                 <localTimeline:TimelineItemPanel 
                                     RowVerticalMargin="{Binding $parent[local:VBTimelineView].TimelineItemVerticalMargin}" 
-                                    RowHeight="{Binding $parent[local:VBTimelineView].TimelineItemHeight}" />
+                                    RowHeight="{Binding $parent[local:VBTimelineView].TimelineItemHeight}" />                        
                             </ItemsPanelTemplate>
                         </local:VBTimelineChart.ItemsPanel>
                     </local:VBTimelineChart>
 
-                    <GridSplitter Grid.Column="1" Grid.Row="1" Width="3" VerticalAlignment="Stretch" HorizontalAlignment="Center" Background="Red" />
+                    <GridSplitter Grid.Column="1" Grid.Row="1" Width="2" VerticalAlignment="Stretch" HorizontalAlignment="Center" Background="Red" />
                 </Grid>
             </ControlTemplate>
         </Setter>    

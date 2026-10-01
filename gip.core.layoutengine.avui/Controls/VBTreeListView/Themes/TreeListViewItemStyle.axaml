@@ -13,40 +13,56 @@
     <Setter Property="Height" Value="20"/>
     <Setter Property="Template">
       <ControlTemplate>
-        <Border Background="Transparent" Height="22" Padding="5,7,5,5" Width="20">
-          <Path x:Name="ExpandPath" Data="{StaticResource TreeArrow}" Fill="Transparent" Stroke="#FF989898">
-            <Path.RenderTransform>
-              <RotateTransform Angle="135" CenterY="3" CenterX="3"/>
-            </Path.RenderTransform>
-          </Path>
+        <Border Background="Transparent" Height="20" Padding="0,0,0,0" Width="20">
+            <LayoutTransformControl x:Name="Transform" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="-2,0,0,0">
+                <Path x:Name="ExpandPath"
+                      Data="{StaticResource TreeArrow}"
+                      Fill="Transparent"
+                      Stroke="#FF989898"
+                      StrokeThickness="1"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center">
+                </Path>
+                <LayoutTransformControl.LayoutTransform>
+                    <RotateTransform Angle="135" />
+                </LayoutTransformControl.LayoutTransform>
+            </LayoutTransformControl>
         </Border>
       </ControlTemplate>
     </Setter>
     
+    <!-- Checked state - rotated -->
+    <Style Selector="^:checked /template/ LayoutTransformControl#Transform">
+        <Setter Property="LayoutTransform">
+            <RotateTransform Angle="180" />
+        </Setter>
+        <Setter Property="Margin" Value="0,0,0,0"></Setter>
+    </Style>   
+
     <!-- Checked state -->
-    <Style Selector="^:checked /template/ Path#ExpandPath">
+    <!-- <Style Selector="^:checked /template/ Path#ExpandPath">
       <Setter Property="RenderTransform">
         <RotateTransform Angle="180" CenterY="3" CenterX="3"/>
       </Setter>
-    </Style>
+    </Style> -->
     
     <!-- Mouse over and checked -->
     <Style Selector="^:pointerover:checked /template/ Path#ExpandPath">
-      <Setter Property="Stroke" Value="#FFFF0000"/>
-      <Setter Property="Fill" Value="{StaticResource TreeArrowFocusFill}"/>
+        <Setter Property="Stroke" Value="#FFFF0000"/>
+        <Setter Property="Fill" Value="{StaticResource TreeArrowFocusFill}"/>
     </Style>
-    
+
     <!-- Mouse over and not checked -->
     <Style Selector="^:pointerover:not(:checked) /template/ Path#ExpandPath">
-      <Setter Property="Stroke" Value="#FFFF0000"/>
-      <Setter Property="Fill" Value="{StaticResource TreeArrowFocusFill}"/>
+        <Setter Property="Stroke" Value="#FFFF0000"/>
+        <Setter Property="Fill" Value="{StaticResource TreeArrowFocusFill}"/>
     </Style>
-    
+
     <!-- Not mouse over and checked -->
     <Style Selector="^:not(:pointerover):checked /template/ Path#ExpandPath">
-      <Setter Property="Stroke" Value="#FFFFFFFF"/>
-      <Setter Property="Fill" Value="{StaticResource TreeArrowCheckedFill}"/>
-    </Style>
+        <Setter Property="Stroke" Value="#FFFFFFFF"/>
+        <Setter Property="Fill" Value="{StaticResource TreeArrowCheckedFill}"/>
+      </Style>
   </ControlTheme>
 
   <ControlTheme x:Key="{x:Type local:VBTreeListViewItem}" TargetType="local:VBTreeListViewItem">
@@ -94,15 +110,18 @@
             </Border>
           </Border>
 
-          <ItemsPresenter Grid.Row="1" Name="ItemsHost" />
+          <ItemsPresenter Grid.Row="1" Name="ItemsHost"
+                          IsVisible="{TemplateBinding IsExpanded}" />
         </Grid>
       </ControlTemplate>
     </Setter>
     
-    <!-- IsExpanded = false -->
-    <Style Selector="^:not(:expanded) /template/ ItemsPresenter#ItemsHost">
+    <!-- IsExpanded = false: handled by TemplateBinding on ItemsHost.IsVisible above.
+         (The former ^:not(:expanded) style proved unreliable - the presenter stayed
+         hidden after expanding.) -->
+    <!--<Style Selector="^:not(:expanded) /template/ ItemsPresenter#ItemsHost">
       <Setter Property="IsVisible" Value="False"/>
-    </Style>
+    </Style>-->
     
     <!-- HasItems = false (empty) -->
     <Style Selector="^:empty /template/ ToggleButton#Expander">

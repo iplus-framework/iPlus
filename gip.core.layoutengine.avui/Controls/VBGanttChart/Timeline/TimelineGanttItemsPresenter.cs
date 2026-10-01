@@ -1,7 +1,9 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using Avalonia.VisualTree;
 using gip.core.layoutengine.avui.timeline;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui.ganttchart
 {
@@ -51,7 +53,7 @@ namespace gip.core.layoutengine.avui.ganttchart
         protected override void PrepareContainerForItemOverride(Control container, object item, int index)
         {
             base.PrepareContainerForItemOverride(container, item, index);
-            
+
             // Apply theme based on item type if selector is available
             var themeSelector = ItemThemeSelector;
             if (themeSelector != null)
@@ -61,6 +63,30 @@ namespace gip.core.layoutengine.avui.ganttchart
                 {
                     container.Theme = theme;
                 }
+            }
+        }
+
+        protected override void OnLoaded(Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            base.OnLoaded(e);
+            var chart = this.GetVisualAncestors().OfType<VBGanttChart>().FirstOrDefault();
+
+            // The panel may have been materialized (as a plain StackPanel) BEFORE the
+            // ItemsPanel TemplateBinding from the chart flowed through. Avalonia does
+            // not rebuild the panel in that case. The actual panel is owned by the
+            // INNER ItemsPresenter that ItemsControl's template hosts - set the panel
+            // template there directly.
+            if (!(ItemsPanelRoot is TimelinePanel) && chart?.ItemsPanel != null)
+            {
+                var innerPresenter = this.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.ItemsPresenter>().FirstOrDefault();
+                if (innerPresenter != null)
+                {
+                    innerPresenter.SetValue(Avalonia.Controls.Presenters.ItemsPresenter.ItemsPanelProperty, chart.ItemsPanel);
+                    innerPresenter.InvalidateMeasure();
+                }
+                SetValue(ItemsPanelProperty, chart.ItemsPanel);
+                InvalidateMeasure();
+                UpdateLayout();
             }
         }
 

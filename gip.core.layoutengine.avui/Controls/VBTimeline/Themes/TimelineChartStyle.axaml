@@ -63,13 +63,13 @@
                     IsVisible="{Binding #PART_DateTimeAxesPanel.IsZoomActive}">
             </Border>
 
-            <Border Height="{Binding #PART_DateTimeAxesPanel.Bounds.Height}" 
+            <!-- <Border Height="{Binding #PART_DateTimeAxesPanel.Bounds.Height}" 
                     Margin="0,23,0,0" 
                     VerticalAlignment="Top" 
                     HorizontalAlignment="Left"
                     Width="{Binding #PART_ScrollViewer.Bounds.Width}" 
                     BorderThickness="24,0,0,0"
-                    BorderBrush="{StaticResource ThemeBackgroundBrush}"/>
+                    BorderBrush="{StaticResource ThemeBackgroundBrush}"/> -->
 
             <timeline:FrictionScrollViewer x:Name="PART_ScrollViewer"
                             Margin="25,25,0,0"
@@ -83,8 +83,6 @@
                               ItemsSource="{TemplateBinding Items}"
                               ItemsPanel="{TemplateBinding ItemsPanel}"
                               ItemTemplate="{TemplateBinding TimelineItemTemplate}"/>
-                <!--ItemContainerTheme="{TemplateBinding ItemContainerTheme}"
-                ItemThemeSelector="{TemplateBinding ItemThemeSelector}"-->
               </Grid>
 
             </timeline:FrictionScrollViewer>

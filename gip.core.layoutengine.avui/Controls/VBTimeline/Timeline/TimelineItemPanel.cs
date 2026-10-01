@@ -77,7 +77,6 @@ namespace gip.core.layoutengine.avui.timeline
                 if (firstLogged < 3)
                 {
                     firstLogged++;
-                    //System.Diagnostics.Debug.WriteLine($"[TLITEM] Panel: row={childAndRow.Row}, start={TimelinePanel.GetStartDate(tlChild):HH:mm:ss}, end={TimelinePanel.GetEndDate(tlChild):HH:mm:ss}, collapsed={tlChild.IsCollapsed}, rect={calcChildSize}");
                 }
 
                 if (tlChild.IsCollapsed)
@@ -103,7 +102,6 @@ namespace gip.core.layoutengine.avui.timeline
             _contentWidth = totalWidth;
             _contentHeight = Math.Max(totalHeight, RowHeight > 0 ? RowHeight : 1);
 
-            //System.Diagnostics.Debug.WriteLine($"[TL] Panel measure: children={Children.Count}, rows={nextActualRowIndex}, min={(MinimumDate?.ToString("HH:mm") ?? "null")}, max={(MaximumDate?.ToString("HH:mm") ?? "null")}, ppt={PixelsPerTick}, totalWidth={totalWidth}, totalHeight={totalHeight}");
             // Never return a degenerate size: a zero/near-zero height collapses the
             // ScrollViewer content to ~0px even when the width is valid.
             if (totalWidth <= 0)
@@ -123,7 +121,6 @@ namespace gip.core.layoutengine.avui.timeline
             // otherwise the ScrollViewer extent never exceeds the viewport and all
             // bars beyond the first viewport width are unreachable/clipped.
             var result = new Size(Math.Max(finalSize.Width, _contentWidth), Math.Max(finalSize.Height, _contentHeight));
-            //System.Diagnostics.Debug.WriteLine($"[TL] Panel arrange: finalSize={finalSize}, result={result}, bounds={Bounds}");
 
             // Diagnostics: dump visual state of first few arranged children.
             int dumped = 0;
@@ -133,12 +130,10 @@ namespace gip.core.layoutengine.avui.timeline
                 var tl = child as TimelineItem;
                 if (tl == null || tl.IsCollapsed) continue;
                 dumped++;
-                //System.Diagnostics.Debug.WriteLine($"[TLVIS] item: isVisible={child.IsVisible}, bounds={child.Bounds}, opacity={child.Opacity}, content={tl.Content?.GetType().Name}, contentTemplate={(tl.ContentTemplate != null ? "SET" : "NULL")}, presenter={child.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.ContentPresenter>().FirstOrDefault()?.GetType().Name ?? "NONE"}");
                 if (dumped == 1)
                 {
                     foreach (var desc in child.GetVisualDescendants().Take(8))
                     {
-                        //System.Diagnostics.Debug.WriteLine($"[TLVIS]   desc: {desc.GetType().Name}, bounds={desc.Bounds}, visible={(desc as Control)?.IsVisible.ToString() ?? "?"}");
                     }
                 }
             }

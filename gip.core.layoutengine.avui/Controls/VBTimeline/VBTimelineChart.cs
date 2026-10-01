@@ -31,7 +31,6 @@ namespace gip.core.layoutengine.avui
             base.OnApplyTemplate(e);
 
             _ItemsPresenter = e.NameScope.Find("PART_ItemsPresenter") as TimelineItemsPresenter;
-            //System.Diagnostics.Debug.WriteLine($"[TL] Chart OnApplyTemplate: itemsPresenter={(_ItemsPresenter != null ? "found" : "NULL")}, scrollViewer={(e.NameScope.Find("PART_ScrollViewer") != null ? "found" : "NULL")}");
         }
 
         /// <summary>

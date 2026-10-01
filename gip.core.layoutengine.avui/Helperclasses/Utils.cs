@@ -2,6 +2,7 @@
 using Avalonia.Input;
 using gip.ext.design.avui.UIExtensions;
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace gip.core.layoutengine.avui
@@ -55,21 +56,30 @@ namespace gip.core.layoutengine.avui
 
     public class WaitCursor : IDisposable
     {
-        //private Cursor _previousCursor;
+        private readonly Avalonia.Controls.Window _window;
+        private readonly Avalonia.Input.Cursor _previousCursor;
 
         public WaitCursor()
         {
-            throw new NotImplementedException("Mouse.OverrideCursor is not implemented in Avalonia");
-            //_previousCursor = Mouse.OverrideCursor;
-
-            //Mouse.OverrideCursor = Cursors.Wait;
+            // Avalonia has no Mouse.OverrideCursor. Emulate it by switching the
+            // cursor of the active (or main) window for the lifetime of this instance.
+            if (Avalonia.Application.Current?.ApplicationLifetime
+                is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                _window = desktop.Windows.FirstOrDefault(w => w.IsActive) ?? desktop.MainWindow;
+            }
+            if (_window == null)
+                return;
+            _previousCursor = _window.Cursor;
+            _window.Cursor = Avalonia.Input.Cursor.Parse("Wait");
         }
 
         #region IDisposable Members
 
         public void Dispose()
         {
-            //Mouse.OverrideCursor = _previousCursor;
+            if (_window != null)
+                _window.Cursor = _previousCursor;
         }
 
         #endregion

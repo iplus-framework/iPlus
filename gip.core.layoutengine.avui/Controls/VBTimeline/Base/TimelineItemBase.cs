@@ -53,7 +53,6 @@ namespace gip.core.layoutengine.avui.timeline
             if (_IsInitialized)
                 return;
 
-            //System.Diagnostics.Debug.WriteLine($"[TLITEM] InitVBControl: content={(Content?.GetType().Name ?? "NULL")}, view={(VBTimelineView?.GetType().Name ?? "NULL")}, ganttStart='{VBTimelineView?.GanttStart}', ganttEnd='{VBTimelineView?.GanttEnd}'");
 
             Binding binding = new Binding();
             binding.Source = this.Content;
@@ -310,14 +309,124 @@ namespace gip.core.layoutengine.avui.timeline
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            if (change.Property == IsSelectedProperty && (bool)change.NewValue)
+            if (change.Property == IsSelectedProperty)
             {
-                VBTimelineChart.SelectedItem = DataContext;
-                if (_isPointerPressed)
-                    ScrollToItemStart();
+                if ((bool)change.NewValue)
+                {
+                    // Enforce single selection: clicking another item in the chart
+                    // must deselect the previously selected one.
+                    DeselectOtherItems();
+                    VBTimelineChart.SelectedItem = DataContext;
+                    if (_isPointerPressed)
+                        ScrollToItemStart();
+                }
+                // WPF-Parity: highlight ALL elements of the selected row with a red
+                // border. The consumer templates rely on DataTriggerBehavior/
+                // ChangePropertyAction for this, which does not fire reliably in the
+                // Avalonia port - apply it directly on the Borders of the item's
+                // visual tree instead.
+                ApplySelectionHighlight((bool)change.NewValue);
             }
 
             base.OnPropertyChanged(change);
+        }
+
+        // Red selection-frame overlay, hosted in the AdornerLayer so it renders
+        // ABOVE the item content (setting BorderBrush on the template's Borders
+        // is not enough: the opaque bar rectangle painted by the child content
+        // covers the border stroke).
+        private Avalonia.Controls.Primitives.AdornerLayer _selectionAdornerLayer;
+        private Border _selectionOverlay;
+
+        // Row siblings highlighted together with this item (timeline view draws
+        // several rectangles in one row - the selection border must span all of
+        // them, not only the clicked one).
+        private readonly List<TimelineItemBase> _highlightedRowSiblings = new List<TimelineItemBase>();
+
+        private void ApplySelectionHighlight(bool selected)
+        {
+            // Remove highlights of row siblings from a previous selection.
+            foreach (var sibling in _highlightedRowSiblings)
+                sibling.HighlightSelf(false);
+            _highlightedRowSiblings.Clear();
+
+            HighlightSelf(selected);
+
+            if (selected && this.GetVisualParent() is Panel panel)
+            {
+                // WPF-Parity: highlight ALL elements of the selected row. Several
+                // timeline items can share the same RowIndex - frame them all.
+                int rowIndex = TimelinePanel.GetRowIndex(this);
+                foreach (var sibling in panel.Children.OfType<TimelineItemBase>())
+                {
+                    if (!ReferenceEquals(sibling, this) && TimelinePanel.GetRowIndex(sibling) == rowIndex)
+                    {
+                        sibling.HighlightSelf(true);
+                        _highlightedRowSiblings.Add(sibling);
+                    }
+                }
+            }
+        }
+
+        private void HighlightSelf(bool selected)
+        {
+            if (selected)
+            {
+                if (_selectionOverlay == null)
+                {
+                    _selectionOverlay = new Border
+                    {
+                        BorderBrush = Avalonia.Media.Brushes.Red,
+                        BorderThickness = new Thickness(1),
+                        Background = null,
+                        IsHitTestVisible = false
+                    };
+                }
+                if (_selectionAdornerLayer == null)
+                    _selectionAdornerLayer = Avalonia.Controls.Primitives.AdornerLayer.GetAdornerLayer(this);
+                if (_selectionAdornerLayer != null && _selectionOverlay.Parent == null)
+                {
+                    _selectionAdornerLayer.Children.Add(_selectionOverlay);
+                    _selectionOverlay.SetValue(Avalonia.Controls.Primitives.AdornerLayer.AdornedElementProperty, this);
+                }
+                else if (_selectionAdornerLayer == null)
+                {
+                    // No AdornerLayer in this visual tree (e.g. VBGanttChart hosts no
+                    // AdornerDecorator) - fall back to highlighting the template's
+                    // Borders directly. The bar content may partially cover the
+                    // stroke there, but the frame remains visible.
+                    foreach (var border in this.GetVisualDescendants().OfType<Avalonia.Controls.Border>())
+                    {
+                        border.SetValue(Avalonia.Controls.Border.BorderBrushProperty, Avalonia.Media.Brushes.Red);
+                        border.SetValue(Avalonia.Controls.Border.BorderThicknessProperty, new Thickness(1));
+                    }
+                }
+            }
+            else
+            {
+                if (_selectionAdornerLayer != null && _selectionOverlay != null && _selectionOverlay.Parent != null)
+                {
+                    _selectionAdornerLayer.Children.Remove(_selectionOverlay);
+                    _selectionOverlay.ClearValue(Avalonia.Controls.Primitives.AdornerLayer.AdornedElementProperty);
+                }
+                foreach (var border in this.GetVisualDescendants().OfType<Avalonia.Controls.Border>())
+                {
+                    border.ClearValue(Avalonia.Controls.Border.BorderBrushProperty);
+                    border.ClearValue(Avalonia.Controls.Border.BorderThicknessProperty);
+                }
+            }
+        }
+
+        private void DeselectOtherItems()
+        {
+            if (this.GetVisualParent() is Panel panel)
+            {
+                foreach (var item in panel.Children.OfType<TimelineItemBase>())
+                {
+                    if (!ReferenceEquals(item, this) && item.IsSelected)
+                        item.SetCurrentValue(IsSelectedProperty, false);
+                }
+            }
         }
 
         #endregion
@@ -326,8 +435,97 @@ namespace gip.core.layoutengine.avui.timeline
 
         public virtual void SelectTreeItem()
         {
+            // The map is normally assigned by VBTreeListViewItem.InitVBControl.
+            // If it is not set yet (e.g. tree container realized after the timeline
+            // item, or TimelineView scenario), resolve it on demand.
+            // NOTE: ContainerFromItem on the TreeListView only resolves TOP-LEVEL
+            // items (children live in nested ItemsControls), so we search the
+            // visual tree instead - works for every realized level.
+            if (VBTreeListViewItemMap == null && ContextACObject != null)
+            {
+                var treeListView = VBTimelineView?.PART_TreeListView;
+                if (treeListView != null)
+                {
+                    var candidates = treeListView
+                        .GetVisualDescendants()
+                        .OfType<VBTreeListViewItem>()
+                        .ToList();
+                    VBTreeListViewItemMap = ResolveTreeItem(candidates, ContextACObject);
+                    if (VBTreeListViewItemMap == null)
+                    {
+                        // The clicked item is a CHILD log entry whose tree container
+                        // is not realized (parent collapsed). Select + expand the
+                        // nearest realized ANCESTOR, then select the child after
+                        // the tree has realized its containers.
+                        IACObject ancestor = (ContextACObject as IACObject)?.ParentACObject;
+                        VBTreeListViewItem ancestorContainer = null;
+                        while (ancestor != null && ancestorContainer == null)
+                        {
+                            ancestorContainer = ResolveTreeItem(candidates, ancestor);
+                            if (ancestorContainer == null)
+                                ancestor = ancestor.ParentACObject;
+                        }
+                        if (ancestorContainer != null)
+                        {
+                            ancestorContainer.IsSelected = true;
+                            ancestorContainer.IsExpanded = true;
+                            var childContext = ContextACObject;
+                            // Re-resolve after the expansion has realized the child containers.
+                            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                            {
+                                var refreshed = treeListView
+                                    .GetVisualDescendants()
+                                    .OfType<VBTreeListViewItem>()
+                                    .ToList();
+                                var childContainer = ResolveTreeItem(refreshed, childContext);
+                                if (childContainer != null)
+                                {
+                                    VBTreeListViewItemMap = childContainer;
+                                    childContainer.IsSelected = true;
+                                }
+                            }, Avalonia.Threading.DispatcherPriority.Background);
+                        }
+                    }
+                }
+            }
             if (VBTreeListViewItemMap != null)
                 VBTreeListViewItemMap.IsSelected = true;
+        }
+
+        /// <summary>
+        /// Resolves the tree container for a timeline item. The timeline chart often
+        /// holds COPIES of the model objects (e.g. ACPropertyLogModel created from
+        /// ACPropertyLogInfo), so reference equality on DataContext fails. Match on
+        /// the shared underlying PropertyLog entity first, then on identical
+        /// StartDate/EndDate/PropertyValue tuples as fallback.
+        /// </summary>
+        private static VBTreeListViewItem ResolveTreeItem(List<VBTreeListViewItem> candidates, object context)
+        {
+            var ctxInfo = context as gip.core.datamodel.ACPropertyLogInfo;
+            foreach (var c in candidates)
+            {
+                if (ReferenceEquals(c.DataContext, context))
+                    return c;
+            }
+            if (ctxInfo != null)
+            {
+                foreach (var c in candidates)
+                {
+                    var candInfo = c.DataContext as gip.core.datamodel.ACPropertyLogInfo;
+                    if (candInfo == null)
+                        continue;
+                    // Same underlying entity instance?
+                    if (ctxInfo.PropertyLog != null && ReferenceEquals(candInfo.PropertyLog, ctxInfo.PropertyLog))
+                        return c;
+                    // Same time span + value (copies of the same log entry)?
+                    if (ctxInfo.PropertyLog == null && candInfo.PropertyLog == null
+                        && ctxInfo.StartDate == candInfo.StartDate
+                        && ctxInfo.EndDate == candInfo.EndDate
+                        && Equals(ctxInfo.PropertyValue, candInfo.PropertyValue))
+                        return c;
+                }
+            }
+            return null;
         }
 
         private void ScrollToItemStart()
@@ -392,7 +590,12 @@ namespace gip.core.layoutengine.avui.timeline
             if (e.InitialPressMouseButton == MouseButton.Left)
             {
                 if (e.KeyModifiers != KeyModifiers.Control && e.KeyModifiers != KeyModifiers.Shift)
+                {
+                    // WPF-Parity: clicking the item on the timeline/chart selects it
+                    // (red frame via IsSelected) AND the corresponding tree row.
+                    this.IsSelected = true;
                     SelectTreeItem();
+                }
             }
             else if (e.InitialPressMouseButton == MouseButton.Right)
             {

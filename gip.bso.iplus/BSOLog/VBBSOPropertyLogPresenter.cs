@@ -1086,7 +1086,7 @@ namespace gip.bso.iplus
         /// </summary>
         /// <param name="componentClass">The component class parameter.</param>
         [ACMethodInfo("", "", 404)]
-        public async void ShowPropertyLogsDialog(ACClass componentClass)
+        public async Task ShowPropertyLogsDialog(ACClass componentClass)
         {
             CurrentComponentClass = componentClass.FromIPlusContext<ACClass>(Db);
             await ShowDialogAsync(this, "PropertyLogPresenterDialog");
@@ -1100,7 +1100,7 @@ namespace gip.bso.iplus
         /// <param name="from">From</param>
         /// <param name="to">To</param>
         [ACMethodInfo("", "", 404)]
-        public async void ShowPropertyLogsWithFilterDialog(ACClass componentClass, DateTime from, DateTime to)
+        public async Task ShowPropertyLogsWithFilterDialog(ACClass componentClass, DateTime from, DateTime to)
         {
             CurrentComponentClass = componentClass.FromIPlusContext<ACClass>(Db);
             FromDate = from;
@@ -1630,7 +1630,7 @@ namespace gip.bso.iplus
                     result = IsEnabledShowLogsOnTimeline();
                     return true;
                 case nameof(ShowPropertyLogsDialog):
-                    ShowPropertyLogsDialog(acParameter[0] as ACClass);
+                    result = ShowPropertyLogsDialog(acParameter[0] as ACClass);
                     return true;
                 case nameof(ShowAlarms):
                     ShowAlarms();
@@ -1654,7 +1654,7 @@ namespace gip.bso.iplus
                     result = IsEnabledShowAllAlarms();
                     return true;
                 case nameof(ShowPropertyLogsWithFilterDialog):
-                    ShowPropertyLogsWithFilterDialog(acParameter[0] as ACClass, (DateTime)acParameter[1], (DateTime)acParameter[2]);
+                    result = ShowPropertyLogsWithFilterDialog(acParameter[0] as ACClass, (DateTime)acParameter[1], (DateTime)acParameter[2]);
                     return true;
                 case nameof(GoToNextValue):
                     GoToNextValue();
