@@ -354,15 +354,16 @@ namespace gip.core.webservices
             return $"{type.Name}_{DateTime.Now:yyyy-MM_dd-HH-mm-ss-fff}.json";
         }
 
-        public virtual void WriteJsonToFolder(Type type, string rootFolder, string json)
+        public virtual string WriteJsonToFolder(Type type, string rootFolder, string json)
         {
+            string filePath = null;
             try
             {
                 string folder = GetJsonFolder(type, rootFolder);
                 if (!string.IsNullOrEmpty(folder))
                 {
                     string fileName = GetJsonFileName(type);
-                    string filePath = Path.Combine(folder, fileName);
+                    filePath = Path.Combine(folder, fileName);
                     File.WriteAllText(filePath, json);
                 }
             }
@@ -378,6 +379,7 @@ namespace gip.core.webservices
                 Messages.LogMessageMsg(msg);
                 OnNewAlarmOccurred(IsImportAlarm, msg, true);
             }
+            return filePath;
         }
 
         public virtual (bool success, Msg msg, T item) DeserializeJson<T>(Type declaringType, string json)
