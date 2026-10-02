@@ -599,21 +599,25 @@ namespace gip.core.layoutengine.avui.timeline
             }
             else if (e.InitialPressMouseButton == MouseButton.Right)
             {
-                if (e.Route == RoutingStrategies.Tunnel)
-                {
-                    if (VBTreeListViewItemMap != null)
-                        VBTreeListViewItemMap.IsSelected = true;
-                    Point point = e.GetPosition(this);
-                    ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
-                    VBTimelineChart.BSOACComponent.ACAction(actionArgs);
-                    VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
-                    this.ContextMenu = vbContextMenu;
-                    //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
-                    if (vbContextMenu.PlacementTarget == null)
-                        vbContextMenu.PlacementTarget = this;
-                    vbContextMenu.Closed += (s, args) => { this.ContextMenu = null; };
-                    ContextMenu.Open();
-                }
+                // NOTE: In Avalonia the right-button PointerReleased arrives with
+                // Route == Bubble (unlike WPF's tunneling preview events), so do
+                // NOT gate on e.Route here - the menu would never open.
+                if (VBTreeListViewItemMap != null)
+                    VBTreeListViewItemMap.IsSelected = true;
+                Point point = e.GetPosition(this);
+                ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
+                VBTimelineChart.BSOACComponent.ACAction(actionArgs);
+                VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
+                this.ContextMenu = vbContextMenu;
+                //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
+                if (vbContextMenu.PlacementTarget == null)
+                    vbContextMenu.PlacementTarget = this;
+                vbContextMenu.Closed += (s, args) => { this.ContextMenu = null; };
+                ContextMenu.Open();
+                // Mark as handled so the event does not bubble up to VBDesign,
+                // which would otherwise build and open a SECOND context menu
+                // (its own category instances without the timeline commands).
+                e.Handled = true;
             }
             base.OnPointerReleased(e);
         }

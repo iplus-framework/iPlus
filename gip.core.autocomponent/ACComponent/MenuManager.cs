@@ -38,52 +38,76 @@ namespace gip.core.autocomponent
 
             List<ACMenuItem> acMenuList = new List<ACMenuItem>();
 
+            // Clean, deterministic grouping. The previous implementation materialized
+            // category parents indirectly while iterating and had several paths that
+            // emitted a SECOND instance of the same category (e.g. "Tools") instead of
+            // appending the commands to the existing one.
+            short urlHelper;
+
+            // 1. Separate category parents (numeric ACUrl) from commands. Multiple
+            //    sources (content / component / element) may each deliver their own
+            //    instance of the same category - dedupe them by ACUrl, merging the
+            //    children of duplicates into the first (canonical) instance.
+            var canonicalParents = new List<ACMenuItem>();
+            var commandItems = new List<ACMenuItem>();
             foreach (var menuItem in acMenuItemList.OrderBy(c => c.HandlerACElement != c.BSO))
             {
-                short helper;
-                if (short.TryParse(menuItem.ACUrl, out helper) || acMenuList.Any(c => c.ACUrl == menuItem.ACUrl && c.ACCaption == menuItem.ACCaption))
-                    continue;
-
-                if (menuItem.CategoryIndex == null)
-                    acMenuList.Add(menuItem);
+                if (!string.IsNullOrEmpty(menuItem.ACUrl) && short.TryParse(menuItem.ACUrl, out urlHelper))
+                {
+                    var canonical = canonicalParents.FirstOrDefault(c => c.ACUrl == menuItem.ACUrl);
+                    if (canonical == null)
+                        canonicalParents.Add(menuItem);
+                    else
+                        foreach (var child in menuItem.Items)
+                            if (!canonical.Items.Any(c => c.ACUrl == child.ACUrl && c.ACCaption == child.ACCaption))
+                                canonical.Items.Add(child);
+                }
                 else
                 {
-                    if (acMenuList.Any(c => c.ACUrl == menuItem.CategoryIndex.ToString()))
-                    {
-                        var category = acMenuList.FirstOrDefault(c => c.ACUrl == menuItem.CategoryIndex.ToString());
-                        if (!category.Items.Any(c => c.ACUrl == menuItem.ACUrl && c.ACCaption == menuItem.ACCaption))
-                            category.Items.Add(menuItem);
-                    }
+                    commandItems.Add(menuItem);
+                }
+            }
 
-                    else if (acMenuItemList.FirstOrDefault(c => c.ACUrl == menuItem.CategoryIndex).CategoryIndex != null)
-                    {
-                        ACMenuItem root = acMenuList.FirstOrDefault(c => c.ACUrl == acMenuItemList.FirstOrDefault(x => x.ACUrl == menuItem.CategoryIndex).CategoryIndex);
-                        if (root != null)
-                        {
-                            ACMenuItem parent = root.Items.FirstOrDefault(c => c.ACUrl == menuItem.CategoryIndex);
-                            if (parent != null)
-                                parent.Items.Add(menuItem);
-                        }
-                        else
-                        {
-                            root = acMenuItemList.FirstOrDefault(c => c.ACUrl == acMenuItemList.FirstOrDefault(x => x.ACUrl == menuItem.CategoryIndex).CategoryIndex);
-                            acMenuList.Add(root);
-                            ACMenuItem parent = root.Items.FirstOrDefault(c => c.ACUrl == menuItem.CategoryIndex);
-                            if (parent != null)
-                                parent.Items.Add(menuItem);
-                            else
-                            {
-                                parent = acMenuItemList.FirstOrDefault(c => c.ACUrl == menuItem.CategoryIndex);
-                                parent.Items.Add(menuItem);
-                                root.Items.Add(parent);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        acMenuList.Add(acMenuItemList.FirstOrDefault(c => c.ACUrl == menuItem.CategoryIndex));
-                        acMenuList.FirstOrDefault(c => c.ACUrl == menuItem.CategoryIndex).Items.Add(menuItem);
-                    }
+            // 2. Group commands under their category parent. Commands without a
+            //    category (or with a category that has no parent item) go top-level.
+            foreach (var menuItem in commandItems)
+            {
+                if (menuItem.CategoryIndex == null)
+                {
+                    acMenuList.Add(menuItem);
+                    continue;
+                }
+                string categoryUrl = menuItem.CategoryIndex.ToString();
+                var parent = canonicalParents.FirstOrDefault(c => c.ACUrl == categoryUrl);
+                if (parent == null)
+                {
+                    acMenuList.Add(menuItem);
+                    continue;
+                }
+                if (!parent.Items.Any(c => c.ACUrl == menuItem.ACUrl && c.ACCaption == menuItem.ACCaption))
+                    parent.Items.Add(menuItem);
+            }
+
+            // 3. Emit the parents: nested categories are attached under their root
+            //    category, all others go top-level (in canonical order).
+            foreach (var parent in canonicalParents)
+            {
+                if (parent.CategoryIndex == null)
+                {
+                    if (!acMenuList.Contains(parent))
+                        acMenuList.Add(parent);
+                    continue;
+                }
+                string parentUrl = parent.CategoryIndex.ToString();
+                var root = canonicalParents.FirstOrDefault(c => c.ACUrl == parentUrl);
+                if (root != null && !ReferenceEquals(root, parent))
+                {
+                    if (!root.Items.Contains(parent))
+                        root.Items.Add(parent);
+                }
+                else if (!acMenuList.Contains(parent))
+                {
+                    acMenuList.Add(parent);
                 }
             }
 

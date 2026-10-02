@@ -65,7 +65,11 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 							<ScaleTransform ScaleX="{Binding $parent[local:VBContextMenu].Zoom, Mode=OneWay}" ScaleY="{Binding $parent[local:VBContextMenu].Zoom, Mode=OneWay}" />
 						</LayoutTransformControl.LayoutTransform>-->
 
-						<ScrollViewer Theme="{StaticResource FluentMenuScrollViewer}">
+					<!-- NOTE: Do NOT use Theme="{StaticResource FluentMenuScrollViewer}" here -
+						 that resource only exists inside Avalonia's FluentTheme, which this
+						 app does not include (see IPlusTheme.axaml). The implicit
+						 {x:Type ScrollViewer} theme (ScrollViewerStyle.axaml) applies instead. -->
+						<ScrollViewer>
 							<ItemsPresenter Name="PART_ItemsPresenter"
 											ItemsPanel="{TemplateBinding ItemsPanel}"
 											Margin="{StaticResource MenuFlyoutScrollerMargin}"

@@ -87,7 +87,9 @@
                     MinHeight="{StaticResource MenuFlyoutThemeMinHeight}"
                     HorizontalAlignment="Stretch"
                     CornerRadius="{StaticResource OverlayCornerRadius}">
-              <ScrollViewer Theme="{StaticResource FluentMenuScrollViewer}">
+              <!-- No FluentMenuScrollViewer: that theme only exists in Avalonia's
+                   FluentTheme, which this app does not include. -->
+              <ScrollViewer>
                 <ItemsPresenter Name="PART_ItemsPresenter"
                                 ItemsPanel="{TemplateBinding ItemsPanel}"
                                 Margin="{StaticResource MenuFlyoutScrollerMargin}"

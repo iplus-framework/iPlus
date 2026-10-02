@@ -953,6 +953,10 @@ namespace gip.core.layoutengine.avui
         {
             if (e.InitialPressMouseButton == MouseButton.Right)
             {
+                // If a child control (e.g. TimelineItemBase) already opened its own
+                // context menu, do not build/open a second one here.
+                if (e.Handled)
+                    return;
                 if (ContextACObject == null || BSOACComponent == null)
                     return;
                 if (DisableContextMenu)
