@@ -13,6 +13,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
@@ -508,12 +509,24 @@ namespace gip.core.layoutengine.avui
                                         }
                                         else if (container.Parent is VBTreeViewItem parentContainer)
                                         {
-                                            if (!parentContainer.Items.IsReadOnly)
+                                            // The BSO adds the new entry as a sibling of the selected entry
+                                            // (to the parent's child collection), so the parent container is the target.
+                                            // The parent model is required so the node gets expanded and the new
+                                            // sibling is brought into view.
+                                            IACObject parentModel = parentContainer.ContentACObject;
+                                            if (parentContainer.Items.IsReadOnly)
+                                            {
+                                                // Container is bound via ItemsSource (TreeDataTemplate):
+                                                // sync the bound collection / model graph instead of Items.
+                                                EnsureContainerItemsSourceAdded(parentContainer, newModel);
+                                                EnsureModelChildAddedInBoundGraph(parentModel, newModel, out parentModel);
+                                            }
+                                            else if (!parentContainer.Items.Contains(newModel))
                                             {
                                                 parentContainer.Items.Add(newModel);
-                                                SelectedItem = newModel;
-                                                BringModelIntoViewWhenRealized(newModel);
                                             }
+                                            SelectedItem = newModel;
+                                            BringModelIntoViewWhenRealized(newModel, parentModel);
                                         }
                                     }
                                 }
@@ -527,17 +540,25 @@ namespace gip.core.layoutengine.avui
                                     var container = TreeContainerFromItem(selectedModel) as VBTreeViewItem;
                                     if (container != null && container.Parent is VBTreeViewItem parentContainer)
                                     {
-                                        if (!parentContainer.Items.IsReadOnly)
+                                        IACObject parentModel = parentContainer.ContentACObject;
+                                        if (parentContainer.Items.IsReadOnly)
+                                        {
+                                            // Container is bound via ItemsSource (TreeDataTemplate):
+                                            // sync the bound collection / model graph instead of Items.
+                                            EnsureContainerItemsSourceAdded(parentContainer, newModel);
+                                            EnsureModelChildAddedInBoundGraph(parentModel, newModel, out parentModel);
+                                        }
+                                        else
                                         {
                                             // Find the index of the selected item in parent's Items
                                             int index = parentContainer.Items.IndexOf(selectedModel);
-                                            if (index >= 0)
+                                            if (index >= 0 && !parentContainer.Items.Contains(newModel))
                                             {
                                                 parentContainer.Items.Insert(index, newModel);
-                                                SelectedItem = newModel;
-                                                BringModelIntoViewWhenRealized(newModel);
                                             }
                                         }
+                                        SelectedItem = newModel;
+                                        BringModelIntoViewWhenRealized(newModel, parentModel);
                                     }
                                 }
                             }
@@ -1298,40 +1319,14 @@ namespace gip.core.layoutengine.avui
             foreach (object existing in itemsSource)
             {
                 if (existing is IACObject existingObject && IsSameModel(existingObject, childModel, childIdentity))
-                {
                     return true;
-                }
             }
 
-            bool added = TryAddToCollection(itemsSource, childModel);
-            if (!added)
-            {
-                added = ReplaceContainerItemsSourceWithMutableCollection(parentContainer, itemsSource, childModel, childIdentity);
-            }
-
-            return added;
-        }
-
-        private bool ReplaceContainerItemsSourceWithMutableCollection(TreeViewItem parentContainer, IEnumerable existingItemsSource, IACObject childModel, string childIdentity)
-        {
-            if (parentContainer == null || existingItemsSource == null || childModel == null)
-                return false;
-
-            List<object> snapshot = new List<object>();
-            foreach (object item in existingItemsSource)
-            {
-                snapshot.Add(item);
-            }
-
-            bool alreadyPresent = snapshot
-                .OfType<IACObject>()
-                .Any(existing => IsSameModel(existing, childModel, childIdentity));
-
-            if (!alreadyPresent)
-                snapshot.Add(childModel);
-
-            parentContainer.ItemsSource = new ObservableCollection<object>(snapshot);
-            return true;
+            // ACMenuItemList implements INotifyCollectionChanged, so adding to the bound
+            // collection updates the UI automatically. No ItemsSource swap is needed —
+            // replacing ItemsSource while the container generator is live throws
+            // ArgumentOutOfRangeException in PanelContainerGenerator.OnItemsChanged.
+            return TryAddToCollection(itemsSource, childModel);
         }
 
         private static bool TryAddToCollection(IEnumerable collection, object item)
