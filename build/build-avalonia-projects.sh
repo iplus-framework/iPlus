@@ -127,7 +127,7 @@ declare -a SOLUTION_PATHS=(
     "../../AvDialogHost.Avalonia/iPlusAvalonia.slnx"
     "../../AvaloniaEdit/iPlusAvalonia.slnx"
     "../../Avalonia.Dock/iPlusAvalonia.slnx"
-    "../../roslynpad/iPlusAvalonia.slnx"
+    "../../roslynpad-d6c079/iPlusAvalonia.slnx"
     "../../Avalonia.Labs/iPlusAvalonia.slnx"
     "../../SVG/Source/iPlusAvalonia.slnx"
     "../../Avalonia.Controls.DataGrid/iPlusAvalonia.slnx"
@@ -146,7 +146,7 @@ declare -a SOLUTION_NAMES=(
     "Dialog Host"
     "Avalonia Edit"
     "Avalonia Dock"
-    "Roslyn Pad"
+    "Roslyn Pad (d6c079 compat fork)"
     "Avalonia Labs"
     "SVG"
     "DataGrid Controls"
@@ -163,6 +163,27 @@ declare -a SOLUTION_NAMES=(
 declare -a SOLUTION_PRIORITIES=(1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
 
 declare -a SOLUTION_CRITICAL=(true false false false false false false false false false false false false false false)
+
+# Optional extra MSBuild properties per solution (same index as SOLUTION_PATHS).
+# Example: "-p:TreatWarningsAsErrors=false"
+declare -a SOLUTION_EXTRA_ARGS=(
+    ""
+    ""
+    ""
+    ""
+    "-p:TreatWarningsAsErrors=false"   # Roslyn Pad (d6c079): MessagePack NU1902/NU1903 advisories
+    ""
+    ""
+    ""
+    ""
+    ""
+    ""
+    ""
+    ""
+    ""
+    ""
+    ""
+)
 
 # Build results tracking
 declare -a BUILD_RESULTS_NAMES=()
@@ -278,6 +299,19 @@ build_project() {
 
     # Add restore settings
     dotnet_args+=("-p:RestorePackagesConfig=true")
+
+    # Add per-solution extra arguments (indexed by position in SOLUTION_PATHS)
+    local extra_args=""
+    for i in "${!SOLUTION_PATHS[@]}"; do
+        if [[ "${SOLUTION_PATHS[$i]}" == "$project_path" ]]; then
+            extra_args="${SOLUTION_EXTRA_ARGS[$i]}"
+            break
+        fi
+    done
+    if [[ -n "$extra_args" ]]; then
+        # shellcheck disable=SC2206  # intentional word splitting of property args
+        dotnet_args+=($extra_args)
+    fi
     
     # Execute dotnet build
     local start_time=$(date +%s.%N)
