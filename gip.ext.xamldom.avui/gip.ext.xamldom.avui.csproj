@@ -69,15 +69,12 @@
     <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
-  <ItemGroup>
-    <!--<PackageReference Include="Xaml.Behaviors"  />-->
-  </ItemGroup>
 
   <!-- Use Avalonia Nuget -->
   <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
     <PackageReference Include="$(AvaloniaPackagePrefix)Avalonia"  />
     <PackageReference Include="$(AvaloniaPackagePrefix)Avalonia.Markup.Xaml.Loader"  />
-    <PackageReference Include="Xaml.Behaviors"  />
+    <PackageReference Include="iPlus.Xaml.Behaviors.Avalonia"  />
   </ItemGroup>
 
   <!-- Use Avalonia Fork -->

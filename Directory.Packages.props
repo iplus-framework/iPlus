@@ -304,6 +304,7 @@
 		<PackageVersion Include="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm" Version="1.10.0.1" />
 		<PackageVersion Include="Xamarin.AndroidX.Window" Version="1.5.1.2" />
 		<PackageVersion Include="Xaml.Behaviors" Version="12.0.7" />
+		<PackageVersion Include="iPlus.Xaml.Behaviors.Avalonia" Version="12.0.7" />
 		<!--<PackageVersion
 		Include="System.Text.Json" Version="$(NetCorePackageVersion)" />-->
 		<PackageVersion Include="System.Text.Json" Version="10.0.8" />
