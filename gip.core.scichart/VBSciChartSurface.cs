@@ -174,8 +174,36 @@ namespace gip.core.scichart
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
+            // SciChart 8+ marks ChartModifierBase.ExecuteOn with [TypeConverter(typeof(EnumConverter))],
+            // which throws a NullReferenceException when parsed from loose XAML (XamlReader.Load),
+            // because XamlValueConverter.CreateInstance() dereferences a null TargetType.
+            // Therefore ExecuteOn must not be set in stored XAML; it is restored here in code.
+            RestoreModifierExecuteOn();
             this.Loaded += VBSciChartSurface_Loaded;
             this.Unloaded += VBSciChartSurface_Unloaded;
+        }
+
+        /// <summary>
+        /// Restores the non-default ExecuteOn values of the chart modifiers in code,
+        /// because ExecuteOn cannot be set via loose XAML with SciChart 8+ (see OnInitialized).
+        /// </summary>
+        private void RestoreModifierExecuteOn()
+        {
+            ModifierGroup mGroup = ChartModifier as ModifierGroup;
+            if (mGroup == null)
+                return;
+            foreach (var modifier in mGroup.ChildModifiers)
+            {
+                switch (modifier)
+                {
+                    case ZoomPanModifier zoomPanModifier:
+                        zoomPanModifier.ExecuteOn = ExecuteOn.MouseRightButton;
+                        break;
+                    case ZoomExtentsModifier zoomExtentsModifier:
+                        zoomExtentsModifier.ExecuteOn = ExecuteOn.MouseDoubleClick;
+                        break;
+                }
+            }
         }
 
         VBPropertyLogChart _VBPropertyLogChart = null;
@@ -541,6 +569,9 @@ namespace gip.core.scichart
         {
             if (!DisplayAsArchive)
                 InitVBControl();
+            // Safety net: ensure ExecuteOn is restored even if ChartModifier was
+            // attached or replaced after OnInitialized (idempotent).
+            RestoreModifierExecuteOn();
             if (_Loaded)
                 return;
             _VBPropertyLogChart = FindName("ucChart") as VBPropertyLogChart;
@@ -750,6 +781,7 @@ namespace gip.core.scichart
                 modifier.AxisId = axis.Id;
                 mGroup.ChildModifiers.Add(modifier);
             }
+            RestoreModifierExecuteOn();
         }
 
         /// <summary>

@@ -41,7 +41,10 @@ namespace gip.core.datamodel
             if (string.IsNullOrEmpty(wpfXaml))
                 return wpfXaml;
 
-            string avaloniaXAML = CheckOrUpdateNamespaceInLayout(wpfXaml);
+            // Convert SciChart-based layouts (VBSciChartSurface) to OxyPlot-based
+            // Avalonia layouts (VBChartPlotter) before the generic namespace replacement.
+            string avaloniaXAML = ConvertSciChartToOxyPlot(wpfXaml);
+            avaloniaXAML = CheckOrUpdateNamespaceInLayout(avaloniaXAML);
             
             // Apply namespace mappings
             foreach (var tuple in ACxmlnsResolver.C_AvaloniaNamespaceMapping)
@@ -241,6 +244,299 @@ namespace gip.core.datamodel
             avaloniaXAML = FormatXaml(avaloniaXAML);
 
             return avaloniaXAML;
+        }
+
+        /// <summary>
+        /// The OxyPlot.Avalonia XML namespace. The clr-namespace form is used because it
+        /// is reliably resolved by the runtime XamlReader (XamlReader.Load), matching
+        /// hand-written Avalonia layouts.
+        /// </summary>
+        private const string OxyPlotNamespace = "clr-namespace:OxyPlot.Avalonia;assembly=OxyPlot.Avalonia";
+
+        /// <summary>
+        /// The iPlus layout-engine XML namespace (WPF variant). VBChartPlotter is emitted
+        /// in this namespace; the generic namespace mapping later rewrites it to the
+        /// Avalonia variant (http://www.iplus-framework.com/axaml).
+        /// </summary>
+        private const string IPlusLayoutNamespace = "http://www.iplus-framework.com/xaml";
+
+        /// <summary>
+        /// Converts WPF SciChart layouts (VBSciChartSurface with SciChart axes, renderable
+        /// series and chart modifiers) into Avalonia OxyPlot layouts (VBChartPlotter with
+        /// oxy:DateTimeAxis/oxy:LinearAxis and oxy:LineSeries).
+        /// Features without an OxyPlot equivalent (chart modifiers, tick/axis brushes,
+ /// digital lines, ...) are dropped.
+        /// If the XAML contains no VBSciChartSurface, it is returned unchanged.
+        /// </summary>
+        /// <param name="wpfXaml">The WPF XAML string</param>
+        /// <returns>Converted XAML string</returns>
+        private static string ConvertSciChartToOxyPlot(string wpfXaml)
+        {
+            if (string.IsNullOrWhiteSpace(wpfXaml) || wpfXaml.IndexOf("VBSciChartSurface", StringComparison.OrdinalIgnoreCase) < 0)
+                return wpfXaml;
+
+            try
+            {
+                var doc = new XmlDocument();
+                doc.LoadXml(wpfXaml);
+
+                var surfaces = doc.SelectNodes("//*[local-name() = 'VBSciChartSurface']");
+                if (surfaces == null || surfaces.Count == 0)
+                    return wpfXaml;
+
+                foreach (var surfaceNode in surfaces.OfType<XmlElement>().ToList())
+                {
+                    ConvertSciChartSurface(doc, surfaceNode);
+                }
+
+                return doc.OuterXml;
+            }
+            catch
+            {
+                // On any structural problem return the original XAML; the generic
+                // conversion pipeline continues with the unconverted document.
+                return wpfXaml;
+            }
+        }
+
+        private static void ConvertSciChartSurface(XmlDocument doc, XmlElement surface)
+        {
+            // Determine the prefix/namespace used for iPlus layout controls. The SciChart
+            // namespace (http://www.iplus-framework.com/scichart/xaml) must NOT be used,
+            // so only an exact match of the layout namespace qualifies; otherwise fall
+            // back to the vb prefix on the root or the default.
+            string iplusNs = IPlusLayoutNamespace;
+            string iplusPrefix = "vb";
+            if (string.Equals(surface.NamespaceURI, IPlusLayoutNamespace, StringComparison.Ordinal))
+            {
+                iplusNs = surface.NamespaceURI;
+                iplusPrefix = surface.Prefix;
+            }
+            else
+            {
+                string vbNs = doc.DocumentElement?.GetAttribute("xmlns:vb");
+                if (!string.IsNullOrEmpty(vbNs))
+                    iplusNs = vbNs;
+            }
+
+            // Ensure the root element declares the OxyPlot namespace. It must be declared
+            // on the root because the generic conversion pipeline strips xmlns declarations
+            // from child elements.
+            string oxyPrefix = EnsureNamespaceDeclaration(doc, OxyPlotNamespace, "oxy");
+
+            var axesProperty = doc.CreateElement(iplusPrefix, "VBChartPlotter.Axes", iplusNs);
+            var seriesProperty = doc.CreateElement(iplusPrefix, "VBChartPlotter.Series", iplusNs);
+            bool hasAxes = false;
+            bool hasSeries = false;
+
+            // Rename the surface element and its PropertyLogItems property element.
+            surface = RenameElement(doc, surface, iplusPrefix, "VBChartPlotter", iplusNs);
+
+            foreach (var child in surface.ChildNodes.OfType<XmlElement>().ToList())
+            {
+                string localName = child.LocalName;
+                int dotIndex = localName.IndexOf('.');
+                string propertyName = dotIndex >= 0 ? localName.Substring(dotIndex + 1) : localName;
+
+                switch (propertyName)
+                {
+                    case "PropertyLogItems":
+                        // Keep the VBChartItem list; only rename the property element owner.
+                        RenameElement(doc, child, iplusPrefix, "VBChartPlotter.PropertyLogItems", iplusNs);
+                        break;
+
+                    case "XAxis":
+                        foreach (var axis in child.ChildNodes.OfType<XmlElement>().ToList())
+                        {
+                            var converted = ConvertSciChartAxis(doc, oxyPrefix, axis, isXAxis: true);
+                            if (converted != null)
+                            {
+                                axesProperty.AppendChild(converted);
+                                hasAxes = true;
+                            }
+                        }
+                        surface.RemoveChild(child);
+                        break;
+
+                    case "YAxes":
+                        foreach (var axis in child.ChildNodes.OfType<XmlElement>().ToList())
+                        {
+                            var converted = ConvertSciChartAxis(doc, oxyPrefix, axis, isXAxis: false);
+                            if (converted != null)
+                            {
+                                axesProperty.AppendChild(converted);
+                                hasAxes = true;
+                            }
+                        }
+                        surface.RemoveChild(child);
+                        break;
+
+                    case "RenderableSeries":
+                        foreach (var series in child.ChildNodes.OfType<XmlElement>().ToList())
+                        {
+                            var converted = ConvertSciChartSeries(doc, oxyPrefix, series);
+                            if (converted != null)
+                            {
+                                seriesProperty.AppendChild(converted);
+                                hasSeries = true;
+                            }
+                        }
+                        surface.RemoveChild(child);
+                        break;
+
+                    default:
+                        // ChartModifier and all other SciChart-specific property elements
+                        // have no OxyPlot equivalent and are dropped.
+                        surface.RemoveChild(child);
+                        break;
+                }
+            }
+
+            if (hasAxes)
+                surface.AppendChild(axesProperty);
+            if (hasSeries)
+                surface.AppendChild(seriesProperty);
+        }
+
+        /// <summary>
+        /// Converts a SciChart axis element (DateTimeAxis/NumericAxis/...) to an
+        /// OxyPlot DateTimeAxis/LinearAxis. Unsupported attributes are dropped.
+        /// </summary>
+        private static XmlElement ConvertSciChartAxis(XmlDocument doc, string oxyPrefix, XmlElement axis, bool isXAxis)
+        {
+            string localName = axis.LocalName;
+            string oxyName;
+            if (localName.Contains("DateTime"))
+                oxyName = "DateTimeAxis";
+            else if (localName.Contains("TimeSpan"))
+                oxyName = "TimeSpanAxis";
+            else if (localName.Contains("Log"))
+                oxyName = "LogarithmicAxis";
+            else
+                oxyName = "LinearAxis";
+
+            var result = doc.CreateElement(oxyPrefix, oxyName, OxyPlotNamespace);
+
+            foreach (var attr in axis.Attributes.OfType<XmlAttribute>())
+            {
+                string value = attr.Value;
+                switch (attr.LocalName)
+                {
+                    case "Id":
+                        result.SetAttribute("Key", value);
+                        break;
+                    case "AxisTitle":
+                        result.SetAttribute("Title", value);
+                        break;
+                    case "AxisAlignment":
+                        result.SetAttribute("Position", value);
+                        break;
+                    case "IsVisible":
+                        result.SetAttribute("IsAxisVisible", value);
+                        break;
+                    case "Visible":
+                        result.SetAttribute("IsAxisVisible", string.Equals(value, "True", StringComparison.OrdinalIgnoreCase) ? "True" : "False");
+                        break;
+                    // TickTextBrush, BorderBrush, BorderThickness, DrawLabels, TitleColor,
+                    // MajorGridlineColor etc. have no direct OxyPlot XAML equivalent -> dropped.
+                }
+            }
+
+            // OxyPlot axes have no default position matching the SciChart usage:
+            // X axes go to the bottom, Y axes to the left unless specified.
+            if (!result.HasAttribute("Position"))
+                result.SetAttribute("Position", isXAxis ? "Bottom" : "Left");
+
+            return result;
+        }
+
+        /// <summary>
+        /// Converts a SciChart renderable series element (FastLineRenderableSeries/...)
+        /// to an OxyPlot LineSeries. Unsupported attributes are dropped.
+        /// </summary>
+        private static XmlElement ConvertSciChartSeries(XmlDocument doc, string oxyPrefix, XmlElement series)
+        {
+            var result = doc.CreateElement(oxyPrefix, "LineSeries", OxyPlotNamespace);
+
+            foreach (var attr in series.Attributes.OfType<XmlAttribute>())
+            {
+                string value = attr.Value;
+                switch (attr.LocalName)
+                {
+                    case "Stroke":
+                    case "SeriesColor":
+                        result.SetAttribute("Color", value);
+                        break;
+                    case "XAxisId":
+                        result.SetAttribute("XAxisKey", value);
+                        break;
+                    case "YAxisId":
+                        result.SetAttribute("YAxisKey", value);
+                        break;
+                    case "StrokeThickness":
+                        result.SetAttribute("StrokeThickness", value);
+                        break;
+                    case "IsVisible":
+                    case "Visibility":
+                        result.SetAttribute("IsVisible", string.Equals(value, "Visible", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "True", StringComparison.OrdinalIgnoreCase) ? "True" : "False");
+                        break;
+                    // x:Name, IsDigitalLine, IsAntialiased etc. have no OxyPlot
+                    // equivalent -> dropped. Note: VBChartPlotter.CreateOrGetLine matches
+                    // existing lines via YAxisKey, so the name is not required.
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Renames an element (local name and/or namespace) while preserving its
+        /// attributes and children.
+        /// </summary>
+        private static XmlElement RenameElement(XmlDocument doc, XmlElement element, string prefix, string localName, string namespaceUri)
+        {
+            if (string.Equals(element.LocalName, localName, StringComparison.Ordinal) &&
+                string.Equals(element.NamespaceURI, namespaceUri, StringComparison.Ordinal))
+                return element;
+
+            var newElement = doc.CreateElement(prefix, localName, namespaceUri);
+            foreach (var attr in element.Attributes.OfType<XmlAttribute>().ToList())
+            {
+                // Skip the old namespace declaration of the previous prefix.
+                if (attr is XmlAttribute && attr.Name == "xmlns" && string.IsNullOrEmpty(attr.Prefix) && element.Prefix != string.Empty)
+                    continue;
+                newElement.Attributes.Append((XmlAttribute)attr.Clone());
+            }
+            while (element.HasChildNodes)
+                newElement.AppendChild(element.FirstChild);
+
+            element.ParentNode?.ReplaceChild(newElement, element);
+            return newElement;
+        }
+
+        /// <summary>
+        /// Ensures that the root element declares the given namespace with a free prefix
+        /// and returns the prefix used.
+        /// </summary>
+        private static string EnsureNamespaceDeclaration(XmlDocument doc, string namespaceUri, string preferredPrefix)
+        {
+            var root = doc.DocumentElement;
+            if (root == null)
+                return preferredPrefix;
+
+            foreach (var attr in root.Attributes.OfType<XmlAttribute>())
+            {
+                if (attr.Name.StartsWith("xmlns:", StringComparison.Ordinal) && attr.Value == namespaceUri)
+                    return attr.LocalName;
+            }
+
+            string prefix = preferredPrefix;
+            int suffix = 1;
+            while (root.HasAttribute("xmlns:" + prefix))
+                prefix = preferredPrefix + suffix++;
+
+            root.SetAttribute("xmlns:" + prefix, namespaceUri);
+            return prefix;
         }
 
         private static string ConvertControlThemeTriggersToBehaviors(string xaml)
@@ -3626,7 +3922,11 @@ namespace gip.core.datamodel
         public static readonly (string WpfPattern, string AvaloniaReplacement, bool IsRegex)[] C_AvaloniaPostFindAndReplace = new[]
         {
             (" ToolTip=", " ToolTip.Tip=", false),
-            ("Property=\"ToolTip\"", "Property=\"ToolTip.Tip\"", false)
+            ("Property=\"ToolTip\"", "Property=\"ToolTip.Tip\"", false),
+            // The generic rule (" Key=\"", " x:Key=\"") also rewrites the OxyPlot
+            // Axis.Key / Series.Key attribute, which must stay a plain CLR property
+            // (PlotModel.GetAxis(key)). Restore it on OxyPlot elements only.
+            (@"(<oxy:(?:DateTimeAxis|TimeSpanAxis|LogarithmicAxis|LinearAxis|LineSeries)\b[^>]*?)\sx:Key=""([^""]*)""", @"$1 Key=""$2""", true)
         };
     }
 }
