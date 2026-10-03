@@ -867,9 +867,9 @@ namespace gip.ext.xamldom.avui
 
         public override object ProvideValue()
         {
-            var target = XamlObject.Instance as Binding;
+            var target = XamlObject.Instance as BindingBase;
             //TODO: XamlObject.Clone()
-            var b = GetClonedInstance() as Binding;
+            var b = GetClonedInstance() as BindingBase;
             if (b == null)
                 return null;
             return b;
@@ -877,11 +877,12 @@ namespace gip.ext.xamldom.avui
 
         public override object GetClonedInstance()
         {
-            var target = XamlObject.Instance as Binding;
+            var target = XamlObject.Instance as BindingBase;
             if (target == null)
                 return XamlObject.Instance;
 
-            var b = Activator.CreateInstance(target.GetType()) as Binding;
+            // Clone any BindingBase-derived type (Binding, TemplateBinding, ...), not just Binding.
+            var b = Activator.CreateInstance(target.GetType()) as BindingBase;
             if (b == null)
                 return XamlObject.Instance;
             //var b = new Binding();

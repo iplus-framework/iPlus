@@ -435,11 +435,29 @@ namespace gip.ext.xamldom.avui
 				return true;
 			}
 
+			// Avalonia's TemplateBinding derives from BindingBase (not Binding) and exposes a
+			// parameterless ProvideValue() instead of ProvideValue(IServiceProvider).
+			if (typeof(BindingBase).IsAssignableFrom(extensionType))
+			{
+				return true;
+			}
+
 			var provideValue = extensionType.GetMethod(
 				"ProvideValue",
 				BindingFlags.Public | BindingFlags.Instance,
 				null,
 				new[] { typeof(IServiceProvider) },
+				null);
+
+			if (provideValue != null)
+				return true;
+
+			// Accept a parameterless ProvideValue() as well (e.g. Avalonia.Data.TemplateBinding).
+			provideValue = extensionType.GetMethod(
+				"ProvideValue",
+				BindingFlags.Public | BindingFlags.Instance,
+				null,
+				Type.EmptyTypes,
 				null);
 
 			return provideValue != null;
