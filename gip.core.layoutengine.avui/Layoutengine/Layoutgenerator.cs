@@ -14,6 +14,50 @@ using System.Xml.Linq;
 
 namespace gip.core.layoutengine.avui
 {
+    /// <summary>
+    /// Ensures that all Xaml.Behaviors assemblies are loaded into the AppDomain before the first
+    /// dynamic XAML load. The Avalonia runtime XAML loader (XamlX SreTypeSystem) snapshots
+    /// AppDomain.CurrentDomain.GetAssemblies() once and resolves all XmlnsDefinition mappings
+    /// (type name -> clr-namespace for https://github.com/avaloniaui) at that point. Behaviors
+    /// types like BeginAnimationAction (Xaml.Behaviors.Interactions.Custom) are only referenced
+    /// from XAML text, so nothing loads their assemblies and the mappings would be missed,
+    /// resulting in "Unable to resolve type ... from namespace https://github.com/avaloniaui".
+    /// With the merged fork build (single Xaml.Behaviors.dll) the assembly was loaded early via
+    /// normal code references; the split iPlus.Xaml.Behaviors.Avalonia NuGet package requires
+    /// this explicit preload.
+    /// </summary>
+    internal static class XamlBehaviorsAssemblyPreloader
+    {
+        [System.Runtime.CompilerServices.ModuleInitializer]
+        internal static void Initialize()
+        {
+            // Touching a type from each assembly forces the assembly load. Types are chosen from
+            // the public API of each split assembly. When building from the Avalonia fork
+            // (UseAvaloniaFork=True) the merged Xaml.Behaviors.dll already contains all types and
+            // the individual assemblies don't exist — Load fails and is ignored.
+            GC.KeepAlive(typeof(Avalonia.Xaml.Interactivity.Interaction));              // Xaml.Behaviors.Interactivity
+            GC.KeepAlive(typeof(Avalonia.Xaml.Interactions.Core.DataTriggerBehavior));  // Xaml.Behaviors.Interactions
+            GC.KeepAlive(typeof(Avalonia.Xaml.Interactions.Custom.BeginAnimationAction)); // Xaml.Behaviors.Interactions.Custom
+            ForceLoad("Xaml.Behaviors.Interactions.Events");
+            ForceLoad("Xaml.Behaviors.Interactions.DragAndDrop");
+            ForceLoad("Xaml.Behaviors.Interactions.Draggable");
+            ForceLoad("Xaml.Behaviors.Interactions.Responsive");
+            ForceLoad("Xaml.Behaviors.Animations");
+        }
+
+        static void ForceLoad(string assemblyName)
+        {
+            try
+            {
+                Assembly.Load(new AssemblyName(assemblyName));
+            }
+            catch
+            {
+                // Assembly not part of this deployment (e.g. merged fork build) — skip.
+            }
+        }
+    }
+
     public class Layoutgenerator 
     {      
         static public ResourceDictionary LoadResource(IACObjectDesign aCObjectDesign, IACObject dataContext, IACBSO bso)

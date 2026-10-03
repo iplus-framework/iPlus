@@ -427,7 +427,7 @@ namespace gip.bso.iplus
         {
             get
             {
-                return AccessPrimary.Current;
+                return AccessPrimary?.Current;
             }
             set
             {

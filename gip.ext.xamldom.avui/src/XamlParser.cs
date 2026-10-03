@@ -433,13 +433,24 @@ namespace gip.ext.xamldom.avui
                 bool treatAsCollectionRoot = true;
                 if (parentObj != null && parentElement != null && ObjectChildElementIsPropertyElement(parentElement))
                 {
-                    var propertyInfo = GetPropertyInfo(settings.TypeFinder, parentObj.Instance, parentObj.ElementType, parentElement.NamespaceURI, parentElement.LocalName);
+                    XamlPropertyInfo propertyInfo;
+                    try
+                    {
+                        propertyInfo = GetPropertyInfo(settings.TypeFinder, parentObj.Instance, parentObj.ElementType, parentElement.NamespaceURI, parentElement.LocalName);
+                    }
+                    catch (XamlLoadException)
+                    {
+                        // Unknown property element (e.g. WPF-legacy names) — don't treat the value
+                        // as a collection root; it will be handled with a fallback property info
+                        // when the property element itself is parsed.
+                        propertyInfo = null;
+                    }
 
                     // Only use the "existing collection property" path when the parent property
                     // itself is a collection property element. For scalar properties like
                     // ItemContainerTheme (ControlTheme), don't treat the value object as a
                     // collection root even if its runtime type looks collection-like.
-                    if (propertyInfo.IsCollection)
+                    if (propertyInfo != null && propertyInfo.IsCollection)
                     {
                         // Bind to the parent collection property only when this object is the
                         // collection instance for that property (e.g. <Foo.Items><ItemCollection>...).
@@ -1061,7 +1072,19 @@ namespace gip.ext.xamldom.avui
             Debug.Assert(element.LocalName.Contains("."));
             // this is a element property syntax
 
-            XamlPropertyInfo propertyInfo = GetPropertyInfo(settings.TypeFinder, obj.Instance, obj.ElementType, element.NamespaceURI, element.LocalName);
+            XamlPropertyInfo propertyInfo;
+            try
+            {
+                propertyInfo = GetPropertyInfo(settings.TypeFinder, obj.Instance, obj.ElementType, element.NamespaceURI, element.LocalName);
+            }
+            catch (XamlLoadException x)
+            {
+                // Unknown property element (e.g. WPF-legacy property names in ported XAML).
+                // Report the error but keep parsing with a fallback property info so the rest of
+                // the document still loads in the designer.
+                ReportException(x, element);
+                propertyInfo = new XamlUnknownPropertyInfo(element.LocalName, obj.ElementType);
+            }
             bool valueWasSet = false;
 
             if (element.LocalName.Contains("Binding") || obj.ElementType.Name.Contains("Binding"))

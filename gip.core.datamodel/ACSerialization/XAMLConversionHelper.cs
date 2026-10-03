@@ -3446,10 +3446,41 @@ namespace gip.core.datamodel
             // RowDetailsTemplate exists on Avalonia DataGrid, but the property element must be
             // prefixed like Columns so it resolves on the VBDataGrid type.
             (@"(?<!vb:VB)(?<!VB)DataGrid\.RowDetailsTemplate", "vb:VBDataGrid.RowDetailsTemplate", true),
+            // WPF DataGrid style properties do not exist on Avalonia's DataGrid - it uses
+            // ControlTheme-based properties instead:
+            //   RowStyle -> RowTheme, CellStyle -> CellTheme,
+            //   ColumnHeaderStyle -> ColumnHeaderTheme, RowGroupStyle -> RowGroupTheme.
+            // Already-prefixed forms (vb:VBDataGrid.RowStyle) are converted first so the
+            // generic rule's negative lookbehind does not skip them.
+            (@"VBDataGrid\.RowStyle", "VBDataGrid.RowTheme", true),
+            (@"VBDataGrid\.CellStyle", "VBDataGrid.CellTheme", true),
+            (@"VBDataGrid\.ColumnHeaderStyle", "VBDataGrid.ColumnHeaderTheme", true),
+            (@"VBDataGrid\.RowGroupStyle", "VBDataGrid.RowGroupTheme", true),
+            (@"(?<!VB)DataGrid\.RowStyle", "vb:VBDataGrid.RowTheme", true),
+            (@"(?<!VB)DataGrid\.CellStyle", "vb:VBDataGrid.CellTheme", true),
+            (@"(?<!VB)DataGrid\.ColumnHeaderStyle", "vb:VBDataGrid.ColumnHeaderTheme", true),
+            (@"(?<!VB)DataGrid\.RowGroupStyle", "vb:VBDataGrid.RowGroupTheme", true),
+            // Setter Property="RowStyle" etc. inside ControlThemes must be converted too.
+            (@"Property=""RowStyle""", "Property=\"RowTheme\"", true),
+            (@"Property=""CellStyle""", "Property=\"CellTheme\"", true),
+            (@"Property=""ColumnHeaderStyle""", "Property=\"ColumnHeaderTheme\"", true),
+            (@"Property=""RowGroupStyle""", "Property=\"RowGroupTheme\"", true),
             // GridViewColumn is a custom iPlus type in Avalonia. Property elements must use
             // the VBGridViewColumn owner so XamlX does not resolve GridViewColumn from Avalonia's default namespace.
             ("GridViewColumn.CellTemplate", "vb:VBGridViewColumn.CellTemplate", false),
             ("GridViewColumn.CellTemplateSelector", "vb:VBGridViewColumn.CellTemplateSelector", false),
+            // DataGridTemplateColumn must be converted to the iPlus VBDataGridTemplateColumn.
+            // The property elements (CellTemplate/CellEditingTemplate) MUST be prefixed with the
+            // owner type: the unprefixed <DataGridTemplateColumn.CellTemplate> form resolves
+            // DataGridTemplateColumn via the default xmlns, where an internal copy of the type
+            // exists in Avalonia.Diagnostics.dll (not accessible) and XamlX fails with
+            // "Unable to find suitable setter or adder for property CellTemplate".
+            (@"<(?:vb:)?VB?DataGridTemplateColumn(?=[\s>])", "<vb:VBDataGridTemplateColumn", true),
+            (@"</(?:vb:)?VB?DataGridTemplateColumn(?=\s*>)", "</vb:VBDataGridTemplateColumn", true),
+            (@"(?<!vb:VB)(?<!VB)DataGridTemplateColumn\.CellTemplateSelector", "vb:VBDataGridTemplateColumn.CellTemplateSelector", true),
+            (@"(?<!vb:VB)(?<!VB)DataGridTemplateColumn\.CellEditingTemplateSelector", "vb:VBDataGridTemplateColumn.CellEditingTemplateSelector", true),
+            (@"(?<!vb:VB)(?<!VB)DataGridTemplateColumn\.CellEditingTemplate", "vb:VBDataGridTemplateColumn.CellEditingTemplate", true),
+            (@"(?<!vb:VB)(?<!VB)DataGridTemplateColumn\.CellTemplate", "vb:VBDataGridTemplateColumn.CellTemplate", true),
             (@"<DataGridTextColumn(?=[\s>])", "<vb:VBDataGridTextColumn", true),
             (@"</DataGridTextColumn(?=\s*>)", "</vb:VBDataGridTextColumn", true),
             ("AllowDrop=", "DragDrop.AllowDrop=", false),

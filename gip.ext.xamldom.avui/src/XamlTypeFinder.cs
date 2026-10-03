@@ -527,6 +527,43 @@ namespace gip.ext.xamldom.avui
                 Instance.RegisterAssembly(typeof(AvaloniaRuntimeXamlLoader).Assembly); // Avalonia.Markup.Xaml.Loader.dll
                 Instance.RegisterAssembly(typeof(Type).Assembly); // mscorelib
                 Instance.RegisterAssembly(typeof(Interaction).Assembly); // Xaml.Behaviors (Avalonia.Xaml.Interactivity)
+                RegisterXamlBehaviorsAssemblies(Instance);
+            }
+
+            /// <summary>
+            /// Registers the remaining Xaml.Behaviors assemblies. The iPlus.Xaml.Behaviors.Avalonia
+            /// NuGet package ships the behaviors split into several assemblies
+            /// (Xaml.Behaviors.Interactions, Xaml.Behaviors.Interactions.Custom, ...), while the
+            /// source/fork build merges them into a single Xaml.Behaviors.dll which is already
+            /// covered by the Interactivity registration above. Types like DataTriggerBehavior
+            /// (Avalonia.Xaml.Interactions.Core) live in Xaml.Behaviors.Interactions.dll and must
+            /// be registered so they resolve in the Avalonia xmlns.
+            /// </summary>
+            private static void RegisterXamlBehaviorsAssemblies(XamlTypeFinder finder)
+            {
+                var assemblyNames = new[]
+                {
+                    "Xaml.Behaviors.Interactions",
+                    "Xaml.Behaviors.Interactions.Custom",
+                    "Xaml.Behaviors.Interactions.Events",
+                    "Xaml.Behaviors.Interactions.DragAndDrop",
+                    "Xaml.Behaviors.Interactions.Draggable",
+                    "Xaml.Behaviors.Interactions.Responsive",
+                    "Xaml.Behaviors.Animations",
+                };
+
+                foreach (var assemblyName in assemblyNames)
+                {
+                    try
+                    {
+                        Assembly assembly = Assembly.Load(new AssemblyName(assemblyName));
+                        finder.RegisterAssembly(assembly);
+                    }
+                    catch
+                    {
+                        // Assembly is not part of this deployment (e.g. merged fork build) — skip.
+                    }
+                }
             }
         }
     }

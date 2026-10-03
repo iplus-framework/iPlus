@@ -733,6 +733,84 @@ namespace gip.ext.xamldom.avui
     }
     #endregion
 
+    #region XamlUnknownPropertyInfo
+    /// <summary>
+    /// Fallback property info for properties that could not be resolved against the target type
+    /// (e.g. WPF-legacy property names in ported XAML such as DataGrid.RowStyle, which is called
+    /// RowTheme in Avalonia). Keeps the parsed value in the object model so the designer can load
+    /// the document and round-trip the XAML instead of aborting with a XamlLoadException.
+    /// </summary>
+    internal sealed class XamlUnknownPropertyInfo : XamlPropertyInfo
+    {
+        readonly string _fullyQualifiedName;
+        readonly Type _targetType;
+
+        public XamlUnknownPropertyInfo(string fullyQualifiedName, Type targetType)
+        {
+            _fullyQualifiedName = fullyQualifiedName;
+            _targetType = targetType;
+        }
+
+        public override object GetValue(object instance)
+        {
+            return null;
+        }
+
+        public override void SetValue(object instance, object value)
+        {
+            // Unknown property — keep the value only in the object model, do not touch the instance.
+        }
+
+        public override void ResetValue(object instance)
+        {
+        }
+
+        public override Type ReturnType
+        {
+            get { return typeof(object); }
+        }
+
+        public override Type TargetType
+        {
+            get { return _targetType; }
+        }
+
+        public override string Category
+        {
+            get { return ""; }
+        }
+
+        public override TypeConverter TypeConverter
+        {
+            get { return StringTypeConverter; }
+        }
+
+        public override string FullyQualifiedName
+        {
+            get { return _fullyQualifiedName; }
+        }
+
+        public override string Name
+        {
+            get
+            {
+                int pos = _fullyQualifiedName.LastIndexOf('.');
+                return pos >= 0 ? _fullyQualifiedName.Substring(pos + 1) : _fullyQualifiedName;
+            }
+        }
+
+        public override bool IsAttached
+        {
+            get { return false; }
+        }
+
+        public override bool IsCollection
+        {
+            get { return false; }
+        }
+    }
+    #endregion
+
     #region XamlEventPropertyInfo
     sealed class XamlEventPropertyInfo : XamlPropertyInfo
     {
