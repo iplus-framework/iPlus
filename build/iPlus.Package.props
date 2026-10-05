@@ -1,0 +1,31 @@
+<Project>
+	<!--
+		Central NuGet packaging configuration for all packable gip.* projects.
+
+		Imported ONCE from Directory.Build.props (iPlus). Dependent repos
+		(iPlusMES) override IPlusSourceRepoRoot / IPlusSuitePackageVersion in
+		their own Directory.Build.props AFTER the import - the packable logic
+		itself lives in Directory.Build.targets, which is evaluated after the
+		csproj and therefore sees the final values.
+
+		- Only projects that physically live inside an iPlus source repo are
+		  configured as packable (IPlusIsSourceRepoProject). Consumer solutions
+		  (e.g. iPlus-Examples) are not affected.
+		- Pack with: build/pack-local.sh  (writes to <repo>/local-packages)
+	-->
+	<PropertyGroup>
+		<!-- iPlus (core) suite version. Pre-release until V5 is stable. -->
+		<IPlusPackageVersion Condition="'$(IPlusPackageVersion)' == ''">5.0.0-preview.1</IPlusPackageVersion>
+		<!-- iPlusMES suite version. Pre-release until V5 is stable. -->
+		<IPlusMESPackageVersion Condition="'$(IPlusMESPackageVersion)' == ''">5.0.0-preview.1</IPlusMESPackageVersion>
+		<!-- Version used for the projects of the repo that is currently being built.
+		     Dependent repos override this in their Directory.Build.props. -->
+		<IPlusSuitePackageVersion Condition="'$(IPlusSuitePackageVersion)' == ''">$(IPlusPackageVersion)</IPlusSuitePackageVersion>
+
+		<IPlusSourceRepoRoot Condition="'$(IPlusSourceRepoRoot)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../'))</IPlusSourceRepoRoot>
+
+		<!-- Tooling / executables / tests that must NOT be packed.
+		     Trailing ';' is required for exact-name matching (see Directory.Build.targets). -->
+		<IPlusPackExclude Condition="'$(IPlusPackExclude)' == ''">gip.iplus.client;gip.iplus.console;gip.iplus.service;gip.iplus.startup;gip.core.tcAgent;gip.tool.generator;gip.tool.entitywizzard;gip.tool.installerAndUpdater;gip.tool.publish;gip.tool.diagnose;gip.tool.devLicense;gip.tool.devLicenseProvider;DBSyncerUpdate.unit.test;</IPlusPackExclude>
+	</PropertyGroup>
+</Project>

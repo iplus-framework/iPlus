@@ -31,13 +31,17 @@ namespace gip.core.layoutengine.avui
         [System.Runtime.CompilerServices.ModuleInitializer]
         internal static void Initialize()
         {
-            // Touching a type from each assembly forces the assembly load. Types are chosen from
-            // the public API of each split assembly. When building from the Avalonia fork
-            // (UseAvaloniaFork=True) the merged Xaml.Behaviors.dll already contains all types and
-            // the individual assemblies don't exist — Load fails and is ignored.
-            GC.KeepAlive(typeof(Avalonia.Xaml.Interactivity.Interaction));              // Xaml.Behaviors.Interactivity
-            GC.KeepAlive(typeof(Avalonia.Xaml.Interactions.Core.DataTriggerBehavior));  // Xaml.Behaviors.Interactions
-            GC.KeepAlive(typeof(Avalonia.Xaml.Interactions.Custom.BeginAnimationAction)); // Xaml.Behaviors.Interactions.Custom
+            // IMPORTANT: do NOT use typeof(...) here. A compile-time type reference
+            // bakes the assembly identity of the build-time reference into this
+            // assembly. When built against the Avalonia fork (merged
+            // Xaml.Behaviors.dll) the module initializer would fatally fail with
+            // FileNotFoundException in deployments that use the split
+            // iPlus.Xaml.Behaviors.* NuGet packages - and vice versa.
+            // Assembly.Load with try/catch works in both deployments.
+            ForceLoad("Xaml.Behaviors");                            // merged fork build
+            ForceLoad("Xaml.Behaviors.Interactivity");              // split NuGet packages
+            ForceLoad("Xaml.Behaviors.Interactions");
+            ForceLoad("Xaml.Behaviors.Interactions.Custom");
             ForceLoad("Xaml.Behaviors.Interactions.Events");
             ForceLoad("Xaml.Behaviors.Interactions.DragAndDrop");
             ForceLoad("Xaml.Behaviors.Interactions.Draggable");

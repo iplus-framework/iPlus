@@ -1,0 +1,92 @@
+<Project>
+	<!--
+		Packaging configuration for all packable gip.* projects.
+
+		This must live in Directory.Build.targets (NOT .props) because:
+		- the packable decision depends on the FINAL IPlusSourceRepoRoot, which
+		  dependent repos (iPlusMES) override after importing iPlus's
+		  Directory.Build.props, and
+		- item fixups (icon.png, readme.md, DbScripts, VBControlScripts) must run
+		  after the default items have been globbed.
+
+		IMPORTANT: multi-targeted projects are packed from the OUTER (cross-targeting)
+		evaluation, which does NOT glob default items. Therefore icon.png/readme.md
+		are Remove+Include'd (not Update'd) so they exist in both evaluations.
+
+		Dependent repos (iPlusMES) import this file from their own
+		Directory.Build.targets.
+	-->
+	<PropertyGroup>
+		<!-- Only projects inside an iPlus source repo are packable -->
+		<IPlusIsSourceRepoProject Condition="'$(IPlusIsSourceRepoProject)' == '' and $(MSBuildProjectDirectory.StartsWith('$(IPlusSourceRepoRoot)'))">true</IPlusIsSourceRepoProject>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(IPlusIsSourceRepoProject)' == 'true' and '$(UsingMicrosoftNETSdk)' == 'true' and !$(MSBuildProjectName.Contains('Backup')) and !$(IPlusPackExclude.Contains('$(MSBuildProjectName);'))">
+		<IPlusIsPackable>true</IPlusIsPackable>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(IPlusIsPackable)' == 'true'">
+		<PackageId>$(MSBuildProjectName)</PackageId>
+		<!-- Force the suite version (per-suite versioning) -->
+		<Version>$(IPlusSuitePackageVersion)</Version>
+		<Authors Condition="'$(Authors)' == ''">iplus-framework</Authors>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<!-- Fallback license for projects that don't declare one themselves -->
+		<PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == '' and '$(PackageLicenseFile)' == '' and '$(PackageLicenseUrl)' == ''">GPL-3.0-or-later</PackageLicenseExpression>
+		<RepositoryType>git</RepositoryType>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<PackageOutputPath>$(IPlusSourceRepoRoot)local-packages</PackageOutputPath>
+		<!-- Do not treat the repo's own output folder as package content -->
+		<NoPackageAnalysis>true</NoPackageAnalysis>
+	</PropertyGroup>
+
+	<!-- Clear icon/readme metadata when the files are missing in the project
+	     (some csprojs declare them unconditionally) -->
+	<PropertyGroup Condition="'$(IPlusIsPackable)' == 'true' and !Exists('$(MSBuildProjectDirectory)/icon.png')">
+		<PackageIcon></PackageIcon>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(IPlusIsPackable)' == 'true' and !Exists('$(MSBuildProjectDirectory)/readme.md')">
+		<PackageReadmeFile></PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(IPlusIsPackable)' == 'true'">
+		<!-- Standard package metadata files, if present in the project directory -->
+		<None Remove="icon.png" Condition="Exists('$(MSBuildProjectDirectory)/icon.png')" />
+		<None Include="icon.png"
+					Pack="true"
+					PackagePath="\"
+					Condition="Exists('$(MSBuildProjectDirectory)/icon.png')" />
+		<None Remove="readme.md" Condition="Exists('$(MSBuildProjectDirectory)/readme.md')" />
+		<None Include="readme.md"
+					Pack="true"
+					PackagePath="\"
+					Condition="Exists('$(MSBuildProjectDirectory)/readme.md')" />
+
+		<!--
+			Ship DbScripts and VBControlScripts inside the package and copy them to the
+			consumer's output directory via buildTransitive targets (see
+			IPlus.Package.Content.targets). The targets file is parameterized with
+			$(MSBuildThisFileDirectory) at consume time, so one shared template works
+			for every package.
+
+			Update (not Remove+Include) is used here to preserve existing metadata
+			(e.g. CopyToOutputDirectory on explicitly included scripts).
+			%(Identity) is the project-relative path, so the package path becomes
+			content/DbScripts/... and content/VBControlScripts/...
+		-->
+		<None Include="$(MSBuildThisFileDirectory)build/IPlus.Package.Content.targets"
+					Pack="true"
+					PackagePath="buildTransitive/$(PackageId).targets"
+					Condition="Exists('$(MSBuildProjectDirectory)/DbScripts') or Exists('$(MSBuildProjectDirectory)/VBControlScripts')" />
+		<None Update="DbScripts/**/*.*"
+					Pack="true"
+					PackagePath="content/%(Identity)"
+					Condition="Exists('$(MSBuildProjectDirectory)/DbScripts')" />
+		<None Update="VBControlScripts/**/*.*"
+					Pack="true"
+					PackagePath="content/%(Identity)"
+					Condition="Exists('$(MSBuildProjectDirectory)/VBControlScripts')" />
+	</ItemGroup>
+</Project>

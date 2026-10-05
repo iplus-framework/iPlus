@@ -1,0 +1,24 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<!--
+		Shared content-copy targets shipped inside every iPlus.* NuGet package that
+		contains DbScripts and/or VBControlScripts (buildTransitive/<PackageId>.targets).
+
+		$(MSBuildThisFileDirectory) resolves to <package>/buildTransitive/ at consume
+		time, so the content folders are located at <package>/content/.
+
+		The files are added to the consuming project as None items with
+		CopyToOutputDirectory, so they end up in the output directory exactly like
+		the IPlusIncludeDir-based copy did:
+		  $(OutDir)DbScripts\...       and       $(OutDir)VBControlScripts\...
+	-->
+	<ItemGroup>
+		<None Include="$(MSBuildThisFileDirectory)../content/DbScripts/**/*.*"
+					Condition="Exists('$(MSBuildThisFileDirectory)../content/DbScripts')"
+					CopyToOutputDirectory="PreserveNewest"
+					Link="DbScripts/%(RecursiveDir)%(Filename)%(Extension)" />
+		<None Include="$(MSBuildThisFileDirectory)../content/VBControlScripts/**/*.*"
+					Condition="Exists('$(MSBuildThisFileDirectory)../content/VBControlScripts')"
+					CopyToOutputDirectory="PreserveNewest"
+					Link="VBControlScripts/%(RecursiveDir)%(Filename)%(Extension)" />
+	</ItemGroup>
+</Project>

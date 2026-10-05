@@ -50,9 +50,6 @@
     <PackageReference Include="iPlus.EntityFrameworkCore" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="VBControlScripts\" />
   </ItemGroup>
   <ItemGroup>

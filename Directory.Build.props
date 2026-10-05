@@ -12,4 +12,6 @@
   </PropertyGroup>
   <Import Project="./build/EntityFramework.Build.props" />
   <Import Project="./build/Avalonia.Build.props" />
+  <!-- Central NuGet packaging configuration for all packable gip.* projects -->
+  <Import Project="$(MSBuildThisFileDirectory)build/iPlus.Package.props" Condition="'$(IPlusPackagePropsImported)' != 'true'" />
 </Project>
