@@ -3469,13 +3469,24 @@ namespace gip.core.datamodel
 
             // OxyPlot: The CLR namespace is "OxyPlot.Avalonia" in both variants, but the assembly
             // name differs: fork builds "OxyPlot.Avalonia.dll", NuGet package "OxyPlot.Avalonia12.dll".
-            // Stored layouts hard-code assembly=OxyPlot.Avalonia -> rewrite when only the NuGet
-            // assembly is loaded.
-            if (result.Contains("assembly=OxyPlot.Avalonia"))
+            // Stored layouts may hard-code either variant (the loaded XAML is persisted back into
+            // XMLDesign2), so rewrite in BOTH directions depending on which assembly is loaded.
+            // If neither is loaded yet, default to the NuGet name (previous behavior).
+            bool forkLoaded = AppDomain.CurrentDomain.GetAssemblies()
+                .Any(a => a.GetName().Name == "OxyPlot.Avalonia");
+            if (forkLoaded)
             {
-                bool forkLoaded = AppDomain.CurrentDomain.GetAssemblies()
-                    .Any(a => a.GetName().Name == "OxyPlot.Avalonia");
-                if (!forkLoaded)
+                // Fork build: stored layouts from NuGet deployments use OxyPlot.Avalonia12
+                if (result.Contains("assembly=OxyPlot.Avalonia12"))
+                {
+                    result = System.Text.RegularExpressions.Regex.Replace(result,
+                        @"assembly=OxyPlot\.Avalonia12(?![0-9A-Za-z.])", "assembly=OxyPlot.Avalonia");
+                }
+            }
+            else
+            {
+                // NuGet package (or not loaded yet): stored layouts from fork deployments use OxyPlot.Avalonia
+                if (result.Contains("assembly=OxyPlot.Avalonia"))
                 {
                     result = System.Text.RegularExpressions.Regex.Replace(result,
                         @"assembly=OxyPlot\.Avalonia(?![0-9A-Za-z.])", "assembly=OxyPlot.Avalonia12");

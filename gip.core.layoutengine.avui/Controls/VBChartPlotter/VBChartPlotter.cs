@@ -459,7 +459,10 @@ namespace gip.core.layoutengine.avui
 
             if (logListInfo != null)
             {
-                line.Mapping = item => new DataPoint(((PropertyLogItem)item).Time.Ticks, Convert.ToDouble(((PropertyLogItem)item).Value));
+                // IMPORTANT: use DateTimeAxis.ToDouble (days since 1899-12-31), NOT Time.Ticks.
+                // OxyPlot's DateTimeAxis interprets X values as days, so tick values would be
+                // far beyond its valid range and every axis label would render as "00:00:00".
+                line.Mapping = item => new DataPoint(OxyPlot.Axes.DateTimeAxis.ToDouble(((PropertyLogItem)item).Time), Convert.ToDouble(((PropertyLogItem)item).Value));
                 Binding binding = new Binding();
                 binding.Source = logListInfo;
                 binding.Path = nameof(PropertyLogListInfo.PropertyLogList);
@@ -650,12 +653,15 @@ namespace gip.core.layoutengine.avui
                         logListInfo.Interpolate();
                     }
 
-                    line.Mapping = item => new DataPoint(((PropertyLogItem)item).Time.Ticks, Convert.ToDouble(((PropertyLogItem)item).Value));
-                    Binding binding = new Binding();
-                    binding.Source = logListInfo;
-                    binding.Path = nameof(PropertyLogListInfo.PropertyLogList);
-                    binding.Mode = BindingMode.OneWay;
-                    line.Bind(ItemsControl.ItemsSourceProperty, binding);
+                    // IMPORTANT: use DateTimeAxis.ToDouble (days since 1899-12-31), NOT Time.Ticks.
+                    // OxyPlot's DateTimeAxis interprets X values as days, so tick values would be
+                    // far beyond its valid range and every axis label would render as "00:00:00".
+                    line.Mapping = item => new DataPoint(OxyPlot.Axes.DateTimeAxis.ToDouble(((PropertyLogItem)item).Time), Convert.ToDouble(((PropertyLogItem)item).Value));
+                    // Assign ItemsSource directly instead of via Binding: the archive list is static
+                    // (no INotifyCollectionChanged) and the binding would evaluate while the series
+                    // is not yet added to the plot (Parent == null), so the data-change notification
+                    // would be lost and the plot would never re-read the series data.
+                    line.ItemsSource = logListInfo.PropertyLogList;
                 }
 
                 if (!bExists)
@@ -994,28 +1000,19 @@ namespace gip.core.layoutengine.avui
         //private int _CountAutoExtents = 0;
         public void AutoZoomExtents(bool forceRedraw = false)
         {
-            this.UpdateModel();
-            //AutoRange autoExtendXAxis = CanAutoExtendXAxis;
-            //AutoRange autoExtendYAxis = CanAutoExtendYAxis;
-
-            //bool extendX = autoExtendXAxis == AutoRange.Always || autoExtendXAxis == AutoRange.Once && _CountAutoExtents == 0;
-            //bool extendY = autoExtendYAxis == AutoRange.Always || autoExtendYAxis == AutoRange.Once && _CountAutoExtents == 0;
-
-            //if ((extendX && extendY) || forceRedraw)
-            //{
-            //    ZoomExtents();
-            //    _CountAutoExtents++;
-            //}
-            //else if (extendX)
-            //{
-            //    ZoomExtentsX();
-            //    _CountAutoExtents++;
-            //}
-            //else if (extendY)
-            //{
-            //    ZoomExtentsY();
-            //    _CountAutoExtents++;
-            //}
+            // 1) Flag the model that a data update is required (and schedule an async
+            //    update as fallback). Without this, PlotBase.UpdateModel() skips the
+            //    OxyPlot-Update entirely (isUpdateRequired == 0) and the series data
+            //    would never be re-read for static (non-notifying) archive lists.
+            this.InvalidatePlot(true);
+            // 2) Synchronize the Avalonia-Series into the internal PlotModel and run
+            //    a synchronous Update(true) (re-reads series data, computes axis bounds).
+            this.UpdateModel(true);
+            // 3) Reset all axes to their default (auto-scaling) range so that the
+            //    visible area is fitted to the actual data (e.g. DateTime.Ticks on the
+            //    X-axis). Without this the axes keep their default range (-20..20) and
+            //    all data points lie far outside the visible area.
+            this.ResetAllAxes();
         }
 
         Bitmap IVBChart.CreatePrintableBitmap()

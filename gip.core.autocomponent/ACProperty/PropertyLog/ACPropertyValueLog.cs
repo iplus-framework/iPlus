@@ -312,7 +312,7 @@ namespace gip.core.autocomponent
         private DateTime _LastSaveTime = DateTime.Now;
         public void SaveChanges(bool isDeInit = false)
         {
-            if (isDeInit || _PropertyLogStore == null)
+            if (_PropertyLogStore == null)
                 return;
 
             using (ACMonitor.Lock(_property2Log._20015_LockValue))
@@ -533,6 +533,9 @@ namespace gip.core.autocomponent
             Directory.CreateDirectory(StoragePath);
 
             _settings = new FasterLogSettings(StoragePath);
+            // Commit automatically as entries are enqueued, so data survives
+            // an unclean shutdown even if Flush() is never called.
+            _settings.AutoCommit = true;
             _log = new FasterLog(_settings);
             LoadExistingEntries();
         }
@@ -564,6 +567,13 @@ namespace gip.core.autocomponent
 
         public void Dispose()
         {
+            try
+            {
+                // FasterLog discards all uncommitted entries on Dispose,
+                // so a final commit is mandatory here.
+                _log.Commit(true);
+            }
+            catch { }
             _log.Dispose();
             _settings.Dispose();
         }

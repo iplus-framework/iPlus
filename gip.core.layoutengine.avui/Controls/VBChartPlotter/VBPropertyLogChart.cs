@@ -580,6 +580,12 @@ namespace gip.core.layoutengine.avui
                 return;
             DateTime from = _PART_DatepickerFrom.SelectedDate.HasValue ? _PART_DatepickerFrom.SelectedDate.Value : DateTime.Now.AddDays(-1);
             DateTime to =   _PART_DatepickerTo.SelectedDate.HasValue ? _PART_DatepickerTo.SelectedDate.Value : DateTime.Now;
+            // If the pickers return a pure date (TimeOfDay == 0), "to" would be the
+            // midnight of that day and the whole selected day would be excluded.
+            // Additionally from == to would be silently rejected in GetArchiveLogList().
+            // Therefore extend a date-only "to" to the end of that day.
+            if (to.TimeOfDay == TimeSpan.Zero)
+                to = to.Date.AddDays(1);
 
             Global.InterpolationMethod interpolEnum = Global.InterpolationMethod.None;
             ACValueItem selectedInterpol = _PART_SmoothingOn.SelectedValue as ACValueItem;
