@@ -22,7 +22,7 @@
 		<AvaloniaPackagePrefix Condition="'$(AvaloniaPackagePrefix)' == ''"></AvaloniaPackagePrefix>
 		<!-- Version of the iPlus.* Avalonia packages published on nuget.org
 		     (built with: NUGET_PACKAGES=... ./build.sh Package -force-nuget-version <version>) -->
-		<AvaloniaIPlusPackageVersion Condition="'$(AvaloniaIPlusPackageVersion)' == ''">12.2.902</AvaloniaIPlusPackageVersion>
+		<AvaloniaIPlusPackageVersion Condition="'$(AvaloniaIPlusPackageVersion)' == ''">12.2.903</AvaloniaIPlusPackageVersion>
 		<!-- Specify Avalonia version to use. 11.3.11 are not available for ReactiveUI  -->
 		<!--<AvaloniaVersion>11.3.11</AvaloniaVersion>-->
 
