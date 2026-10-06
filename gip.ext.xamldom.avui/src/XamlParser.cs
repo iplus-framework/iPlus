@@ -1011,7 +1011,18 @@ namespace gip.ext.xamldom.avui
 
         internal static void ParseObjectAttribute(XamlObject obj, XmlAttribute attribute, bool real)
         {
-            XamlPropertyInfo propertyInfo = GetPropertyInfo(obj.Instance, obj.ElementType, attribute, obj.OwnerDocument.TypeFinder);
+            XamlPropertyInfo propertyInfo;
+            try
+            {
+                propertyInfo = GetPropertyInfo(obj.Instance, obj.ElementType, attribute, obj.OwnerDocument.TypeFinder);
+            }
+            catch (XamlLoadException)
+            {
+                // Unknown attribute (e.g. WPF-legacy properties like SnapsToDevicePixels that do not
+                // exist in Avalonia). Keep the value in the object model so the designer can load the
+                // document and round-trip the XAML instead of aborting with a XamlLoadException.
+                propertyInfo = new XamlUnknownPropertyInfo(attribute.Name, obj.ElementType);
+            }
             XamlPropertyValue value = null;
 
             var valueText = attribute.Value;

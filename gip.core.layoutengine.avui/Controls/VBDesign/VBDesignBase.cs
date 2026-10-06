@@ -870,6 +870,17 @@ namespace gip.core.layoutengine.avui
             if (!IsDesignerActive && e.Source is Visual)
             {
                 Visual clickedElement = e.Source as Visual;
+                // WPF hit-testing includes disabled elements, Avalonia's default InputHitTest
+                // excludes them (enabledElementsOnly=true). Re-hit-test including disabled
+                // elements so that disabled VBControls (e.g. IsEnabled=False VBTextBox inside
+                // a VBVisual design) remain selectable instead of the click falling through
+                // to an underlying element of another design.
+                if (!(e.Source is Adorner))
+                {
+                    var hitIncludingDisabled = (this as IInputElement).InputHitTest(e.GetPosition(this), enabledElementsOnly: false) as Visual;
+                    if (hitIncludingDisabled != null && !(hitIncludingDisabled is Adorner))
+                        clickedElement = hitIncludingDisabled;
+                }
                 if (e.Source is Adorner)
                 {
                     if (AdornVBControlManagerList != null)

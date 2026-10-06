@@ -216,6 +216,11 @@ namespace gip.core.datamodel
             // is used instead.
             avaloniaXAML = RemoveIsItemsHostAttributes(avaloniaXAML);
 
+            // Remove WPF-only attributes that have no Avalonia equivalent (e.g.
+            // SnapsToDevicePixels). Avalonia always renders with pixel snapping, so these
+            // attributes are simply dropped instead of failing the XAML load.
+            avaloniaXAML = RemoveWpfOnlyAttributes(avaloniaXAML);
+
             // Convert WPF *.LayoutTransform property elements to Avalonia LayoutTransformControl wrappers.
             // WPF: <TextBlock><TextBlock.LayoutTransform><RotateTransform/></TextBlock.LayoutTransform></TextBlock>
             // Avalonia: <LayoutTransformControl><LayoutTransformControl.LayoutTransform><RotateTransform/></LayoutTransformControl.LayoutTransform><TextBlock></TextBlock></LayoutTransformControl>
@@ -3263,6 +3268,71 @@ namespace gip.core.datamodel
                             continue;
 
                         element.RemoveChild(child);
+                    }
+                }
+
+                return FormatXaml(doc.OuterXml);
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
+        }
+
+        /// <summary>
+        /// WPF-only attributes that have no Avalonia equivalent and are simply dropped
+        /// during conversion. Avalonia always renders with pixel snapping, so
+        /// SnapsToDevicePixels has no counterpart; keeping it would abort the XAML load
+        /// with "property SnapsToDevicePixels not found".
+        /// </summary>
+        private static readonly string[] WpfOnlyAttributes = new[]
+        {
+            "SnapsToDevicePixels",
+            "TextOptions.TextFormattingMode",
+            "TextOptions.TextRenderingMode",
+            "TextOptions.TextHintingMode",
+            "RenderOptions.BitmapScalingMode",
+            "RenderOptions.ClearTypeHint",
+            "RenderOptions.EdgeMode",
+            "IsManipulationEnabled",
+            "FocusVisualStyle",
+        };
+
+        /// <summary>
+        /// Removes WPF-only attributes (and their property-element forms) that have no
+        /// Avalonia equivalent, e.g. SnapsToDevicePixels.
+        /// </summary>
+        private static string RemoveWpfOnlyAttributes(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+
+            if (!WpfOnlyAttributes.Any(a => xaml.IndexOf(a, StringComparison.OrdinalIgnoreCase) >= 0))
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument();
+                doc.LoadXml(xaml);
+
+                var elements = doc.GetElementsByTagName("*");
+                for (int i = elements.Count - 1; i >= 0; i--)
+                {
+                    if (elements[i] is not XmlElement element)
+                        continue;
+
+                    foreach (var attributeName in WpfOnlyAttributes)
+                    {
+                        if (element.HasAttribute(attributeName))
+                            element.RemoveAttribute(attributeName);
+                    }
+
+                    // Remove property-element forms like <Border.SnapsToDevicePixels>...</Border.SnapsToDevicePixels>
+                    foreach (var child in element.ChildNodes.OfType<XmlElement>().ToList())
+                    {
+                        if (WpfOnlyAttributes.Any(a => string.Equals(child.LocalName, a, StringComparison.OrdinalIgnoreCase)))
+                            element.RemoveChild(child);
                     }
                 }
 

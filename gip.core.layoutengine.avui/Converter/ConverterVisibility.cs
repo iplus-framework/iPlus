@@ -115,6 +115,15 @@ namespace gip.core.layoutengine.avui
         {
             get; set;
         }
+
+        /// <summary>
+        /// WPF-compatibility flag (Hidden vs. Collapsed). In Avalonia an invisible control is
+        /// always collapsed, so the flag is accepted but has no effect on the result.
+        /// </summary>
+        public bool UseCollapsed
+        {
+            get; set;
+        }
     }
 
     [Converter(typeof(object), typeof(Visibility))]
