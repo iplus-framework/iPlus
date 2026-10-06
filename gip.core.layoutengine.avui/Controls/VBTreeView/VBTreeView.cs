@@ -1836,7 +1836,11 @@ namespace gip.core.layoutengine.avui
         {
             if (this.GetVBDesign().IsDesignerActive)
                 return;
-            HandleDragOver(this, e);
+            // DragLeave must NOT run the effects logic: Avalonia raises Leave/Enter
+            // whenever the hit-test target changes between child elements of the same
+            // item. Setting DragEffects = None here would override the Copy result of
+            // the following DragEnter and show the "not allowed" cursor.
+            HandleDragLeave(sender, e);
         }
 
         /// <summary>
@@ -1975,7 +1979,8 @@ namespace gip.core.layoutengine.avui
             }
 
             ACActionArgs actionArgs = new ACActionArgs(dropObject, x, y, elementActionType);
-            if (IsEnabledACAction(actionArgs))
+            bool isEnabled = IsEnabledACAction(actionArgs);
+            if (isEnabled)
             {
                 e.DragEffects = DragDropEffects.Copy;
             }

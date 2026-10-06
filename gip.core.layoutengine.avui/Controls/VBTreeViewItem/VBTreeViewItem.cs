@@ -86,12 +86,28 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Gets or sets the ContentACObject.
         /// </summary>
+        /// <remarks>
+        /// The getter re-syncs with Header: Avalonia recycles containers (NeedsContainer
+        /// returns DefaultRecycleKey) and reassigns Header on materialize without calling
+        /// CreateContainerForItemOverride again. A cached _ACObject would then point to the
+        /// previous item, which breaks drag&amp;drop target/source resolution (GetACValue) and
+        /// other ContentACObject consumers after a tree refresh.
+        /// In legacy mode (Header is a control, e.g. VBTextBlock) the explicitly set value
+        /// is kept.
+        /// </remarks>
         public IACObject ContentACObject
         {
             get
             {
-                if (_ACObject == null)
+                if (Header is IACObject headerAsACObject)
+                {
+                    if (!ReferenceEquals(_ACObject, headerAsACObject))
+                        _ACObject = headerAsACObject;
+                }
+                else if (_ACObject == null)
+                {
                     _ACObject = Header as IACObject;
+                }
                 return _ACObject;
             }
             set
