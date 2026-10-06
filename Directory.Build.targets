@@ -26,7 +26,10 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(IPlusIsPackable)' == 'true'">
-		<PackageId>$(MSBuildProjectName)</PackageId>
+		<!-- Package IDs get an additional "iPlus." prefix (nuget.org has the "gip"
+		     prefix reserved by another owner). Assembly names / namespaces /
+		     project names remain unchanged. -->
+		<PackageId>iPlus.$(MSBuildProjectName)</PackageId>
 		<!-- Force the suite version (per-suite versioning) -->
 		<Version>$(IPlusSuitePackageVersion)</Version>
 		<Authors Condition="'$(Authors)' == ''">iplus-framework</Authors>
@@ -42,10 +45,16 @@
 		<NoPackageAnalysis>true</NoPackageAnalysis>
 	</PropertyGroup>
 
-	<!-- Clear icon/readme metadata when the files are missing in the project
-	     (some csprojs declare them unconditionally) -->
+	<!-- Set icon/readme metadata when the files exist in the project directory;
+	     clear it when they are missing (some csprojs declare them unconditionally) -->
+	<PropertyGroup Condition="'$(IPlusIsPackable)' == 'true' and Exists('$(MSBuildProjectDirectory)/icon.png')">
+		<PackageIcon>icon.png</PackageIcon>
+	</PropertyGroup>
 	<PropertyGroup Condition="'$(IPlusIsPackable)' == 'true' and !Exists('$(MSBuildProjectDirectory)/icon.png')">
 		<PackageIcon></PackageIcon>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(IPlusIsPackable)' == 'true' and Exists('$(MSBuildProjectDirectory)/readme.md')">
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(IPlusIsPackable)' == 'true' and !Exists('$(MSBuildProjectDirectory)/readme.md')">
 		<PackageReadmeFile></PackageReadmeFile>

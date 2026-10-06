@@ -28,7 +28,7 @@ $Exclude = @(
     "gip.iplus.client", "gip.iplus.console", "gip.iplus.service", "gip.iplus.startup",
     "gip.core.tcAgent", "gip.core.tcClient", "gip.core.tcShared", "gip.bso.tcstudio", "gip.tool.generator", "gip.tool.entitywizzard", "gip.tool.installerAndUpdater",
     "gip.tool.publish", "gip.tool.diagnose", "gip.tool.devLicense", "gip.tool.devLicenseProvider",
-    "DBSyncerUpdate.unit.test", "gip.core.scichart.avui", "gip.ext.opctoolbox", "gip.core.sql"
+    "DBSyncerUpdate.unit.test", "gip.core.scichart.avui", "gip.ext.opctoolbox", "gip.core.sql", "gip.ext.fluent.avui"
 )
 
 $Failed = 0
