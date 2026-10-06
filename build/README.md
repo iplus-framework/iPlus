@@ -3,35 +3,40 @@
 This directory contains PowerShell scripts to batch compile Avalonia-dependent projects for the iPlus framework.
 
 ## Preparation steps:
-Clone all avalonia forks from iplus-framework into the same directory level like iplus.
 
-https://github.com/iplus-framework/XamlX.git
-https://github.com/iplus-framework/Avalonia.git
-https://github.com/iplus-framework/roslynpad.git
-https://github.com/iplus-framework/SVG.git
-https://github.com/iplus-framework/AvSvg.Skia.git
-https://github.com/iplus-framework/AvRichTextBox.git
-https://github.com/iplus-framework/avOxyplot-avalonia.git
-https://github.com/iplus-framework/AvMessageBox.Avalonia.git
-https://github.com/iplus-framework/AvDialogHost.Avalonia.git
-https://github.com/iplus-framework/AvaloniaEdit.git
-https://github.com/iplus-framework/Xaml.Behaviors.git
-https://github.com/iplus-framework/Avalonia.Dock.git
-https://github.com/iplus-framework/Avalonia.Labs.git
-https://github.com/iplus-framework/Avalonia.Controls.DataGrid.git
+### Quick start (external contributors, Windows)
 
-Avalonia uses XamlX for Xaml-Compilation. Replace the "..\external\XamlX" dummy folder in the avalonia ui solution with a symbolic link to the XamlX-Project:
-mklink /D "D:\Devel\iPlusGit\V5\av_main\external\XamlX" "D:\Devel\iPlusGit\V5\XamlX"
+Run `pullinit-community.ps1` from your working folder (e.g. `C:\Devel\iPlusGit\V5`).
+It clones all Avalonia forks from the public GitHub organization
+[https://github.com/iplus-framework](https://github.com/iplus-framework),
+initializes all required git submodules (XamlX, build-common, roslyn, ...)
+and enables git long paths. No VPN or V4 server access is required.
 
-Do the same for the Datagrid:
-mklink /D "D:\Devel\iPlusGit\V5\av_main\external\Avalonia.Controls.DataGrid" "D:\Devel\iPlusGit\V5\Avalonia.Controls.DataGrid"
+```powershell
+.\pullinit-community.ps1
+```
 
-Call workload restore to get the wasm tools for android, ios and browser:
-> dotnet workload restore
-> dotnet restore
+The script is idempotent - existing repositories are skipped, so it is safe to re-run.
 
-AvSvg.Skia uses SVG. Replace the "..\externals\SVG" dummy folder in the AvSvg.Skia solution with a symbolic link to the SVG-Project:
-mklink /D "D:\Devel\iPlusGit\V5\AvSvg.Skia\externals\SVG" "D:\Devel\iPlusGit\V5\SVG"
+### What gets cloned
+
+All repositories live in the same directory level as `iPlus`:
+
+- `Avalonia` (core framework, critical)
+- `AvDialogHost.Avalonia`, `AvaloniaEdit`, `Avalonia.Dock`, `roslynpad`, `Avalonia.Labs`
+- `SVG`, `Avalonia.Controls.DataGrid`, `Xaml.Behaviors`, `AvSvg.Skia`
+- `AvRichTextBox`, `AvMarkdown.Avalonia`, `AvMessageBox.Avalonia`, `avOxyplot-avalonia`
+- `scryber.core`, `Avalonia.Controls.WebView`
+- plus `Avalonia.HtmlRenderer`, `XamlX`, `ZUGFeRD-csharp`, `iplus-documents.io`, `iPlus-Examples`
+
+### Notes
+
+- **No symlinks are needed**: `Avalonia/external/XamlX` and `AvSvg.Skia/externals/SVG`
+  are regular git submodules and are initialized automatically by the script.
+- `roslynpad`'s `vendor/roslyn` submodule is a multi-GB checkout (dotnet/roslyn).
+- Call workload restore to get the workloads for android, ios and browser:
+  > dotnet workload restore
+  > dotnet restore
 
 **Set the UseAvaloniaFork Property in Avalonia.Version.props to 'True' !!!**
 
@@ -101,6 +106,16 @@ Windows batch file that launches the PowerShell script with proper execution pol
 Build-Avalonia.bat
 Build-Avalonia.bat Debug
 Build-Avalonia.bat Release -ShowDiagnostics
+```
+
+### 5. `pullinit-community.ps1` - One-Time Repository Setup (Windows)
+Clones all Avalonia fork repositories from the public GitHub organization,
+initializes all git submodules and enables git long paths. Intended for
+external contributors without V4 server access.
+
+**Usage:**
+```powershell
+.\pullinit-community.ps1
 ```
 
 ## Expected Project Structure
