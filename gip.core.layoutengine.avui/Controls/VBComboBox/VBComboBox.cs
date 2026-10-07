@@ -42,6 +42,25 @@ namespace gip.core.layoutengine.avui
         public static readonly StyledProperty<bool> HasSelectedValueProperty =
             AvaloniaProperty.Register<VBComboBox, bool>(nameof(HasSelectedValue), false);
 
+        /// <summary>
+        /// Intermediate property for the TwoWay binding to the entity property (VBContent).
+        /// The selection is never bound TwoWay directly: Avalonia's SelectingItemsControl resets
+        /// SelectedItem to null whenever the pushed item is not (yet) contained in Items
+        /// (e.g. while NavObjectList is refreshed after a DataGrid row change). With a direct
+        /// TwoWay binding that spurious null would be written back into the entity and sever
+        /// required EF relationships. Instead the entity binding targets this property and the
+        /// value is forwarded to/from the selection only through guarded code paths
+        /// (see WriteSelectionToSource and the SelectedItemSource handling in OnPropertyChanged).
+        /// </summary>
+        public static readonly StyledProperty<object> SelectedItemSourceProperty =
+            AvaloniaProperty.Register<VBComboBox, object>(nameof(SelectedItemSource));
+
+        public object SelectedItemSource
+        {
+            get { return GetValue(SelectedItemSourceProperty); }
+            set { SetValue(SelectedItemSourceProperty, value); }
+        }
+
         public bool HasSelectedValue
         {
             get { return GetValue(HasSelectedValueProperty); }
@@ -733,14 +752,27 @@ namespace gip.core.layoutengine.avui
                         if (!String.IsNullOrEmpty(selectedValuePath))
                             this.SelectedValueBinding = new Binding(selectedValuePath);
 
-                        var binding2 = new Binding
+                        if (dcACTypeInfo is ACClassProperty acProp && acProp.IsInput)
                         {
-                            Source = dcSource,
-                            Path = dcPath,
-                            Mode = (dcACTypeInfo is ACClassProperty acProp && acProp.IsInput) ? BindingMode.TwoWay : BindingMode.OneWay
-                        };
-
-                        this.Bind(SelectedItemProperty, binding2);
+                            // TwoWay via the guarded intermediate property. See SelectedItemSourceProperty.
+                            var binding2 = new Binding
+                            {
+                                Source = dcSource,
+                                Path = dcPath,
+                                Mode = BindingMode.TwoWay
+                            };
+                            this.Bind(SelectedItemSourceProperty, binding2);
+                        }
+                        else
+                        {
+                            var binding2 = new Binding
+                            {
+                                Source = dcSource,
+                                Path = dcPath,
+                                Mode = BindingMode.OneWay
+                            };
+                            this.Bind(SelectedItemProperty, binding2);
+                        }
                     }
                 }
 
@@ -1330,6 +1362,36 @@ namespace gip.core.layoutengine.avui
             }, DispatcherPriority.Background);
         }
 
+        /// <summary>
+        /// Writes a user-made selection change back to the entity property via the
+        /// SelectedItemSource TwoWay binding. Echoes of source-initiated changes are skipped,
+        /// and a null selection is never written back while the source still holds a value
+        /// (spurious reset of the selection model, e.g. during an ItemsSource refresh).
+        /// </summary>
+        private void WriteSelectionToSource()
+        {
+            if (ContextACObject == null || String.IsNullOrEmpty(VBContent) || !IsSet(SelectedItemSourceProperty))
+                return;
+
+            object sourceValue = null;
+            try
+            {
+                sourceValue = ContextACObject.ACUrlCommand(VBContent);
+            }
+            catch
+            {
+                return;
+            }
+
+            if (Equals(SelectedItem, sourceValue))
+                return; // Echo of a source-initiated change
+
+            if (SelectedItem == null && sourceValue != null)
+                return; // Spurious reset: never sever the entity's current value with null
+
+            SetValue(SelectedItemSourceProperty, SelectedItem);
+        }
+
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             // When the ItemsSource changes, Avalonia's SelectingItemsControl resets the
@@ -1349,7 +1411,26 @@ namespace gip.core.layoutengine.avui
                 {
                     _SuppressSelectionWriteback = false;
                 }
+                // Re-establish the selection from the bound source value once the new items
+                // are present. If the item is still not contained, the selection model clears
+                // SelectedItem again, which is harmless now (WriteSelectionToSource never
+                // forwards spurious nulls to the entity).
+                if (IsSet(SelectedItemSourceProperty))
+                {
+                    var sourceValue = GetValue(SelectedItemSourceProperty);
+                    if (!Equals(SelectedItem, sourceValue))
+                        SelectedItem = sourceValue;
+                }
                 return;
+            }
+
+            if (change.Property == SelectedItemSourceProperty)
+            {
+                // The entity property has changed -> mirror it into the selection.
+                // If the item is not contained in Items the selection model clears the
+                // selection again; the resulting null is not written back (guard below).
+                if (!Equals(SelectedItem, change.NewValue))
+                    SelectedItem = change.NewValue;
             }
 
             if (change.Property == SelectedItemProperty && _SuppressSelectionWriteback)
@@ -1362,6 +1443,7 @@ namespace gip.core.layoutengine.avui
 
             if (change.Property == SelectedItemProperty)
             {
+                WriteSelectionToSource();
                 UpdateHasValueState();
                 OnSelectedItemChanged();
                 CollapseEditableTextBoxSelection();

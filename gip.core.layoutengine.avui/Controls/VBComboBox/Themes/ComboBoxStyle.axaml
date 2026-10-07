@@ -20,6 +20,7 @@
         <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthPadding}"/>
       </Grid.ColumnDefinitions>
       <local:VBTextBlock x:Name="PART_Caption"
+                         Foreground="{DynamicResource CtrlTxtEnabled}"
                          Grid.Column="0"
                          VerticalAlignment="Center"
                          Text="{TemplateBinding ACCaptionTrans}"/>
@@ -119,6 +120,7 @@
             <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
       <local:VBTextBlock x:Name="PART_Caption"
+                         Foreground="{DynamicResource CtrlTxtEnabled}"
                          Grid.Row="0"
                          VerticalAlignment="Center"
                          Text="{TemplateBinding ACCaptionTrans}"/>
@@ -223,6 +225,7 @@
         <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthPadding}"/>
       </Grid.ColumnDefinitions>
       <local:VBTextBlock x:Name="PART_Caption"
+                         Foreground="{DynamicResource CtrlTxtEnabled}"
                          Grid.Column="0"
                          VerticalAlignment="Center"
                          Text="{TemplateBinding ACCaptionTrans}"/>
@@ -382,6 +385,7 @@
             <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
       <local:VBTextBlock x:Name="PART_Caption"
+                         Foreground="{DynamicResource CtrlTxtEnabled}"
                          Grid.Row="0"
                          VerticalAlignment="Center"
                          Text="{TemplateBinding ACCaptionTrans}"/>
@@ -549,6 +553,7 @@
         <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthPadding}"/>
       </Grid.ColumnDefinitions>
       <local:VBTextBlock x:Name="PART_Caption"
+                         Foreground="{DynamicResource CtrlTxtEnabled}"
                          Grid.Column="0"
                          VerticalAlignment="Center"
                          Text="{TemplateBinding ACCaptionTrans}"/>
@@ -638,6 +643,7 @@
         </Popup>
       </Grid>
       <local:VBTextBlock x:Name="PART_Caption2"
+                         Foreground="{DynamicResource CtrlTxtEnabled}"
                          Grid.Column="2"
                          Margin="5,0,0,0"
                          VerticalAlignment="Center"
@@ -660,6 +666,7 @@
         <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthPadding}"/>
       </Grid.ColumnDefinitions>
       <local:VBTextBlock x:Name="PART_Caption"
+                         Foreground="{DynamicResource CtrlTxtEnabled}"
                          Grid.Column="0"
                          VerticalAlignment="Center"
                          Text="{TemplateBinding ACCaptionTrans}"/>
@@ -807,6 +814,7 @@
 
       </Grid>
       <local:VBTextBlock x:Name="PART_Caption2"
+                         Foreground="{DynamicResource CtrlTxtEnabled}"
                          Grid.Column="2"
                          Margin="5,0,0,0"
                          VerticalAlignment="Center"
