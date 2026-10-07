@@ -12,6 +12,34 @@
                 TargetType="local:VBTextBlock">
     <Setter Property="Margin" Value="2,0,2,0" />
     <Setter Property="VerticalAlignment" Value="Center" />
+    <!-- VBTextBlock's own ControlTheme hardcodes Foreground=CtrlTxtEnabled, which would
+         override the value inherited from the cell's ContentPresenter. Bind to the hosting
+         ContentPresenter instead, so the DataGridCell theme's Foreground (TextBrush /
+         TextBrushReadonly / TextBoxFgEnabled) flows into the cell text.
+         NOTE: $parent[ContentPresenter] does not resolve in compiled ControlTheme XAML;
+         RelativeSource FindAncestor does. -->
+    <Setter Property="Foreground">
+      <Setter.Value>
+        <Binding Path="Foreground">
+          <Binding.RelativeSource>
+            <RelativeSource Mode="FindAncestor" AncestorType="ContentPresenter"/>
+          </Binding.RelativeSource>
+        </Binding>
+      </Setter.Value>
+    </Setter>
+    <!-- Same for the disabled state (readonly columns disable the text block):
+         keep the cell theme's Foreground instead of CtrlTxtDisabled (#FFB0B0B0). -->
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground">
+        <Setter.Value>
+          <Binding Path="Foreground">
+            <Binding.RelativeSource>
+              <RelativeSource Mode="FindAncestor" AncestorType="ContentPresenter"/>
+            </Binding.RelativeSource>
+          </Binding>
+        </Setter.Value>
+      </Setter>
+    </Style>
   </ControlTheme>
 
   <ControlTheme x:Key="DataGridCellTextBoxTheme"
@@ -167,7 +195,7 @@
   <!-- Specialized ControlTheme for ComboBox columns -->
   <ControlTheme x:Key="DataGridCellComboTheme" TargetType="DataGridCell">
     <Setter Property="MinHeight" Value="{StaticResource cellHeight}" />
-    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+    <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabled}" />
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="Padding" Value="2,0,0,0" />

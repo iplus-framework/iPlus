@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
@@ -9,10 +10,12 @@ using Avalonia.Media;
 using Avalonia.Styling;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
+using Avalonia.Data.Converters;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 
 namespace gip.core.layoutengine.avui
@@ -27,12 +30,15 @@ namespace gip.core.layoutengine.avui
     {
         private readonly Lazy<ControlTheme> _cellComboEditTheme;
         private readonly Lazy<ControlTheme> _cellComboDefaultTheme;
+        private readonly Lazy<ControlTheme> _cellTextBlockTheme;
         public VBDataGridComboBoxColumn() : base()
         {
             _cellComboEditTheme = new Lazy<ControlTheme>(() =>
                 OwningGrid.TryFindResource("DataGridCellComboEditTheme", out var theme) ? (ControlTheme)theme : null);
             _cellComboDefaultTheme = new Lazy<ControlTheme>(() =>
                 OwningGrid.TryFindResource("DataGridCellComboDefaultTheme", out var theme) ? (ControlTheme)theme : null);
+            _cellTextBlockTheme = new Lazy<ControlTheme>(() =>
+                OwningGrid.TryFindResource("DataGridCellTextBlockTheme", out var theme) ? (ControlTheme)theme : null);
         }
 
 
@@ -680,32 +686,144 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Generates a new VBTextBlock element, then applies style and binding.
+        /// Generates a lightweight display element (like in WPF): while the cell is not in edit mode
+        /// a text presenter is used, which resolves the display text via the ItemsSource lookup.
+        /// The VBComboBox is only generated for editing (GenerateEditingElementDirect).
         /// </summary>
         /// <param name="cell">The DataGridCell parameter.</param>
         /// <param name="dataItem">The data item parameter.</param>
-        /// <returns>Returns the VBTextBlock element.</returns>
+        /// <returns>Returns the display element.</returns>
         protected override Control GenerateElement(DataGridCell cell, object dataItem)
         {
-            VBComboBox comboBox = new VBComboBox()
+            // Custom item template: present the raw cell value through the template.
+            if (ItemTemplate != null)
             {
-                Name = "CellTextBlock"
+                ContentPresenter presenter = new ContentPresenter()
+                {
+                    Name = "CellTextBlock",
+                    ContentTemplate = ItemTemplate,
+                    VerticalContentAlignment = Avalonia.Layout.VerticalAlignment.Center,
+                };
+                if (SelectedItemBinding is Binding selectedItemBinding && !string.IsNullOrEmpty(selectedItemBinding.Path))
+                    presenter.Bind(ContentPresenter.ContentProperty, selectedItemBinding);
+                else if (SelectedValueBinding is Binding selectedValueBinding && !string.IsNullOrEmpty(selectedValueBinding.Path))
+                    presenter.Bind(ContentPresenter.ContentProperty, selectedValueBinding);
+                return presenter;
+            }
+
+            VBTextBlock textBlock = new VBTextBlock()
+            {
+                Name = "CellTextBlock",
             };
-            if (_cellComboDefaultTheme.Value is { } theme)
+            if (_cellTextBlockTheme.Value is { } theme)
             {
-                comboBox.Theme = theme;
+                textBlock.Theme = theme;
             }
-            comboBox.IsEnabled = false;
-            comboBox.ShowCaption = false;
-            comboBox.VBContent = Const.Value;
-            comboBox.UpdateSourceTrigger = UpdateSourceTrigger;
-            if (!string.IsNullOrEmpty(this.VBContent) && !string.IsNullOrEmpty(this.VBShowColumns))
+            textBlock.IsEnabled = !this.IsReadOnly;
+            SyncDisplayProperties(textBlock);
+
+            if (TextBinding != null)
             {
-                comboBox.VBContent = this.VBContent;
-                comboBox.VBShowColumns = this.VBShowColumns;
+                // WPF-parity: explicit text binding on the row item.
+                textBlock.Bind(VBTextBlock.TextProperty, TextBinding);
             }
-            ApplyColumnProperties(comboBox);
-            return comboBox;
+            else
+            {
+                // Resolve the display text through the ItemsSource lookup:
+                // [0] = cell value (selected item object or selected value), [1] = ItemsSource.
+                Binding cellValueBinding = (SelectedItemBinding ?? SelectedValueBinding) as Binding;
+                if (cellValueBinding != null && !string.IsNullOrEmpty(cellValueBinding.Path))
+                {
+                    MultiBinding multiBinding = new MultiBinding();
+                    multiBinding.Bindings.Add(new Binding(cellValueBinding.Path) { Mode = BindingMode.OneWay });
+                    multiBinding.Bindings.Add(new Binding(nameof(ItemsSource)) { Source = this, Mode = BindingMode.OneWay });
+                    multiBinding.Converter = new ComboBoxDisplayTextConverter(this);
+                    textBlock.Bind(VBTextBlock.TextProperty, multiBinding);
+                }
+            }
+
+            ApplyConditionalForegroundBinding(textBlock, TextBlock.ForegroundProperty);
+            ApplyConditionalBackgroundBinding(textBlock, TextBlock.BackgroundProperty);
+            return textBlock;
+        }
+
+        private void SyncDisplayProperties(VBTextBlock textBlock)
+        {
+            DataGridHelper.SyncColumnProperty(this, textBlock, FontFamilyProperty);
+            DataGridHelper.SyncColumnProperty(this, textBlock, FontSizeProperty);
+            DataGridHelper.SyncColumnProperty(this, textBlock, FontStyleProperty);
+            DataGridHelper.SyncColumnProperty(this, textBlock, FontWeightProperty);
+            DataGridHelper.SyncColumnProperty(this, textBlock, ForegroundProperty);
+            textBlock.Background = CellBackground;
+        }
+
+        /// <summary>
+        /// Resolves the display text of a combo cell: finds the lookup item in ItemsSource
+        /// that matches the cell value (selected item object or selected value) and returns
+        /// its display member text.
+        /// </summary>
+        private sealed class ComboBoxDisplayTextConverter : IMultiValueConverter
+        {
+            private readonly VBDataGridComboBoxColumn _column;
+
+            public ComboBoxDisplayTextConverter(VBDataGridComboBoxColumn column)
+            {
+                _column = column;
+            }
+
+            public object Convert(IList<object> values, Type targetType, object parameter, CultureInfo culture)
+            {
+                object cellValue = values.Count > 0 ? values[0] : null;
+                IEnumerable items = values.Count > 1 ? values[1] as IEnumerable : null;
+                if (cellValue == null)
+                    return "";
+                if (items != null)
+                {
+                    // If SelectedItemBinding is set, the cell value is the lookup item itself,
+                    // otherwise it is the raw selected value (matched against the item's Value member).
+                    bool valueIsItem = _column.SelectedItemBinding != null;
+                    foreach (object item in items)
+                    {
+                        if (item == null)
+                            continue;
+                        bool matches = valueIsItem
+                            ? Equals(item, cellValue)
+                            : Equals(ResolvePath(item, Const.Value), cellValue);
+                        if (!matches && !valueIsItem)
+                            matches = string.Equals(item.ToString(), cellValue.ToString(), StringComparison.Ordinal);
+                        if (matches)
+                            return GetDisplayText(item);
+                    }
+                }
+                return cellValue.ToString();
+            }
+
+            private static object ResolvePath(object item, string path)
+            {
+                object current = item;
+                foreach (string part in path.Split('.'))
+                {
+                    if (current == null)
+                        return null;
+                    System.Reflection.PropertyInfo propertyInfo = current.GetType().GetProperty(part);
+                    if (propertyInfo == null)
+                        return null;
+                    current = propertyInfo.GetValue(current);
+                }
+                return current;
+            }
+
+            private string GetDisplayText(object item)
+            {
+                string displayMemberPath = _column.DisplayMemberPath;
+                if (!string.IsNullOrEmpty(displayMemberPath))
+                {
+                    object value = ResolvePath(item, displayMemberPath);
+                    if (value != null)
+                        return value.ToString();
+                }
+                return item?.ToString() ?? "";
+            }
         }
 
         private void ApplyColumnProperties(VBComboBox comboBox)

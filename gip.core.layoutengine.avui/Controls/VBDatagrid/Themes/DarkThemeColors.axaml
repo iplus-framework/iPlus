@@ -16,7 +16,7 @@
   <SolidColorBrush x:Key="NormalBorderBrush" Color="#FF9B9999" />
   <SolidColorBrush x:Key="ControlBackgroundBrush" Color="#FF1A1A1A" />
   <!-- Grid-Text: -->
-  <SolidColorBrush x:Key="TextBrush" Color="#FFFFFF" />
+  <SolidColorBrush x:Key="TextBrush" Color="#FFFFFFFF" />
   <SolidColorBrush x:Key="TextBrushReadonly" Color="Silver" />
   <LinearGradientBrush x:Key="ShineBrush" EndPoint="50%,100%" StartPoint="50%,0%">
     <GradientStop Color="#59FFFFFF" Offset="0" />

@@ -6,6 +6,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Styling;
 using Avalonia.VisualTree;
 using gip.ext.design.avui;
 using System;
@@ -197,6 +198,7 @@ namespace gip.core.layoutengine.avui
         {
             if (col.VBDataGrid == null)
                 return;
+            AssignCellThemeByReadOnlyState(col);
             if (col.VBIsReadOnly)
             {
                 if (!col.IsReadOnly)
@@ -218,6 +220,25 @@ namespace gip.core.layoutengine.avui
                 else if ((newReadOnlyState == 0) && col.IsReadOnly)
                     col.IsReadOnly = false;
             }
+        }
+
+        /// <summary>
+        /// Assigns the DataGridCellReadOnlyTheme to the column's cells when the column is
+        /// readonly, so readonly cells get their own foreground/background (TextBrushReadonly).
+        /// For editable columns the CellTheme is cleared so the implicit DataGridCell theme applies.
+        /// </summary>
+        internal static void AssignCellThemeByReadOnlyState(IGriColumn col)
+        {
+            DataGridColumn dataGridColumn = col as DataGridColumn;
+            if (dataGridColumn == null || col.VBDataGrid == null)
+                return;
+            ControlTheme theme = null;
+            if (dataGridColumn.IsReadOnly)
+            {
+                col.VBDataGrid.TryFindResource("DataGridCellReadOnlyTheme", out var resource);
+                theme = resource as ControlTheme;
+            }
+            dataGridColumn.CellTheme = theme;
         }
 
         #region set cell value
