@@ -623,6 +623,23 @@ namespace gip.core.layoutengine.avui
             get { return GetValue(TextAlignmentCaptionProperty); }
             set { SetValue(TextAlignmentCaptionProperty, value); }
         }
+
+        /// <summary>
+        /// Border thickness applied to BgElement while the TextBox has focus.
+        /// Default 2 (existing look). Hosts that already draw their own frame
+        /// (e.g. VBDateTimePicker's spinner) set this to 1 so the inner control
+        /// does not shrink when it gains focus.
+        /// </summary>
+        public static readonly StyledProperty<Thickness> FocusBorderThicknessProperty =
+            AvaloniaProperty.Register<VBTextBox, Thickness>(nameof(FocusBorderThickness), new Thickness(2d));
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public Thickness FocusBorderThickness
+        {
+            get { return GetValue(FocusBorderThicknessProperty); }
+            set { SetValue(FocusBorderThicknessProperty, value); }
+        }
         #endregion
 
         #region TransferOnLostFocus

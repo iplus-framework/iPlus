@@ -555,14 +555,14 @@
     Opacity="0.75"
     Color="#BD202C" />
   <SolidColorBrush x:Key="ThemeControlTransparentBrush" Color="Transparent" />
+  <!-- iPlus selection red instead of Fluent's blue -->
   <SolidColorBrush
     x:Key="DatePickerFlyoutPresenterHighlightFill"
-    Opacity="0.4"
-    Color="{StaticResource ThemeAccentColor}" />
+    Color="#20600000" />
+  <!-- iPlus selection red instead of Fluent's blue -->
   <SolidColorBrush
     x:Key="TimePickerFlyoutPresenterHighlightFill"
-    Opacity="0.4"
-    Color="{StaticResource ThemeAccentColor}" />
+    Color="#20600000" />
   <Thickness x:Key="ThemeBorderThickness">1</Thickness>
   <sys:Double x:Key="ThemeDisabledOpacity">0.5</sys:Double>
 

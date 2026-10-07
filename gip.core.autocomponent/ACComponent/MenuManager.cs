@@ -70,8 +70,13 @@ namespace gip.core.autocomponent
 
             // 2. Group commands under their category parent. Commands without a
             //    category (or with a category that has no parent item) go top-level.
+            //    The content/component/element sources may deliver the SAME command
+            //    multiple times (they often delegate to the same BSO's GetMenu),
+            //    so skip any command that is already present in the result list.
             foreach (var menuItem in commandItems)
             {
+                if (acMenuList.Any(c => c.ACUrl == menuItem.ACUrl && c.ACCaption == menuItem.ACCaption))
+                    continue;
                 if (menuItem.CategoryIndex == null)
                 {
                     acMenuList.Add(menuItem);

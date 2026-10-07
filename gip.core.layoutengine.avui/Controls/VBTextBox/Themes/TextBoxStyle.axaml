@@ -571,7 +571,7 @@ x:ClassModifier="internal">
 
     <!-- Focus State -->
     <Style Selector="^:focus /template/ Border#BgElement">
-      <Setter Property="BorderThickness" Value="2"/>
+      <Setter Property="BorderThickness" Value="{TemplateBinding FocusBorderThickness}"/>
     </Style>
 
     <Style Selector="^:focus">
@@ -728,7 +728,7 @@ x:ClassModifier="internal">
 
     <!-- Focus State -->
     <Style Selector="^:focus /template/ Border#BgElement">
-      <Setter Property="BorderThickness" Value="2"/>
+      <Setter Property="BorderThickness" Value="{TemplateBinding FocusBorderThickness}"/>
     </Style>
 
     <Style Selector="^:focus">
@@ -874,7 +874,7 @@ x:ClassModifier="internal">
 
     <!-- Focus State -->
     <Style Selector="^:focus /template/ Border#BgElement">
-      <Setter Property="BorderThickness" Value="2"/>
+      <Setter Property="BorderThickness" Value="{TemplateBinding FocusBorderThickness}"/>
     </Style>
 
     <Style Selector="^:focus">

@@ -1284,6 +1284,52 @@ namespace gip.core.layoutengine.avui
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
+        /// <summary>
+        /// Avalonia's ComboBox.OnGotFocus focuses the editable TextBox and calls SelectAll().
+        /// This happens not only when the user tabs into the control, but also each time the
+        /// dropdown opens or closes (focus bounces between the ComboBox and the popup's item
+        /// container), which paints a selection-highlight rectangle behind the text.
+        /// So we deliberately do NOT call the base implementation here - we only focus the
+        /// TextBox. CollapseEditableTextBoxSelection keeps the caret at the end instead.
+        /// </summary>
+        protected override void OnGotFocus(FocusChangedEventArgs e)
+        {
+            if (IsEditable && _EditableTextBoxSite2 != null)
+            {
+                _EditableTextBoxSite2.Focus();
+                int len = _EditableTextBoxSite2.Text?.Length ?? 0;
+                _EditableTextBoxSite2.SelectionStart = len;
+                _EditableTextBoxSite2.SelectionEnd = len;
+            }
+        }
+
+        /// <summary>
+        /// After an item was picked, Avalonia's ComboBox.OnGotFocus focuses the editable TextBox
+        /// and calls SelectAll(), which leaves the whole text highlighted with the selection
+        /// brush (a rectangle behind the text) as long as the ComboBox has focus.
+        /// Collapse the selection (move the caret to the end) so only the ComboBox background
+        /// is visible. The job is posted at Background priority so it runs after the focus
+        /// handling (and thus after the SelectAll) triggered by closing the dropdown.
+        /// </summary>
+        private void CollapseEditableTextBoxSelection()
+        {
+            if (!Dispatcher.UIThread.CheckAccess())
+            {
+                Dispatcher.UIThread.Post(CollapseEditableTextBoxSelection, DispatcherPriority.Background);
+                return;
+            }
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                var tb = _EditableTextBoxSite2;
+                if (tb == null || !tb.IsVisible)
+                    return;
+                int len = tb.Text?.Length ?? 0;
+                tb.SelectionStart = len;
+                tb.SelectionEnd = len;
+            }, DispatcherPriority.Background);
+        }
+
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             // When the ItemsSource changes, Avalonia's SelectingItemsControl resets the
@@ -1318,6 +1364,7 @@ namespace gip.core.layoutengine.avui
             {
                 UpdateHasValueState();
                 OnSelectedItemChanged();
+                CollapseEditableTextBoxSelection();
             }
             else if (change.Property == SelectedValueProperty)
             {

@@ -72,7 +72,7 @@
 		<GradientStop Color="#FF115B00" Offset="1" />
 	</LinearGradientBrush>
 
-	<Color x:Key="ColorCtrlTxtDisabled">#FF303030</Color>
+	<Color x:Key="ColorCtrlTxtDisabled">#FFB0B0B0</Color>
 	<SolidColorBrush x:Key="CtrlTxtDisabled" Color="{StaticResource ColorCtrlTxtDisabled}"/>
 
 	<Color x:Key="ColorCtrlTxtEnabled">#FF000000</Color>
@@ -203,7 +203,7 @@
 	<Color x:Key="ButtonPressedInnerBorderBrushColor3">#FFDBB368</Color>
 
 
-	<Color x:Key="ButtonDisabledBackgroundColor">#FFF4F4F4</Color>
+	<Color x:Key="ButtonDisabledBackgroundColor">#FF606060</Color>
 
 	<Color x:Key="ButtonDisabledOuterBorderBrushColor">#FFB5B2AD</Color>
 
@@ -556,14 +556,14 @@
     Opacity="0.75"
     Color="#BD202C" />
   <SolidColorBrush x:Key="ThemeControlTransparentBrush" Color="Transparent" />
+  <!-- iPlus selection red instead of Fluent's blue -->
   <SolidColorBrush
     x:Key="DatePickerFlyoutPresenterHighlightFill"
-    Opacity="0.4"
-    Color="{StaticResource ThemeAccentColor}" />
+    Color="#20600000" />
+  <!-- iPlus selection red instead of Fluent's blue -->
   <SolidColorBrush
     x:Key="TimePickerFlyoutPresenterHighlightFill"
-    Opacity="0.4"
-    Color="{StaticResource ThemeAccentColor}" />
+    Color="#20600000" />
   <Thickness x:Key="ThemeBorderThickness">1</Thickness>
   <sys:Double x:Key="ThemeDisabledOpacity">0.5</sys:Double>
 

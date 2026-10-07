@@ -111,9 +111,9 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
         </Style>
 
         <!-- Focus State -->
-        <Style Selector="^:focus-within /template/ Border#Border">
-            <Setter Property="BorderThickness" Value="2,2,2,2"/>
-        </Style>
+        <!-- Do NOT change Border#Border thickness on focus: its default is 0
+             (the visible frame is drawn by the inner VBTextBox), so any thickness
+             here would squeeze the content and make the picker shrink on focus. -->
         <Style Selector="^:focus-within">
             <Setter Property="FontWeight" Value="Bold"/>
         </Style>

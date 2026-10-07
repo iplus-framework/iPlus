@@ -65,12 +65,15 @@
                          Stroke="{StaticResource NormalBorderBrush}"
                          StrokeThickness="1" />
               
-              <!-- Row resize grippers for maintaining original functionality -->
-              <Thumb x:Name="PART_TopHeaderGripper" 
-                     Theme="{StaticResource RowHeaderGripperStyle}" 
+              <!-- Row resize grippers for maintaining original functionality.
+                   Inert in the Avalonia DataGrid - must not intercept pointer presses. -->
+              <Thumb x:Name="PART_TopHeaderGripper"
+                     Theme="{StaticResource RowHeaderGripperStyle}"
+                     IsHitTestVisible="False"
                      VerticalAlignment="Top" />
-              <Thumb x:Name="PART_BottomHeaderGripper" 
-                     Theme="{StaticResource RowHeaderGripperStyle}" 
+              <Thumb x:Name="PART_BottomHeaderGripper"
+                     Theme="{StaticResource RowHeaderGripperStyle}"
+                     IsHitTestVisible="False"
                      VerticalAlignment="Bottom" />
             </Grid>
           </Border>

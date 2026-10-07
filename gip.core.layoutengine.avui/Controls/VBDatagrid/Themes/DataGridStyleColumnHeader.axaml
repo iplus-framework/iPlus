@@ -133,12 +133,16 @@
                          StrokeThickness="1" />
             </Grid>
 
-            <!-- Column resize grippers - positioned outside main grid -->
+            <!-- Column resize grippers - positioned outside main grid.
+                 Inert in the Avalonia DataGrid (resize is handled by DataGridColumnHeader's
+                 edge zones), so they must not intercept pointer presses. -->
             <Thumb x:Name="PART_LeftHeaderGripper"
                    HorizontalAlignment="Left"
+                   IsHitTestVisible="False"
                    Theme="{StaticResource ColumnHeaderGripperStyle}"/>
             <Thumb x:Name="PART_RightHeaderGripper"
                    HorizontalAlignment="Right"
+                   IsHitTestVisible="False"
                    Theme="{StaticResource ColumnHeaderGripperStyle}"/>
           </Grid>
         </Border>

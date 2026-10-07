@@ -10,10 +10,23 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type local:VBDateTimeUpDown}">
-                    <local:VBButtonSpinner x:Name="PART_Spinner" IsTabStop="False" BorderThickness="{TemplateBinding BorderThickness}">
+                    <!-- Stretch: the ButtonSpinner theme centers its content vertically,
+                         which would render the inner VBTextBox ~3px shorter than a
+                         standalone VBTextBox in the same grid row.
+                     BorderThickness=0: the inner VBTextBox draws its own border, so the
+                         spinner must not take another pixel from it. -->
+                    <!-- TransparentBody=True: the inner VBTextBox draws its own border
+                         and hover visuals, so the spinner body must stay fully
+                         transparent (see VBButtonSpinner.TransparentBody). -->
+                    <local:VBButtonSpinner x:Name="PART_Spinner" IsTabStop="False"
+                                           HorizontalContentAlignment="Stretch"
+                                           VerticalContentAlignment="Stretch"
+                                           BorderThickness="0"
+                                           TransparentBody="True">
                         <local:VBTextBox x:Name="PART_TextBox" 
                                  ShowCaption="False"
                                  IsReadOnly="True"
+                                 FocusBorderThickness="1,1,1,1"
                                  MinWidth="20" AcceptsReturn="False" 
                                  TextAlignment="Right" TextWrapping="NoWrap" 
                                  TabIndex="{TemplateBinding TabIndex}"

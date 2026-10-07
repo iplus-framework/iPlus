@@ -409,8 +409,8 @@ namespace gip.core.layoutengine.avui
                         _SearchBox.VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center;
                         _SearchBox.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center;
                         _SearchBox.Name = "tbFilter";
-                        _SearchBox.Height = 28;
-                        _SearchBox.MinHeight = 28;
+                        _SearchBox.Height = 30;
+                        _SearchBox.MinHeight = 30;
                         _SearchBox.Width = 190;
                         _SearchBox.Margin = new Avalonia.Thickness(0, 0, 10, 0);
 

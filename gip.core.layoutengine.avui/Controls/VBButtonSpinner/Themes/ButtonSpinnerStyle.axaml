@@ -156,6 +156,25 @@
     </Style>
   </ControlTheme>
 
-  <ControlTheme x:Key="{x:Type local:VBButtonSpinner}" TargetType="{x:Type local:VBButtonSpinner}" BasedOn="{StaticResource {x:Type ButtonSpinner}}" />
+  <ControlTheme x:Key="{x:Type local:VBButtonSpinner}" TargetType="{x:Type local:VBButtonSpinner}" BasedOn="{StaticResource {x:Type ButtonSpinner}}">
+    <!-- TransparentBody=True: the spinner hosts a control (e.g. VBTextBox) that
+         draws its own border and hover visuals, so the spinner body (BgElement)
+         must stay fully transparent in all states. -->
+    <Style Selector="^[TransparentBody=True]:pointerover /template/ Border#BgElement">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+    <Style Selector="^[TransparentBody=True]:focus /template/ Border#BgElement">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+    <Style Selector="^[TransparentBody=True]:disabled /template/ Border#BgElement">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+    <Style Selector="^[TransparentBody=True]:error /template/ Border#BgElement">
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+  </ControlTheme>
 
 </ResourceDictionary>
