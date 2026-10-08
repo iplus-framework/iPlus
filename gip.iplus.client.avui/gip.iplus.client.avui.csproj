@@ -14,7 +14,11 @@
     <PackageReference Include="ReactiveUI"  />
     <PackageReference Include="ReactiveUI.Avalonia" Condition="'$(UseAvaloniaFork)' == 'False'" />
     <PackageReference Include="ReactiveUI.Avalonia" Condition="'$(UseAvaloniaFork)' == 'True'" GeneratePathProperty="true">
-      <ExcludeAssets>compile;build;buildTransitive;analyzers</ExcludeAssets>
+      <!-- 'runtime' excluded so the package does not additionally flow a runtime copy to
+           referencing projects (e.g. the Browser/WASM client): the Reference below already
+           copy-locals the dll, and a second copy breaks WASM static web asset fingerprinting
+           with 'An item with the same key has already been added'. -->
+      <ExcludeAssets>compile;build;buildTransitive;runtime;analyzers</ExcludeAssets>
     </PackageReference>
   </ItemGroup>
 

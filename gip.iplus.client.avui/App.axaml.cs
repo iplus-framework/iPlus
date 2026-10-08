@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -209,7 +210,7 @@ public partial class App : Application
                 _LoginView = new LoginView(
                 () =>
                 {
-                    HandleLoginAndStartup();
+                    return HandleLoginAndStartup();
                 },
                 () =>
                 {
@@ -238,6 +239,9 @@ public partial class App : Application
                 _AppSettings = new Settings();
                 _LoginView.DataContext = _AppSettings;
 
+                // Browser/Android clients have no ConnectionStrings.config: inject the
+                // connection settings entered in the SettingsGrid when the user presses Login.
+                _LoginView.LoginStarted += (s, e) => _LoginView.ApplyConnectionSettingsFromHelper();
 
                 rootControl.Content = _LoginView;
                 singleViewPlatform.MainView = rootControl;
@@ -277,7 +281,7 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            Trace.WriteLine($"App: failed to load settings file. {ex.GetType().Name}: {ex.Message}");
+            Console.WriteLine($"App: failed to load settings file. {ex.GetType().Name}: {ex.Message}");
             return new Settings();
         }
     }
@@ -295,7 +299,7 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            Trace.WriteLine($"App: failed to save settings file. {ex.GetType().Name}: {ex.Message}");
+            Console.WriteLine($"App: failed to save settings file. {ex.GetType().Name}: {ex.Message}");
         }
     }
 
@@ -338,9 +342,19 @@ public partial class App : Application
     /// </summary>
     /// <param name="varioiplusLogin">Eine Instanz der VarioiplusLogin-Klasse</param>
     /// <remarks>Wird in einer Instanz des ApplicationInitializeDelegate verarbeitet.</remarks>
-    private void HandleLoginAndStartup()
+    private async Task HandleLoginAndStartup()
     {
-        string[] cmLineArg = System.Environment.GetCommandLineArgs();
+        Console.WriteLine("App: HandleLoginAndStartup started");
+        // Browser/WASM has no real command line; GetCommandLineArgs may throw there.
+        string[] cmLineArg = Array.Empty<string>();
+        try
+        {
+            cmLineArg = System.Environment.GetCommandLineArgs() ?? Array.Empty<string>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"App: command line args not available. {ex.GetType().Name}: {ex.Message}");
+        }
 
         bool registerACObjects = false;
         bool propPersistenceOff = false;
@@ -380,7 +394,7 @@ public partial class App : Application
                 else if (_LoginView != null)
                 {
                     _LoginView.DisplayLogin(true, errorMsg);
-                    _LoginView.WaitOnLoginResult();
+                    await _LoginView.WaitOnLoginResult();
                     errorMsg = "";
                     _LoginView.DisplayLogin(false, errorMsg);
                 }
@@ -398,7 +412,9 @@ public partial class App : Application
                 break;
 
             ControlManager.WpfTheme = _AppSettings.WPFTheme;
+            Console.WriteLine($"App: LoginUser starting for user '{_AppSettings.UserName}' (attempt {i + 1})...");
             short result = _StartUpManager.LoginUser(_AppSettings.UserName, _AppSettings.Password, registerACObjects, propPersistenceOff, ref errorMsg, wcfOff, simulation, fullscreen);
+            Console.WriteLine($"App: LoginUser returned {result}.");
             if (result == 1)
             {
                 SaveSettingsToDisk();

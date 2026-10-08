@@ -4,11 +4,68 @@
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Nullable>enable</Nullable>
+    <!-- Required so fingerprinted static web assets get a single endpoint per asset
+         (otherwise GenerateWasmBootJson fails with 'An item with the same key has
+         already been added'). Mirrors samples/ControlCatalog.Browser. -->
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="$(AvaloniaPackagePrefix)Avalonia.Browser"  />
+    <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />
   </ItemGroup>
+
+  <!-- Use Avalonia Fork: reference all Avalonia assemblies from the fork's Browser build
+       output so every assembly comes from one consistent location (mixing copies from
+       Native/bin and the Browser bin dir breaks the WASM ManagedToNativeGenerator with
+       "assembly already loaded into MetadataLoadContext"). -->
+  <PropertyGroup Condition="'$(UseAvaloniaFork)' == 'True'">
+    <AvaloniaBrowserForkDir>$(AvaloniaRootDir)/src/Browser/Avalonia.Browser/bin/$(AvaloniaForkBuildConfiguration)/$(AvaloniaBuildFramework)-browser/</AvaloniaBrowserForkDir>
+  </PropertyGroup>
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaBaseFluentInclude.props" />
+  <ItemGroup Condition="'$(UseAvaloniaFork)' == 'True'">
+    <PackageReference Include="MicroCom.Runtime" />
+    <Reference Include="Avalonia.Markup.Xaml.Loader">
+      <HintPath>$(AvaloniaMarkupBuildDir)/$(AvaloniaForkBuildConfiguration)/$(AvaloniaBuildFramework)/Avalonia.Markup.Xaml.Loader.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia">
+      <HintPath>$(AvaloniaBrowserForkDir)Avalonia.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Base">
+      <HintPath>$(AvaloniaBrowserForkDir)Avalonia.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Controls">
+      <HintPath>$(AvaloniaBrowserForkDir)Avalonia.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Markup">
+      <HintPath>$(AvaloniaBrowserForkDir)Avalonia.Markup.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Markup.Xaml">
+      <HintPath>$(AvaloniaBrowserForkDir)Avalonia.Markup.Xaml.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Skia">
+      <HintPath>$(AvaloniaBrowserForkDir)Avalonia.Skia.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.HarfBuzz">
+      <HintPath>$(AvaloniaBrowserForkDir)Avalonia.HarfBuzz.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Browser">
+      <HintPath>$(AvaloniaBrowserForkDir)Avalonia.Browser.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Swashbuckle.AspNetCore.Swagger (transitive dependency) adds a FrameworkReference to
+       Microsoft.AspNetCore.App, which has no runtime pack for the browser-wasm RID (NETSDK1082).
+       The Browser client does not host ASP.NET Core services, so remove the framework
+       reference before runtime pack resolution. -->
+  <Target Name="RemoveAspNetCoreFrameworkReference" BeforeTargets="ResolveFrameworkReferences">
+    <ItemGroup>
+      <FrameworkReference Remove="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Register the fork's Avalonia.Browser JS assets (avalonia.js, storage.js) as static
+       web assets; the NuGet package would normally do this via its build targets. -->
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(AvaloniaRootDir)/src/Browser/Avalonia.Browser/build/iPlus.Avalonia.Browser.targets" />
 
   <ItemGroup>
     <ProjectReference Include="..\gip.iplus.client.avui\gip.iplus.client.avui.csproj" />
