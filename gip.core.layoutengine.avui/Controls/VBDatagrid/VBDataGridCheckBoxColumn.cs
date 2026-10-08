@@ -20,17 +20,18 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBDataGridCheckBoxColumn : DataGridCheckBoxColumn, IGriColumn
     {
-        private readonly Lazy<ControlTheme> _cellCheckBoxEditTheme;
-        private readonly Lazy<ControlTheme> _cellCheckBoxDefaultTheme;
-        public VBDataGridCheckBoxColumn() : base()
+        private ControlTheme GetCellCheckBoxEditTheme()
         {
-            if (this.OwningGrid != null)
-            {
-                _cellCheckBoxEditTheme = new Lazy<ControlTheme>(() =>
-                    OwningGrid.TryFindResource("DataGridCheckBoxEditTheme", out var theme) ? (ControlTheme)theme : null);
-                _cellCheckBoxDefaultTheme = new Lazy<ControlTheme>(() =>
-                    OwningGrid.TryFindResource("DataGridCheckBoxDefaultTheme", out var theme) ? (ControlTheme)theme : null);
-            }
+            return OwningGrid != null
+                && OwningGrid.TryFindResource("DataGridCheckBoxEditTheme", out var theme)
+                && theme is ControlTheme controlTheme ? controlTheme : null;
+        }
+
+        private ControlTheme GetCellCheckBoxDefaultTheme()
+        {
+            return OwningGrid != null
+                && OwningGrid.TryFindResource("DataGridCheckBoxDefaultTheme", out var theme)
+                && theme is ControlTheme controlTheme ? controlTheme : null;
         }
 
         /// <summary>
@@ -339,9 +340,8 @@ namespace gip.core.layoutengine.avui
         {
             if (!String.IsNullOrEmpty(VBContent) && ACColumnItem == null)
                 ACColumnItem = new ACColumnItem(VBContent);
-            VBCheckBox checkBox = GenerateCheckBox(true, cell);
-            checkBox.Name = "CellTextBlock";
-            if (_cellCheckBoxEditTheme.Value is { } theme)
+            VBCheckBox checkBox = GenerateCheckBox(true, cell, "CellTextBlock");
+            if (GetCellCheckBoxEditTheme() is { } theme)
             {
                 checkBox.Theme = theme;
             }
@@ -363,9 +363,8 @@ namespace gip.core.layoutengine.avui
             bool isEnabled = false;
             if (!String.IsNullOrEmpty(VBContent) && ACColumnItem == null)
                 ACColumnItem = new ACColumnItem(VBContent);
-            VBCheckBox checkBox = GenerateCheckBox(false, cell);
-            checkBox.Name = "CellTextBox";
-            if (_cellCheckBoxDefaultTheme != null && _cellCheckBoxDefaultTheme.Value is { } theme)
+            VBCheckBox checkBox = GenerateCheckBox(false, cell, "CellTextBox");
+            if (GetCellCheckBoxDefaultTheme() is { } theme)
             {
                 checkBox.Theme = theme;
             }
@@ -400,12 +399,16 @@ namespace gip.core.layoutengine.avui
 
 
 
-        private VBCheckBox GenerateCheckBox(bool isEditing, DataGridCell cell)
+        private VBCheckBox GenerateCheckBox(bool isEditing, DataGridCell cell, string name = null)
         {
             VBCheckBox checkBox = (cell != null) ? (cell.Content as VBCheckBox) : null;
             if (checkBox == null)
             {
                 checkBox = new VBCheckBox();
+                // Name may only be set before the element gets styled (i.e. before it
+                // is attached to the visual tree). Reused checkboxes are already styled.
+                if (!String.IsNullOrEmpty(name))
+                    checkBox.Name = name;
                 if (!isEditing && this.IsReadOnly)
                     checkBox.IsEnabled = false;
             }

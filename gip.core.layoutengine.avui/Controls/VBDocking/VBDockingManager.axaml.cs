@@ -5,6 +5,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Styling;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Dock.Avalonia.Controls;
 using Dock.Model.Avalonia;
@@ -1585,6 +1586,13 @@ namespace gip.core.layoutengine.avui
         {
             if (e.PropertyName == "InitState" && sender is IACBSO bso)
             {
+                // This handler can be raised from a background thread (e.g. ACRoot.ACDeInit
+                // during shutdown). Accessing Avalonia properties requires the UI thread.
+                if (!Dispatcher.UIThread.CheckAccess())
+                {
+                    Dispatcher.UIThread.Post(() => Docked_BSOACComponent_PropertyChanged(sender, e));
+                    return;
+                }
                 var map = DesignToolMap.Where(c => c.Design.BSOACComponent == bso).FirstOrDefault();
                 if (map != null && map.State == ClosingState.None && VBDockingManager.GetIsCloseableBSORoot(map.Design))
                 {

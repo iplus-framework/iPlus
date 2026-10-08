@@ -775,8 +775,12 @@ namespace gip.core.layoutengine.avui
             {
                 object cellValue = values.Count > 0 ? values[0] : null;
                 IEnumerable items = values.Count > 1 ? values[1] as IEnumerable : null;
-                if (cellValue == null)
+                // Skip until all sub-bindings have produced real values (cell value may be
+                // Avalonia's (unset) while the DataContext is not yet attached).
+                if (cellValue == null || cellValue is UnsetValueType)
                     return "";
+                if (items == null)
+                    return cellValue.ToString();
                 if (items != null)
                 {
                     // If SelectedItemBinding is set, the cell value is the lookup item itself,
@@ -788,14 +792,42 @@ namespace gip.core.layoutengine.avui
                             continue;
                         bool matches = valueIsItem
                             ? Equals(item, cellValue)
-                            : Equals(ResolvePath(item, Const.Value), cellValue);
+                            : ValuesMatch(ResolvePath(item, Const.Value), cellValue);
                         if (!matches && !valueIsItem)
-                            matches = string.Equals(item.ToString(), cellValue.ToString(), StringComparison.Ordinal);
+                            matches = ValuesMatch(item, cellValue);
                         if (matches)
                             return GetDisplayText(item);
                     }
                 }
                 return cellValue.ToString();
+            }
+
+            /// <summary>
+            /// Compares two values for equality, tolerant against enum/numeric/boxed-type
+            /// differences (e.g. cell value is a short index, item value is an enum).
+            /// </summary>
+            private static bool ValuesMatch(object a, object b)
+            {
+                if (Equals(a, b))
+                    return true;
+                if (a == null || b == null)
+                    return false;
+                // Only attempt a numeric comparison when both values are actually convertible
+                // (e.g. enum vs. boxed index). Convert.ToInt64 would throw InvalidCastException
+                // for arbitrary reference types like ACValueItem.
+                if (a is IConvertible && b is IConvertible)
+                {
+                    try
+                    {
+                        long la = System.Convert.ToInt64(a, CultureInfo.InvariantCulture);
+                        long lb = System.Convert.ToInt64(b, CultureInfo.InvariantCulture);
+                        return la == lb;
+                    }
+                    catch
+                    {
+                    }
+                }
+                return string.Equals(a.ToString(), b.ToString(), StringComparison.Ordinal);
             }
 
             private static object ResolvePath(object item, string path)
@@ -815,7 +847,15 @@ namespace gip.core.layoutengine.avui
 
             private string GetDisplayText(object item)
             {
+                // DisplayMemberPath is preferred; for enum columns InitWithBinding only sets
+                // DisplayMemberBinding (e.g. "ACCaption"), so use its path as fallback.
                 string displayMemberPath = _column.DisplayMemberPath;
+                if (string.IsNullOrEmpty(displayMemberPath))
+                {
+                    Binding displayMemberBinding = _column.DisplayMemberBinding as Binding;
+                    if (displayMemberBinding != null)
+                        displayMemberPath = displayMemberBinding.Path;
+                }
                 if (!string.IsNullOrEmpty(displayMemberPath))
                 {
                     object value = ResolvePath(item, displayMemberPath);
