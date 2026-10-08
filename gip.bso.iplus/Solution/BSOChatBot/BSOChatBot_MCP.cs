@@ -163,6 +163,11 @@ namespace gip.bso.iplus
 
         private Dictionary<string, McpClient> _McpClients;
 
+        /// <summary>
+        /// Maps a tool name to the name of the MCP server it was loaded from.
+        /// </summary>
+        private Dictionary<string, string> _ToolServerNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
         #endregion
 
         #region Init/DeInit
@@ -369,6 +374,8 @@ namespace gip.bso.iplus
                     {
                         _McpClients[result.serverName] = result.client;
                         AvailableTools.AddRange(result.tools);
+                        foreach (var tool in result.tools)
+                            _ToolServerNames[tool.Name] = result.serverName;
                         totalTools += result.tools.Count;
                         connectedServers.Add($"{result.serverName} ({result.tools.Count} tools)");
                     }
@@ -612,6 +619,7 @@ namespace gip.bso.iplus
 
                 AvailableTools.Clear();
                 ToolCheckList.Clear();
+                _ToolServerNames.Clear();
                 McpConnected = false;
                 ChatOutput = "All MCP clients disconnected";
                 _McpClients = new Dictionary<string, McpClient>();
@@ -651,11 +659,17 @@ namespace gip.bso.iplus
                     }
                 }
 
-                // Create ACObjectItemWCheckBox instances for each available tool
-                foreach (var tool in AvailableTools)
+                // Create ACObjectItemWCheckBox instances for each available tool,
+                // sorted by MCP server name, then by tool name.
+                // The caption shown in the datagrid is "MCPServer > ToolName".
+                foreach (var tool in AvailableTools
+                    .OrderBy(t => _ToolServerNames.TryGetValue(t.Name, out var server) ? server : "", StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(t => t.Name, StringComparer.OrdinalIgnoreCase))
                 {
                     bool isSelected = allowedToolNames.Contains(tool.Name);
-                    var toolItem = new ACObjectItemWCheckBox(this, tool.Name, isSelected)
+                    string serverName = _ToolServerNames.TryGetValue(tool.Name, out var server) ? server : null;
+                    string caption = !string.IsNullOrEmpty(serverName) ? serverName + " > " + tool.Name : tool.Name;
+                    var toolItem = new ACObjectItemWCheckBox(this, caption, isSelected)
                     {
                         ACObject = new ACValueItem(tool.Name, tool, null)
                     };
@@ -681,7 +695,7 @@ namespace gip.bso.iplus
             {
                 var selectedToolNames = ToolCheckList
                     .Where(item => item.IsChecked)
-                    .Select(item => item.ACCaption)
+                    .Select(item => item.ACObject != null ? ((ACValueItem)item.ACObject).ACCaption : item.ACCaption)
                     .ToArray();
 
                 AllowedTools = JsonSerializer.Serialize(selectedToolNames);

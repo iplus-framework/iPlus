@@ -32,7 +32,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace gip.core.webservices
 {
     [McpServerToolType]
-    public sealed class MCPIPlusTools
+    public sealed partial class MCPIPlusTools
     {
         #region Properties
         private static MCPToolAppTree _appTreeServer = new MCPToolAppTree(false);
