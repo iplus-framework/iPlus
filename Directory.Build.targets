@@ -45,6 +45,16 @@
 		<NoPackageAnalysis>true</NoPackageAnalysis>
 	</PropertyGroup>
 
+	<!--
+		Legacy gip.ext.* projects produce no PDBs, so their symbol packages would be
+		empty. nuget.org rejects empty .snupkg files with 400 ("does not contain any
+		symbol (.pdb) files)"), which aborts 'dotnet nuget push local-packages/*.nupkg'.
+		Disable symbol generation for them.
+	-->
+	<PropertyGroup Condition="'$(IPlusIsPackable)' == 'true' and ($(MSBuildProjectName.StartsWith('gip.ext.design')) or $(MSBuildProjectName.StartsWith('gip.ext.widgets')) or $(MSBuildProjectName.StartsWith('gip.ext.xamldom')))">
+		<IncludeSymbols>false</IncludeSymbols>
+	</PropertyGroup>
+
 	<!-- Set icon/readme metadata when the files exist in the project directory;
 	     clear it when they are missing (some csprojs declare them unconditionally) -->
 	<PropertyGroup Condition="'$(IPlusIsPackable)' == 'true' and Exists('$(MSBuildProjectDirectory)/icon.png')">
