@@ -7,6 +7,7 @@
 		<Project Path="gip.iplus.client.avui/gip.iplus.client.avui.csproj" />
 		<Project Path="gip.iplus.console/gip.iplus.console.csproj" />
 		<Project Path="gip.iplus.service/gip.iplus.service.csproj" />
+		<Project Path="gip.iplus.client.avui.Browser/gip.iplus.client.avui.Browser.csproj" />
 	</Folder>
 	<Folder Name="/2. Businesslayer/">
 		<Project Path="gip.bso.iplus/gip.bso.iplus.csproj" />

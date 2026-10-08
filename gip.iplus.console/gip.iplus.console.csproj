@@ -58,6 +58,7 @@
   <ItemGroup>
     <ProjectReference Include="..\gip.core.autocomponent\gip.core.autocomponent.csproj" />
     <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
+    <ProjectReference Include="..\gip.core.webservices\gip.core.webservices.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\iPlusIconDesktop.ico" />

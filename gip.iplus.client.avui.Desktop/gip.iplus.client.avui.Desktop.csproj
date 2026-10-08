@@ -49,6 +49,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\gip.iplus.client.avui\gip.iplus.client.avui.csproj" />
+    <ProjectReference Include="..\gip.core.webservices\gip.core.webservices.csproj" />
   </ItemGroup>
 
   <ItemGroup>

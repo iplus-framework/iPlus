@@ -33,6 +33,11 @@
 		<AvaloniaSkiaBuildDir>$(AvaloniaRootDir)/src/Skia/Avalonia.Skia/bin</AvaloniaSkiaBuildDir>
 
 		<!-- Resolve fork binaries from the active configuration, then fallback to Release/Debug if needed. -->
+		<!-- NOTE: Directory.Build.props is evaluated before the SDK assigns its default Configuration,
+		     so $(Configuration) may be empty here (e.g. plain `dotnet build`/`dotnet run` without
+		     -p:Configuration=...). Default to Debug so the fork resolution below does not silently
+		     fall back to stale Release binaries. A global -p:Configuration=... still wins. -->
+		<Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
 		<AvaloniaForkBuildConfiguration Condition="'$(AvaloniaForkBuildConfiguration)' == '' and '$(Configuration)' != '' and Exists('$(AvaloniaNativeBuildDir)/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.dll')">$(Configuration)</AvaloniaForkBuildConfiguration>
 		<AvaloniaForkBuildConfiguration Condition="'$(AvaloniaForkBuildConfiguration)' == '' and Exists('$(AvaloniaNativeBuildDir)/Release/$(AvaloniaBuildFramework)/Avalonia.dll')">Release</AvaloniaForkBuildConfiguration>
 		<AvaloniaForkBuildConfiguration Condition="'$(AvaloniaForkBuildConfiguration)' == '' and Exists('$(AvaloniaNativeBuildDir)/Debug/$(AvaloniaBuildFramework)/Avalonia.dll')">Debug</AvaloniaForkBuildConfiguration>
