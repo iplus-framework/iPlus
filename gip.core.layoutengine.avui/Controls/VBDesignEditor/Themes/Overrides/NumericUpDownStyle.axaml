@@ -1,0 +1,88 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+   xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls;assembly=gip.ext.designer.avui">
+
+  <!--
+    Override for the designer's NumericUpDown (base of the property-grid NumberEditor).
+    Gives it the same look & feel as the other iPlus controls: a VBTextBox as edit
+    area and two transparent spinner buttons (20x12) stacked on the right, like the
+    VBButtonSpinner used by VBNumericUpDown.
+    The template part names (PART_TextBox, PART_UpButton, PART_DownButton) match the
+    contracts of gip.ext.designer.avui.Controls.NumericUpDown.
+  -->
+
+  <StreamGeometry x:Key="NumericUpDownIncreaseButtonIcon">M 0,3 C0,3 0,4 0,4 0,4 3,4 3,4 3,4 3,3 3,3 3,3 4,3 4,3 4,3 4,4 4,4 4,4 7,4 7,4 7,4 7,3 7,3 7,3 6,3 6,3 6,3 6,2 6,2 6,2 5,2 5,2 5,2 5,1 5,1 5,1 4,1 4,1 4,1 4,0 4,0 4,0 3,0 3,0 3,0 3,1 3,1 3,1 2,1 2,1 2,1 2,2 2,2 2,2 1,2 1,2 1,2 1,3 1,3 1,3 0,3 0,3 z</StreamGeometry>
+  <StreamGeometry x:Key="NumericUpDownDecreaseButtonIcon">M 0,1 C0,1 0,0 0,0 0,0 3,0 3,0 3,0 3,1 3,1 3,1 4,1 4,1 4,1 4,0 4,0 4,0 7,0 7,0 7,0 7,1 7,1 7,1 6,1 6,1 6,1 6,2 6,2 6,2 5,2 5,2 5,2 5,3 5,3 5,3 4,3 4,3 4,3 4,4 4,4 4,4 3,4 3,4 3,4 3,3 3,3 3,3 2,3 2,3 2,3 2,2 2,2 2,2 1,2 1,2 1,2 1,1 1,1 1,1 0,1 0,1 z</StreamGeometry>
+
+  <ControlTheme x:Key="NumericUpDownSpinnerUpButton" TargetType="Controls:DragRepeatButton">
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="Width" Value="20" />
+    <Setter Property="Height" Value="12" />
+    <Setter Property="Template">
+      <ControlTemplate TargetType="Controls:DragRepeatButton">
+        <Border x:Name="bg" Background="Transparent">
+          <Path Width="7" Height="4"
+                Data="{StaticResource NumericUpDownIncreaseButtonIcon}"
+                Fill="{DynamicResource DateTimePickerFillArrowGlyph}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+    <Style Selector="^:pointerover /template/ Border#bg">
+      <Setter Property="Background" Value="{DynamicResource TextBoxHoverBackgroundBrush}" />
+    </Style>
+    <Style Selector="^:pressed /template/ Border#bg">
+      <Setter Property="Background" Value="{DynamicResource TextBoxFocusBackgroundBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="NumericUpDownSpinnerDownButton" TargetType="Controls:DragRepeatButton">
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="Width" Value="20" />
+    <Setter Property="Height" Value="12" />
+    <Setter Property="Template">
+      <ControlTemplate TargetType="Controls:DragRepeatButton">
+        <Border x:Name="bg" Background="Transparent">
+          <Path Width="7" Height="4"
+                Data="{StaticResource NumericUpDownDecreaseButtonIcon}"
+                Fill="{DynamicResource DateTimePickerFillArrowGlyph}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+    <Style Selector="^:pointerover /template/ Border#bg">
+      <Setter Property="Background" Value="{DynamicResource TextBoxHoverBackgroundBrush}" />
+    </Style>
+    <Style Selector="^:pressed /template/ Border#bg">
+      <Setter Property="Background" Value="{DynamicResource TextBoxFocusBackgroundBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:NumericUpDown}" TargetType="{x:Type Controls:NumericUpDown}">
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="Template">
+      <ControlTemplate TargetType="Controls:NumericUpDown">
+        <DockPanel>
+          <UniformGrid x:Name="PART_SpinnerPanel"
+                       Columns="1"
+                       DockPanel.Dock="Right">
+            <Controls:DragRepeatButton x:Name="PART_UpButton"
+                                       Theme="{StaticResource NumericUpDownSpinnerUpButton}" />
+            <Controls:DragRepeatButton x:Name="PART_DownButton"
+                                       Theme="{StaticResource NumericUpDownSpinnerDownButton}" />
+          </UniformGrid>
+          <local:VBTextBox x:Name="PART_TextBox"
+                           ShowCaption="False"
+                           MinWidth="20"
+                           AcceptsReturn="False"
+                           TextAlignment="Right"
+                           TextWrapping="NoWrap" />
+        </DockPanel>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

@@ -771,6 +771,12 @@ namespace gip.core.layoutengine.avui
 
                     ToolDock toolDock = MainLayout.VisibleDockables.OfType<ToolDock>().Where(c => c.Alignment == alignment).FirstOrDefault();
 
+                    // Auto-hide designer tools: only the first tool in the dock becomes active,
+                    // so subsequently added tools do not steal the selection.
+                    bool activateTool = dockState != Global.VBDesignDockState.AutoHideButton
+                        || toolDock?.VisibleDockables == null
+                        || toolDock.VisibleDockables.Count == 0;
+
                     if (toolDock == null)
                     {
                         toolDock = new ToolDock
@@ -793,12 +799,12 @@ namespace gip.core.layoutengine.avui
                             MainLayout.VisibleDockables.Add(toolDock);
                         }
 
-                        AddAndActivateToolDockable(MainLayout, toolDock, tool);
+                        AddAndActivateToolDockable(MainLayout, toolDock, tool, activateTool);
                     }
                     else
                     {
                         EnableCanCloseLastDockable(toolDock);
-                        AddAndActivateToolDockable(MainLayout, toolDock, tool);
+                        AddAndActivateToolDockable(MainLayout, toolDock, tool, activateTool);
                     }
                     if (dockState == Global.VBDesignDockState.AutoHideButton)
                         tools2Unpin.Add(tool);
@@ -832,6 +838,12 @@ namespace gip.core.layoutengine.avui
 
                     RegisterDesignDockable(uiElementAsDataDesign, tool);
 
+                    // Auto-hide designer tools: only the first tool in the dock becomes active,
+                    // so subsequently added tools do not steal the selection.
+                    bool activateTool = dockState != Global.VBDesignDockState.AutoHideButton
+                        || toolDock?.VisibleDockables == null
+                        || toolDock.VisibleDockables.Count == 0;
+
                     if (toolDock == null)
                     {
                         toolDock = new ToolDock
@@ -854,12 +866,12 @@ namespace gip.core.layoutengine.avui
                             horizontalArea.VisibleDockables.Add(toolDock);
                         }
 
-                        AddAndActivateToolDockable(horizontalArea, toolDock, tool);
+                        AddAndActivateToolDockable(horizontalArea, toolDock, tool, activateTool);
                     }
                     else
                     {
                         EnableCanCloseLastDockable(toolDock);
-                        AddAndActivateToolDockable(horizontalArea, toolDock, tool);
+                        AddAndActivateToolDockable(horizontalArea, toolDock, tool, activateTool);
                     }
                     if (dockState == Global.VBDesignDockState.AutoHideButton)
                         tools2Unpin.Add(tool);
@@ -1159,6 +1171,12 @@ namespace gip.core.layoutengine.avui
 
                     ToolDock toolDock = MainLayout.VisibleDockables.OfType<ToolDock>().Where(c => c.Alignment == alignment).FirstOrDefault();
 
+                    // Auto-hide designer tools: only the first tool in the dock becomes active,
+                    // so subsequently added tools do not steal the selection.
+                    bool activateTool = dockState != Global.VBDesignDockState.AutoHideButton
+                        || toolDock?.VisibleDockables == null
+                        || toolDock.VisibleDockables.Count == 0;
+
                     if (toolDock == null)
                     {
                         toolDock = new ToolDock
@@ -1181,12 +1199,12 @@ namespace gip.core.layoutengine.avui
                             MainLayout.VisibleDockables.Add(toolDock);
                         }
 
-                        AddAndActivateToolDockable(MainLayout, toolDock, tool);
+                        AddAndActivateToolDockable(MainLayout, toolDock, tool, activateTool);
                     }
                     else
                     {
                         EnableCanCloseLastDockable(toolDock);
-                        AddAndActivateToolDockable(MainLayout, toolDock, tool);
+                        AddAndActivateToolDockable(MainLayout, toolDock, tool, activateTool);
                     }
                     if (dockState == Global.VBDesignDockState.AutoHideButton)
                         tools2Unpin.Add(tool);
@@ -1220,6 +1238,12 @@ namespace gip.core.layoutengine.avui
 
                     RegisterDesignDockable(uiElementAsDataDesign, tool);
 
+                    // Auto-hide designer tools: only the first tool in the dock becomes active,
+                    // so subsequently added tools do not steal the selection.
+                    bool activateTool = dockState != Global.VBDesignDockState.AutoHideButton
+                        || toolDock?.VisibleDockables == null
+                        || toolDock.VisibleDockables.Count == 0;
+
                     if (toolDock == null)
                     {
                         toolDock = new ToolDock
@@ -1242,12 +1266,12 @@ namespace gip.core.layoutengine.avui
                             horizontalArea.VisibleDockables.Add(toolDock);
                         }
 
-                        AddAndActivateToolDockable(horizontalArea, toolDock, tool);
+                        AddAndActivateToolDockable(horizontalArea, toolDock, tool, activateTool);
                     }
                     else
                     {
                         EnableCanCloseLastDockable(toolDock);
-                        AddAndActivateToolDockable(horizontalArea, toolDock, tool);
+                        AddAndActivateToolDockable(horizontalArea, toolDock, tool, activateTool);
                     }
                     if (dockState == Global.VBDesignDockState.AutoHideButton)
                         tools2Unpin.Add(tool);
@@ -1492,7 +1516,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private void AddAndActivateToolDockable(IDock ownerDock, ToolDock toolDock, Tool tool)
+        private void AddAndActivateToolDockable(IDock ownerDock, ToolDock toolDock, Tool tool, bool activate = true)
         {
             if (ownerDock == null || toolDock == null || tool == null)
                 return;
@@ -1506,7 +1530,8 @@ namespace gip.core.layoutengine.avui
                 if (toolDock.Owner == null)
                     toolDock.Owner = ownerDock;
                 toolDock.VisibleDockables.Add(tool);
-                toolDock.ActiveDockable = tool;
+                if (activate)
+                    toolDock.ActiveDockable = tool;
                 return;
             }
 
@@ -1516,8 +1541,11 @@ namespace gip.core.layoutengine.avui
                 _Factory.InitDockable(toolDock, ownerDock);
 
             _Factory.AddDockable(toolDock, tool);
-            _Factory.SetActiveDockable(tool);
-            _Factory.SetFocusedDockable(toolDock, tool);
+            if (activate)
+            {
+                _Factory.SetActiveDockable(tool);
+                _Factory.SetFocusedDockable(toolDock, tool);
+            }
         }
 
         private void RegisterDesignDockable(VBDesign design, DockableBase dockable)

@@ -98,6 +98,11 @@ namespace gip.ext.designer.avui.Xaml
             get { return _property.IsCollection; }
         }
 
+        public override bool IsAttached
+        {
+            get { return _property.IsAttached; }
+        }
+
         public override bool IsEvent
         {
             get { return _property.IsEvent; }

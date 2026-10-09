@@ -15,6 +15,9 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
 	[TypeEditor(typeof(Enum))]
 	public partial class VBComboBoxEditor : VBComboBox
     {
+        // Avalonia resolves the implicit ControlTheme only by the control's own StyleKey
+        // (no base-type walk) - style as the base type so the VBComboBox theme is found.
+        protected override Type StyleKeyOverride => typeof(VBComboBox);
 		/// <summary>
 		/// Create a new ComboBoxEditor instance.
 		/// </summary>

@@ -1,6 +1,7 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -33,7 +34,10 @@ namespace gip.ext.designer.avui.Services
 
 		public virtual IEnumerable<MemberDescriptor> GetAvailableProperties(DesignItem designItem)
 		{
-			return TypeHelper.GetAvailableProperties(designItem.Component)
+			// Only offer attached layout properties that match the parent container
+			// (e.g. Canvas.Top only when the element is placed inside a Canvas).
+			Type parentType = designItem.Parent?.ComponentType;
+			return TypeHelper.GetAvailableProperties(designItem.Component, parentType: parentType)
 				.Where(x => !x.Name.Contains(".") || !IgnoreTypes.Contains(x.Name.Split('.')[0]));
 		}
 
@@ -44,8 +48,28 @@ namespace gip.ext.designer.avui.Services
 
 		public virtual IEnumerable<MemberDescriptor> GetCommonAvailableProperties(IEnumerable<DesignItem> designItems)
 		{
-			return TypeHelper.GetCommonAvailableProperties(designItems.Select(t => t.Component))
+			var items = designItems.ToList();
+			// Use the parent type only if all selected items share the same parent,
+			// otherwise no attached property is meaningful for the selection.
+			Type parentType = null;
+			var parents = items.Select(i => i.Parent).ToList();
+			if (parents.Count > 0 && parents.All(p => p == parents[0]))
+				parentType = parents[0]?.ComponentType;
+			return TypeHelper.GetCommonAvailableProperties(items.Select(t => t.Component))
+				.Where(x => !(x is TypeHelper.AttachedPropertyDescriptor attached)
+						|| parentType == null
+						|| IsOwnerOfParentType(attached.AvaloniaProperty.OwnerType, parentType))
 				.Where(x => !x.Name.Contains(".") || !IgnoreTypes.Contains(x.Name.Split('.')[0]));
+		}
+
+		protected static bool IsOwnerOfParentType(Type ownerType, Type parentType)
+		{
+			for (var t = parentType; t != null; t = t.BaseType)
+			{
+				if (t == ownerType)
+					return true;
+			}
+			return false;
 		}
 	}
 }

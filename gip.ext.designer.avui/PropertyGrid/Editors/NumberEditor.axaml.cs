@@ -32,6 +32,11 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
     [TypeEditor(typeof(ushort))]
     public partial class NumberEditor : Controls.NumericUpDown
     {
+        // Avalonia resolves the implicit ControlTheme only by the control's own StyleKey
+        // (no base-type walk). Without this, NumberEditor would not find the
+        // {x:Type NumericUpDown} theme and would render without a template (invisible).
+        protected override Type StyleKeyOverride => typeof(Controls.NumericUpDown);
+
         static NumberEditor()
         {
             minimums[typeof(byte)] = byte.MinValue;

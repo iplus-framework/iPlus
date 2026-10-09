@@ -41,6 +41,10 @@ namespace gip.ext.design.avui.PropertyGrid
         {
             get
             {
+                // Attached properties are displayed with their owner type prefix (e.g. "Canvas.Top")
+                // like the WPF TypeDescriptor provided them.
+                if (FirstProperty.IsAttached && FirstProperty.DeclaringType != null)
+                    return FirstProperty.DeclaringType.Name + "." + FirstProperty.Name;
                 //var dp = FirstProperty.DependencyProperty;
                 //if (dp != null)
                 //{

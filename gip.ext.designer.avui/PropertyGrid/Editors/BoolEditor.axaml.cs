@@ -14,6 +14,9 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
 	[TypeEditor(typeof(bool))]
 	public partial class BoolEditor : CheckBox
     {
+        // Avalonia resolves the implicit ControlTheme only by the control's own StyleKey
+        // (no base-type walk) - style as the base type so the CheckBox theme is found.
+        protected override Type StyleKeyOverride => typeof(CheckBox);
 		public BoolEditor()
 		{
             InitializeComponent();

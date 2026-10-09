@@ -11,6 +11,9 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
     /// </summary>
 	public partial class VBTextBoxEditor : VBTextBox
 	{
+		// Avalonia resolves the implicit ControlTheme only by the control's own StyleKey
+		// (no base-type walk) - style as the base type so the VBTextBox theme is found.
+		protected override System.Type StyleKeyOverride => typeof(VBTextBox);
 		/// <summary>
 		/// Creates a new TextBoxEditor instance.
 		/// </summary>

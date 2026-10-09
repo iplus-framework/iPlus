@@ -195,6 +195,11 @@ namespace gip.ext.design.avui
         public virtual bool IsAdvanced { get { return false; } }
 
         /// <summary>
+        /// Gets whether this property is an attached property (e.g. Canvas.Top).
+        /// </summary>
+        public virtual bool IsAttached { get { return false; } }
+
+        /// <summary>
         /// Gets the full name of the property (DeclaringType.FullName + "." + Name).
         /// </summary>
         public string FullName

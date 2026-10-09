@@ -14,6 +14,9 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
 {
 	public partial class TextBoxEditor : TextBox
 	{
+		// Avalonia resolves the implicit ControlTheme only by the control's own StyleKey
+		// (no base-type walk) - style as the base type so the TextBox theme is found.
+		protected override Type StyleKeyOverride => typeof(TextBox);
 		/// <summary>
 		/// Creates a new TextBoxEditor instance.
 		/// </summary>

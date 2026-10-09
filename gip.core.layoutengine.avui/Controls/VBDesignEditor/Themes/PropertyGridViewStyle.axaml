@@ -17,7 +17,8 @@
           <Expander Header="{Binding Name}"
                       Classes="CategoryExpanderStyle"
                       IsExpanded="{Binding IsExpanded}"
-                      IsVisible="{Binding IsVisible, Converter={x:Static Converters:CollapsedWhenFalse.Instance}}">
+                      IsVisible="{Binding IsVisible, Converter={x:Static Converters:CollapsedWhenFalse.Instance}}"
+                      HorizontalAlignment="Stretch">
             <ItemsControl ItemsSource="{Binding Properties}" />
           </Expander>
         </DataTemplate>
@@ -144,7 +145,8 @@
           <Expander Header="{Binding Name}"
                       Classes="CategoryExpanderStyle"
                       IsExpanded="{Binding IsExpanded}"
-                      IsVisible="{Binding IsVisible, Converter={x:Static Converters:CollapsedWhenFalse.Instance}}">
+                      IsVisible="{Binding IsVisible, Converter={x:Static Converters:CollapsedWhenFalse.Instance}}"
+                      HorizontalAlignment="Stretch">
             <local:VBListBox ItemsSource="{Binding Properties}" SelectedItem="{Binding SelectedNode, Mode=OneWayToSource}" ShowCaption="False" />
           </Expander>
         </DataTemplate>
@@ -238,13 +240,14 @@
           <Expander Header="{Binding Name}"
                       Classes="CategoryExpanderStyle"
                       IsExpanded="{Binding IsExpanded}"
-                      IsVisible="{Binding IsVisible, Converter={x:Static Converters:CollapsedWhenFalse.Instance}}">
+                      IsVisible="{Binding IsVisible, Converter={x:Static Converters:CollapsedWhenFalse.Instance}}"
+                      HorizontalAlignment="Stretch">
             <ItemsControl ItemsSource="{Binding Properties}" />
           </Expander>
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type PropertyGridBase:PropertyNode}">
-          <StackPanel IsVisible="{Binding IsVisible, Converter={x:Static Converters:CollapsedWhenFalse.Instance}}">
+          <StackPanel IsVisible="{Binding IsVisible, Converter={x:Static Converters:CollapsedWhenFalse.Instance}}" HorizontalAlignment="Stretch">
             <Border x:Name="uxPropertyNodeRow"
                     MinHeight="20"
                     BorderThickness="0 0 0 1"

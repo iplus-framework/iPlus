@@ -14,7 +14,7 @@
         <DockPanel LastChildFill="True" Background="{TemplateBinding Background}">
           <DockPanel.DataTemplates>
             <DataTemplate DataType="PropertyGridBase:Category">
-              <Expander Header="{Binding Name}" Classes="CategoryExpanderStyle" IsExpanded="{Binding IsExpanded}" IsVisible="{Binding IsVisible, Converter={x:Static Converters:CollapsedWhenFalse.Instance}}">
+              <Expander Header="{Binding Name}" Classes="CategoryExpanderStyle" IsExpanded="{Binding IsExpanded}" IsVisible="{Binding IsVisible, Converter={x:Static Converters:CollapsedWhenFalse.Instance}}" HorizontalAlignment="Stretch">
                 <ItemsControl ItemsSource="{Binding Properties}">
                   <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -25,7 +25,7 @@
               </Expander>
             </DataTemplate>
             <DataTemplate DataType="PropertyGridBase:PropertyNode">
-              <StackPanel IsVisible="{Binding IsVisible, Converter={x:Static Converters:CollapsedWhenFalse.Instance}}">
+              <StackPanel IsVisible="{Binding IsVisible, Converter={x:Static Converters:CollapsedWhenFalse.Instance}}" HorizontalAlignment="Stretch">
                 <Border x:Name="uxPropertyNodeRow" MinHeight="20" BorderThickness="0 0 0 1" BorderBrush="Gray" DockPanel.Dock="Top">
                   <DockPanel>
                     <DockPanel Width="{Binding FirstColumnWidth, RelativeSource={RelativeSource FindAncestor, AncestorType=PropertyGrid:PropertyGridView}}" DockPanel.Dock="Left">

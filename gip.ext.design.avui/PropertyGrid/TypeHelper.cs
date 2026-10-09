@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using Avalonia;
 
 namespace gip.ext.design.avui.PropertyGrid
 {
@@ -70,8 +71,10 @@ namespace gip.ext.design.avui.PropertyGrid
         private static string[] hiddenPropertiesOnWindow = new[] { "ClipToBounds" };
         /// <summary>
         /// Gets available properties for an object, includes attached properties also.
+        /// If <paramref name="parentType"/> is given, only attached properties that make
+        /// sense for that parent container are included (e.g. Canvas.Top only inside a Canvas).
         /// </summary>		
-        public static IEnumerable<PropertyDescriptor> GetAvailableProperties(object element, bool withReadonly=false)
+        public static IEnumerable<PropertyDescriptor> GetAvailableProperties(object element, bool withReadonly=false, Type parentType = null)
 		{
 			if (element.GetType().FullName == "gip.ext.designer.avui.Controls.WindowClone")
 			{
@@ -93,6 +96,126 @@ namespace gip.ext.design.avui.PropertyGrid
 					if (p.Attributes.OfType<ObsoleteAttribute>().Count() != 0) continue;
 					yield return p;
 				}
+			}
+
+			// Unlike WPF, Avalonia's TypeDescriptor does not expose attached properties
+			// (Canvas.Left, Grid.Row, ...). Add the registered attached layout properties
+			// explicitly so that they can be edited in the property grid like in the WPF version.
+			foreach (var attached in GetAttachedLayoutProperties(element, parentType))
+				yield return attached;
+		}
+
+		/// <summary>
+		/// Owner type names of the attached (layout) properties that should be shown in the property grid.
+		/// </summary>
+		public static readonly string[] AttachedLayoutPropertyOwners = new[]
+		{
+			"Canvas", "Grid", "DockPanel", "RelativePanel", "WrapPanel", "StackPanel"
+		};
+
+		static IEnumerable<PropertyDescriptor> GetAttachedLayoutProperties(object element, Type parentType)
+		{
+			var avaloniaObject = element as AvaloniaObject;
+			if (avaloniaObject == null)
+				yield break;
+
+			var attachedProperties = AvaloniaPropertyRegistry.Instance.GetRegisteredAttached(avaloniaObject.GetType());
+			foreach (var property in attachedProperties)
+			{
+				if (!AttachedLayoutPropertyOwners.Contains(property.OwnerType.Name))
+					continue;
+				if (property.IsReadOnly)
+					continue;
+				// Only offer attached properties whose owner matches the parent container
+				// (e.g. Canvas.Top only when the element is placed inside a Canvas).
+				if (parentType != null && !IsOwnerOfParentType(property.OwnerType, parentType))
+					continue;
+				yield return new AttachedPropertyDescriptor(property);
+			}
+		}
+
+		static bool IsOwnerOfParentType(Type ownerType, Type parentType)
+		{
+			for (var t = parentType; t != null; t = t.BaseType)
+			{
+				if (t == ownerType)
+					return true;
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// PropertyDescriptor for an attached Avalonia property. The name is in the form
+		/// "OwnerType.PropertyName" (e.g. "Canvas.Top") like the WPF TypeDescriptor provided it.
+		/// </summary>
+		public class AttachedPropertyDescriptor : PropertyDescriptor
+		{
+			readonly AvaloniaProperty _property;
+
+			public AttachedPropertyDescriptor(AvaloniaProperty property)
+				: base(property.OwnerType.Name + "." + property.Name, null)
+			{
+				_property = property;
+			}
+
+			public AvaloniaProperty AvaloniaProperty
+			{
+				get { return _property; }
+			}
+
+			public override Type ComponentType
+			{
+				get { return _property.OwnerType; }
+			}
+
+			public override Type PropertyType
+			{
+				get { return _property.PropertyType; }
+			}
+
+			public override bool IsReadOnly
+			{
+				get { return _property.IsReadOnly; }
+			}
+
+			public override bool IsBrowsable
+			{
+				get { return true; }
+			}
+
+			public override string Category
+			{
+				get { return "Layout"; }
+			}
+
+			public override string DisplayName
+			{
+				get { return Name; }
+			}
+
+			public override bool CanResetValue(object component)
+			{
+				return true;
+			}
+
+			public override void ResetValue(object component)
+			{
+				((AvaloniaObject)component).ClearValue(_property);
+			}
+
+			public override object GetValue(object component)
+			{
+				return ((AvaloniaObject)component).GetValue(_property);
+			}
+
+			public override void SetValue(object component, object value)
+			{
+				((AvaloniaObject)component).SetValue(_property, value);
+			}
+
+			public override bool ShouldSerializeValue(object component)
+			{
+				return true;
 			}
 		}
 		

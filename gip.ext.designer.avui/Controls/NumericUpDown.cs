@@ -22,6 +22,8 @@ namespace gip.ext.designer.avui.Controls
 		DragRepeatButton upButton;
 		DragRepeatButton downButton;
 
+		protected override Type StyleKeyOverride => typeof(NumericUpDown);
+
 		public static readonly StyledProperty<int> DecimalPlacesProperty =
 			AvaloniaProperty.Register<NumericUpDown, int>(nameof(DecimalPlaces));
 

@@ -77,7 +77,8 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/VBConnectorAdornerStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/VBQuickOperationMenuStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/Overrides/BrushEditorViewStyle.axaml"/>        
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/Overrides/SolidBrushEditorStyle.axaml"/>  
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/Overrides/SolidBrushEditorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/Overrides/NumericUpDownStyle.axaml"/>  
 
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesign/Themes/VBDesignStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBVisual/Themes/VBVisualStyle.axaml"/>

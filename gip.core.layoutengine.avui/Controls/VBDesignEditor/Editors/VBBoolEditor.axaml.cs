@@ -12,6 +12,9 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
 	[TypeEditor(typeof(bool))]
 	public partial class VBBoolEditor : VBCheckBox
     {
+        // Avalonia resolves the implicit ControlTheme only by the control's own StyleKey
+        // (no base-type walk) - style as the base type so the VBCheckBox theme is found.
+        protected override System.Type StyleKeyOverride => typeof(VBCheckBox);
 		public VBBoolEditor()
 		{
 			InitializeComponent();

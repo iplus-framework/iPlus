@@ -12,6 +12,9 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
     [PropertyEditorAttribute(typeof(MultiBinding),"Bindings")]
 	public partial class VBBindingsEditor : VBListBox
     {
+        // Avalonia resolves the implicit ControlTheme only by the control's own StyleKey
+        // (no base-type walk) - style as the base type so the VBListBox theme is found.
+        protected override System.Type StyleKeyOverride => typeof(VBListBox);
 		/// <summary>
 		/// Creates a new TextBoxEditor instance.
 		/// </summary>

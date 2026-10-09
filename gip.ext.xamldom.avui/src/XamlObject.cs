@@ -584,6 +584,25 @@ namespace gip.ext.xamldom.avui
                     return p;
             }
 
+            // A dotted name (e.g. "Canvas.Top") denotes an attached property. FindRegistered
+            // throws for dotted names, so resolve them via the attached property registry.
+            int dotIndex = propertyName.IndexOf('.');
+            if (dotIndex > 0)
+            {
+                string ownerName = propertyName.Substring(0, dotIndex);
+                string attachedName = propertyName.Substring(dotIndex + 1);
+                AvaloniaObject attachedAvObj = Instance as AvaloniaObject;
+                if (attachedAvObj != null)
+                {
+                    var attachedProperty = AvaloniaPropertyRegistry.Instance
+                        .GetRegisteredAttached(attachedAvObj.GetType())
+                        .FirstOrDefault(p => p.OwnerType.Name == ownerName && p.Name == attachedName);
+                    if (attachedProperty != null)
+                        return FindOrCreateAttachedProperty(attachedProperty.OwnerType, attachedName);
+                }
+                return null;
+            }
+
             AvaloniaObject avObj = Instance as AvaloniaObject;
             XamlProperty newProperty = null;
             if (avObj != null)
