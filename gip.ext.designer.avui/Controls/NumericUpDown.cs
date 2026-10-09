@@ -297,13 +297,13 @@ namespace gip.ext.designer.avui.Controls
 
             if (change.Property == ValueProperty)
             {
-                var newValue = change.NewValue as double?;
-                var coercedValue = CoerceValue(newValue);
-                
-                if (coercedValue != newValue)
-                {
-                    SetCurrentValue(ValueProperty, coercedValue);
-                }
+                // Do NOT coerce the value here and write it back via SetCurrentValue!
+                // When the value arrives via the two-way binding (e.g. the instance default
+                // double.MaxValue / PositiveInfinity / int.MaxValue, possibly before
+                // Minimum/Maximum have been configured from the property metadata), the coerced
+                // value differs from the design value and the binding writes it back into the
+                // design item, marking the property as locally set in the XAML although the
+                // user never changed it. User edits are coerced in SetValueInternal().
                 Print();
             }
             else if (change.Property == SmallChangeProperty && 

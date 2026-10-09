@@ -3040,7 +3040,7 @@ namespace gip.bso.iplus
                         return Global.ControlModes.Hidden;
 
                 case "CurrentACClass\\IsMultiInstance":
-                    if (CurrentACClass != null && CurrentACProject.ACProjectType == Global.ACProjectTypes.ClassLibrary)
+                    if (CurrentACClass != null && CurrentACProject != null && CurrentACProject.ACProjectType == Global.ACProjectTypes.ClassLibrary)
                     {
                         switch (CurrentACClass.ACKind)
                         {
@@ -3054,9 +3054,9 @@ namespace gip.bso.iplus
                     // Root ist nie mehrfach Instanziierbar
                     if (CurrentACClass != null && CurrentACClass.ACClass1_ParentACClass == null)
                         return Global.ControlModes.Hidden;
-                    if (CurrentACProject.ACProjectType == Global.ACProjectTypes.Root)
+                    if (CurrentACProject != null && CurrentACProject.ACProjectType == Global.ACProjectTypes.Root)
                     {
-                        if (CurrentACClass != null && CurrentACClass.ACClass1_ParentACClass.ACClass1_ParentACClass == null)
+                        if (CurrentACClass != null && CurrentACClass.ACClass1_ParentACClass != null && CurrentACClass.ACClass1_ParentACClass.ACClass1_ParentACClass == null)
                             return Global.ControlModes.Hidden;
                     }
                     return Global.ControlModes.Enabled;
@@ -3098,17 +3098,17 @@ namespace gip.bso.iplus
                     return ProjectManager.GetControlModeIsDefaultACClassDesign(CurrentACClass, CurrentACClassDesign, null);
                 case "!NewOnDataRowStart":
                 case "!NewOnDataRowEnd":
-                    if (CurrentACClass.ACKind == Global.ACKinds.TACQRY)
+                    if (CurrentACClass != null && CurrentACClass.ACKind == Global.ACKinds.TACQRY)
                         return Global.ControlModes.Enabled;
                     else
                         return Global.ControlModes.Hidden;
                 case "!NewWorkACClassMethod":
-                    if (ProjectManager.IsEnabledNewWorkACClassMethod(CurrentACClass))
+                    if (CurrentACClass != null && ProjectManager.IsEnabledNewWorkACClassMethod(CurrentACClass))
                         return Global.ControlModes.Enabled;
                     else
                         return Global.ControlModes.Hidden;
                 case "!NewScriptClientACClassMethod":
-                    if (CurrentACClass.ACKind != Global.ACKinds.TACQRY)
+                    if (CurrentACClass != null && CurrentACClass.ACKind != Global.ACKinds.TACQRY)
                         return Global.ControlModes.Enabled;
                     else
                         return Global.ControlModes.Hidden;
@@ -3134,12 +3134,12 @@ namespace gip.bso.iplus
                     return (CurrentACClassMethod.IsInteraction) ? Global.ControlModes.Enabled : Global.ControlModes.Disabled;
 
                 case "CurrentACClassProperty\\ChangeLogMax":
-                    if (CurrentACClassProperty == null || CurrentACClass == null || !(_IACObjectEntityType.IsAssignableFrom(CurrentACClass.ValueTypeACClass.ObjectType)))
+                    if (CurrentACClassProperty == null || CurrentACClass == null || CurrentACClass.ValueTypeACClass == null || !(_IACObjectEntityType.IsAssignableFrom(CurrentACClass.ValueTypeACClass.ObjectType)))
                         return Global.ControlModes.Disabled;
                     return Global.ControlModes.Enabled;
 
                 case "CurrentACClass\\ChangeLogMax":
-                    if (CurrentACClass == null || !(_IACObjectEntityType.IsAssignableFrom(CurrentACClass.ValueTypeACClass.ObjectType)))
+                    if (CurrentACClass == null || CurrentACClass.ValueTypeACClass == null || !(_IACObjectEntityType.IsAssignableFrom(CurrentACClass.ValueTypeACClass.ObjectType)))
                         return Global.ControlModes.Disabled;
                     return Global.ControlModes.Enabled;
                 case "CurrentACClassMethod\\ExecuteByMouseDoubleClick":

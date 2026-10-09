@@ -430,6 +430,40 @@ namespace gip.ext.design.avui.PropertyGrid
 
         protected virtual void SetValueCore(object value)
         {
+            // When an editor control is (re-)attached or its DataContext is updated, the two-way
+            // editor binding writes the unchanged value back to this node (e.g. Avalonia's
+            // SelectingItemsControl re-applies its pending selection, and every binding push that
+            // changes the target raises a target property change which is written back to the
+            // source). Such a no-op write-back must not mark the property as locally set,
+            // otherwise it gets serialized to XAML although the user never changed it.
+            if (!IsSet && value != Unset)
+            {
+                object currentValue = Value;
+                if (object.Equals(value, currentValue))
+                    return;
+                // Editors like NumericUpDown work with double while the design property may be
+                // int/short/byte/... The binding converts the value on the way back, so a plain
+                // object.Equals fails on the boxed type mismatch. Compare the value converted
+                // to the property type as well. Only attempt this for convertible (primitive)
+                // types — e.g. a SolidColorBrush written back for an IBrush property must not
+                // go through Convert.ChangeType (it would throw InvalidCastException).
+                Type returnType = FirstProperty.ReturnType;
+                if (value is IConvertible && currentValue != null && returnType != null && returnType != typeof(object)
+                    && returnType.IsInstanceOfType(currentValue))
+                {
+                    try
+                    {
+                        object converted = System.Convert.ChangeType(value, returnType, System.Globalization.CultureInfo.InvariantCulture);
+                        if (object.Equals(converted, currentValue))
+                            return;
+                    }
+                    catch (Exception)
+                    {
+                        // conversion not possible -> fall through to regular set
+                    }
+                }
+            }
+
             raiseEvents = false;
             if (value == Unset)
             {

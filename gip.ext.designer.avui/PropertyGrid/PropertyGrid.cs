@@ -255,7 +255,11 @@ namespace gip.ext.designer.avui.PropertyGrid
                 else
                     selectedItems = value.ToList();
                 RaisePropertyChanged("SelectedItems");
-                Dispatcher.UIThread.Invoke(new Action(
+                // Do not reload synchronously: a synchronous invoke runs a nested layout pass
+                // while the newly created editors are only half-initialized, which causes their
+                // two-way bindings to write (default) values back into the design items.
+                // The WPF version used Dispatcher.BeginInvoke here as well.
+                Dispatcher.UIThread.InvokeAsync(new Action(
                     delegate
                     {
                         Reload();

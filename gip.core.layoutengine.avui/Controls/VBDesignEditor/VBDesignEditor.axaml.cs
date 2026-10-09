@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using Avalonia.LogicalTree;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
@@ -1275,6 +1276,10 @@ namespace gip.core.layoutengine.avui
         /// <returns>Result if a property was accessed or a method was invoked. Void-Methods returns null.</returns>
         public object ACUrlCommand(string acUrl, params object[] acParameter)
         {
+            // Can be invoked from a background thread during ACDeInit (e.g. ACPointReference.DetachAndClear).
+            // Accessing Avalonia properties (DataContext) requires the UI thread.
+            if (!Dispatcher.UIThread.CheckAccess())
+                return Dispatcher.UIThread.InvokeAsync(() => ACUrlCommand(acUrl, acParameter)).GetAwaiter().GetResult();
             if ((acParameter != null) && (acParameter[0] != null))
             {
                 switch (acUrl)

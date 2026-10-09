@@ -429,13 +429,15 @@ namespace gip.core.autocomponent
                 RootDbOpQueue.AppContextQueue.StopWorkerThread();
             }
 
+            // Dispose the global database AFTER base.ACDeInit(), because ACBSO.ACDeInit
+            // still accesses Database.ChangeTracker (unhooking event handlers).
+            await base.ACDeInit(deleteACClassTask);
+
             if (this.ACOperationMode == ACOperationModes.Live)
             {
                 ACObjectContextManager.DisposeAndRemoveAll();
                 gip.core.datamodel.Database.GlobalDatabase.Dispose();
             }
-
-            await base.ACDeInit(deleteACClassTask);
 
             ComponentPool.ClearPool();
             _ComponentPool = null;

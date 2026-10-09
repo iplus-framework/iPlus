@@ -56,7 +56,16 @@ namespace gip.ext.xamldom.avui
 						try{
 							var prp = namedObject.ElementType.GetProperty(namedObject.RuntimeNameProperty);
 							if (prp != null)
-								prp.SetValue(namedObject.Instance, newName, null);
+							{
+								// Avalonia throws InvalidOperationException ("Cannot set Name : styled
+								// element already styled.") when setting Name on an element whose styles
+								// have already been applied (i.e. the instance is already rooted in the
+								// visual tree). The name is already registered in the NameScope and written
+								// to the XAML attribute; the instance receives its name when the XAML is
+								// reloaded. So only set it on instances that are not styled yet.
+								if (!IsStyled(namedObject.Instance))
+									prp.SetValue(namedObject.Instance, newName, null);
+							}
 						} catch (Exception x) {
 							Debug.WriteLine(x.Message);
 						}
@@ -67,6 +76,19 @@ namespace gip.ext.xamldom.avui
 			}
 		}
 		
+		/// <summary>
+		/// Determines whether the styles have already been applied to the specified instance.
+		/// </summary>
+		private static bool IsStyled(object instance)
+		{
+			var styledElement = instance as StyledElement;
+			if (styledElement == null)
+				return false;
+			var field = typeof(StyledElement).GetField("_stylesApplied",
+				System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+			return field != null && (bool)field.GetValue(styledElement);
+		}
+
 		/// <summary>
 		/// Gets the XAML namescope for the specified object.
 		/// </summary>
