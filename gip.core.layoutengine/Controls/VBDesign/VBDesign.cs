@@ -465,39 +465,61 @@ namespace gip.core.layoutengine
                 }
             }
 
+            bool hasUserSpecificDesign = false;
             if (ContentACObject != null)
             {
-                xaml = ContentACObject.XAMLDesign;
-                if (!String.IsNullOrEmpty(xaml))
+                // Check if ContentACObject is ACClassDesign and if user has a customized design.
+                // IMPORTANT: do NOT read ContentACObject.XAMLDesign for base designs here.
+                // Reading it would trigger the conversion (and its in-memory caching in
+                // ACClassDesign.XAMLDesign), so Layoutgenerator could no longer detect that
+                // a reverse conversion happened and the auto-save would never fire
+                // (aligned with the Avalonia VBDesign, commit c6ef17eb).
+                if (ContextACObject != null && ContentACObject is ACClassDesign)
                 {
-                    if (ContextACObject != null && ContentACObject is ACClassDesign)
+                    ACClassDesign = ContentACObject as ACClassDesign;
+                    if (ACClassDesign.VBUserACClassDesign_ACClassDesign != null)
                     {
-                        ACClassDesign = ContentACObject as ACClassDesign;
                         var query = ACClassDesign.VBUserACClassDesign_ACClassDesign.Where(c => c.VBUserID == this.Root().Environment.User.VBUserID && c.ACClassDesign != null);
                         if (query.Any())
                         {
                             VBUserACClassDesign userDesign = query.First();
                             if (!String.IsNullOrEmpty(userDesign.XMLDesign))
-                                xaml = userDesign.XMLDesign;
+                            {
+                                xaml = userDesign.XMLDesign;  // User-specific XAML
+                                hasUserSpecificDesign = true;
+                            }
                         }
                     }
+                }
+                else
+                {
+                    // For non-ACClassDesign objects (like VBUserACClassDesign directly), get XAML
+                    xaml = ContentACObject.XAMLDesign;
                 }
             }
 
             Content = null;
             UIElement uiElement = null;
-            if (string.IsNullOrEmpty(xaml))
+            if (ContentACObject != null && !hasUserSpecificDesign)
             {
+                // Use ACClassDesign overload for base designs - this handles BAML,
+                // reverse conversion and auto-saving to XMLDesign.
+                uiElement = Layoutgenerator.LoadLayout(ContentACObject as ACClassDesign, ContextACObject, BSOACComponent, ContentACObject.ACIdentifier);
+            }
+            else if (!string.IsNullOrEmpty(xaml))
+            {
+                // Load user-specific or non-ACClassDesign XAML directly (no auto-save)
+                uiElement = Layoutgenerator.LoadLayout(xaml, ContextACObject, BSOACComponent, ContentACObject.ACIdentifier);
+            }
+            else
+            {
+                // No design available - show placeholder
                 ContentControl contentControl = new ContentControl();
                 ResourceDictionary dict = new ResourceDictionary();
                 dict.Source = new Uri("/gip.core.layoutengine;Component/Controls/VBRibbon/Icons/Design.xaml", UriKind.Relative);
                 contentControl.Style = (Style)dict["IconDesignStyleGip"];
                 uiElement = contentControl;
             }
-            else if (ACClassDesign != null && ACClassDesign.BAMLDesign != null && ACClassDesign.IsDesignCompiled)
-                uiElement = Layoutgenerator.LoadLayout(ACClassDesign, ContextACObject, BSOACComponent, ContentACObject.ACIdentifier);
-            else
-                uiElement = Layoutgenerator.LoadLayout(xaml, ContextACObject, BSOACComponent, ContentACObject.ACIdentifier);
 
             Content = uiElement;
             if (DesignModeAllways)

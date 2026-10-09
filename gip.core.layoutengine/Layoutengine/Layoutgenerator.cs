@@ -233,7 +233,71 @@ namespace gip.core.layoutengine
             }
             else
             {
-                return LoadXAML(acClassDesign.XMLDesign, dataContext, bso, layoutName) as UIElement;
+                bool isConvertedFromAvalonia = false;
+                string xamlToLoad = GetWpfDesignXaml(acClassDesign, ref isConvertedFromAvalonia);
+                object result = LoadXAML(xamlToLoad, dataContext, bso, layoutName);
+
+                // Auto-save the reverse-converted WPF XAML on successful runtime load
+                // (VBDesign/VBVisual). The XAML designer binds ACClassDesign.XAMLDesign
+                // directly and does NOT run through the Layoutgenerator, so there the
+                // user controls saving via the save button.
+                if (result != null && isConvertedFromAvalonia && acClassDesign != null)
+                {
+                    AutoSaveWpfDesign(acClassDesign, xamlToLoad);
+                }
+                return result as UIElement;
+            }
+        }
+
+        /// <summary>
+        /// Resolves the WPF XAML for a design. If the WPF design (XMLDesign) exists it is
+        /// returned unchanged. If only an Avalonia design exists (XMLDesign2, authored
+        /// directly in Avalonia), it is converted back to WPF XAML via
+        /// XAMLConversionHelper.ConvertAvaloniaToWpfXaml and isConvertedFromAvalonia is
+        /// set to true. The converted result is also cached in memory by
+        /// ACClassDesign.XAMLDesign (CacheConvertedDesign, without database write).
+        /// </summary>
+        static public string GetWpfDesignXaml(ACClassDesign acClassDesign, ref bool isConvertedFromAvalonia)
+        {
+            isConvertedFromAvalonia = false;
+            if (acClassDesign == null)
+                return null;
+
+            if (!String.IsNullOrEmpty(acClassDesign.XMLDesign))
+                return acClassDesign.XMLDesign;
+
+            if (!String.IsNullOrEmpty(acClassDesign.XMLDesign2))
+            {
+                isConvertedFromAvalonia = true;
+                return XAMLConversionHelper.ConvertAvaloniaToWpfXaml(acClassDesign.XMLDesign2);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Auto-saves a successfully reverse-converted WPF XAML to XMLDesign and marks
+        /// both designs as synchronized. Only called from runtime load paths.
+        /// </summary>
+        static private void AutoSaveWpfDesign(ACClassDesign acClassDesign, string wpfXaml)
+        {
+            try
+            {
+                acClassDesign.XMLDesign = wpfXaml;
+                acClassDesign.XMLDesign2UpdateDate = DateTime.Now;
+                acClassDesign.XMLDesignUpdateDate = acClassDesign.XMLDesign2UpdateDate;
+                if (acClassDesign.Context != null)
+                {
+                    var msgWithDetails = acClassDesign.Context.ACSaveChanges();
+                    if (msgWithDetails != null && Root != null && Root.Messages != null)
+                    {
+                        Root.Messages.LogMessageMsg(msgWithDetails);
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore caching errors, the conversion still worked
             }
         }
 
@@ -314,7 +378,17 @@ namespace gip.core.layoutengine
                 if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
                     datamodel.Database.Root.Messages.LogException("Layoutgenerator", "LoadBAML", msg);
 
-                return LoadXAML(acClassDesign.XMLDesign, dataContext, bso, acClassDesign.ACIdentifier);
+                bool isConvertedFromAvalonia = false;
+                string xamlToLoad = GetWpfDesignXaml(acClassDesign, ref isConvertedFromAvalonia);
+                object result = LoadXAML(xamlToLoad, dataContext, bso, acClassDesign.ACIdentifier);
+
+                // Auto-save the reverse-converted WPF XAML on successful runtime load
+                // (see LoadLayout(ACClassDesign, ...)).
+                if (result != null && isConvertedFromAvalonia && acClassDesign != null)
+                {
+                    AutoSaveWpfDesign(acClassDesign, xamlToLoad);
+                }
+                return result;
             }
         }
 

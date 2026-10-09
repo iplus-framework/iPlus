@@ -880,6 +880,30 @@ namespace gip.bso.iplus
                     && (string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign2) || !CurrentACClassDesign.AreDesignsSynchronized);
         }
 
+        /// <summary>
+        /// Converts an Avalonia design (XMLDesign2) back to WPF (XMLDesign).
+        /// Used when a design was authored directly in Avalonia XAML and no WPF
+        /// counterpart exists yet.
+        /// </summary>
+        [ACMethodInteraction("ACClassDesign", "en{'Convert Avalonia Design to WPF'}de{'Avalonia-Design in WPF konvertieren'}", 9999, false, "SelectedACClassDesign")]
+        public void ConvertAvaloniaDesignToWPF()
+        {
+            if (CurrentACClassDesign != null && !string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign2))
+            {
+                CurrentACClassDesign.XMLDesign = XAMLConversionHelper.ConvertAvaloniaToWpfXaml(CurrentACClassDesign.XMLDesign2);
+                CurrentACClassDesign.XMLDesign2UpdateDate = DateTime.Now;
+                CurrentACClassDesign.XMLDesignUpdateDate = CurrentACClassDesign.XMLDesign2UpdateDate;
+                OnPropertyChanged("CurrentACClassDesign");
+            }
+        }
+
+        public bool IsEnabledConvertAvaloniaDesignToWPF()
+        {
+            return CurrentACClassDesign != null
+                    && !string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign2)
+                    && (string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign) || !CurrentACClassDesign.AreDesignsSynchronized);
+        }
+
         [ACMethodInteraction("ACClassDesign", "en{'Set Designs Synchronized'}de{'Designs Synchronisieren'}", 9999, false, "SelectedACClassDesign")]
         public void SetDesignsSynchronized()
         {

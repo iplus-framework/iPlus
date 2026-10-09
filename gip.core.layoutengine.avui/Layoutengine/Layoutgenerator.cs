@@ -64,6 +64,49 @@ namespace gip.core.layoutengine.avui
 
     public class Layoutgenerator 
     {      
+        /// <summary>
+        /// Auto-saves a converted Avalonia design (XMLDesign2) after a successful load.
+        /// Called from the runtime load paths (VBDesign/VBVisual) - the XAML designer
+        /// binds ACClassDesign.XAMLDesign directly and does NOT run through the
+        /// Layoutgenerator, so there the user controls saving via the save button.
+        /// xmlDesign2WasEmpty must be captured BEFORE reading XAMLDesign, because the
+        /// getter itself already caches the conversion (without saving).
+        /// </summary>
+        static private void AutoSaveConvertedDesign(IACObjectDesign aCObjectDesign, bool xmlDesign2WasEmpty, string xamlToLoad, IACObject dataContext)
+        {
+            if (aCObjectDesign == null || !xmlDesign2WasEmpty || string.IsNullOrEmpty(xamlToLoad))
+                return;
+            if (string.IsNullOrEmpty(aCObjectDesign.XMLDesign))
+                return; // conversion only makes sense if a WPF source design exists
+
+            var rootComponent = (dataContext as IACComponent)?.Root;
+            if (rootComponent == null)
+                rootComponent = Database.Root;
+            if (rootComponent == null || !rootComponent.IsAvaloniaUI)
+                return;
+
+            try
+            {
+                // Save the successfully loaded Avalonia XAML to XMLDesign2 for future use
+                aCObjectDesign.XMLDesign2 = xamlToLoad;
+                // Mark both designs as synchronized
+                aCObjectDesign.XMLDesignUpdateDate = DateTime.Now;
+                aCObjectDesign.XMLDesign2UpdateDate = aCObjectDesign.XMLDesignUpdateDate;
+                if (aCObjectDesign.Context != null)
+                {
+                    var msgWithDetails = aCObjectDesign.Context.ACSaveChanges();
+                    if (msgWithDetails != null)
+                    {
+                        Root.Messages.LogMessageMsg(msgWithDetails);
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore caching errors, the conversion still worked
+            }
+        }
+
         static public ResourceDictionary LoadResource(IACObjectDesign aCObjectDesign, IACObject dataContext, IACBSO bso)
         {
             CurrentDataContext = dataContext;
@@ -71,37 +114,10 @@ namespace gip.core.layoutengine.avui
 
             try
             {
+                bool xmlDesign2WasEmpty = string.IsNullOrEmpty(aCObjectDesign.XMLDesign2);
                 string xamlToLoad = aCObjectDesign.XAMLDesign;
                 ResourceDictionary sp = (ResourceDictionary)AvaloniaRuntimeXamlLoader.Load(XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xamlToLoad));
-                var rootComponent = (dataContext as IACComponent).Root;
-                if (rootComponent == null)
-                    rootComponent = Database.Root;
-                if (rootComponent != null && rootComponent.IsAvaloniaUI 
-                    && string.IsNullOrEmpty(aCObjectDesign.XMLDesign2) 
-                    && !string.IsNullOrEmpty(aCObjectDesign.XMLDesign))
-                {
-                    try
-                    {
-                        // Save the successfully loaded Avalonia XAML to XMLDesign2 for future use
-                        aCObjectDesign.XMLDesign2 = xamlToLoad;
-                        // Mark both designs as synchronized
-                        aCObjectDesign.XMLDesignUpdateDate = DateTime.Now;
-                        aCObjectDesign.XMLDesign2UpdateDate = aCObjectDesign.XMLDesignUpdateDate;
-                        if (aCObjectDesign.Context != null)
-                        {
-                            // Save changes to the database if context is available
-                            var msgWithDetails = aCObjectDesign.Context.ACSaveChanges();
-                            if (msgWithDetails != null)
-                            {
-                                Root.Messages.LogMessageMsg(msgWithDetails);
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        // Ignore caching errors, the conversion still worked
-                    }
-                }
+                AutoSaveConvertedDesign(aCObjectDesign, xmlDesign2WasEmpty, xamlToLoad, dataContext);
                 return sp;
             }
             catch (XmlException e)
@@ -179,37 +195,10 @@ namespace gip.core.layoutengine.avui
             
             try
             {
+                bool xmlDesign2WasEmpty = string.IsNullOrEmpty(aCObjectDesign.XMLDesign2);
                 string xamlToLoad = aCObjectDesign.XAMLDesign;
                 AvaloniaObject sp = (AvaloniaObject)AvaloniaRuntimeXamlLoader.Load(XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xamlToLoad));
-                IRoot rootComponent = (dataContext as IACComponent).Root;
-                if (rootComponent == null)
-                    rootComponent = Database.Root;
-                if (rootComponent != null && rootComponent.IsAvaloniaUI 
-                    && string.IsNullOrEmpty(aCObjectDesign.XMLDesign2) 
-                    && !string.IsNullOrEmpty(aCObjectDesign.XMLDesign))
-                {
-                    try
-                    {
-                        // Save the successfully loaded Avalonia XAML to XMLDesign2 for future use
-                        aCObjectDesign.XMLDesign2 = xamlToLoad;
-                        // Mark both designs as synchronized
-                        aCObjectDesign.XMLDesignUpdateDate = DateTime.Now;
-                        aCObjectDesign.XMLDesign2UpdateDate = aCObjectDesign.XMLDesignUpdateDate;
-                        if (aCObjectDesign.Context != null)
-                        {
-                            // Save changes to the database if context is available
-                            var msgWithDetails = aCObjectDesign.Context.ACSaveChanges();
-                            if (msgWithDetails != null)
-                            {
-                                Root.Messages.LogMessageMsg(msgWithDetails);
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        // Ignore caching errors, the conversion still worked
-                    }
-                }
+                AutoSaveConvertedDesign(aCObjectDesign, xmlDesign2WasEmpty, xamlToLoad, dataContext);
                 return sp;
             }
             catch (XmlException e)
@@ -320,45 +309,14 @@ namespace gip.core.layoutengine.avui
             }
             else
             {
+                bool xmlDesign2WasEmpty = aCObjectDesign != null && string.IsNullOrEmpty(aCObjectDesign.XMLDesign2);
                 string xamlToLoad = aCObjectDesign.XAMLDesign;
                 object result = LoadXAML(xamlToLoad, dataContext, bso, layoutName);
-                
-                // Cache the converted XAML to XMLDesign2 if conversion was successful
-                // Only cache if we're in Avalonia mode and XMLDesign2 is empty (not already cached)
-                if (result != null && aCObjectDesign != null && 
-                    dataContext != null && dataContext is IACComponent)
-                {
-                    var rootComponent = (dataContext as IACComponent).Root;
-                    if (rootComponent == null)
-                        rootComponent = Database.Root;
-                    if (rootComponent != null && rootComponent.IsAvaloniaUI 
-                        && string.IsNullOrEmpty(aCObjectDesign.XMLDesign2) 
-                        && !string.IsNullOrEmpty(aCObjectDesign.XMLDesign))
-                    {
-                        try
-                        {
-                            // Save the successfully loaded Avalonia XAML to XMLDesign2 for future use
-                            aCObjectDesign.XMLDesign2 = xamlToLoad;
-                            // Mark both designs as synchronized
-                            aCObjectDesign.XMLDesignUpdateDate = DateTime.Now;
-                            aCObjectDesign.XMLDesign2UpdateDate = aCObjectDesign.XMLDesignUpdateDate;
-                            if (aCObjectDesign.Context != null)
-                            {
-                                // Save changes to the database if context is available
-                                var msgWithDetails = aCObjectDesign.Context.ACSaveChanges();
-                                if (msgWithDetails != null)
-                                {
-                                    Root.Messages.LogMessageMsg(msgWithDetails);
-                                }
-                            }
-                        }
-                        catch
-                        {
-                            // Ignore caching errors, the conversion still worked
-                        }
-                    }
-                }
-                
+
+                // Auto-save the converted XAML on successful runtime load (VBDesign/VBVisual).
+                if (result != null)
+                    AutoSaveConvertedDesign(aCObjectDesign, xmlDesign2WasEmpty, xamlToLoad, dataContext);
+
                 return result as Visual;
             }
         }

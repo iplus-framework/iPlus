@@ -28,7 +28,7 @@ using System.Text.RegularExpressions;
 
 namespace gip.core.datamodel
 {
-    public static class XAMLConversionHelper
+    public static partial class XAMLConversionHelper
     {
         /// <summary>
         /// Converts WPF XAML to Avalonia XAML using namespace mappings and find/replace patterns.

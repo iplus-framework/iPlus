@@ -134,22 +134,7 @@ namespace gip.core.datamodel
                 else
                 {
                     // Reverse conversion for WPF mode (Avalonia to WPF)
-                    string wpfXAML = XMLDesign;
-                    foreach (var tuple in ACxmlnsResolver.C_AvaloniaNamespaceMapping)
-                    {
-                        if (tuple.WpfNamespace.StartsWith("clr-namespace"))
-                            continue;
-                        wpfXAML = wpfXAML?.Replace(tuple.AvaloniaNamespace, tuple.WpfNamespace);
-                    }
-                    // Note: Reverse conversion (Avalonia to WPF) does not support regex patterns
-                    foreach (var tuple in XAMLConversionHelper.C_AvaloniaFindAndReplace)
-                    {
-                        if (!tuple.IsRegex)
-                        {
-                            wpfXAML = wpfXAML?.Replace(tuple.AvaloniaReplacement, tuple.WpfPattern);
-                        }
-                    }
-                    return wpfXAML;
+                    return XAMLConversionHelper.ConvertAvaloniaToWpfXaml(XMLDesign);
                 }
             }
             set

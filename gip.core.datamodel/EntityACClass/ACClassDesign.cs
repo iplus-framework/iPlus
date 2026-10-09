@@ -1223,8 +1223,12 @@ namespace gip.core.datamodel
                         // Return cached Avalonia XAML if available
                         if (!string.IsNullOrEmpty(XMLDesign2))
                             return XMLDesign2;
-                        // Otherwise convert from WPF XAML
-                        return XAMLConversionHelper.ConvertWpfToAvaloniaXaml(XMLDesign);
+                        // Otherwise convert from WPF XAML and cache it, so that paths
+                        // that do not run through the Layoutgenerator (e.g. the XAML
+                        // designer binding) also persist the conversion.
+                        string avaloniaXaml = XAMLConversionHelper.ConvertWpfToAvaloniaXaml(XMLDesign);
+                        CacheConvertedDesign(avaloniaXaml, false);
+                        return avaloniaXaml;
                     }
                 }
                 // If UI is WPF
@@ -1233,8 +1237,19 @@ namespace gip.core.datamodel
                     // Return Avalonia Design
                     if (StoreDesignInXML2)
                         return XMLDesign2;
-                    // Return WPF Design
-                    return XMLDesign;
+                    // Return WPF Design; if only an Avalonia design exists (authored
+                    // directly in Avalonia), convert it back to WPF and cache it, so
+                    // that paths that do not run through the Layoutgenerator (e.g. the
+                    // XAML designer binding) also persist the conversion.
+                    if (!string.IsNullOrEmpty(XMLDesign))
+                        return XMLDesign;
+                    if (!string.IsNullOrEmpty(XMLDesign2))
+                    {
+                        string wpfXaml = XAMLConversionHelper.ConvertAvaloniaToWpfXaml(XMLDesign2);
+                        CacheConvertedDesign(wpfXaml, true);
+                        return wpfXaml;
+                    }
+                    return null;
                 }
             }
             set
@@ -1269,6 +1284,42 @@ namespace gip.core.datamodel
                         XMLDesignUpdateDate = DateTime.Now;
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Caches a converted design XAML (forward: Avalonia into XMLDesign2, reverse:
+        /// WPF into XMLDesign) and marks both designs as synchronized. Called from the
+        /// XAMLDesign getter so that consumers which read the property directly (e.g. the
+        /// XAML designer binding) also get the conversion cached, not only the
+        /// Layoutgenerator load path.
+        /// IMPORTANT: only sets the entity properties - NO ACSaveChanges here. The change
+        /// is persisted by the normal save flow (e.g. the XAML designer's save command),
+        /// so the user keeps control over when the conversion is written to the database.
+        /// Errors are swallowed - caching must never break rendering.
+        /// </summary>
+        private void CacheConvertedDesign(string convertedXaml, bool toWpfDesign)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(convertedXaml))
+                    return;
+
+                DateTime now = DateTime.Now;
+                if (toWpfDesign)
+                {
+                    XMLDesign = convertedXaml;
+                }
+                else
+                {
+                    XMLDesign2 = convertedXaml;
+                }
+                XMLDesignUpdateDate = now;
+                XMLDesign2UpdateDate = now;
+            }
+            catch
+            {
+                // Ignore caching errors, the conversion still worked
             }
         }
 
