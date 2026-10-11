@@ -144,7 +144,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild"  >
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Data.SqlClient"  />
+    <PackageReference Include="iPlus.Microsoft.Data.SqlClient"  />
   </ItemGroup>
   <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'False'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" >

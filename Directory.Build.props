@@ -13,14 +13,20 @@
   <Import Project="./build/EntityFramework.Build.props" />
   <Import Project="./build/Avalonia.Build.props" />
   <!--
-    SQL Tunnel debugging (Option B): when True, every project that would consume the
-    Microsoft.Data.SqlClient package instead gets a direct ProjectReference to the forked
-    SqlClient checkout (branch iplus/browser-transport). Assembly name/version are identical
-    (Microsoft.Data.SqlClient, 7.1.0.0), so EF's compiled reference binds at runtime unchanged.
-    Set with: dotnet build -p:UseSqlClientForkProjectReference=True
+    SQL Tunnel: consumption mode for the forked SqlClient (branch iplus/browser-transport).
+    - False (default): NuGet package mode — consumes iPlus.Microsoft.Data.SqlClient
+      7.1.1-iplus.1 from the packages-local feed (NuGet.config). Transitive official
+      Microsoft.Data.SqlClient (e.g. from the iPlus.EntityFrameworkCore.* packages) is
+      suppressed in Directory.Build.targets.
+    - Set True for fork debugging: every project that would consume the
+      Microsoft.Data.SqlClient package instead gets a direct ProjectReference to the
+      forked SqlClient checkout. Assembly name/version are identical
+      (Microsoft.Data.SqlClient, 7.1.0.0), so EF's compiled reference binds at runtime
+      unchanged.
+      Set with: dotnet build -p:UseSqlClientForkProjectReference=True
   -->
   <PropertyGroup>
-    <UseSqlClientForkProjectReference Condition="'$(UseSqlClientForkProjectReference)' == ''">True</UseSqlClientForkProjectReference>
+    <UseSqlClientForkProjectReference Condition="'$(UseSqlClientForkProjectReference)' == ''">False</UseSqlClientForkProjectReference>
     <SqlClientForkProject Condition="'$(SqlClientForkProject)' == ''">$(MSBuildThisFileDirectory)..\SqlClient\src\Microsoft.Data.SqlClient\src\Microsoft.Data.SqlClient.csproj</SqlClientForkProject>
     <SqlClientForkSigningKey Condition="'$(SqlClientForkSigningKey)' == ''">$(MSBuildThisFileDirectory)..\SqlClient\tools\iplus-fork.snk</SqlClientForkSigningKey>
   </PropertyGroup>

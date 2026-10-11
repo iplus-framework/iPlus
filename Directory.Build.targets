@@ -121,4 +121,15 @@
                 <PackageReference Update="Microsoft.Data.SqlClient" ExcludeAssets="all" />
                 <ProjectReference Include="$(SqlClientForkProject)" AdditionalProperties="SigningKeyPath=$(SqlClientForkSigningKey)" />
         </ItemGroup>
+
+        <!--
+                SQL Tunnel package mode (default): iPlus.Microsoft.Data.SqlClient comes from
+                the packages-local feed (see Directory.Packages.props). The official
+                Microsoft.Data.SqlClient still flows in transitively from the
+                iPlus.EntityFrameworkCore.* packages — strip its assets so only the fork
+                assembly (same assembly name Microsoft.Data.SqlClient) is referenced/ copied.
+        -->
+        <ItemGroup Condition="'$(UseSqlClientForkProjectReference)' != 'True'">
+                <PackageReference Update="Microsoft.Data.SqlClient" ExcludeAssets="all" />
+        </ItemGroup>
 </Project>

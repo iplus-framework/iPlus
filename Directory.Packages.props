@@ -197,7 +197,11 @@
 		<PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.MSBuild"
 			Version="$(CodeAnalysisVersion)" />
 		<PackageVersion Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageVersion Include="Microsoft.Data.SqlClient" Version="7.1.1-iplus.0" />
+		<!-- iplus fork of SqlClient (browser transport); id prefixed like the Avalonia fork.
+		     Do NOT add a CPM entry for the official "Microsoft.Data.SqlClient" id: the
+		     transitive flow from the iPlus.EntityFrameworkCore.* packages is suppressed in
+		     Directory.Build.targets and must not be pinned to a non-existent version. -->
+		<PackageVersion Include="iPlus.Microsoft.Data.SqlClient" Version="7.1.1-iplus.1" />
 		<PackageVersion Include="Azure.Core" Version="1.51.1" />
 		<PackageVersion Include="Microsoft.Database.Collections.Generic" Version="3.2.0" />
 		<PackageVersion Include="Microsoft.FASTER.Core" Version="2.6.5" />
