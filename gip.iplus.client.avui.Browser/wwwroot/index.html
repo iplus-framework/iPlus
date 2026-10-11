@@ -8,6 +8,20 @@
     <link rel="stylesheet" href="./app.css" />
     <link rel="preload" id="webassembly" />
     <script type="importmap"></script>
+    <script>
+        // localStorage bridge for the .NET WASM client (BrowserSettingsStorage.cs).
+        // Keeps client-local settings (connection settings, login, app settings)
+        // persistent across page reloads. localStorage is per-origin and survives
+        // browser restarts; cookies are not used (4KB limit, sent with every request).
+        window.iPlusSettings = {
+            getItem: function (key) {
+                try { return window.localStorage.getItem(key); } catch (e) { return null; }
+            },
+            setItem: function (key, value) {
+                try { window.localStorage.setItem(key, value); } catch (e) { }
+            }
+        };
+    </script>
 </head>
 
 <body style="margin: 0; overflow: hidden">

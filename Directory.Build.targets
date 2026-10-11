@@ -108,4 +108,17 @@
 					PackagePath="content/%(Identity)"
 					Condition="Exists('$(MSBuildProjectDirectory)/VBControlScripts')" />
 	</ItemGroup>
+
+        <!--
+                SQL Tunnel debugging (Option B): replace the Microsoft.Data.SqlClient package
+                assets with a direct project reference to the forked SqlClient. ExcludeAssets=all
+                strips the package's compile/runtime assets (including transitive flow from the
+                iPlus.EntityFrameworkCore.* packages) while keeping the dependency graph intact;
+                the sibling packages (Abstractions, Internal.Logging, SqlServer.Server) still come
+                from the package graph at matching versions.
+        -->
+        <ItemGroup Condition="'$(UseSqlClientForkProjectReference)' == 'True' and Exists('$(SqlClientForkProject)')">
+                <PackageReference Update="Microsoft.Data.SqlClient" ExcludeAssets="all" />
+                <ProjectReference Include="$(SqlClientForkProject)" AdditionalProperties="SigningKeyPath=$(SqlClientForkSigningKey)" />
+        </ItemGroup>
 </Project>

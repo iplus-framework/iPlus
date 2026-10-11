@@ -362,6 +362,46 @@ namespace gip.core.autocomponent
             return result;
         }
 
+        /// <summary>
+        /// Async variant of <see cref="ExecuteMethod(string, Object[])"/>. MUST be used on the
+        /// browser (WASM) — the synchronous variant cannot block the single UI thread until
+        /// the server responds. Ask-User-Handlers are not invoked on this path.
+        /// </summary>
+        public override async Task<object> ExecuteMethodAsync(string acMethodName, params Object[] acParameter)
+        {
+            string acMethodName1;
+            int pos = acMethodName.IndexOf(ACUrlHelper.Delimiter_InvokeMethod);
+            if (pos == 0)
+                acMethodName1 = acMethodName.Substring(1);
+            else
+                acMethodName1 = acMethodName;
+
+            pos = acMethodName1.IndexOf(ACUrlHelper.Delimiter_AsyncMethodInvocation);
+            if (pos == 0)
+                acMethodName1 = acMethodName1.Substring(1);
+
+            ACClassMethod acClassMethod = ComponentClass.GetMethod(acMethodName1);
+            if (acClassMethod == null)
+                return null;
+            if (acClassMethod.ACKind == Global.ACKinds.MSMethodExtClient
+                || acClassMethod.ACKind == Global.ACKinds.MSMethodClient
+                || IsACComponentMethod(acMethodName1))
+            {
+                if (acClassMethod.ACKind == Global.ACKinds.MSMethodClient)
+                    AnalyzeTypeOfProxy();
+                return await base.ExecuteMethodAsync(acMethodName, acParameter);
+            }
+
+            object result = await RMInvoker.ExecuteMethodAsync(acMethodName1, acParameter);
+
+            var isEnabledCache = IsEnabledCache;
+            foreach (LastIsEnabledResult isEnabledResult in isEnabledCache.Values.ToArray())
+            {
+                isEnabledResult.LastQuery = DateTime.Now - _QueryLockTime;
+            }
+            return result;
+        }
+
         //protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, ACClassMethod acClassMethod, params Object[] acParameter)
         //{
         //    result = null;
@@ -422,6 +462,58 @@ namespace gip.core.autocomponent
             }
 
             var result = RMInvoker.IsEnabledExecuteMethod(acMethodName, acParameter);
+            if (result is bool)
+            {
+                isEnabledResult.LastResult = (bool)result;
+                isEnabledResult.LastQuery = DateTime.Now;
+                return isEnabledResult.LastResult;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Async variant of <see cref="IsEnabledExecuteACMethod"/>. MUST be used on the
+        /// browser (WASM) where the synchronous remote query would fail fast (it cannot
+        /// block the single UI thread) and wrongly report commands as disabled.
+        /// </summary>
+        public override async Task<bool> IsEnabledExecuteACMethodAsync(string acMethodName, params Object[] acParameter)
+        {
+            string acMethodName1;
+            int pos = acMethodName.IndexOf('!');
+            if (pos == 0)
+                acMethodName1 = acMethodName.Substring(1);
+            else
+                acMethodName1 = acMethodName;
+
+            ACClassMethod acClassMethod = ComponentClass.GetMethod(acMethodName1);
+            if (acClassMethod == null)
+                return false;
+            if (acClassMethod.ACKind == Global.ACKinds.MSMethodExtClient
+                || acClassMethod.ACKind == Global.ACKinds.MSMethodClient
+                || IsACComponentMethod(acMethodName1))
+            {
+                if (acClassMethod.ACKind == Global.ACKinds.MSMethodClient)
+                    AnalyzeTypeOfProxy();
+                return await base.IsEnabledExecuteACMethodAsync(acMethodName, acParameter);
+            }
+
+            LastIsEnabledResult isEnabledResult = null;
+            var isEnabledCache = IsEnabledCache;
+
+            if (!isEnabledCache.TryGetValue(acMethodName, out isEnabledResult))
+            {
+                isEnabledResult = new LastIsEnabledResult() { LastQuery = DateTime.Now, LastResult = false };
+                isEnabledCache.TryAdd(acMethodName, isEnabledResult);
+            }
+            else
+            {
+                if (isEnabledResult == null)
+                    return false;
+                if ((isEnabledResult.LastQuery + _QueryLockTime) > DateTime.Now)
+                    return isEnabledResult.LastResult;
+            }
+
+            var result = await RMInvoker.IsEnabledExecuteMethodAsync(acMethodName, acParameter);
             if (result is bool)
             {
                 isEnabledResult.LastResult = (bool)result;
@@ -576,6 +668,36 @@ namespace gip.core.autocomponent
                 }
             }
             return acMenuItemList;
+        }
+
+        /// <summary>
+        /// Async variant of <see cref="GetMenu"/>. Must be used on the browser (WASM) where
+        /// the remote invocation cannot block the single UI thread.
+        /// </summary>
+        /// <param name="vbContent">VBContent of the Control where the user has requested the menu first</param>
+        /// <param name="vbControl">Type.FullName of the Control where the user has requested the menu first</param>
+        /// <returns>List of menu entries</returns>
+        public async Task<ACMenuItemList> GetMenuAsync(string vbContent, string vbControl)
+        {
+            ACMenuItemList acMenuItemList = await RMInvoker.ExecuteMethodAsync(nameof(GetMenu), new Object[] { vbContent, vbControl }) as ACMenuItemList;
+            if (acMenuItemList != null)
+            {
+                SetHandlerACElementRecursive(acMenuItemList);
+                return acMenuItemList;
+            }
+            acMenuItemList = base.GetMenu(vbContent, vbControl);
+            SetHandlerACElementRecursive(acMenuItemList);
+            return acMenuItemList;
+        }
+
+        private void SetHandlerACElementRecursive(IEnumerable<ACMenuItem> acMenuItemList)
+        {
+            foreach (var acMenuItem in acMenuItemList)
+            {
+                acMenuItem.HandlerACElement = this;
+                if (acMenuItem.Items != null && acMenuItem.Items.Count > 0)
+                    SetHandlerACElementRecursive(acMenuItem.Items);
+            }
         }
         #endregion
 

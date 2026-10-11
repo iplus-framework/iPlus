@@ -8,6 +8,7 @@ using gip.core.datamodel;
 using System.Windows;
 using System.Collections;
 using System.Configuration;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -36,6 +37,37 @@ namespace gip.core.autocomponent
             List<ACMenuItem> menuFromElement = GetMenuFromElement(acComponent, acElement);
             acMenuItemList.AddRange(menuFromElement);
 
+            return MergeMenu(acMenuItemList);
+        }
+
+        /// <summary>
+        /// Async variant of <see cref="GetMenu"/>. Must be used on the browser (WASM) where
+        /// remote invocations of proxy-builders cannot block the single UI thread.
+        /// </summary>
+        static public async Task<IEnumerable<ACMenuItem>> GetMenuAsync(IACComponent acComponent, IACInteractiveObject acElement)
+        {
+            List<ACMenuItem> acMenuItemList = new List<ACMenuItem>();
+
+            // 1. Menü vom Inhalt
+            List<ACMenuItem> menuFromContent = await GetMenuFromContentAsync(acComponent, acElement);
+            acMenuItemList.AddRange(menuFromContent);
+
+            // 2. Menü vom acComponent
+            List<ACMenuItem> menuFromComponent = await GetMenuFromComponentAsync(acComponent, acElement);
+            acMenuItemList.AddRange(menuFromComponent);
+
+            // 3. Menü vom acElement — local builders only, no remote invocation
+            List<ACMenuItem> menuFromElement = GetMenuFromElement(acComponent, acElement);
+            acMenuItemList.AddRange(menuFromElement);
+
+            return MergeMenu(acMenuItemList);
+        }
+
+        /// <summary>
+        /// Shared grouping/dedup/sort logic of <see cref="GetMenu"/> and <see cref="GetMenuAsync"/>.
+        /// </summary>
+        static private IEnumerable<ACMenuItem> MergeMenu(List<ACMenuItem> acMenuItemList)
+        {
             List<ACMenuItem> acMenuList = new List<ACMenuItem>();
 
             // Clean, deterministic grouping. The previous implementation materialized
@@ -187,6 +219,91 @@ namespace gip.core.autocomponent
             }
 
             return acMenuItemList;
+        }
+
+        /// <summary>
+        /// Async variant of <see cref="GetMenuFromContent"/>. Proxy-builders (ACComponentProxy)
+        /// are invoked via the async remote-invocation path on the browser; everything else
+        /// behaves identically to the sync version.
+        /// </summary>
+        static private async Task<List<ACMenuItem>> GetMenuFromContentAsync(IACComponent acComponent, IACInteractiveObject acElement)
+        {
+            List<ACMenuItem> acMenuItemList = new List<ACMenuItem>();
+            // Kein Inhalt vorhanden
+            if (acElement.ACContentList == null || !acElement.ACContentList.Any())
+                return acMenuItemList;
+            IACObject acContent1 = acElement.ACContentList.First();
+            if (acContent1 is ACClassInfoWithItems || acContent1 is ACObjectItem)
+            {
+                acContent1 = (acContent1 as IACContainer).Value as IACObject;
+            }
+
+            IACObject acContent2 = null;
+            if (acElement.ACContentList.Count() > 1)
+                acContent2 = acElement.ACContentList.ToArray()[1];
+
+            if (acContent1 is IACMenuBuilder)
+            {
+                IACMenuBuilder acMenuBuilder = acContent1 as IACMenuBuilder;
+                var m1 = await GetMenuFromBuilderAsync(acMenuBuilder, acElement);
+                if (m1 != null && m1.Any())
+                {
+                    foreach (var acMenuItem in m1)
+                    {
+                        acMenuItem.BSO = acComponent as IACBSO;
+                        acMenuItemList.Add(acMenuItem);
+                    }
+                }
+            }
+            ACCommandMsgList acCommandMsgList = null;
+            // Falls 1. Content XMLConfig unterstützt, dann schauen ob eine ACCommandMsgList vorhanden ist
+            if (acContent1 is IACEntityProperty)
+            {
+                ACCommandMsgList acCommandMsgList1 = (acContent1 as IACEntityProperty)["ACCommandMsgList"] as ACCommandMsgList;
+                if (acCommandMsgList1 != null)
+                    acCommandMsgList = acCommandMsgList1;
+            }
+            // Ansonsten falls 2. Content XMLConfig unterstützt und 1 Content ein ACValueItem ist, dann schauen ob eine ACCommandMsgList vorhanden ist
+            else if (acElement.ACContentList.Count() > 1 && acContent1 is ACValueItem)
+            {
+                if (acContent2 is IACEntityProperty)
+                {
+                    ACCommandMsgList acCommandMsgList1 = (acContent2 as IACEntityProperty)["ACCommandMsgList"] as ACCommandMsgList;
+                    if (acCommandMsgList1 != null)
+                        acCommandMsgList = acCommandMsgList1;
+                }
+            }
+
+            if (acCommandMsgList != null)
+            {
+                if (acContent1 == null || acContent1.ACType == null || acContent1.ACType.ValueTypeACClass.ACKind == Global.ACKinds.TACLRBaseTypes)
+                {
+                    if (acContent2 != null && acContent2.ACType != null && acContent2.ACType.ValueTypeACClass.ACKind != Global.ACKinds.TACLRBaseTypes)
+                    {
+                        List<ACMenuItem> menuForacCommandMsg = GetACCommandMsgList(acCommandMsgList, acComponent);
+                        acMenuItemList.AddRange(menuForacCommandMsg);
+                    }
+                }
+            }
+
+            return acMenuItemList;
+        }
+
+        /// <summary>
+        /// Invokes a menu builder, using the async remote-invocation path for proxies on the
+        /// browser (WASM) where a synchronous remote call would deadlock the UI thread.
+        /// </summary>
+        static private async Task<IEnumerable<ACMenuItem>> GetMenuFromBuilderAsync(IACMenuBuilder acMenuBuilder, IACInteractiveObject acElement)
+        {
+            if (OperatingSystem.IsBrowser() && acMenuBuilder is ACComponentProxy proxy)
+                return await InvokeProxyGetMenuAsync(proxy, acElement);
+            return acMenuBuilder.GetMenu(acElement.VBContent, acElement.GetType().FullName);
+        }
+
+        static private async Task<IEnumerable<ACMenuItem>> InvokeProxyGetMenuAsync(ACComponentProxy proxy, IACInteractiveObject acElement)
+        {
+            ACMenuItemList list = await proxy.GetMenuAsync(acElement.VBContent, acElement.GetType().FullName);
+            return list;
         }
 
         /// <summary>
@@ -347,6 +464,28 @@ namespace gip.core.autocomponent
                         acMenuItemList.Add(acMenuItem);
                     }
                     // acMenuItemList.Add(new ACMenuItem(null, "-", "", null));
+                }
+            }
+            return acMenuItemList;
+        }
+
+        /// <summary>
+        /// Async variant of <see cref="GetMenuFromComponent"/> (see <see cref="GetMenuFromBuilderAsync"/>).
+        /// </summary>
+        static private async Task<List<ACMenuItem>> GetMenuFromComponentAsync(IACComponent acComponent, IACInteractiveObject acElement)
+        {
+            List<ACMenuItem> acMenuItemList = new List<ACMenuItem>();
+            if (acComponent is IACMenuBuilder)
+            {
+                IACMenuBuilder acMenuBuilder = acComponent as IACMenuBuilder;
+                var m1 = await GetMenuFromBuilderAsync(acMenuBuilder, acElement);
+                if (m1 != null && m1.Any())
+                {
+                    foreach (var acMenuItem in m1)
+                    {
+                        acMenuItem.BSO = acComponent as IACBSO;
+                        acMenuItemList.Add(acMenuItem);
+                    }
                 }
             }
             return acMenuItemList;

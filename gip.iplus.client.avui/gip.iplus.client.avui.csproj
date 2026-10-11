@@ -3,6 +3,9 @@
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <LangVersion>latest</LangVersion>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+    <!-- Required for the [JSImport]/[JSExport] JavaScript interop source generator
+         (BrowserSettingsStorage) used by the browser (WASM) head. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   
   <ItemGroup>

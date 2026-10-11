@@ -29,6 +29,7 @@ public partial class MainView : UserControl, IRootPageWPF, IFocusChangeListener
     public MainView()
     {
         InitializeComponent();
+        VBContextMenuHelper.RegisterBrowserRightClickHandler(this);
         InitConnectionInfo();
     }
 

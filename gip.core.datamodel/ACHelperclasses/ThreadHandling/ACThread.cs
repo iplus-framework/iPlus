@@ -635,6 +635,10 @@ namespace gip.core.datamodel
         [SecuritySafeCritical]
         public void Start()
         {
+            // WASM: no thread support (PlatformNotSupportedException). Browser clients run
+            // on async paths; thread-based workers simply don't start there.
+            if (OperatingSystem.IsBrowser())
+                return;
             this.Thread.Start();
             lock (_Lock)
             {
@@ -650,6 +654,8 @@ namespace gip.core.datamodel
         [SecuritySafeCritical]
         public void Start(object parameter)
         {
+            if (OperatingSystem.IsBrowser()) // WASM: no thread support
+                return;
             this.Thread.Start(parameter);
             lock (_Lock)
             {

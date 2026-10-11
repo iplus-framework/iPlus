@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Collections.Generic;
 using gip.core.datamodel;
 using gip.core.autocomponent;
+using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Text;
 
@@ -19,21 +20,15 @@ namespace gip.iplus.console
         public static void Main(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-            //#if DEBUG
-            //            if (!System.Diagnostics.Debugger.IsAttached)
-            //            {
-            //                Console.WriteLine("Wait for attaching debugger");
-            //                Console.ReadLine();
-            //            }
-            //#endif
             CommandLineHelper cmdHelper = new CommandLineHelper(args);
             bool WCFOff = args.Contains("/WCFOff");
             bool simulation = args.Contains("/Simulation");
 
-            // Install sdk for linux first to be able to debug
-            // https://learn.microsoft.com/en-us/dotnet/core/install/linux-ubuntu-install?pivots=os-linux-ubuntu-2004&tabs=dotnet8
-            // https://learn.microsoft.com/en-us/sql/linux/sql-server-linux-setup-tools?view=sql-server-ver16&tabs=ubuntu-install#ubuntu
-            // ./sqlcmd -S 192.168.178.123\\SQLEXP16 -U gip -P netspirit -C
+            // Default credentials for automated/agent sessions (overridable via /U and /P)
+            if (String.IsNullOrEmpty(cmdHelper.LoginUser))
+                cmdHelper.LoginUser = "00";
+            if (String.IsNullOrEmpty(cmdHelper.LoginPassword))
+                cmdHelper.LoginPassword = "00";
 
             ACStartUpRoot startUpManager = new ACStartUpRoot(null);
             String errorMsg = "";
@@ -42,18 +37,58 @@ namespace gip.iplus.console
             {
                 Messages.ConsoleMsg("System", "Login Error.");
                 Messages.ConsoleMsg("System", errorMsg);
+                if (!Console.IsInputRedirected)
+                    Console.ReadLine();
+                return;
+            }
+
+            Messages.ConsoleMsg("System", "Service is ready for requests.  Press any key (or Ctrl+C) to close service.");
+            Console.WriteLine();
+
+            WaitForShutdown();
+
+            Messages.ConsoleMsg("System", "Closing service...");
+            ACRoot.SRoot.ACDeInit();
+            Messages.ConsoleMsg("System", "Service shutdown...");
+            if (!Console.IsInputRedirected)
+                Console.ReadLine();
+        }
+
+        private static ManualResetEvent _ShutdownEvent;
+        private static PosixSignalRegistration _SigTermRegistration;
+
+        /// <summary>
+        /// Blocks until the user presses a key (interactive console) or the process is
+        /// asked to terminate (Ctrl+C / SIGTERM). This makes the console usable
+        /// in automated/agent sessions where stdin is redirected or closed.
+        /// </summary>
+        private static void WaitForShutdown()
+        {
+            if (!Console.IsInputRedirected)
+            {
                 Console.ReadLine();
                 return;
             }
 
-            Messages.ConsoleMsg("System", "Service is ready for requests.  Press any key to close service.");
-            Console.WriteLine();
+            // Headless mode: keep the service alive until the process is asked to terminate.
+            _ShutdownEvent = new ManualResetEvent(false);
+            Console.CancelKeyPress += (sender, e) =>
+            {
+                e.Cancel = true;
+                _ShutdownEvent.Set();
+            };
 
-            Console.ReadLine();
-            Messages.ConsoleMsg("System", "Closing service...");
-            ACRoot.SRoot.ACDeInit();
-            Messages.ConsoleMsg("System", "Service shutdown...");
-            Console.ReadLine();
+            // React to SIGTERM (kill / timeout) as well, not only Ctrl+C (SIGINT).
+            if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
+            {
+                _SigTermRegistration = PosixSignalRegistration.Create(PosixSignal.SIGTERM, context =>
+                {
+                    context.Cancel = true;
+                    _ShutdownEvent.Set();
+                });
+            }
+
+            _ShutdownEvent.WaitOne();
         }
 
         private static void MainThread(object data)

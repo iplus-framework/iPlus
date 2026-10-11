@@ -38,15 +38,21 @@ namespace gip.core.autocomponent
             if (!base.ACInit(startChildMode))
                 return false;
 
-            _WorkCycleThread.Name = "ACUrl:" + this.GetACUrl() + ";RunWorkCycle();";
-            _WorkCycleThread.Start();
+            // WASM: no thread support (PlatformNotSupportedException) — run without the
+            // background work-cycle thread; the dump functionality is server-side anyway.
+            if (!OperatingSystem.IsBrowser())
+            {
+                _WorkCycleThread.Name = "ACUrl:" + this.GetACUrl() + ";RunWorkCycle();";
+                _WorkCycleThread.Start();
+            }
 
             return true;
         }
 
         public override bool ACPostInit()
         {
-            if (Root == gip.core.autocomponent.ACRoot.SRoot && ParentACComponent is Environment)
+            if (Root == gip.core.autocomponent.ACRoot.SRoot && ParentACComponent is Environment
+                && !OperatingSystem.IsBrowser()) // FileSystemWatcher not supported on WASM
             {
                 _FileSystemWatcher = new FileSystemWatcher(Root.Environment.Rootpath);
                 _FileSystemWatcher.BeginInit();
@@ -72,7 +78,8 @@ namespace gip.core.autocomponent
 
             bool result = await base.ACDeInit(deleteACClassTask);
 
-            if (_WorkCycleThread != null)
+            // WASM: thread was never started (see ACInit) — skip wait-handle/thread teardown
+            if (_WorkCycleThread != null && !OperatingSystem.IsBrowser())
             {
                 if (_ShutdownEvent != null && _ShutdownEvent.SafeWaitHandle != null && !_ShutdownEvent.SafeWaitHandle.IsClosed)
                     _ShutdownEvent.Set();

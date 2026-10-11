@@ -69,7 +69,10 @@ In business objects, ACQueryDefinitions are stateful because each business objec
 
         internal static ACQueryDefinition CreateRootQueryDefinition(ACClass acClassQRYACQueryDefinition)
         {
-            ACQueryDefinition qryACQueryDefinition = ACActivator.CreateInstance(acClassQRYACQueryDefinition, acClassQRYACQueryDefinition, null, null) as ACQueryDefinition;
+            object created = ACActivator.CreateInstance(acClassQRYACQueryDefinition, acClassQRYACQueryDefinition, null, null);
+            if (created == null)
+                Console.WriteLine("ACQueryDefinition.CreateRootQueryDefinition: ACActivator.CreateInstance returned NULL for " + acClassQRYACQueryDefinition.AssemblyQualifiedName);
+            ACQueryDefinition qryACQueryDefinition = created as ACQueryDefinition;
             List<ACColumnItem> acColumns = new List<ACColumnItem>();
             acColumns.Add(new ACColumnItem(Const.ACQueryTypePrefix));
             acColumns.Add(new ACColumnItem(Const.ACQueryRootObjectPrefix));

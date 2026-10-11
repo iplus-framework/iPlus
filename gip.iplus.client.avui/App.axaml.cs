@@ -115,9 +115,19 @@ public partial class App : Application
         AvaloniaXamlLoader.Load(this);
     }
 
+    // NOTE: There is deliberately no PumpingWaitHook registration here. Avalonia's browser
+    // dispatcher (BrowserSingleThreadedDispatcherImpl) does not implement
+    // IControlledDispatcherImpl, so Dispatcher.PushFrame throws PlatformNotSupportedException
+    // on WASM and a nested pump is impossible. Synchronous remote invocations must use the
+    // async path instead (ACComponent.ACActionAsync / ACObjectRMInvoker.ExecuteMethodAsync);
+    // the sync InvokeRemote fails fast on the browser (see ACObjectRMInvoker).
+
     public override void OnFrameworkInitializationCompleted()
     {
         _GlobalApp = this;
+        // Browser (WASM): route client-local settings to localStorage before anything
+        // reads CommandLineHelper.Settings or the App user settings.
+        BrowserSettingsStorage.Register();
         IWPFServices wpfServices = WpfServicesFactory != null
             ? WpfServicesFactory()
             : new core.wpfservices.avui.WPFServices();
@@ -221,11 +231,36 @@ public partial class App : Application
                         // If login was successful, show main window
                         if (ACRoot.SRoot != null)
                         {
-                            MainSingleView singleView = new MainSingleView();
-                            singleView.DataContext = ACRoot.SRoot.Businessobjects;
-                            ACRoot.SRoot.RootPageWPF = singleView;
+                            // Two root modes are available on single-view platforms (browser/
+                            // Android), selected by the "MobileModeEnabled" checkbox in the
+                            // login SettingsGrid (persisted via CommandLineHelper.Settings):
+                            //   true  -> mobile "hamburger" mode: MainSingleView, business
+                            //            objects load DUMainMobile designs (touch optimized)
+                            //   false -> desktop mode: MainView with menu bar/docking, business
+                            //            objects load DUMain designs (same as desktop client)
+                            bool singleViewMode = true;
+                            ACValueItem singleViewSetting = CommandLineHelper.Settings
+                                .Where(c => c.ACCaptionTranslation == nameof(LoginView.MobileModeEnabled))
+                                .FirstOrDefault();
+                            if (singleViewSetting?.Value is bool b)
+                                singleViewMode = b;
 
-                            rootControl.Content= singleView;
+                            if (singleViewMode)
+                            {
+                                MainSingleView singleView = new MainSingleView();
+                                singleView.DataContext = ACRoot.SRoot.Businessobjects;
+                                ACRoot.SRoot.RootPageWPF = singleView;
+
+                                rootControl.Content = singleView;
+                            }
+                            else
+                            {
+                                MainView mainView = new MainView();
+                                mainView.DataContext = ACRoot.SRoot.Businessobjects;
+                                ACRoot.SRoot.RootPageWPF = mainView;
+
+                                rootControl.Content = mainView;
+                            }
 
                             // Assign to MainView
                             //singleViewPlatform.MainView = singleView;
@@ -271,6 +306,14 @@ public partial class App : Application
     {
         try
         {
+            // Browser (WASM): no writable file system — load from localStorage instead.
+            string browserJson = BrowserSettingsStorage.LoadAppSettingsJson();
+            if (browserJson != null)
+            {
+                var browserSettings = Newtonsoft.Json.JsonConvert.DeserializeObject<Settings>(browserJson);
+                return browserSettings ?? new Settings();
+            }
+
             var path = GetSettingsFilePath();
             if (!File.Exists(path))
                 return new Settings();
@@ -293,8 +336,14 @@ public partial class App : Application
 
         try
         {
-            var path = GetSettingsFilePath();
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(_AppSettings, Newtonsoft.Json.Formatting.Indented);
+            // Browser (WASM): no writable file system — persist to localStorage instead.
+            if (OperatingSystem.IsBrowser())
+            {
+                BrowserSettingsStorage.SaveAppSettingsJson(json);
+                return;
+            }
+            var path = GetSettingsFilePath();
             File.WriteAllText(path, json);
         }
         catch (Exception ex)
@@ -362,8 +411,10 @@ public partial class App : Application
         bool simulation = cmLineArg.Contains("/" + Const.StartupParamSimulation);
         bool fullscreen = cmLineArg.Contains("/" + Const.StartupParamFullscreen);
 
+        Console.WriteLine("App: HandleLoginAndStartup: accessing ACRoot.SRoot (may init Database)..."); // TEMPORARY tracing
         if (ACRoot.SRoot != null)
             ACRoot.SRoot.Environment.License.PropertyChanged += License_PropertyChanged;
+        Console.WriteLine("App: HandleLoginAndStartup: ACRoot.SRoot done."); // TEMPORARY tracing
 
         if (!cmLineArg.Contains("/autologin"))
         {
@@ -393,8 +444,10 @@ public partial class App : Application
                 }
                 else if (_LoginView != null)
                 {
+                    Console.WriteLine($"App: HandleLoginAndStartup: attempt {i}, DisplayLogin + WaitOnLoginResult..."); // TEMPORARY tracing
                     _LoginView.DisplayLogin(true, errorMsg);
                     await _LoginView.WaitOnLoginResult();
+                    Console.WriteLine("App: HandleLoginAndStartup: WaitOnLoginResult completed."); // TEMPORARY tracing
                     errorMsg = "";
                     _LoginView.DisplayLogin(false, errorMsg);
                 }

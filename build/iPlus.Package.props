@@ -15,7 +15,7 @@
 	-->
 	<PropertyGroup>
 		<!-- iPlus (core) suite version. Pre-release until V5 is stable. -->
-		<IPlusPackageVersion Condition="'$(IPlusPackageVersion)' == ''">5.0.0-preview.2</IPlusPackageVersion>
+		<IPlusPackageVersion Condition="'$(IPlusPackageVersion)' == ''">5.0.0-preview.3</IPlusPackageVersion>
 		<!-- iPlusMES suite version. Pre-release until V5 is stable. -->
 		<IPlusMESPackageVersion Condition="'$(IPlusMESPackageVersion)' == ''">5.0.0-preview.2</IPlusMESPackageVersion>
 		<!-- Version used for the projects of the repo that is currently being built.

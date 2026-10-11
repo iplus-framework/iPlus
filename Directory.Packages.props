@@ -197,7 +197,8 @@
 		<PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.MSBuild"
 			Version="$(CodeAnalysisVersion)" />
 		<PackageVersion Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageVersion Include="Microsoft.Data.SqlClient" Version="7.0.0-preview3.25342.7" />
+		<PackageVersion Include="Microsoft.Data.SqlClient" Version="7.1.1-iplus.0" />
+		<PackageVersion Include="Azure.Core" Version="1.51.1" />
 		<PackageVersion Include="Microsoft.Database.Collections.Generic" Version="3.2.0" />
 		<PackageVersion Include="Microsoft.FASTER.Core" Version="2.6.5" />
 		<PackageVersion Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers"
@@ -340,7 +341,7 @@
 		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
 		<PackageVersion Include="Microsoft.VisualStudio.Threading" Version="17.14.15" />
 		<PackageVersion Include="Microsoft.VisualStudio.Validation" Version="17.13.22" />
-		<PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.0" />
+<PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.2" />
 
 		<PackageVersion Include="Mono.Cecil" Version="0.11.6" />
 		<PackageVersion Include="Nerdbank.Streams" Version="2.13.16" />

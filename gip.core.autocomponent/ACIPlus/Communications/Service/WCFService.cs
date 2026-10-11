@@ -22,7 +22,7 @@ namespace gip.core.autocomponent
 #if !ANDROID
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession, ConcurrencyMode = ConcurrencyMode.Multiple)]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'WCFService'}de{'WCFService'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
-    public class WCFService : IWCFService
+    public class WCFService : IWCFService, IWCFServicePeer
     {
         #region private members
         IWCFServiceCallback _callback = null;
@@ -300,7 +300,8 @@ namespace gip.core.autocomponent
             {
                 return _ClosingConnection;
             }
-            internal set
+            // public setter required by IWCFServicePeer (browser WebSocket transport)
+            set
             {
                 _ClosingConnection = value;
             }

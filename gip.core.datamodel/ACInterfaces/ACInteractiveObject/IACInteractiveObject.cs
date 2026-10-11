@@ -76,5 +76,15 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="actionArgs">Information about the type of interaction and the source</param>
         Task ACActionAsync(ACActionArgs actionArgs);
+
+        /// <summary>
+        /// IsEnabledACActionAsync is called at the Target-IACInteractiveObject to inform the
+        /// Source-IACInteractiveObject whether ACAction is allowed to be invoked. Must be
+        /// used on the browser (WASM) where the synchronous variant cannot query a proxy
+        /// without deadlocking the single UI thread.
+        /// </summary>
+        /// <param name="actionArgs">Information about the type of interaction and the source</param>
+        /// <returns><c>true</c> if ACAction can be invoked otherwise, <c>false</c>.</returns>
+        Task<bool> IsEnabledACActionAsync(ACActionArgs actionArgs);
     }
 }

@@ -52,15 +52,58 @@ namespace gip.core.layoutengine.avui
                 // RoutedCommand.ICommand.Execute/CanExecute routes through CommandManager.FocusedElement,
                 // so the CommandBinding on this VBMenuItem would never be found in the routing path.
                 Command = new DirectACCommand(this);
+                if (OperatingSystem.IsBrowser() && !acCommand.IsAutoEnabled && ContextACObject != null)
+                {
+                    // On the browser the synchronous enabled-check fails fast (it cannot
+                    // block the single UI thread to query a proxy), so items would always
+                    // render disabled. Query the state asynchronously, cache the result
+                    // (CanExecute returns it) and raise CanExecuteChanged so the item
+                    // re-evaluates once the server has responded.
+                    _ = UpdateIsEnabledAsync();
+                }
+            }
+        }
+
+        internal bool CachedIsEnabled { get; private set; }
+
+        internal event Action IsEnabledCacheChanged;
+
+        private bool _IsEnabledQueriedAsync;
+
+        private async Task UpdateIsEnabledAsync()
+        {
+            if (_IsEnabledQueriedAsync)
+                return;
+            _IsEnabledQueriedAsync = true;
+            try
+            {
+                ACActionArgs actionArgs = new ACActionArgs(this, 0, 0, Global.ElementActionType.ACCommand);
+                bool enabled = await IsEnabledACActionAsync(actionArgs);
+                CachedIsEnabled = enabled;
+                IsEnabledCacheChanged?.Invoke();
+            }
+            catch (Exception)
+            {
+                // Never crash the UI thread from the fire-and-forget enabled query.
             }
         }
 
         private sealed class DirectACCommand : System.Windows.Input.ICommand
         {
             private readonly VBMenuItem _menuItem;
-            public event EventHandler CanExecuteChanged { add { } remove { } }
+            private EventHandler _canExecuteChanged;
 
-            public DirectACCommand(VBMenuItem menuItem) { _menuItem = menuItem; }
+            public event EventHandler CanExecuteChanged
+            {
+                add { _canExecuteChanged += value; }
+                remove { _canExecuteChanged -= value; }
+            }
+
+            public DirectACCommand(VBMenuItem menuItem)
+            {
+                _menuItem = menuItem;
+                _menuItem.IsEnabledCacheChanged += () => _canExecuteChanged?.Invoke(this, EventArgs.Empty);
+            }
 
             public bool CanExecute(object parameter)
             {
@@ -69,6 +112,13 @@ namespace gip.core.layoutengine.avui
                 if (cmd.IsAutoEnabled) return true;
                 if (_menuItem.ContextACObject != null)
                 {
+                    if (OperatingSystem.IsBrowser())
+                    {
+                        // The synchronous check fails fast on the browser (no blocking
+                        // remote queries on the single UI thread) — use the result of the
+                        // asynchronous query instead, which arrives via CanExecuteChanged.
+                        return _menuItem.CachedIsEnabled;
+                    }
                     var actionArgs = new ACActionArgs(_menuItem, 0, 0, Global.ElementActionType.ACCommand);
                     return _menuItem.IsEnabledACAction(actionArgs);
                 }
@@ -276,6 +326,24 @@ namespace gip.core.layoutengine.avui
             actionArgs.DropObject = this;
             if (HandlerACElement == null)
                 return false;
+            return HandlerACElement.IsEnabledACAction(actionArgs);
+        }
+
+        /// <summary>
+        /// Async variant of <see cref="IsEnabledACAction"/>. Must be used on the browser
+        /// (WASM) where the synchronous variant cannot query a proxy.
+        /// </summary>
+        /// <param name="actionArgs">Information about the type of interaction and the source</param>
+        /// <returns><c>true</c> if ACAction can be invoked otherwise, <c>false</c>.</returns>
+        public async Task<bool> IsEnabledACActionAsync(ACActionArgs actionArgs)
+        {
+            if (actionArgs == null)
+                return false;
+            actionArgs.DropObject = this;
+            if (HandlerACElement == null)
+                return false;
+            if (HandlerACElement is IACInteractiveObjectAsync interactiveObjectAsync)
+                return await interactiveObjectAsync.IsEnabledACActionAsync(actionArgs);
             return HandlerACElement.IsEnabledACAction(actionArgs);
         }
         #endregion

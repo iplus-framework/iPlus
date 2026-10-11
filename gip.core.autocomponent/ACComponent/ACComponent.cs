@@ -2612,6 +2612,15 @@ namespace gip.core.autocomponent
             return ExecuteMethod(invocationMode, acMethodName, acParameter);
         }
 
+        /// <summary> Async variant of <see cref="ExecuteMethod(string, Object[])"/>. MUST be used on the browser (WASM) for methods on proxies: the synchronous variant cannot block the single UI thread until the server responds.</summary>
+        /// <param name="acMethodName">Name of the method (Only registered methods with ACClassMethodInfo or ACMethod's)</param>
+        /// <param name="acParameter">  Parameterlist for method</param>
+        /// <returns>NULL, if void-Method else the result as boxed value</returns>
+        public virtual Task<object> ExecuteMethodAsync(string acMethodName, params Object[] acParameter)
+        {
+            return Task.FromResult(ExecuteMethod(acMethodName, acParameter));
+        }
+
         /// <summary>
         /// Returns a method for the given acMethodName-Parameter.
         /// </summary>
@@ -4514,7 +4523,9 @@ namespace gip.core.autocomponent
                         if (actionArgs is ACActionMenuArgs)
                         {
                             ACActionMenuArgs acActionMenuArgs = actionArgs as ACActionMenuArgs;
-                            acActionMenuArgs.ACMenuItemList = MenuManager.GetMenu(this, actionArgs.DropObject);
+                            // Async menu retrieval: on the browser (WASM) the proxy builders'
+                            // remote invocations must not block the single UI thread.
+                            acActionMenuArgs.ACMenuItemList = await MenuManager.GetMenuAsync(this, actionArgs.DropObject);
                         }
                         return;
                     }
@@ -4535,7 +4546,7 @@ namespace gip.core.autocomponent
                             if (!acCommand.ParameterList.Any())
                             {
                                 _CurrentInvokingACCommand = acCommand;
-                                object result = ExecuteMethod(acCommand.GetAsyncACUrl());
+                                object result = await ExecuteMethodAsync(acCommand.GetAsyncACUrl());
                                 if (result is Task) await (Task)result;
                                 _CurrentInvokingACCommand = null;
                                 return;
@@ -4543,7 +4554,7 @@ namespace gip.core.autocomponent
                             else
                             {
                                 _CurrentInvokingACCommand = acCommand;
-                                object result = ExecuteMethod(acCommand.GetAsyncACUrl(), acCommand.ParameterList.ToValueArray());
+                                object result = await ExecuteMethodAsync(acCommand.GetAsyncACUrl(), acCommand.ParameterList.ToValueArray());
                                 if (result is Task) await (Task)result;
                                 _CurrentInvokingACCommand = null;
                                 return;
@@ -4581,6 +4592,67 @@ namespace gip.core.autocomponent
                     break;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Async variant of <see cref="IsEnabledACAction"/>. MUST be used on the browser
+        /// (WASM): the synchronous variant cannot query a proxy without blocking the single
+        /// UI thread, so it fails fast and wrongly reports commands as disabled.
+        /// </summary>
+        /// <param name="actionArgs">Information about the type of interaction and the source</param>
+        /// <returns><c>true</c> if ACAction can be invoked otherwise, <c>false</c>.</returns>
+        public virtual async Task<bool> IsEnabledACActionAsync(ACActionArgs actionArgs)
+        {
+            switch (actionArgs.ElementAction)
+            {
+                case Global.ElementActionType.ACCommand:
+                    {
+                        ACCommand acCommand = actionArgs.DropObject.ACContentList.Where(c => c is ACCommand).FirstOrDefault() as ACCommand;
+                        if (acCommand != null)
+                        {
+                            if (!acCommand.ParameterList.Any())
+                            {
+                                return await IsEnabledACUrlCommandAsync(acCommand.GetACUrl());
+                            }
+                            else
+                            {
+                                return await IsEnabledACUrlCommandAsync(acCommand.GetACUrl(), acCommand.ParameterList.ToValueArray());
+                            }
+                        }
+                    }
+                    break;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Async variant of <see cref="IsEnabledACUrlCommand"/>. Method invocations are
+        /// resolved asynchronously so proxies can query the server; all other URL shapes
+        /// fall back to the synchronous resolution.
+        /// </summary>
+        public virtual async Task<bool> IsEnabledACUrlCommandAsync(string acUrl, params Object[] acParameter)
+        {
+            if (string.IsNullOrEmpty(acUrl))
+                return false;
+
+            ACUrlHelper acUrlHelper = new ACUrlHelper(acUrl);
+            switch (acUrlHelper.UrlKey)
+            {
+                case ACUrlHelper.UrlKeys.InvokeMethod:
+                    return await IsEnabledExecuteACMethodAsync(acUrlHelper.ACUrlPart, acParameter);
+                default:
+                    return IsEnabledACUrlCommand(acUrl, acParameter);
+            }
+        }
+
+        /// <summary>
+        /// Async variant of <see cref="IsEnabledExecuteACMethod"/>. The base implementation
+        /// falls back to the synchronous reflection-based resolution (local components only).
+        /// Proxies override this with a remote query.
+        /// </summary>
+        public virtual Task<bool> IsEnabledExecuteACMethodAsync(string acMethodName, params Object[] acParameter)
+        {
+            return Task.FromResult(IsEnabledExecuteACMethod(acMethodName, acParameter));
         }
 
 

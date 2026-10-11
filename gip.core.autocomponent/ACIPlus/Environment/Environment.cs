@@ -257,6 +257,12 @@ namespace gip.core.autocomponent
             {
                 if (!_SessionID.HasValue)
                 {
+                    // Process API is not supported on WASM — use a fixed pseudo session
+                    if (OperatingSystem.IsBrowser())
+                    {
+                        _SessionID = 0;
+                        return _SessionID;
+                    }
                     Process thisProcess = Process.GetCurrentProcess();
                     if (thisProcess != null)
                         _SessionID = thisProcess.SessionId;

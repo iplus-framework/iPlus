@@ -34,6 +34,7 @@ namespace gip.core.autocomponent
     {
         #region private members
         bool _useHttpConnection = false;
+        bool _useNetTCPConnection = false;
         bool _useIPV6 = false;
         bool _useTextEncoding = false;
         bool _nameResolutionOn = false;
@@ -74,6 +75,21 @@ namespace gip.core.autocomponent
         private EventWaitHandle _waitOnConnectionAtInit = null;
 
         private bool _resendSubscriptionInfo = false;
+
+        // ---- WebSocket transport (SqlTunnel-OptionB-Implementation.md §8) ----
+        // Used on WASM always, and on desktop whenever only the HTTP option is enabled
+        // (ServiceAppEnbledHTTP without ServiceAppEnabledTCP). On the browser main thread
+        // there are no real threads and no blocking waits (Monitor.Wait PNSE), so the 4
+        // ACThread producer/consumer loops and the blocking connection wait are replaced by
+        // async Task loops over a ClientWebSocket to the server's /wcfbrowser endpoint.
+        // Same queues and message contracts as the WCF path.
+        // (_IsBrowserTransport is kept as field name for the WebSocket transport selection.)
+        private bool _IsBrowserTransport = false;
+        private System.Net.WebSockets.ClientWebSocket _browserSocket = null;
+        private CancellationTokenSource _browserCts = null;
+        private readonly SemaphoreSlim _browserSendSignal = new SemaphoreSlim(0, int.MaxValue);
+        private readonly SemaphoreSlim _browserSendLock = new SemaphoreSlim(1, 1);
+        private volatile bool _browserConnected = false;
         #endregion
 
         #region c´tors
@@ -99,14 +115,30 @@ namespace gip.core.autocomponent
             if (_VBUserInstance == null)
                 return false;
 
+            // IMPORTANT: decide the transport mode FIRST. EndpointUri caches its value on
+            // first access; base.ACInit and the ConnectionDetailXML logging below touch it,
+            // so a late assignment here would leave the browser transport stuck with a
+            // cached net.tcp:// URI that ClientWebSocket can never connect to.
+            // WebSocket transport: always on WASM; on desktop whenever only the HTTP option
+            // is enabled (ServiceAppEnbledHTTP without ServiceAppEnabledTCP) — there is no
+            // HTTP duplex WCF client in .NET Core (WSDualHttpBinding missing), and the
+            // server's HTTP host serves /wcfbrowser to both browser and desktop clients.
+            _useHttpConnection = _VBUserInstance.ServiceAppEnbledHTTP;
+            _useNetTCPConnection = _VBUserInstance.ServiceAppEnabledTCP;
+            _IsBrowserTransport = OperatingSystem.IsBrowser() || (_useHttpConnection && !_useNetTCPConnection);
+            _endpointUri = null; // drop any URI cached before the transport mode was known
+
             _ACProjectsOnServerSide = new List<string>();
             _ConnectedSince = DateTime.Now;
             _DisconnectedSince = new DateTime();
-            _useHttpConnection = _VBUserInstance.ServiceAppEnbledHTTP;
+            // ServiceAppEnabledTCP was never consumed before (2026-10-11): it selects the
+            // net.tcp endpoint on the client; ServiceAppEnbledHTTP the HTTP one. If neither
+            // is set, fall back to net.tcp (legacy behavior).
             _useIPV6 = _VBUserInstance.UseIPV6;
             _useTextEncoding = _VBUserInstance.UseTextEncoding;
-            if (_useHttpConnection && (_useTextEncoding == false))
-                _useTextEncoding = true;
+            // UseTextEncoding only affects the net.tcp binding (text vs. binary message
+            // encoding). The WebSocket transport uses its own DataContract serializer and
+            // is independent of this flag — no forced override here.
             _nameResolutionOn = _VBUserInstance.NameResolutionOn;
 
             _ACPDispatchToServer = new ACPDispatchClient();
@@ -134,6 +166,13 @@ namespace gip.core.autocomponent
 
             Messages.LogDebug(this.GetACUrl(), "WCFClientChannel.ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)", ConnectionDetailXML);
 
+            if (_IsBrowserTransport)
+            {
+                // No ACThread loops, no blocking _waitOnConnectionAtInit.WaitOne
+                StartBrowserTransport();
+                return result;
+            }
+
             _sendThread = new ACThread(SendMessageToPeer);
             _sendThread.Name = "ACUrl:" + this.GetACUrl() + ";SendMessageToPeer();";
             _sendThread.Start();
@@ -159,6 +198,30 @@ namespace gip.core.autocomponent
         public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             Messages.LogDebug(this.GetACUrl(), "WCFClientChannel.ACDeInit()", ConnectionDetailXML);
+
+            if (_IsBrowserTransport)
+            {
+                // Browser transport: no threads to join; cancel the async loops and close the socket.
+                try
+                {
+                    if (_browserCts != null)
+                        _browserCts.Cancel();
+                }
+                catch (Exception e) { Messages.LogException("WCFClientChannel", "ACDeInit(BrowserCancel)", e.Message); }
+                try
+                {
+                    if (_browserSocket != null)
+                        _browserSocket.Dispose();
+                }
+                catch (Exception e) { Messages.LogException("WCFClientChannel", "ACDeInit(BrowserDispose)", e.Message); }
+                _browserSocket = null;
+                _browserConnected = false;
+                _ACPDispatchToServer = null;
+                _endpointUri = null;
+                _VBUserInstance = null;
+                _ConnectionOn = false;
+                return await base.ACDeInit(deleteACClassTask);
+            }
 
             if (_ACPDispatchThread != null)
             {
@@ -264,7 +327,14 @@ namespace gip.core.autocomponent
 
                 // Schema / protocol
                 string scheme = "net.tcp";
-                if (_useHttpConnection)
+                string path = "/";
+                if (_IsBrowserTransport)
+                {
+                    // Browser clients use the WebSocket endpoint of the HTTP host
+                    scheme = "ws";
+                    path = "/wcfbrowser";
+                }
+                else if (_useHttpConnection && !_useNetTCPConnection)
                     scheme = "http";
 
                 // Authority
@@ -279,13 +349,13 @@ namespace gip.core.autocomponent
                 if ((Root as ACRoot).WCFOff)
                     authority = "localhost";
 
-                if (_useHttpConnection)
+                if (_IsBrowserTransport || (_useHttpConnection && !_useNetTCPConnection))
                     authority += ":" + _VBUserInstance.ServicePortHTTP;
                 else
                     authority += ":" + _VBUserInstance.ServicePortTCP;
 
                 // Address
-                _endpointUri = new Uri(String.Format("{0}://{1}/", scheme, authority));
+                _endpointUri = new Uri(String.Format("{0}://{1}{2}", scheme, authority, path));
                 return _endpointUri;
             }
         }
@@ -329,6 +399,27 @@ namespace gip.core.autocomponent
                     WCFClientManager.UpdateStatistic();
                 if (DisconnectedEvent)
                     InformObjectsOnDisconnection();
+            }
+        }
+
+        /// <summary>
+        /// True when the transport to the server can accept messages. Covers both the WCF
+        /// duplex channel (desktop) and the browser WebSocket transport.
+        /// </summary>
+        private bool TransportAvailable
+        {
+            get
+            {
+                if (_IsBrowserTransport)
+                    return _browserConnected;
+                if ((_ReconnectThread != null) || (_serviceOfPeer == null))
+                    return false;
+                else if ((_serviceOfPeer != null) && (_serviceOfPeer.InnerChannel != null))
+                {
+                    if ((_serviceOfPeer.State != CommunicationState.Opened) && (_serviceOfPeer.State != CommunicationState.Created))
+                        return false;
+                }
+                return true;
             }
         }
 
@@ -467,13 +558,10 @@ namespace gip.core.autocomponent
             _instanceContext = new InstanceContext(new WCFClientServiceCallback(this));
 
             // Service Endpoint
-            if (_useHttpConnection)
+            if (_useHttpConnection && !_useNetTCPConnection)
             {
-                /*
-                WSDualHttpBinding wsDualHttpBinding = new WSDualHttpBinding();
-                wsDualHttpBinding.MessageEncoding = System.ServiceModel.WSMessageEncoding.Text;
-                _serviceOfPeer = new WCFClient(_instanceContext, wsDualHttpBinding, _endPoint);
-                */
+                // HTTP-only client: handled by the WebSocket transport (see ACInit),
+                // never reaches this thread. Guard against _serviceOfPeer == null below.
             }
             else
             {
@@ -524,6 +612,14 @@ namespace gip.core.autocomponent
 
                     _serviceOfPeer = new WCFClient(_instanceContext, netTcpBinding, _endPoint);
                 }
+            }
+
+            if (_serviceOfPeer == null)
+            {
+                // No binding could be created (e.g. unsupported flag combination) —
+                // do not dereference null; the reconnect logic will retry.
+                Messages.LogException(this.GetACUrl(), "WCFClientChannel.NewConnectionInstance()", "No WCF binding could be created for the enabled transport options.");
+                return;
             }
 
             foreach (OperationDescription op in _serviceOfPeer.Endpoint.Contract.Operations)
@@ -879,13 +975,8 @@ namespace gip.core.autocomponent
         public void SendACMessageToServer(WCFMessage message)
         {
             // Falls Verbindung zu Server getrennt war und der gerade versucht wird die Verbindung neu aufzubauen, verwerfe Request
-            if ((_ReconnectThread != null) || (_serviceOfPeer == null))
+            if (!TransportAvailable)
                 throw new ACWCFException(Root.Environment.TranslateMessage(this, "Error00036"), ACWCFException.WCFErrorCode.Disconnected);
-            else if ((_serviceOfPeer != null) && (_serviceOfPeer.InnerChannel != null))
-            {
-                if ((_serviceOfPeer.State != CommunicationState.Opened) && (_serviceOfPeer.State != CommunicationState.Created))
-                    throw new ACWCFException(Root.Environment.TranslateMessage(this, "Error00036"), ACWCFException.WCFErrorCode.Disconnected);
-            }
             Messages.LogDebug(this.GetACUrl(), "WCFClientChannel.SendACMessageToServer()", message.ACUrl);
             EnqeueMessageForPeer(message);
         }
@@ -898,13 +989,8 @@ namespace gip.core.autocomponent
         public bool SendPropertyValueToServer(IACPropertyNetValueEvent eventArgs, IACComponent ACProject)
         {
             // Falls Verbindung zu Server getrennt war und der gerade versucht wird ddie Verbindung neu aufzubauen, verwerfe Request
-            if ((_ReconnectThread != null) || (_serviceOfPeer == null))
+            if (!TransportAvailable)
                 return false;
-            else if ((_serviceOfPeer != null) && (_serviceOfPeer.InnerChannel != null))
-            {
-                if ((_serviceOfPeer.State != CommunicationState.Opened) && (_serviceOfPeer.State != CommunicationState.Created))
-                    return false;
-            }
 
             if (_ACPDispatchToServer == null)
                 return false;
@@ -957,13 +1043,8 @@ namespace gip.core.autocomponent
         public void EnqueueSendSubscriptionInfoToServer()
         {
             // Falls Verbindung zu Server getrennt war und der gerade versucht wird ddie Verbindung neu aufzubauen, verwerfe Request
-            if ((_ReconnectThread != null) || (_serviceOfPeer == null))
+            if (!TransportAvailable)
                 return;
-            else if ((_serviceOfPeer != null) && (_serviceOfPeer.InnerChannel != null))
-            {
-                if ((_serviceOfPeer.State != CommunicationState.Opened) && (_serviceOfPeer.State != CommunicationState.Created))
-                    return;
-            }
             if (_ACPDispatchToServer == null)
                 return;
             if (!_syncDispatchPoints.NewItemsEnqueueable)
@@ -996,18 +1077,10 @@ namespace gip.core.autocomponent
             if (countSubscr > 0 || countUnSubscr > 0)
             {
                 // Falls Verbindung zu Server getrennt war und der gerade versucht wird ddie Verbindung neu aufzubauen, verwerfe Request
-                if ((_ReconnectThread != null) || (_serviceOfPeer == null))
+                if (!TransportAvailable)
                 {
                     _resendSubscriptionInfo = true;
                     return;
-                }
-                else if ((_serviceOfPeer != null) && (_serviceOfPeer.InnerChannel != null))
-                {
-                    if ((_serviceOfPeer.State != CommunicationState.Opened) && (_serviceOfPeer.State != CommunicationState.Created))
-                    {
-                        _resendSubscriptionInfo = true;
-                        return;
-                    }
                 }
 
                 Messages.LogDebug(this.GetACUrl(), "WCFClientChannel.SendSubscriptionInfoToServer()", String.Format("SubscribeRequest: {0}, UnSubscribeRequest: {1}", countSubscr, countUnSubscr));
@@ -1126,6 +1199,261 @@ namespace gip.core.autocomponent
 
         #endregion
 
+        #region Browser (WASM) Transport
+
+        /// <summary>
+        /// Starts the async loops that replace the ACThread producer/consumer loops on the
+        /// browser (WASM): connection/receive, send, property-dispatch and point-dispatch.
+        /// </summary>
+        private void StartBrowserTransport()
+        {
+            _browserCts = new CancellationTokenSource();
+            CancellationToken ct = _browserCts.Token;
+            Task.Run(() => BrowserConnectionLoopAsync(ct));
+            Task.Run(() => BrowserSendLoopAsync(ct));
+            Task.Run(() => BrowserDispatchLoopAsync(ct, false));
+            Task.Run(() => BrowserDispatchLoopAsync(ct, true));
+            Task.Run(() => BrowserReceiveProcessLoopAsync(ct));
+        }
+
+        /// <summary>
+        /// Async counterpart of ProcessMessageFromPeer (the sync path's _receiveThread,
+        /// which is an ACThread no-op on WASM): dequeues received messages and runs them
+        /// through ProcessACMessage so proxies get their property-value events.
+        /// </summary>
+        private async Task BrowserReceiveProcessLoopAsync(CancellationToken ct)
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                WCFMessage acMessage = null;
+                using (ACMonitor.Lock(this._syncReceive._20010_QueueSyncLock))
+                {
+                    if (ReceiveQueue.Count > 0)
+                        acMessage = ReceiveQueue.Dequeue();
+                }
+                if (acMessage == null)
+                {
+                    try { await Task.Delay(50, ct); }
+                    catch (TaskCanceledException) { return; }
+                    continue;
+                }
+                try
+                {
+                    ProcessACMessage(acMessage);
+                }
+                catch (Exception e)
+                {
+                    Messages.LogException("WCFClientChannel", "BrowserReceiveProcessLoopAsync", e.Message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Connects to the server's /wcfbrowser WebSocket endpoint, receives frames and
+        /// reconnects with growing delay — the async counterpart of
+        /// NewConnectionInstance/Reconnect.
+        /// </summary>
+        private async Task BrowserConnectionLoopAsync(CancellationToken ct)
+        {
+            TimeSpan reconnectDelay = new TimeSpan(0, 0, 2);
+            while (!ct.IsCancellationRequested)
+            {
+                try
+                {
+                    Uri endpoint = EndpointUri;
+                    if (endpoint == null)
+                    {
+                        await Task.Delay(1000, ct);
+                        continue;
+                    }
+                    _browserSocket = new System.Net.WebSockets.ClientWebSocket();
+                    await _browserSocket.ConnectAsync(endpoint, ct);
+                    _browserConnected = true;
+                    ConnectedSince = DateTime.Now;
+                    IsConnected = true;
+                    reconnectDelay = new TimeSpan(0, 0, 2);
+                    SendConnectMessageToOpenChannel();
+                    await BrowserReceiveLoopAsync(ct);
+                }
+                catch (Exception e)
+                {
+                    string msg = e.Message;
+                    if (e.InnerException != null && e.InnerException.Message != null)
+                        msg += " Inner:" + e.InnerException.Message;
+                    Messages.LogException("WCFClientChannel", "BrowserConnectionLoopAsync", msg);
+                }
+                _browserConnected = false;
+                IsConnected = false;
+                DisconnectedSince = DateTime.Now;
+                try
+                {
+                    if (_browserSocket != null)
+                        _browserSocket.Dispose();
+                }
+                catch (Exception) { }
+                _browserSocket = null;
+                try
+                {
+                    await Task.Delay(reconnectDelay, ct);
+                }
+                catch (TaskCanceledException)
+                {
+                    return;
+                }
+                if (reconnectDelay.TotalSeconds <= 58)
+                    reconnectDelay = reconnectDelay.Add(new TimeSpan(0, 0, 2));
+            }
+        }
+
+        /// <summary>
+        /// Receives serialized WCFMessage frames (one binary WebSocket message each) and
+        /// feeds them into the same receive queue as the WCF duplex callback does.
+        /// </summary>
+        private async Task BrowserReceiveLoopAsync(CancellationToken ct)
+        {
+            byte[] buffer = new byte[64 * 1024];
+            while (!ct.IsCancellationRequested && _browserSocket != null
+                && _browserSocket.State == System.Net.WebSockets.WebSocketState.Open)
+            {
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    System.Net.WebSockets.WebSocketReceiveResult result;
+                    do
+                    {
+                        result = await _browserSocket.ReceiveAsync(new ArraySegment<byte>(buffer), ct);
+                        if (result.MessageType == System.Net.WebSockets.WebSocketMessageType.Close)
+                            return;
+                        ms.Write(buffer, 0, result.Count);
+                    }
+                    while (!result.EndOfMessage);
+
+                    WCFMessage acMessage = null;
+                    try
+                    {
+                        acMessage = WCFBrowserSerializer.Deserialize(ms.ToArray());
+                    }
+                    catch (Exception e)
+                    {
+                        Messages.LogException("WCFClientChannel", "BrowserReceiveLoopAsync(Deserialize)", e.Message);
+                    }
+                    if (acMessage != null)
+                        EnqeueReceivedMessageFromPeer(acMessage);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Async counterpart of SendMessageToPeer: dequeues from _SendQueue and pushes
+        /// serialized frames over the WebSocket.
+        /// </summary>
+        private async Task BrowserSendLoopAsync(CancellationToken ct)
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                if (!_browserConnected || _browserSocket == null
+                    || _browserSocket.State != System.Net.WebSockets.WebSocketState.Open)
+                {
+                    try { await Task.Delay(200, ct); }
+                    catch (TaskCanceledException) { return; }
+                    continue;
+                }
+
+                WCFMessage acMessage = null;
+                using (ACMonitor.Lock(this._syncSend._20010_QueueSyncLock))
+                {
+                    if (SendQueue.Count > 0)
+                        acMessage = SendQueue.Dequeue();
+                }
+                if (acMessage == null)
+                {
+                    // Wait for the enqueue signal (with a small fallback delay for races)
+                    try { await Task.WhenAny(_browserSendSignal.WaitAsync(ct), Task.Delay(100, ct)); }
+                    catch (TaskCanceledException) { return; }
+                    continue;
+                }
+
+                byte[] frame = null;
+                try
+                {
+                    frame = WCFBrowserSerializer.Serialize(acMessage);
+                }
+                catch (Exception e)
+                {
+                    Messages.LogException("WCFClientChannel", "BrowserSendLoopAsync(Serialize)", e.Message);
+                    continue;
+                }
+                try
+                {
+                    await _browserSendLock.WaitAsync(ct);
+                    try
+                    {
+                        await _browserSocket.SendAsync(new ArraySegment<byte>(frame),
+                            System.Net.WebSockets.WebSocketMessageType.Binary, true, ct);
+                    }
+                    finally
+                    {
+                        _browserSendLock.Release();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Messages.LogException("WCFClientChannel", "BrowserSendLoopAsync(Send)", e.Message);
+                    // Connection is broken; the connection loop will detect it and reconnect
+                    continue;
+                }
+
+                if (acMessage.ACParameter != null && acMessage.ACParameter.Any()
+                    && acMessage.ACParameter[0] is ACDisconnect)
+                {
+                    ACDisconnect acDisconnect = acMessage.ACParameter[0] as ACDisconnect;
+                    if (!acDisconnect.ShutdownClient)
+                    {
+                        // Same semantic as the sync path: close the channel after goodbye
+                        try
+                        {
+                            if (_browserSocket != null)
+                                _browserSocket.Dispose();
+                        }
+                        catch (Exception) { }
+                        _browserSocket = null;
+                        _browserConnected = false;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Async counterpart of DispatchProperties (points=false) and DispatchPoints
+        /// (points=true).
+        /// </summary>
+        private async Task BrowserDispatchLoopAsync(CancellationToken ct, bool points)
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                try { await Task.Delay(100, ct); }
+                catch (TaskCanceledException) { return; }
+
+                if ((_ACPDispatchToServer == null) || (Root == null))
+                    continue;
+
+                if (!points)
+                {
+                    ACPropertyValueMessage message = new ACPropertyValueMessage();
+                    message.PropertyValues = _ACPDispatchToServer.GetAllEvents(true);
+                    if (message.PropertyValues.Count > 0)
+                        EnqeueMessageForPeer(NewACMessage("", new Object[] { message }));
+                }
+                else
+                {
+                    if (_ACPDispatchToServer.InACObjectInitPhase)
+                        continue;
+                    SendSubscriptionInfoToServer();
+                }
+            }
+        }
+
+        #endregion
+
         #region Producer-Consumer for Sending
 
         private Queue<WCFMessage> _SendQueue = new Queue<WCFMessage>();
@@ -1149,6 +1477,8 @@ namespace gip.core.autocomponent
 
             // Signalisiere Thread, dass neue Message ansteht
             _syncSend.NewItemEvent.Set();
+            if (_IsBrowserTransport)
+                _browserSendSignal.Release();
         }
 
         /// <summary>

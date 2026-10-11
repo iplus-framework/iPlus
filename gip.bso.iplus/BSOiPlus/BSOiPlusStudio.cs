@@ -4214,8 +4214,14 @@ namespace gip.bso.iplus
                     return true;
                 case nameof(IsEnabledSetDesignsSynchronized):
                     result = IsEnabledSetDesignsSynchronized();
-                    return true;         
-           }
+                    return true;
+                case nameof(ConvertAvaloniaDesignToWPF):
+                    ConvertAvaloniaDesignToWPF();
+                    return true;
+                case nameof(IsEnabledConvertAvaloniaDesignToWPF):
+                    result = IsEnabledConvertAvaloniaDesignToWPF();
+                    return true;
+            }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
@@ -4461,6 +4467,8 @@ namespace gip.bso.iplus
                 
                 case nameof(ConvertWPFDesignToAvalonia):
                 case nameof(IsEnabledConvertWPFDesignToAvalonia):
+                case nameof(ConvertAvaloniaDesignToWPF):
+                case nameof(IsEnabledConvertAvaloniaDesignToWPF):
                     return new string[] { nameof(CurrentACClassDesign) };
                     
                 case nameof(SetDesignsSynchronized):

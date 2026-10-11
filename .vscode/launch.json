@@ -84,6 +84,31 @@
             "args": [],
             "cwd": "${workspaceFolder}/gip.iplus.client.avui.Desktop",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Avalonia Browser (Launch Chrome)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:5235/_framework/debug",
+            "webRoot": "${workspaceFolder}",
+            "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
+            "pathMapping": {
+                "/": "${workspaceFolder}",
+                "/../SqlClient": "/home/damir/SHARED/Devel/iPlusGit/V5/SqlClient"
+            }
+        },
+        {
+            "name": "Avalonia Browser (Attach Chrome 9222)",
+            "type": "chrome",
+            "request": "attach",
+            "port": 9222,
+            "url": "http://localhost:5235/*",
+            "webRoot": "${workspaceFolder}",
+            "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
+            "pathMapping": {
+                "/": "${workspaceFolder}",
+                "/../SqlClient": "/home/damir/SHARED/Devel/iPlusGit/V5/SqlClient"
+            }
         }
     ]
 }

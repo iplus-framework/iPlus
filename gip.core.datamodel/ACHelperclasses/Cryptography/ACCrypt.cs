@@ -36,14 +36,102 @@ namespace gip.core.datamodel
         /// <returns>System.String.</returns>
         public static string GetMd5Hash(string input)
         {
-            MD5 md5Hasher = MD5.Create();
-            byte[] data = md5Hasher.ComputeHash(Encoding.Default.GetBytes(input));
+            byte[] data = ComputeMd5(Encoding.Default.GetBytes(input));
             StringBuilder sBuilder = new StringBuilder();
             for (int i = 0; i < data.Length; i++)
             {
                 sBuilder.Append(data[i].ToString("x2"));
             }
             return sBuilder.ToString();
+        }
+
+        /// <summary>
+        /// Computes the MD5 hash of the given data. Uses the platform <see cref="MD5"/> when
+        /// available; falls back to a pure managed RFC-1321 implementation on platforms where
+        /// MD5 is not supported (e.g. Browser/WASM: Cryptography_UnknownHashAlgorithm, MD5).
+        /// </summary>
+        public static byte[] ComputeMd5(byte[] input)
+        {
+            try
+            {
+                using (MD5 md5Hasher = MD5.Create())
+                    return md5Hasher.ComputeHash(input);
+            }
+            catch (CryptographicException)
+            {
+                return ManagedMd5.ComputeHash(input);
+            }
+        }
+
+        /// <summary>
+        /// Pure managed MD5 (RFC 1321) for platforms without a built-in MD5 implementation.
+        /// </summary>
+        internal static class ManagedMd5
+        {
+            private static readonly int[] S = {
+                7,12,17,22, 7,12,17,22, 7,12,17,22, 7,12,17,22,
+                5, 9,14,20, 5, 9,14,20, 5, 9,14,20, 5, 9,14,20,
+                4,11,16,23, 4,11,16,23, 4,11,16,23, 4,11,16,23,
+                6,10,15,21, 6,10,15,21, 6,10,15,21, 6,10,15,21 };
+
+            private static readonly uint[] K = new uint[64];
+            static ManagedMd5()
+            {
+                for (int i = 0; i < 64; i++)
+                    K[i] = (uint)Math.Floor(Math.Abs(Math.Sin(i + 1)) * 4294967296.0);
+            }
+
+            public static byte[] ComputeHash(byte[] input)
+            {
+                uint a0 = 0x67452301, b0 = 0xefcdab89, c0 = 0x98badcfe, d0 = 0x10325476;
+
+                // Padding: append 0x80, pad with zeros, append 64-bit little-endian bit length
+                int newLen = ((input.Length + 8) / 64 + 1) * 64;
+                byte[] msg = new byte[newLen];
+                input.CopyTo(msg, 0);
+                msg[input.Length] = 0x80;
+                ulong bitLen = (ulong)input.Length * 8;
+                for (int i = 0; i < 8; i++)
+                    msg[newLen - 8 + i] = (byte)(bitLen >> (8 * i));
+
+                for (int chunk = 0; chunk < newLen; chunk += 64)
+                {
+                    uint[] m = new uint[16];
+                    for (int j = 0; j < 16; j++)
+                        m[j] = msg[chunk + j * 4]
+                             | ((uint)msg[chunk + j * 4 + 1] << 8)
+                             | ((uint)msg[chunk + j * 4 + 2] << 16)
+                             | ((uint)msg[chunk + j * 4 + 3] << 24);
+
+                    uint a = a0, b = b0, c = c0, d = d0;
+                    for (int i = 0; i < 64; i++)
+                    {
+                        uint f, g;
+                        if (i < 16) { f = (b & c) | (~b & d); g = (uint)i; }
+                        else if (i < 32) { f = (d & b) | (~d & c); g = (uint)((5 * i + 1) % 16); }
+                        else if (i < 48) { f = b ^ c ^ d; g = (uint)((3 * i + 5) % 16); }
+                        else { f = c ^ (b | ~d); g = (uint)((7 * i) % 16); }
+                        f = unchecked(f + a + K[i] + m[g]);
+                        a = d; d = c; c = b;
+                        b = unchecked(b + ((f << S[i]) | (f >> (32 - S[i]))));
+                    }
+                    a0 = unchecked(a0 + a); b0 = unchecked(b0 + b);
+                    c0 = unchecked(c0 + c); d0 = unchecked(d0 + d);
+                }
+
+                byte[] hash = new byte[16];
+                WriteLe(hash, 0, a0); WriteLe(hash, 4, b0);
+                WriteLe(hash, 8, c0); WriteLe(hash, 12, d0);
+                return hash;
+            }
+
+            private static void WriteLe(byte[] buf, int offset, uint value)
+            {
+                buf[offset] = (byte)value;
+                buf[offset + 1] = (byte)(value >> 8);
+                buf[offset + 2] = (byte)(value >> 16);
+                buf[offset + 3] = (byte)(value >> 24);
+            }
         }
 
         /// <summary>

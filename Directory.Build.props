@@ -12,6 +12,18 @@
   </PropertyGroup>
   <Import Project="./build/EntityFramework.Build.props" />
   <Import Project="./build/Avalonia.Build.props" />
+  <!--
+    SQL Tunnel debugging (Option B): when True, every project that would consume the
+    Microsoft.Data.SqlClient package instead gets a direct ProjectReference to the forked
+    SqlClient checkout (branch iplus/browser-transport). Assembly name/version are identical
+    (Microsoft.Data.SqlClient, 7.1.0.0), so EF's compiled reference binds at runtime unchanged.
+    Set with: dotnet build -p:UseSqlClientForkProjectReference=True
+  -->
+  <PropertyGroup>
+    <UseSqlClientForkProjectReference Condition="'$(UseSqlClientForkProjectReference)' == ''">True</UseSqlClientForkProjectReference>
+    <SqlClientForkProject Condition="'$(SqlClientForkProject)' == ''">$(MSBuildThisFileDirectory)..\SqlClient\src\Microsoft.Data.SqlClient\src\Microsoft.Data.SqlClient.csproj</SqlClientForkProject>
+    <SqlClientForkSigningKey Condition="'$(SqlClientForkSigningKey)' == ''">$(MSBuildThisFileDirectory)..\SqlClient\tools\iplus-fork.snk</SqlClientForkSigningKey>
+  </PropertyGroup>
   <!-- Central NuGet packaging configuration for all packable gip.* projects -->
   <Import Project="$(MSBuildThisFileDirectory)build/iPlus.Package.props" Condition="'$(IPlusPackagePropsImported)' != 'true'" />
 </Project>

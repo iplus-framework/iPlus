@@ -47,6 +47,7 @@
     <PackageReference Include="iPlus.EntityFrameworkCore" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Azure.Core" />
     <PackageReference Include="CoreWCF.ConfigurationManager"  />
     <PackageReference Include="CoreWCF.Http"  />
     <PackageReference Include="CoreWCF.Primitives"  />

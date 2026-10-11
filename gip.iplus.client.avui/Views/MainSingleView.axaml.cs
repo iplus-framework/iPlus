@@ -34,6 +34,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
     public MainSingleView()
     {
         InitializeComponent();
+        VBContextMenuHelper.RegisterBrowserRightClickHandler(this);
         InitConnectionInfo();
     }
 
@@ -120,7 +121,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
         }
 
         ACValueItemList settings = CommandLineHelper.Settings;
-        bool? singleViewEnabled = settings.Where(c => c.ACCaptionTranslation == nameof(LoginView.SingleViewEnabled)).FirstOrDefault()?.Value as bool?;
+        bool? singleViewEnabled = settings.Where(c => c.ACCaptionTranslation == nameof(LoginView.MobileModeEnabled)).FirstOrDefault()?.Value as bool?;
         if (singleViewEnabled.HasValue)
             IsSingleViewApp = singleViewEnabled.Value;
         else

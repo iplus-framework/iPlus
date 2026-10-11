@@ -251,7 +251,7 @@ namespace gip.bso.iplus
                             return CurrentUserInstance.NameResolutionOn ? Global.ControlModes.Enabled : Global.ControlModes.Disabled;
                     case "CurrentUserInstance\\UseTextEncoding":
                     case "CurrentUserInstance\\ServicePortTCP":
-                            return CurrentUserInstance.ServiceAppEnbledHTTP ? Global.ControlModes.Disabled : Global.ControlModes.Enabled;
+                            return CurrentUserInstance.ServiceAppEnabledTCP ? Global.ControlModes.Enabled : Global.ControlModes.Disabled;
                 }
             }
 

@@ -2,10 +2,16 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../ef_main_iPlus"
+		},
+		{
+			"path": "../SqlClient"
 		}
 	],
 	"settings": {
 		"chat.tools.terminal.enableAutoApprove": false,
-		"dotnet.defaultSolution": "iplusAvaloniaUI_VSCode.slnx"
+		"dotnet.defaultSolution": "iPlus/iplusAvaloniaUI_VSCode.slnx"
 	}
 }

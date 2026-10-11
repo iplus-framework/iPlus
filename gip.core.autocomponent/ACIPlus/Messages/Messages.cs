@@ -837,6 +837,19 @@ namespace gip.core.autocomponent
                 _LogFilePath = loggingConfiguration.LogFilePath;
                 if (!_LogFilePath.EndsWith(Path.DirectorySeparatorChar.ToString()) && !_LogFilePath.EndsWith(Path.AltDirectorySeparatorChar.ToString()))
                     _LogFilePath += Path.DirectorySeparatorChar;
+                // Ensure the log directory exists (e.g. relative paths like "./Logs")
+                try
+                {
+                    if (!Directory.Exists(_LogFilePath))
+                        Directory.CreateDirectory(_LogFilePath);
+                }
+                catch (Exception e)
+                {
+                    string msg = "Could not create log directory '" + _LogFilePath + "': " + e.Message;
+                    if (e.InnerException != null && !String.IsNullOrEmpty(e.InnerException.Message))
+                        msg += " Inner:" + e.InnerException.Message;
+                    ConsoleMsg("Messages", msg);
+                }
                 if (loggingConfiguration != null)
                 {
                     foreach (LogFileElement files in loggingConfiguration.LogFiles)

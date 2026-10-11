@@ -82,4 +82,9 @@
 		<File Path="build/Build-AvaloniaProjects.ps1" />
 		<File Path="build/EntityFramework.Build.props" />
 	</Folder>
+	<Project Path="../SqlClient/src/Microsoft.Data.SqlClient.Extensions/Abstractions/src/Abstractions.csproj" />
+	<Project Path="../SqlClient/src/Microsoft.Data.SqlClient.Internal/Logging/src/Logging.csproj" />
+	<Project Path="../SqlClient/src/Microsoft.Data.SqlClient/src/Microsoft.Data.SqlClient.csproj" />
+	<Project Path="../SqlClient/src/Microsoft.SqlServer.Server/Microsoft.SqlServer.Server.csproj" />
+	<Project Path="SqlTunnelSpike/SqlTunnelSpike.csproj" />
 </Solution>

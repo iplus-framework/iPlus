@@ -133,16 +133,94 @@ public partial class LoginView : UserControl
     /// </summary>
     private TaskCompletionSource<bool>? _LoginResultTcs;
 
+    /// <summary>
+    /// iPlus fork fix (browser WASM auto-login): a Login click that arrives BEFORE any
+    /// WaitOnLoginResult waiter exists (the auto-login bypass clicks while the login
+    /// action is still starting up) would silently lose its result — the later-created
+    /// TCS would never be completed and the login action would hang forever. Remember
+    /// the click here; WaitOnLoginResult consumes it instead of waiting.
+    /// </summary>
+    private bool _PendingLoginResult;
+
+    // =======================================================================
+    // TEMPORARY TEST BYPASS (SQL Tunnel Option B debugging) — REMOVE once the
+    // browser login works end-to-end. See docs/SqlTunnelProvider-Design-Draft.md §10.
+    // Rationale: Avalonia renders to canvas, so agent browser tools cannot type into
+    // the textboxes, and WASM settings do not persist between reloads. This bypass
+    // injects the connection settings + login credentials programmatically and
+    // presses Login automatically on startup.
+    // =======================================================================
+    private const bool AutoLoginBypassEnabled = false; // TEMP: re-enabled to capture ConfigCurrentDir trace without debugger
+    private const string BypassDbSource = "sqltunnel";               // placeholder; relay config decides the real target
+    private const string BypassDbName = "iPlusV5";
+    private const string BypassDbUser = "gip";
+    private const string BypassDbPassword = "netspirit";
+    private const string BypassTunnelUrl = "http://localhost:8751/sqltunnel-sync"; // HTTP sync shim, NOT ws://
+    private const string BypassLoginUser = "superuser";              // iPlus login credentials
+    private const string BypassLoginPassword = "superuser";          // adjust if different
+    // true = mobile "hamburger" mode (MainSingleView/DUMainMobile);
+    // false = desktop mode (MainView with menu bar/DUMain) — also on browser.
+    private const bool BypassSingleViewMode = true;
+
+    private static void SetBypassSetting(string name, object value)
+    {
+        ACValueItem item = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == name).FirstOrDefault();
+        if (item == null)
+        {
+            CommandLineHelper.Settings.Add(new ACValueItem(name, value, null));
+        }
+        else
+        {
+            item.Value = value;
+        }
+    }
+
+    private void ApplyAutoLoginBypass()
+    {
+        SetBypassSetting(nameof(DatabaseSource), BypassDbSource);
+        SetBypassSetting(nameof(DatabaseName), BypassDbName);
+        SetBypassSetting(nameof(DatabaseUser), BypassDbUser);
+        SetBypassSetting(nameof(DatabasePassword), BypassDbPassword);
+        SetBypassSetting(nameof(DatabaseTunnelUrl), BypassTunnelUrl);
+        // Respect a value the user saved via the SettingsGrid (ButtonSave_Click persists
+        // it); only fall back to the bypass default when nothing has been saved yet.
+        if (!CommandLineHelper.Settings.Any(c => c.ACCaptionTranslation == nameof(MobileModeEnabled)))
+            SetBypassSetting(nameof(MobileModeEnabled), BypassSingleViewMode);
+        try
+        {
+            // Persist the injected connection settings (on Browser/WASM this goes to
+            // localStorage via CommandLineHelper.SaveSettingsToStorage, see BrowserSettingsStorage).
+            CommandLineHelper.SaveSettings();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"LoginView: could not persist bypass settings. {ex.GetType().Name}: {ex.Message}");
+        }
+        Console.WriteLine("LoginView: AUTO-LOGIN BYPASS active — settings injected, login will start automatically.");
+    }
+
     protected override void OnLoaded(RoutedEventArgs e)
     {
         if (!_LoginFlowInitialized)
         {
             _LoginFlowInitialized = true;
+            if (AutoLoginBypassEnabled)
+            {
+                ApplyAutoLoginBypass();
+            }
             bool configured = HasDatabaseConnectionConfigured();
             Console.WriteLine($"LoginView: OnLoaded, database configured: {configured}");
             if (configured)
             {
                 _ = DoLoginActionAsync();
+                if (AutoLoginBypassEnabled)
+                {
+                    // Fire LoginStarted + complete the login-result TCS, exactly like a
+                    // physical click on the Login button would.
+                    UserSettings.UserName = BypassLoginUser;
+                    UserSettings.Password = BypassLoginPassword;
+                    ButtonLogin_Click(this, new RoutedEventArgs());
+                }
             }
             else
             {
@@ -349,6 +427,14 @@ public partial class LoginView : UserControl
     public async Task WaitOnLoginResult()
     {
         Console.WriteLine("LoginView: waiting for login result...");
+        if (_PendingLoginResult)
+        {
+            // A Login click already happened before this waiter was created (auto-login
+            // bypass) — consume it instead of waiting for a click that will never come.
+            _PendingLoginResult = false;
+            Console.WriteLine("LoginView: login result received: True (pending click)");
+            return;
+        }
         var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         _LoginResultTcs = tcs;
         bool result = await tcs.Task;
@@ -374,7 +460,15 @@ public partial class LoginView : UserControl
             Console.WriteLine($"LoginView: LoginStarted handler failed. {ex.GetType().Name}: {ex.Message}");
         }
 
-        _LoginResultTcs?.TrySetResult(true);
+        if (_LoginResultTcs != null)
+        {
+            _LoginResultTcs?.TrySetResult(true);
+        }
+        else
+        {
+            // No waiter yet (login action still starting up) — remember the click.
+            _PendingLoginResult = true;
+        }
     }
 
     private void task_OnStatusChange(core.dbsyncer.Messages.BaseSyncMessage msg)
@@ -500,11 +594,12 @@ public partial class LoginView : UserControl
         DatabaseName.Text = settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseName)).FirstOrDefault()?.Value as string;
         DatabaseUser.Text = settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseUser)).FirstOrDefault()?.Value as string;
         DatabasePassword.Text = settings.Where(c => c.ACCaptionTranslation == nameof(DatabasePassword)).FirstOrDefault()?.Value as string;
-        bool? singleViewEnabled = settings.Where(c => c.ACCaptionTranslation == nameof(SingleViewEnabled)).FirstOrDefault()?.Value as bool?;
+        DatabaseTunnelUrl.Text = settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseTunnelUrl)).FirstOrDefault()?.Value as string;
+        bool? singleViewEnabled = settings.Where(c => c.ACCaptionTranslation == nameof(MobileModeEnabled)).FirstOrDefault()?.Value as bool?;
         if (singleViewEnabled.HasValue)
-            SingleViewEnabled.IsChecked = singleViewEnabled.Value;
+            MobileModeEnabled.IsChecked = singleViewEnabled.Value;
         else
-            SingleViewEnabled.IsChecked = true;
+            MobileModeEnabled.IsChecked = true;
     }
 
     private void SwitchSettingsView()
@@ -574,16 +669,28 @@ public partial class LoginView : UserControl
             dbPasswordVal.Value = DatabasePassword.Text;
         }
 
-        ACValueItem singleViewVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(SingleViewEnabled)).FirstOrDefault();
+        ACValueItem dbTunnelUrlVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseTunnelUrl)).FirstOrDefault();
+        if (dbTunnelUrlVal == null)
+        {
+            dbTunnelUrlVal = new ACValueItem(nameof(DatabaseTunnelUrl), DatabaseTunnelUrl.Text, null);
+            CommandLineHelper.Settings.Add(dbTunnelUrlVal);
+        }
+        else
+        {
+            dbTunnelUrlVal.Value = DatabaseTunnelUrl.Text;
+        }
+
+        ACValueItem singleViewVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(MobileModeEnabled)).FirstOrDefault();
         if (singleViewVal == null)
         {
-            SingleViewEnabled.IsChecked = true;
-            singleViewVal = new ACValueItem(nameof(SingleViewEnabled), SingleViewEnabled.IsChecked, null);
+            // Store the user's current choice — do NOT force true here (that discarded
+            // an unchecked "desktop mode" selection on the first save).
+            singleViewVal = new ACValueItem(nameof(MobileModeEnabled), MobileModeEnabled.IsChecked, null);
             CommandLineHelper.Settings.Add(singleViewVal);
         }
         else
         {
-            singleViewVal.Value = SingleViewEnabled.IsChecked;
+            singleViewVal.Value = MobileModeEnabled.IsChecked;
         }
 
         // Switch back to the login grid first, so the user always gets feedback
@@ -626,14 +733,41 @@ public partial class LoginView : UserControl
         string? dbName = settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseName)).FirstOrDefault()?.Value as string;
         string? dbUser = settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseUser)).FirstOrDefault()?.Value as string;
         string? dbPass = settings.Where(c => c.ACCaptionTranslation == nameof(DatabasePassword)).FirstOrDefault()?.Value as string;
+        string? dbTunnelUrl = settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseTunnelUrl)).FirstOrDefault()?.Value as string;
 
         if (String.IsNullOrWhiteSpace(dbSource) && String.IsNullOrWhiteSpace(dbName))
             return;
 
-        string connSettingsFormat = @"Integrated Security=True; Encrypt=False; data source={0}; initial catalog={1}; Trusted_Connection=False; persist security info=True; user id={2}; password={3}; multipleactiveresultsets=True; application name=iPlus";
+        // SQL auth when credentials are entered; Integrated Security only when they are not.
+        // With Integrated Security=True SqlClient IGNORES user id/password and attempts an
+        // SSPI/Windows login — on Browser/WASM there is no SSPI support, so the login stalls
+        // forever after the server's SSPI token (observed 2026-10-10: prelogin OK, login7
+        // sent, server SSPI token received, then endless recv polling with no progress).
+        bool useSqlAuth = !String.IsNullOrWhiteSpace(dbUser) || !String.IsNullOrWhiteSpace(dbPass);
+        // MARS re-enabled (2026-10-10): the original browser stall was NOT the MARS demux
+        // itself but SniPacket.ReadFromStreamAsync queueing its continuation to the thread
+        // pool (TaskScheduler.Default), which does not exist on single-threaded WASM. The
+        // fork now runs the continuation inline for synchronously-completing reads, so MARS
+        // works on the browser like the desktop sync path (verified: desktop spike sync+MARS
+        // over the relay = SPIKE OK). iPlus core requires MARS (nested queries in
+        // ACActivator/ACInit would otherwise fail with "open DataReader" errors).
+        string connSettingsFormat = (useSqlAuth
+            ? @"Integrated Security=False; Encrypt=False; data source={0}; initial catalog={1}; Trusted_Connection=False; persist security info=True; user id={2}; password={3}; application name=iPlus; multipleactiveresultsets=True"
+            : @"Integrated Security=True; Encrypt=False; data source={0}; initial catalog={1}; application name=iPlus; multipleactiveresultsets=True");
+        string connectionString = String.Format(connSettingsFormat, dbSource, dbName, dbUser, dbPass);
+
+        // SQL Tunnel (browser/WASM): when a tunnel URL is configured, the forked
+        // Microsoft.Data.SqlClient routes the TDS stream over the WebSocket relay and the
+        // data source is only a placeholder (the relay's SqlServer/SqlPort config decides
+        // the real target).
+        if (!String.IsNullOrWhiteSpace(dbTunnelUrl))
+        {
+            connectionString += "; Tunnel URL=" + dbTunnelUrl.Trim();
+        }
+
         var setting = new ConnectionStringSettings(
                 Database.C_DefaultContainerName,
-                String.Format(connSettingsFormat, dbSource, dbName, dbUser, dbPass),
+                connectionString,
                 "System.Data.SqlClient");
 
         var config = CommandLineHelper.ConfigCurrentDir;
@@ -689,25 +823,27 @@ public partial class LoginView : UserControl
         }
 
         // Diagnostic probe: verify the connection string resolves and whether SqlClient
-        // can open a connection at all on this platform (Browser/WASM has no raw TCP!).
+        // can open a connection at all on this platform. Uses the forked Microsoft.Data.SqlClient
+        // (System.Data.SqlClient has no WebSocket tunnel support and no raw TCP on WASM).
         try
         {
             Console.WriteLine($"LoginView: resolved ConnectionString: {Database.ConnectionString}");
-            var probe = new System.Data.SqlClient.SqlConnection(Database.ConnectionString);
+            var probe = new Microsoft.Data.SqlClient.SqlConnection(Database.ConnectionString);
             probe.Open();
             Console.WriteLine("LoginView: probe connection OPENED successfully.");
             probe.Dispose();
         }
         catch (Exception ex)
         {
-            var sb = new System.Text.StringBuilder($"LoginView: probe failed. {ex.GetType().Name}: {ex.Message}");
+            // Full stack traces are essential for diagnosing WASM-only failures
+            // (e.g. PlatformNotSupportedException from Monitor/WaitHandle waits).
+            Console.WriteLine($"LoginView: probe failed. {ex}");
             var inner = ex.InnerException;
             while (inner != null)
             {
-                sb.Append($"\n  inner: {inner.GetType().Name}: {inner.Message}");
+                Console.WriteLine($"  inner: {inner}");
                 inner = inner.InnerException;
             }
-            Console.WriteLine(sb.ToString());
         }
     }
 

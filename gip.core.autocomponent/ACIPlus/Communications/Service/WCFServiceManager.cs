@@ -48,6 +48,7 @@ namespace gip.core.autocomponent
         public const int HTTPS_PORT = 8443;
 
         bool _useHttpConnection = false;
+        bool _useNetTCPConnection = false;
         bool _useIPV6 = false;
         bool _useTextEncoding = false;
         bool _nameResolutionOn = false;
@@ -98,62 +99,85 @@ namespace gip.core.autocomponent
             bool result = base.ACInit(startChildMode);
 
             _useHttpConnection = this.Root.Environment.UserInstance.ServiceAppEnbledHTTP;
+            // ServiceAppEnabledTCP was never consumed before (2026-10-11): it controls whether
+            // the net.tcp WCF endpoint is hosted, ServiceAppEnbledHTTP whether the HTTP host
+            // (incl. /wcfbrowser WebSocket for browser clients) is hosted. Both can be on.
+            _useNetTCPConnection = this.Root.Environment.UserInstance.ServiceAppEnabledTCP;
             _useIPV6 = this.Root.Environment.UserInstance.UseIPV6;
             _useTextEncoding = this.Root.Environment.UserInstance.UseTextEncoding;
-            if (_useHttpConnection && (_useTextEncoding == false))
-                _useTextEncoding = true;
+            // UseTextEncoding only affects the net.tcp binding (text vs. binary message
+            // encoding). The HTTP/WebSocket transport uses its own DataContract serializer
+            // and is independent of this flag — no forced override here.
             _nameResolutionOn = this.Root.Environment.UserInstance.NameResolutionOn;
 
             // Host generieren
 #if !ANDROID
-            if (_useHttpConnection)
+            // Hybrid operation (2026-10-11): the flags on the service user instance control
+            // which transports are hosted — independently, one or both simultaneously:
+            //  - ServiceAppEnabledTCP  -> net.tcp service endpoint (IWCFService) for desktop clients
+            //  - ServiceAppEnbledHTTP  -> Kestrel HTTP host incl. /wcfbrowser WebSocket endpoint
+            //                            for browser/WASM clients (§8)
+            // The HTTP Kestrel port comes from ServicePortHTTP; the net.tcp port from
+            // EndpointUri (ServicePortTCP).
+            if (_useNetTCPConnection || _useHttpConnection)
             {
-                //TODO: WSDualHttpBinding not implemented in WCFCore: https://github.com/dotnet/wcf/issues/4614
-                // throw new NotImplementedException();
                 var builder = WebApplication.CreateBuilder();
-                
-                builder.WebHost.UseKestrel();
-                builder.Services.AddServiceModelServices();
 
-                var app = builder.Build();
-
-                ((IApplicationBuilder)app).UseServiceModel(serviceBuilder =>
+                if (_useNetTCPConnection)
+                    builder.WebHost.UseNetTcp(_useIPV6 ? IPAddress.IPv6Any : IPAddress.Any, EndpointUri.Port);
+                if (_useHttpConnection)
                 {
-                    /*
-                    WSDualHttpBinding wsDualHttpBinding = new WSDualHttpBinding();
-                    wsDualHttpBinding.MessageEncoding = System.ServiceModel.WSMessageEncoding.Text;
-                    _serviceHost.AddServiceEndpoint(typeof(IWCFService), wsDualHttpBinding, endpointUri);
-                    */
-                    serviceBuilder.ConfigureAllServiceHostBase((serviceHostBase) =>
+                    // Bind the HTTP/WebSocket host to ServicePortHTTP from the user instance
+                    // (explicit Listen overrides ASPNETCORE_URLS defaults).
+                    int httpPort = this.Root.Environment.UserInstance.ServicePortHTTP;
+                    if (httpPort <= 0)
+                        httpPort = 8000;
+                    builder.WebHost.UseKestrel(k =>
                     {
-                        ContractDescription cd = serviceHostBase.Description.Endpoints[0].Contract;
-                        foreach (OperationDescription opDescr in cd.Operations)
-                        {
-                            foreach (IOperationBehavior behavior in opDescr.OperationBehaviors)
-                            {
-                                if (behavior is DataContractSerializerOperationBehavior)
-                                {
-                                    DataContractSerializerOperationBehavior dataContractBeh = behavior as DataContractSerializerOperationBehavior;
-                                    dataContractBeh.MaxItemsInObjectGraph = WCFServiceManager.MaxItemsInObjectGraph;
-                                    dataContractBeh.DataContractResolver = ACConvert.MyDataContractResolver;
-                                }
-                            }
-                        }
+                        k.Listen(_useIPV6 ? IPAddress.IPv6Any : IPAddress.Any, httpPort);
                     });
-                });
-
-                _ASPHost = app;
-            }
-            else
-            {
-                var builder = WebApplication.CreateBuilder();
-                
-                builder.WebHost.UseNetTcp(_useIPV6 ? IPAddress.IPv6Any: IPAddress.Any, EndpointUri.Port);
-                builder.WebHost.UseKestrel();
+                }
+                else
+                {
+                    builder.WebHost.UseKestrel();
+                }
                 builder.Services.AddServiceModelServices();
 
                 var app = builder.Build();
 
+                // Browser (WASM) clients cannot use net.tcp duplex WCF (§8 of
+                // SqlTunnel-OptionB-Implementation.md). They connect to /wcfbrowser with a
+                // plain WebSocket: one binary frame = one serialized WCFMessage. Each connection
+                // gets a WCFServiceChannel (same as WCFService does per WCF session).
+                if (_useHttpConnection)
+                {
+                    app.UseWebSockets();
+                    app.Map("/wcfbrowser", async context =>
+                    {
+                    if (!context.WebSockets.IsWebSocketRequest)
+                    {
+                        context.Response.StatusCode = 400;
+                        return;
+                    }
+                    System.Net.WebSockets.WebSocket socket = await context.WebSockets.AcceptWebSocketAsync();
+                    WCFBrowserService browserService = new WCFBrowserService(socket, context.Connection.RemoteIpAddress?.ToString());
+                    WCFServiceChannel channel = null;
+                    using (ACMonitor.Lock(_20056_ACPLock))
+                    {
+                        channel = StartComponent("WCFServiceChannel", null, new object[] { browserService }) as WCFServiceChannel;
+                    }
+                    if (channel == null)
+                    {
+                        context.Response.StatusCode = 500;
+                        return;
+                    }
+                    browserService.AttachChannel(channel);
+                    await browserService.RunReceiveLoopAsync();
+                });
+                }
+
+                if (_useNetTCPConnection)
+                {
                 ((IApplicationBuilder)app).UseServiceModel(serviceBuilder =>
                 {
                     if (_useNetTCPBinding)
@@ -193,18 +217,22 @@ namespace gip.core.autocomponent
                             if (binaryMessageEncoding.ReaderQuotas != null)
                                 binaryMessageEncoding.ReaderQuotas.MaxStringContentLength = WCFServiceManager.MaxStringLength;
                         }
+
                         tcpTransport.MaxBufferSize = WCFServiceManager.MaxBufferSize;
                         tcpTransport.MaxReceivedMessageSize = WCFServiceManager.MaxBufferSize;
                         tcpTransport.ConnectionBufferSize = WCFServiceManager.MaxBufferSize / 8;
                         tcpTransport.MaxBufferPoolSize = WCFServiceManager.MaxBufferSize;
                         netTcpBinding.Elements.Add(tcpTransport);
                         netTcpBinding.ReceiveTimeout = WCFServiceManager.ReceiveTimeout;
+
                         serviceBuilder.AddService<WCFService>();
                         serviceBuilder.AddServiceEndpoint<WCFService, IWCFService>(netTcpBinding, EndpointUri);
                     }
 
                     serviceBuilder.ConfigureAllServiceHostBase((serviceHostBase) =>
                     {
+                        if (serviceHostBase.Description == null || serviceHostBase.Description.Endpoints == null || serviceHostBase.Description.Endpoints.Count == 0)
+                            return;
                         ContractDescription cd = serviceHostBase.Description.Endpoints[0].Contract;
                         foreach (OperationDescription opDescr in cd.Operations)
                         {
@@ -220,6 +248,7 @@ namespace gip.core.autocomponent
                         }
                     });
                 });
+                }
 
                 _ASPHost = app;
             }
@@ -253,8 +282,11 @@ namespace gip.core.autocomponent
             }
             _ACPDispatchToProxies = null;
 #if !ANDROID
-            await _ASPHost.StopAsync();
-            _ASPHostStarted = false;
+            if (_ASPHost != null)
+            {
+                await _ASPHost.StopAsync();
+                _ASPHostStarted = false;
+            }
 #endif
 
             if (!await base.ACDeInit(deleteACClassTask))
@@ -281,10 +313,9 @@ namespace gip.core.autocomponent
                 if (_EndpointUri != null)
                     return _EndpointUri;
 
-                // Schema / protocol
+                // The service-side endpoint URI is always the net.tcp listener (the HTTP host
+                // port comes from ASPNETCORE_URLS/config, not from this URI).
                 string scheme = "net.tcp";
-                if (_useHttpConnection)
-                    scheme = "http";
 
                 // Authority
                 string authority = this.Root.Environment.UserInstance.ServerIPV4;
@@ -295,10 +326,7 @@ namespace gip.core.autocomponent
                 if (String.IsNullOrEmpty(authority))
                     authority = "127.0.0.1";
 
-                if (_useHttpConnection)
-                    authority += ":" + this.Root.Environment.UserInstance.ServicePortHTTP;
-                else
-                    authority += ":" + this.Root.Environment.UserInstance.ServicePortTCP;
+                authority += ":" + this.Root.Environment.UserInstance.ServicePortTCP;
 
                 // Address
                 _EndpointUri = new Uri(String.Format("{0}://{1}/", scheme, authority));

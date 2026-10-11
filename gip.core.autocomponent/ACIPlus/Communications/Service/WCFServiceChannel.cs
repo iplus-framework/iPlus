@@ -26,7 +26,7 @@ namespace gip.core.autocomponent
     [ACClassConstructorInfo(
         new object[] 
         { 
-            new object[] {"ServiceOfPeer", Global.ParamOption.Optional, typeof(WCFService)}
+            new object[] {"ServiceOfPeer", Global.ParamOption.Optional, typeof(IWCFServicePeer)}
         }
     )]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "WCFServiceChannel", "en{'WCFServiceChannel'}de{'WCFServiceChannel'}", typeof(WCFServiceChannel), "WCFServiceChannel", "ConnectedSince", "ConnectedSince")]
@@ -34,8 +34,8 @@ namespace gip.core.autocomponent
     {
         #region private members
 
-        WCFService _serviceOfPeer = null;
-        internal WCFService ServiceOfPeer
+        IWCFServicePeer _serviceOfPeer = null;
+        internal IWCFServicePeer ServiceOfPeer
         {
             get
             {
@@ -68,7 +68,7 @@ namespace gip.core.autocomponent
         {
             _SubscriptionOfPeer = new ACPSubscrService(this);
 
-            _serviceOfPeer = ParameterValue("ServiceOfPeer") as WCFService;
+            _serviceOfPeer = ParameterValue("ServiceOfPeer") as IWCFServicePeer;
 
             _syncSend = new SyncQueueEvents();
             _sendThread = new ACThread(SendMessageToPeer);

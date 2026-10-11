@@ -24,11 +24,11 @@ namespace gip.core.datamodel
     [ACPropertyEntity(7, "UseTextEncoding", "en{'Use Textencoding'}de{'Verwende Textencoding'}", "", "", true)]
     
     // Http-Configuration
-    [ACPropertyEntity(8, "ServiceAppEnbledHTTP", "en{'Enable http'}de{'Aktiviere http'}", "", "", true)]
+    [ACPropertyEntity(8, "ServiceAppEnbledHTTP", "en{'Enable http transport'}de{'Aktiviere http Transport'}", "", "", true)]
     [ACPropertyEntity(9, "ServicePortHTTP", "en{'http-Service Portno.'}de{'http-Service Portnummer'}", "", "", true, DefaultValue = 8000)]
 
     [ACPropertyEntity(9999, "ServicePortObserverHTTP", "en{'deprecated-ServicePortObserverHTTP'}de{'Veraltet-ServicePortObserverHTTP'}", "", "", true)]
-    [ACPropertyEntity(9999, "ServiceAppEnabledTCP", "en{'deprecated-ServiceAppEnabledTCP'}de{'Veraltet-ServiceAppEnabledTCP'}", "", "", true)]
+    [ACPropertyEntity(9999, "ServiceAppEnabledTCP", "en{'Enable TCP-Binary-Transport'}de{'Aktiviere TCP-Binary-Transport'}", "", "", true)]
     [ACPropertyEntity(9999, "ServiceWorkflowEnabledHTTP", "en{'deprecated-ServiceWorkflowEnabledHTTP'}de{'Veraltet-ServiceWorkflowEnabledHTTP'}", "", "", true)]
     [ACPropertyEntity(9999, "ServiceWorkflowEnabledTCP", "en{'deprecated-ServiceWorkflowEnabledTCP'}de{'Veraltet-ServiceWorkflowEnabledTCP'}", "", "", true)]
     [ACPropertyEntity(10, "ServiceObserverEnabledTCP", "en{'Autodiscover IP-Interface'}de{'Automatische Suche nach IP-Interface'}", "", "", true)]

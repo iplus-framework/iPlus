@@ -147,6 +147,8 @@
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="10"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="10*" />
@@ -169,7 +171,10 @@
           <TextBlock VerticalAlignment="Bottom" Grid.Row="8" Grid.Column="1"  Name="DatabasePasswordCaption">Database password</TextBlock>
           <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="9" Grid.Column="1" Name="DatabasePassword" RevealPassword="False" PasswordChar="*" />
 
-          <CheckBox VerticalAlignment="Bottom" Grid.Row="11" Grid.Column="1" Name="SingleViewEnabled" Content="Enable single view" Margin="0,5,0,0"/>
+          <TextBlock VerticalAlignment="Bottom" Grid.Row="10" Grid.Column="1"  Name="DatabaseTunnelUrlCaption">Tunnel URL (optional, ws://host:port/sqltunnel)</TextBlock>
+          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="11" Grid.Column="1" Name="DatabaseTunnelUrl" />
+
+          <CheckBox VerticalAlignment="Bottom" Grid.Row="13" Grid.Column="1" Name="MobileModeEnabled" Content="Mobile mode (hamburger menu). Unchecked: desktop menu" Margin="0,5,0,0" ToolTip.Tip="Checked: touch-optimized mobile designs (DUMainMobile). Unchecked: desktop layout with menu bar (DUMain), like the Windows client."/>
 
         </Grid>
 

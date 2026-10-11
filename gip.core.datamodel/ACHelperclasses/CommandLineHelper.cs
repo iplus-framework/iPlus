@@ -97,16 +97,20 @@ namespace gip.core.datamodel
             {
                 if (_ConfigCurrentDir != null)
                     return _ConfigCurrentDir;
+                Console.WriteLine("ConfigCurrentDir: getter entered, CurrentDirectory=" + Environment.CurrentDirectory + " BaseDirectory=" + AppContext.BaseDirectory);
                 ExeConfigurationFileMap configFile = new ExeConfigurationFileMap();
                 configFile.ExeConfigFilename = Path.Combine(Environment.CurrentDirectory, "vbiplus.config");
+                Console.WriteLine("ConfigCurrentDir: OpenMappedExeConfiguration for " + configFile.ExeConfigFilename);
                 try
                 {
                     Configuration config = ConfigurationManager.OpenMappedExeConfiguration(configFile, ConfigurationUserLevel.None);
+                    Console.WriteLine("ConfigCurrentDir: OpenMappedExeConfiguration returned, HasFile=" + config.HasFile);
                     if (config != null && config.HasFile)
                         _ConfigCurrentDir = config;
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine("ConfigCurrentDir: OpenMappedExeConfiguration failed. " + e.GetType().Name + ": " + e.Message + " :: " + e.StackTrace);
                     string msg = e.Message;
                     if (e.InnerException != null && e.InnerException.Message != null)
                         msg += " Inner:" + e.InnerException.Message;
@@ -117,14 +121,17 @@ namespace gip.core.datamodel
 
                 if (_ConfigCurrentDir == null)
                 {
+                    Console.WriteLine("ConfigCurrentDir: falling back to OpenExeConfiguration");
                     try
                     {
                         Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                        Console.WriteLine("ConfigCurrentDir: OpenExeConfiguration returned, HasFile=" + config.HasFile);
                         if (config != null)
                             _ConfigCurrentDir = config;
                     }
                     catch (Exception e)
                     {
+                        Console.WriteLine("ConfigCurrentDir: OpenExeConfiguration failed. " + e.GetType().Name + ": " + e.Message + " :: " + e.StackTrace);
                         string msg = e.Message;
                         if (e.InnerException != null && e.InnerException.Message != null)
                             msg += " Inner:" + e.InnerException.Message;
@@ -134,6 +141,7 @@ namespace gip.core.datamodel
                     }
                 }
 
+                Console.WriteLine("ConfigCurrentDir: returning " + (_ConfigCurrentDir != null ? "config" : "null"));
                 return _ConfigCurrentDir;
             }
             set
@@ -144,6 +152,21 @@ namespace gip.core.datamodel
 
         private static string _SettingsPath = Path.Combine(AppContext.BaseDirectory, "settingsiPlus.config");
 
+        /// <summary>
+        /// Optional storage backend for the settings (e.g. browser localStorage via JS interop).
+        /// When set, <see cref="Settings"/> are loaded from this backend instead of the local
+        /// file. Must return the serialized <see cref="ACValueItemList"/> XML or null if
+        /// nothing is stored yet.
+        /// </summary>
+        public static Func<string> LoadSettingsFromStorage = null;
+
+        /// <summary>
+        /// Optional storage backend for the settings (e.g. browser localStorage via JS interop).
+        /// When set, <see cref="SaveSettings"/> persists the serialized
+        /// <see cref="ACValueItemList"/> XML to this backend instead of the local file.
+        /// </summary>
+        public static Action<string> SaveSettingsToStorage = null;
+
         private static ACValueItemList _Settings;
         public static ACValueItemList Settings
         {
@@ -151,6 +174,28 @@ namespace gip.core.datamodel
             {
                 if (_Settings != null)
                     return _Settings;
+
+                if (LoadSettingsFromStorage != null)
+                {
+                    try
+                    {
+                        string xml = LoadSettingsFromStorage();
+                        if (!String.IsNullOrEmpty(xml))
+                        {
+                            DataContractSerializer serializer = new DataContractSerializer(typeof(ACValueItemList));
+                            using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(xml)))
+                            {
+                                _Settings = serializer.ReadObject(ms) as ACValueItemList;
+                            }
+                            if (_Settings != null)
+                                return _Settings;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        // ignore — fall back to an empty list
+                    }
+                }
 
                 if (File.Exists(_SettingsPath))
                 {
@@ -179,6 +224,22 @@ namespace gip.core.datamodel
             if (_Settings == null)
                 return;
             DataContractSerializer serializer = new DataContractSerializer(typeof(ACValueItemList));
+            if (SaveSettingsToStorage != null)
+            {
+                try
+                {
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        serializer.WriteObject(ms, _Settings);
+                        SaveSettingsToStorage(Encoding.UTF8.GetString(ms.ToArray()));
+                    }
+                }
+                catch (Exception)
+                {
+                    // ignore — storage backend may be unavailable
+                }
+                return;
+            }
             using (FileStream fs = new FileStream(_SettingsPath, FileMode.Create))
             {
                 serializer.WriteObject(fs, _Settings);
