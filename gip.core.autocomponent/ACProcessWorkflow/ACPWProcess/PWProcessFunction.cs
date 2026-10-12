@@ -310,7 +310,7 @@ namespace gip.core.autocomponent
                         currentACProgram = ACClassTaskQueue.TaskQueue.ProgramCache.GetProgram(acProgramID);
                     }
                 }
-                if (currentACProgram == null)
+                if (currentACProgram == null && CurrentTask != null)
                 {
                     acValue = CurrentTask.Parameter.GetACValue(ACProgram.ClassName);
                     if (acValue != null && acValue.Value != null)
