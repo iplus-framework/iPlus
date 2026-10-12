@@ -500,7 +500,7 @@ namespace gip.core.layoutengine
 
             Content = null;
             UIElement uiElement = null;
-            if (ContentACObject != null && !hasUserSpecificDesign)
+            if (ContentACObject is ACClassDesign && !hasUserSpecificDesign)
             {
                 // Use ACClassDesign overload for base designs - this handles BAML,
                 // reverse conversion and auto-saving to XMLDesign.
