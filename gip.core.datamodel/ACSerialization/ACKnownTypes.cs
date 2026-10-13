@@ -59,6 +59,7 @@ namespace gip.core.datamodel
             RegisterUnKnownType(typeof(Nullable<Single>));
             RegisterUnKnownType(typeof(Nullable<Double>));
             RegisterUnKnownType(typeof(Nullable<Decimal>));
+            RegisterUnKnownType(typeof(Nullable<DateTime>));
             RegisterUnKnownType(typeof(eMsgLevel));
             RegisterUnKnownType(typeof(eMsgButton));
             RegisterKnownMessageType(typeof(object[]));
