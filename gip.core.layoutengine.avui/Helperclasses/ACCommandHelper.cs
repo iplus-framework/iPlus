@@ -257,7 +257,6 @@ namespace gip.core.layoutengine.avui.Helperclasses
                     {
                         // Keep the last canExecute value; do not let a pipeline error
                         // permanently disable the command.
-                        System.Diagnostics.Debug.WriteLine($"[ACCommandHelper] CanExecute pipeline error for {methodName}: {ex}");
                     });
             }
 

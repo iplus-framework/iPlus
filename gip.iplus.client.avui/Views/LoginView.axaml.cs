@@ -150,7 +150,7 @@ public partial class LoginView : UserControl
     // injects the connection settings + login credentials programmatically and
     // presses Login automatically on startup.
     // =======================================================================
-    private const bool AutoLoginBypassEnabled = false; // TEMP: re-enabled to capture ConfigCurrentDir trace without debugger
+    private const bool AutoLoginBypassEnabled = true; // TEMP: re-enabled to capture ConfigCurrentDir trace without debugger
     private const string BypassDbSource = "sqltunnel";               // placeholder; relay config decides the real target
     private const string BypassDbName = "iPlusV5";
     private const string BypassDbUser = "gip";
@@ -182,10 +182,10 @@ public partial class LoginView : UserControl
         SetBypassSetting(nameof(DatabaseUser), BypassDbUser);
         SetBypassSetting(nameof(DatabasePassword), BypassDbPassword);
         SetBypassSetting(nameof(DatabaseTunnelUrl), BypassTunnelUrl);
-        // Respect a value the user saved via the SettingsGrid (ButtonSave_Click persists
-        // it); only fall back to the bypass default when nothing has been saved yet.
-        if (!CommandLineHelper.Settings.Any(c => c.ACCaptionTranslation == nameof(MobileModeEnabled)))
-            SetBypassSetting(nameof(MobileModeEnabled), BypassSingleViewMode);
+        // Force desktop mode (menu bar, DUMain) while the bypass is active: a previously
+        // saved MobileModeEnabled=true persists in localStorage (BrowserSettingsStorage)
+        // and would otherwise override the bypass default on every reload.
+        SetBypassSetting(nameof(MobileModeEnabled), true);
         try
         {
             // Persist the injected connection settings (on Browser/WASM this goes to
@@ -596,10 +596,15 @@ public partial class LoginView : UserControl
         DatabasePassword.Text = settings.Where(c => c.ACCaptionTranslation == nameof(DatabasePassword)).FirstOrDefault()?.Value as string;
         DatabaseTunnelUrl.Text = settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseTunnelUrl)).FirstOrDefault()?.Value as string;
         bool? singleViewEnabled = settings.Where(c => c.ACCaptionTranslation == nameof(MobileModeEnabled)).FirstOrDefault()?.Value as bool?;
+        
         if (singleViewEnabled.HasValue)
             MobileModeEnabled.IsChecked = singleViewEnabled.Value;
         else
             MobileModeEnabled.IsChecked = true;
+
+        // Temporary setting for debugging with agent with playwright. Needs to bee removed after testing:
+        if (AutoLoginBypassEnabled)
+            MobileModeEnabled.IsChecked = false;
     }
 
     private void SwitchSettingsView()
@@ -760,9 +765,28 @@ public partial class LoginView : UserControl
         // Microsoft.Data.SqlClient routes the TDS stream over the WebSocket relay and the
         // data source is only a placeholder (the relay's SqlServer/SqlPort config decides
         // the real target).
+        // Tunnel auth (docs/SqlTunnel-OptionB-Implementation.md §9.21): the iPlus login
+        // credentials (stage 2) and an OAuth-style bearer token (stage 1, acquired from the
+        // relay's /sqltunnel-auth/token endpoint) are appended as query parameters to the
+        // Tunnel URL; the fork strips them and forwards them out-of-band to the relay.
         if (!String.IsNullOrWhiteSpace(dbTunnelUrl))
         {
-            connectionString += "; Tunnel URL=" + dbTunnelUrl.Trim();
+            string tunnelUrl = dbTunnelUrl.Trim();
+            int queryIdx = tunnelUrl.IndexOf('?');
+            if (queryIdx >= 0)
+                tunnelUrl = tunnelUrl.Substring(0, queryIdx);
+
+            string iPlusUser = UserSettings?.UserName;
+            string iPlusPass = UserSettings?.Password;
+            string token = TryAcquireTunnelToken(tunnelUrl, iPlusUser, iPlusPass);
+
+            var tunnelWithAuth = new System.Text.StringBuilder(tunnelUrl);
+            tunnelWithAuth.Append("?iplususer=").Append(Uri.EscapeDataString(iPlusUser ?? ""));
+            if (!String.IsNullOrEmpty(iPlusPass))
+                tunnelWithAuth.Append("&ipluspass=").Append(Uri.EscapeDataString(iPlusPass));
+            if (!String.IsNullOrEmpty(token))
+                tunnelWithAuth.Append("&authtoken=").Append(Uri.EscapeDataString(token));
+            connectionString += "; Tunnel URL=" + tunnelWithAuth.ToString();
         }
 
         var setting = new ConnectionStringSettings(
@@ -846,6 +870,60 @@ public partial class LoginView : UserControl
             }
         }
     }
+
+    #region Methods => SQL Tunnel auth (docs/SqlTunnel-OptionB-Implementation.md §9.21)
+
+    /// <summary>
+    /// JS interop: synchronous XMLHttpRequest (window.iPlusSyncXhr bridge in index.html).
+    /// Returns JSON {"status": int, "text": string}. Throws PNSE on non-browser platforms —
+    /// only call inside <see cref="OperatingSystem.IsBrowser"/>.
+    /// </summary>
+    [System.Runtime.InteropServices.JavaScript.JSImport("globalThis.iPlusSyncXhr")]
+    private static partial string SyncXhr(string method, string url, string body);
+
+    /// <summary>
+    /// Stage 1: acquires an OAuth-style bearer token from the relay host's
+    /// <c>POST /sqltunnel-auth/token</c> endpoint (v1 local issuer validating iPlus
+    /// credentials). Browser/WASM only — the acquisition is a synchronous XHR because
+    /// <see cref="ApplyConnectionSettingsFromHelper"/> is synchronous and runs on the WASM
+    /// main thread (async fetch would need the event loop). Returns null when no token
+    /// could be obtained (relay without RequireOAuth, offline, non-browser) — the tunnel
+    /// then works unauthenticated or fails server-side with a clear 401.
+    /// </summary>
+    private static string TryAcquireTunnelToken(string tunnelUrl, string iPlusUser, string iPlusPassword)
+    {
+        try
+        {
+            if (!OperatingSystem.IsBrowser() || String.IsNullOrEmpty(iPlusUser))
+                return null;
+
+            Uri tokenUri = new Uri(new Uri(tunnelUrl), "/sqltunnel-auth/token");
+            // Manual JSON (no JsonSerializer.Serialize): reflection-based serialization is
+            // disabled in the WASM runtime (JsonSerializerIsReflectionDisabled).
+            // JsonEncodedText already includes the surrounding quotes.
+            string body = "{\"username\":\"" + System.Text.Json.JsonEncodedText.Encode(iPlusUser ?? "") +
+                          "\",\"password\":\"" + System.Text.Json.JsonEncodedText.Encode(iPlusPassword ?? "") + "\"}";
+            string result = SyncXhr("POST", tokenUri.ToString(), body);
+            using System.Text.Json.JsonDocument doc = System.Text.Json.JsonDocument.Parse(result);
+            int status = doc.RootElement.GetProperty("status").GetInt32();
+            if (status != 200)
+            {
+                Console.WriteLine($"LoginView: tunnel token acquisition failed with HTTP {status} (relay may not require OAuth).");
+                return null;
+            }
+            using System.Text.Json.JsonDocument tokenDoc = System.Text.Json.JsonDocument.Parse(doc.RootElement.GetProperty("text").GetString());
+            string token = tokenDoc.RootElement.GetProperty("token").GetString();
+            Console.WriteLine("LoginView: tunnel token acquired.");
+            return token;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"LoginView: tunnel token acquisition failed. {ex.GetType().Name}: {ex.Message}");
+            return null;
+        }
+    }
+
+    #endregion
 
     #endregion
 

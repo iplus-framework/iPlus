@@ -39,6 +39,19 @@
                 return new Uint8Array(await res.arrayBuffer());
             } catch (e) { return null; }
         };
+        // Synchronous XHR bridge for the SQL Tunnel stage-1 token acquisition
+        // (LoginView.TryAcquireTunnelToken). ApplyConnectionSettingsFromHelper is
+        // synchronous and runs on the WASM main thread, so an async fetch cannot be used
+        // there — the browser performs the wait internally (same rationale as the fork's
+        // sync-XHR tunnel transport, docs/SqlTunnel-OptionB-Implementation.md §7).
+        // Returns JSON {status, text}.
+        window.iPlusSyncXhr = function (method, url, body) {
+            var xhr = new XMLHttpRequest();
+            xhr.open(method, url, false);
+            if (body) { xhr.setRequestHeader('Content-Type', 'application/json'); }
+            xhr.send(body || null);
+            return JSON.stringify({ status: xhr.status, text: xhr.responseText });
+        };
     </script>
 </head>
 
