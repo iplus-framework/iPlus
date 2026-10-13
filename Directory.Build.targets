@@ -119,6 +119,14 @@
         -->
         <ItemGroup Condition="'$(UseSqlClientForkProjectReference)' == 'True' and Exists('$(SqlClientForkProject)')">
                 <PackageReference Update="Microsoft.Data.SqlClient" ExcludeAssets="all" />
+                <!-- The iPlus fork package (same assembly identity) must also be stripped in
+                     project-reference mode, otherwise RAR resolves the stale packaged DLL
+                     instead of the freshly built fork (observed 2026-10-13: the browser
+                     client kept serving the 7.1.1-iplus.2 package DLL). ExcludeAssets only
+                     affects the project where the PackageReference is declared, so an
+                     Include (not Update) is injected into EVERY project — a direct excluded
+                     reference overrides the transitive flow of the same package id. -->
+                <PackageReference Include="iPlus.Microsoft.Data.SqlClient" ExcludeAssets="all" />
                 <ProjectReference Include="$(SqlClientForkProject)" AdditionalProperties="SigningKeyPath=$(SqlClientForkSigningKey)" />
         </ItemGroup>
 
