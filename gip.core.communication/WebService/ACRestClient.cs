@@ -815,7 +815,7 @@ namespace gip.core.communication
             }
         }
 
-        protected async Task<WSResponse<TResult>> PostAsync<TResult>(StringContent content, Uri uri)
+        public virtual async Task<WSResponse<TResult>> PostAsync<TResult>(StringContent content, Uri uri)
         {
             HttpResponseMessage response = null;
             response = await _Client.PostAsync(uri, content);
@@ -828,7 +828,7 @@ namespace gip.core.communication
             return await Task.FromResult(new WSResponse<TResult>(new Msg(eMsgLevel.Failure, String.Format("{0},{1}", response.ReasonPhrase, response.StatusCode)), response.StatusCode));
         }
 
-        protected async Task<WSResponse<string>> PostAsync(StringContent content, Uri uri)
+        public virtual async Task<WSResponse<string>> PostAsync(StringContent content, Uri uri)
         {
             HttpResponseMessage response = null;
             response = await _Client.PostAsync(uri, content);
