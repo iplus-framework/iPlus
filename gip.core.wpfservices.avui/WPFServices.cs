@@ -49,10 +49,20 @@ namespace gip.core.wpfservices.avui
 
         public bool IsAvaloniaUI => true;
 
+        /// <summary>
+        /// Can be set by the host application when a single-view platform (browser/Android)
+        /// runs in desktop mode ("MobileModeEnabled" = false). In that case the application
+        /// must behave like the desktop client, e.g. the first NavSearch of a business object
+        /// must not be skipped (see ACAccess.NavSearch).
+        /// </summary>
+        public static bool DesktopModeOverride { get; set; } = false;
+
         public bool IsAvaloniaSingleViewApplication
         {
             get
             {
+                if (DesktopModeOverride)
+                    return false;
                 if (Avalonia.Application.Current?.ApplicationLifetime is ISingleViewApplicationLifetime)
                     return true;
                 return false;

@@ -8,6 +8,7 @@ using Avalonia.Threading;
 using CoreWCF.IdentityModel.Tokens;
 using gip.core.autocomponent;
 using gip.core.datamodel;
+using gip.core.wpfservices.avui;
 using gip.core.layoutengine.avui;
 using gip.ext.designer.avui.Controls;
 using gip.iplus.client.avui.Views;
@@ -255,6 +256,10 @@ public partial class App : Application
                             }
                             else
                             {
+                                // Desktop mode on a single-view platform: behave exactly like
+                                // the desktop client (e.g. do not skip the first NavSearch).
+                                WPFServices.DesktopModeOverride = true;
+
                                 MainView mainView = new MainView();
                                 mainView.DataContext = ACRoot.SRoot.Businessobjects;
                                 ACRoot.SRoot.RootPageWPF = mainView;

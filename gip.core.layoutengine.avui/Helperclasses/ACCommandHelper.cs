@@ -142,7 +142,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
                     }
                 }
 
-                result = new Result(CreateReactiveCommand(() => ReactiveExecuteCommand(control, methodNameForCommand, interactiveObject), methodNameForCommand, interactiveObject, observablePropertyTuples), false);
+                result = new Result(CreateACCommand(() => ReactiveExecuteCommand(control, methodNameForCommand, interactiveObject), methodNameForCommand, interactiveObject, observablePropertyTuples), false);
             }
             // Fallback to CommandBinding approach
             else
@@ -202,6 +202,70 @@ namespace gip.core.layoutengine.avui.Helperclasses
         }
 
         #region Reactive Command
+        /// <summary>
+        /// Creates an ICommand that follows the AC canExecute pipeline without ReactiveCommand's
+        /// transient execution state. ReactiveCommand disables itself (CanExecuteChanged=false)
+        /// while executing and relies on its internal in-flight counter being decremented when the
+        /// execution completes. With synchronous/blocking execute actions (e.g. sync XHR in the
+        /// browser WASM client) the balancing execution-end may never be processed, leaving the
+        /// command permanently disabled - which excludes the bound Button from hit-testing.
+        /// </summary>
+        public static System.Windows.Input.ICommand CreateACCommand(
+            Action executeAction,
+            string canExecuteMethodName,
+            IACComponent propertyOwner,
+            IEnumerable<Tuple<INotifyPropertyChanged, string>> propertiesToObserve)
+        {
+            var manualRequeryTrigger = new Subject<RxVoid>();
+
+            var propertyObservables = propertiesToObserve
+                .Where(prop => prop != null)
+                .Select(prop => ObservePropertyChangedOnUiThread(prop.Item1, prop.Item2))
+                .ToArray();
+
+            var canExecuteObservable = BuildCanExecuteObservable(canExecuteMethodName, propertyOwner, propertyObservables, manualRequeryTrigger);
+
+            return new ACCanExecuteCommand(canExecuteObservable, WrapExecuteAction(executeAction, manualRequeryTrigger), canExecuteMethodName);
+        }
+
+        /// <summary>
+        /// Minimal ICommand that caches the latest value of the canExecute pipeline and raises
+        /// CanExecuteChanged when it changes. Execution always runs the given delegate.
+        /// </summary>
+        private sealed class ACCanExecuteCommand : System.Windows.Input.ICommand
+        {
+            private readonly Action _execute;
+            private readonly string _methodName;
+            private bool _canExecute = true;
+
+            public event EventHandler? CanExecuteChanged;
+
+            public ACCanExecuteCommand(IObservable<bool> canExecuteObservable, Action execute, string methodName)
+            {
+                _execute = execute;
+                _methodName = methodName;
+                canExecuteObservable.Subscribe(
+                    value =>
+                    {
+                        if (_canExecute != value)
+                        {
+                            _canExecute = value;
+                            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+                        }
+                    },
+                    ex =>
+                    {
+                        // Keep the last canExecute value; do not let a pipeline error
+                        // permanently disable the command.
+                        System.Diagnostics.Debug.WriteLine($"[ACCommandHelper] CanExecute pipeline error for {methodName}: {ex}");
+                    });
+            }
+
+            public bool CanExecute(object? parameter) => _canExecute;
+
+            public void Execute(object? parameter) => _execute();
+        }
+
         /// <summary>
         /// Creates a ReactiveCommand that observes specified properties and evaluates a canExecute method dynamically.
         /// </summary>
@@ -299,8 +363,12 @@ namespace gip.core.layoutengine.avui.Helperclasses
 
                     return EvaluateCanExecuteOnUiThreadAsync(canExecuteMethodName, propertyOwner)
                         .Finally(() => Interlocked.Exchange(ref evaluateInFlight, 0));
-                })
-                .DistinctUntilChanged();
+                });
+            // NOTE: Do NOT apply DistinctUntilChanged here. ReactiveUI disables the command
+            // (CanExecuteChanged=false) while it is executing. If the re-evaluated value equals
+            // the previously emitted value, the suppressed emission would leave the bound
+            // Button stuck with _commandCanExecute=false (IsEffectivelyEnabled=false), which
+            // excludes it from hit-testing entirely - the button can never be clicked again.
 
             return ObserveOnUiThread(backgroundEvaluated);
         }
