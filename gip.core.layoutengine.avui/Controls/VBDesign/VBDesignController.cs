@@ -89,6 +89,20 @@ namespace gip.core.layoutengine.avui
             set => SetValue(ACCaptionProperty, value);
         }
 
+        /// <summary>
+        /// The BSO of the currently shown design. Used by controls outside the design
+        /// content (e.g. VBCommandBar in MainSingleView) that need to dispatch commands
+        /// against the active BSO. Updated by AddMainDesign.
+        /// </summary>
+        public static readonly StyledProperty<IACBSO> CurrentBSOProperty =
+            AvaloniaProperty.Register<VBDesignController, IACBSO>(nameof(CurrentBSO));
+
+        public IACBSO CurrentBSO
+        {
+            get => GetValue(CurrentBSOProperty);
+            set => SetValue(CurrentBSOProperty, value);
+        }
+
 
         public void ShowDesign(string designName)
         {
@@ -130,6 +144,7 @@ namespace gip.core.layoutengine.avui
             MainDesign = design;
             Content = design;
             IsMainDesignActive = true;
+            CurrentBSO = design.BSOACComponent;
 
             ACCaption = MainDesign.ACCaption;
 
