@@ -27,6 +27,9 @@
     <UseWindowsForms>false</UseWindowsForms>
     <UseWPF>false</UseWPF>
     <ImportWindowsDesktopTargets>false</ImportWindowsDesktopTargets>
+    <!-- Required by the [JSImport] JS-interop source generator used by the
+         VBScriptEditor browser metadata-reference loading (SYSLIB1074). -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants Condition="'$(UseAvaloniaFork)' == 'True'">AVALONIAFORK</DefineConstants>
     <!-- Prevent copy of satellite assemblies -->
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>

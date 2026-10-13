@@ -12,6 +12,7 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using System.IO;
 using Microsoft.CodeAnalysis.Rename;
+using System.Net.Http;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using DocumentFormat.OpenXml.Vml;
@@ -29,7 +30,7 @@ using Avalonia.Controls;
 namespace gip.core.layoutengine.avui
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBScriptEditor'}de{'VBScriptEditor'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBScriptEditor : RoslynCodeEditor, IVBContent, IACObject, IACMenuBuilderWPFTree
+    public partial class VBScriptEditor : RoslynCodeEditor, IVBContent, IACObject, IACMenuBuilderWPFTree
     {
         #region c'tors
 
@@ -187,14 +188,37 @@ namespace gip.core.layoutengine.avui
                     string exePath =  Database.Root.Environment.Rootpath;
 
                     var references = new List<MetadataReference>();
-                    references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.dll"));
+                    // Note: on browser/WASM RuntimeEnvironment.GetRuntimeDirectory() returns a
+                    // path where the classic framework DLLs (System.dll, ...) do not exist.
+                    // MetadataReference.CreateFromFile would throw FileNotFoundException there,
+                    // which (in this async void init) killed the whole RoslynHost setup and left
+                    // the editor without syntax highlighting. Only add references that exist.
+                    void AddReferenceIfExists(string path)
+                    {
+                        if (!String.IsNullOrEmpty(path) && File.Exists(path))
+                            references.Add(MetadataReference.CreateFromFile(path));
+                    }
+                    AddReferenceIfExists(dotNetPath + "System.dll");
                     // if (wpfPath != null)
                     //     references.Add(MetadataReference.CreateFromFile(wpfPath + "PresentationCore.dll"));
                     //references.Add(MetadataReference.CreateFromFile(dotNetPath + "WindowsBase.dll"));
-                    references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Core.dll"));
-                    references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Data.dll"));
-                    references.Add(MetadataReference.CreateFromFile(exePath + "Microsoft.EntityFrameworkCore.dll"));
-                    references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Runtime.dll"));
+                    AddReferenceIfExists(dotNetPath + "System.Core.dll");
+                    AddReferenceIfExists(dotNetPath + "System.Data.dll");
+                    AddReferenceIfExists(exePath + "Microsoft.EntityFrameworkCore.dll");
+                    AddReferenceIfExists(dotNetPath + "System.Runtime.dll");
+
+                    // Browser (WASM): the runtime ships assemblies as WebAssembly modules and
+                    // there is no file system with framework DLLs, so the file-based references
+                    // above are all skipped. Without metadata references Roslyn cannot bind
+                    // types -> no semantic classification (types stay white) and no compilation.
+                    // The browser host serves the PE assemblies under /scriptrefs; load them
+                    // via JS fetch (cached for the app lifetime).
+                    if (OperatingSystem.IsBrowser())
+                    {
+                        ImmutableArray<MetadataReference> browserReferences = await GetBrowserMetadataReferencesAsync();
+                        foreach (MetadataReference browserReference in browserReferences)
+                            references.Add(browserReference);
+                    }
                     foreach (Assembly classAssembly in AppDomain.CurrentDomain.GetAssemblies())
                     {
                         try
@@ -752,6 +776,71 @@ namespace gip.core.layoutengine.avui
 
             return precompilerRegion != _referencesArea;
         }
+
+        #region Browser metadata references
+
+        private static ImmutableArray<MetadataReference> _BrowserReferences;
+
+        /// <summary>
+        /// JS interop: absolute page URL (window.location.href). String marshalling is
+        /// supported by the JSImport source generator (same pattern as BrowserSettingsStorage).
+        /// </summary>
+        [System.Runtime.InteropServices.JavaScript.JSImport("globalThis.iPlusGetUrl")]
+        private static partial string GetLocationHref();
+
+        /// <summary>
+        /// Browser (WASM): loads all currently loaded managed assemblies as Roslyn metadata
+        /// references. The PE assemblies are served by the browser host under /scriptrefs
+        /// (see CopyScriptReferenceDlls target in gip.iplus.client.avui.Browser.csproj) and
+        /// fetched via HttpClient (which uses the browser fetch stack on WASM). Missing files
+        /// return 404 and are skipped. The result is cached for the app lifetime.
+        /// </summary>
+        private static async Task<ImmutableArray<MetadataReference>> GetBrowserMetadataReferencesAsync()
+        {
+            if (!_BrowserReferences.IsDefault)
+                return _BrowserReferences;
+
+            string[] fileNames = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && a.EntryPoint == null)
+                .Select(a => a.GetName().Name)
+                .Where(n => !String.IsNullOrEmpty(n) && !n.EndsWith(".resources", StringComparison.Ordinal))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Select(n => n + ".dll")
+                .ToArray();
+
+            // HttpClient on WASM has no BaseAddress and relative request URIs are not
+            // supported -> resolve against the absolute page URL.
+            Uri baseUri = new Uri(GetLocationHref());
+
+            using HttpClient httpClient = new HttpClient();
+
+            Task<(string Name, byte[] Bytes)>[] fetchTasks = fileNames
+                .Select(async fileName =>
+                {
+                    try
+                    {
+                        Uri url = new Uri(baseUri, "scriptrefs/" + Uri.EscapeDataString(fileName));
+                        return (fileName, await httpClient.GetByteArrayAsync(url));
+                    }
+                    catch (Exception)
+                    {
+                        return (fileName, null);
+                    }
+                })
+                .ToArray();
+
+            (string Name, byte[] Bytes)[] results = await Task.WhenAll(fetchTasks);
+
+            ImmutableArray<MetadataReference> references = results
+                .Where(r => r.Bytes != null && r.Bytes.Length > 0)
+                .Select(r => (MetadataReference)MetadataReference.CreateFromStream(new MemoryStream(r.Bytes), filePath: r.Name))
+                .ToImmutableArray();
+
+            _BrowserReferences = references;
+            return references;
+        }
+
+        #endregion
 
         #endregion
 

@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Interactivity;
+using Avalonia.Metadata;
 using Avalonia.Threading;
 using Avalonia.LogicalTree;
 using gip.core.datamodel;
@@ -590,6 +591,47 @@ namespace gip.core.layoutengine.avui
 
 
         private string _LastLoadedXAMLInView;
+
+        static List<Assembly> _XamlAssemblies;
+        /// <summary>
+        /// Assemblies whose XAML namespaces must be resolvable in the designer
+        /// (VBControls like VBScrollViewer are referenced via
+        /// xmlns:vb="http://www.iplus-framework.com/axaml" in the stored layouts).
+        /// ACxmlnsResolver.Assemblies is normally populated by ACClassManager when plugin
+        /// assemblies are loaded from disk. Hosts that never do that (e.g. the browser
+        /// WASM client) would leave the designer TypeFinder without any iplus namespace
+        /// mapping, causing "Cannot find type vb:..." errors. As a fallback, scan the
+        /// already loaded assemblies for iplus XAML namespace definitions.
+        /// </summary>
+        static List<Assembly> GetXamlAssemblies()
+        {
+            if (_XamlAssemblies == null)
+            {
+                _XamlAssemblies = new List<Assembly>(ACxmlnsResolver.Assemblies);
+                foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (assembly.IsDynamic || _XamlAssemblies.Contains(assembly))
+                        continue;
+                    try
+                    {
+                        bool hasIplusNamespace = assembly.GetCustomAttributes(typeof(XmlnsDefinitionAttribute), true)
+                            .Cast<XmlnsDefinitionAttribute>()
+                            .Any(d => d.XmlNamespace != null && d.XmlNamespace.Contains("iplus-framework.com"));
+                        if (!hasIplusNamespace)
+                            continue;
+                        _XamlAssemblies.Add(assembly);
+                        // Make globally available as well (Layoutgenerator preload, XAML generation, ...)
+                        Database.Root?.WPFServices?.AddXamlNamespacesFromAssembly(assembly);
+                    }
+                    catch (Exception)
+                    {
+                        // Assemblies that cannot be reflected over are simply not registered.
+                    }
+                }
+            }
+            return _XamlAssemblies;
+        }
+
         public async Task RefreshViewFromXAML()
         {
             if (String.IsNullOrEmpty(this.XMLText) || !IsLoaded)
@@ -610,7 +652,7 @@ namespace gip.core.layoutengine.avui
                 _LastLoadedXAMLInView = newXMLText;
                 XamlLoadSettings settings = new XamlLoadSettings();
 
-                foreach (Assembly assembly in ACxmlnsResolver.Assemblies)
+                foreach (Assembly assembly in GetXamlAssemblies())
                 {
                     settings.DesignerAssemblies.Add(assembly);
                     settings.TypeFinder.RegisterAssembly(assembly,true);

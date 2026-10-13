@@ -21,6 +21,24 @@
                 try { window.localStorage.setItem(key, value); } catch (e) { }
             }
         };
+        // Returns the absolute page URL; used by VBScriptEditor to resolve the
+        // relative /scriptrefs URLs to absolute ones (HttpClient on WASM has no
+        // BaseAddress, and relative request URIs are not supported).
+        window.iPlusGetUrl = function () {
+            return window.location.href;
+        };
+        // Fetches a managed assembly (PE image) from /scriptrefs for the Roslyn script
+        // editor (VBScriptEditor). The WASM runtime ships assemblies as WebAssembly
+        // modules, which Roslyn cannot use as metadata references - so the build copies
+        // the PE DLLs to wwwroot/scriptrefs and the editor loads them via this bridge.
+        // Returns null when the file does not exist.
+        window.iPlusFetchDll = async function (name) {
+            try {
+                const res = await fetch('scriptrefs/' + encodeURIComponent(name));
+                if (!res.ok) return null;
+                return new Uint8Array(await res.arrayBuffer());
+            } catch (e) { return null; }
+        };
     </script>
 </head>
 

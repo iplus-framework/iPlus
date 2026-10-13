@@ -67,6 +67,28 @@
        web assets; the NuGet package would normally do this via its build targets. -->
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(AvaloniaRootDir)/src/Browser/Avalonia.Browser/build/iPlus.Avalonia.Browser.targets" />
 
+  <!-- Copy the managed PE assemblies to wwwroot/scriptrefs so the Roslyn script editor
+       (VBScriptEditor) can load them as metadata references via HttpClient fetch. The
+       WASM runtime itself ships assemblies as WebAssembly modules (unusable for Roslyn);
+       without these references semantic syntax highlighting (types) and script
+       compilation cannot work in the browser. Hardlinks keep the disk cost near zero.
+       The DLLs live in the project's wwwroot and are declared as Content so the
+       static-web-assets manifest registers them (files dropped into bin wwwroot after
+       manifest generation are NOT served). -->
+  <ItemGroup>
+    <Content Remove="wwwroot/scriptrefs/**/*.dll" />
+    <Content Include="wwwroot/scriptrefs/**/*.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="CopyScriptReferenceDlls" AfterTargets="Build">
+    <ItemGroup>
+      <ScriptRefDlls Include="$(OutDir)*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ScriptRefDlls)"
+          DestinationFolder="$(MSBuildProjectDirectory)/wwwroot/scriptrefs"
+          SkipUnchangedFiles="true"
+          UseHardlinksIfPossible="true" />
+  </Target>
+
   <ItemGroup>
     <ProjectReference Include="..\gip.iplus.client.avui\gip.iplus.client.avui.csproj" />
   </ItemGroup>
