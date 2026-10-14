@@ -281,7 +281,9 @@ public partial class App : Application
 
                 // Browser/Android clients have no ConnectionStrings.config: inject the
                 // connection settings entered in the SettingsGrid when the user presses Login.
-                _LoginView.LoginStarted += (s, e) => _LoginView.ApplyConnectionSettingsFromHelper();
+                // Skipped when the LoginView defers the apply to a background thread (Entra
+                // device-code flow — it blocks for minutes and must not run on the UI thread).
+                _LoginView.LoginStarted += (s, e) => { if (!LoginView.EntraApplyDeferred) _LoginView.ApplyConnectionSettingsFromHelper(); };
 
                 rootControl.Content = _LoginView;
                 singleViewPlatform.MainView = rootControl;
@@ -399,6 +401,11 @@ public partial class App : Application
     private async Task HandleLoginAndStartup()
     {
         Console.WriteLine("App: HandleLoginAndStartup started");
+        // Tunnel preparation for config-file-driven clients (docs §9.24): must run
+        // BEFORE any Database static init (ACRoot.SRoot below) and on this background
+        // thread (the Entra device-code poll blocks). No-op when the settings store
+        // drives the connection (LoginView path) or no tunnel is configured.
+        LoginView.PrepareTunnelConnectionFromConfig();
         // Browser/WASM has no real command line; GetCommandLineArgs may throw there.
         string[] cmLineArg = Array.Empty<string>();
         try

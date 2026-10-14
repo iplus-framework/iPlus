@@ -50,6 +50,8 @@ namespace gip.core.webservices
             _SqlPort = new ACPropertyConfigValue<int>(this, "SqlPort", 1433);
             _RequireOAuth = new ACPropertyConfigValue<bool>(this, "RequireOAuth", false);
             _RequireIPlusLogin = new ACPropertyConfigValue<bool>(this, "RequireIPlusLogin", false);
+            _SqlUser = new ACPropertyConfigValue<string>(this, "SqlUser", "");
+            _SqlPassword = new ACPropertyConfigValue<string>(this, "SqlPassword", "");
             // Command to enable http-Service:
             // >netsh http add urlacl url=http://+:ServicePort/ user="\Everyone"
         }
@@ -63,6 +65,8 @@ namespace gip.core.webservices
             _ = SqlPort;
             _ = RequireOAuth;
             _ = RequireIPlusLogin;
+            _ = SqlUser;
+            _ = SqlPassword;
             return result;
         }
 
@@ -105,6 +109,45 @@ namespace gip.core.webservices
             get => _SqlPort.ValueT;
             set => _SqlPort.ValueT = value;
         }
+
+        private ACPropertyConfigValue<string> _SqlUser;
+        /// <summary>
+        /// Server-side SQL login delivered to authenticated tunnel clients via
+        /// GET /sqltunnel-sqlcred (docs §9.24): the client fetches the credentials after
+        /// stage-1 auth and puts them into its connection string, so no SQL password is
+        /// stored client-side. Env override: SQLTUNNEL_SQL_USER.
+        /// </summary>
+        [ACPropertyConfig("en{'SQL user (delivered)'}de{'SQL-Benutzer (zugewiesen)'}")]
+        public string SqlUser
+        {
+            get
+            {
+                string v = _SqlUser.ValueT;
+                if (String.IsNullOrEmpty(v))
+                    v = System.Environment.GetEnvironmentVariable("SQLTUNNEL_SQL_USER");
+                return v;
+            }
+            set => _SqlUser.ValueT = value;
+        }
+
+        private ACPropertyConfigValue<string> _SqlPassword;
+        /// <summary>Server-side SQL password delivered via /sqltunnel-sqlcred (see SqlUser). Env override: SQLTUNNEL_SQL_PASSWORD.</summary>
+        [ACPropertyConfig("en{'SQL password (delivered)'}de{'SQL-Kennwort (zugewiesen)'}")]
+        public string SqlPassword
+        {
+            get
+            {
+                string v = _SqlPassword.ValueT;
+                if (String.IsNullOrEmpty(v))
+                    v = System.Environment.GetEnvironmentVariable("SQLTUNNEL_SQL_PASSWORD");
+                return v;
+            }
+            set => _SqlPassword.ValueT = value;
+        }
+
+        /// <summary>True when the relay delivers SQL credentials to authenticated clients.</summary>
+        private bool SqlCredentialDeliveryEnabled =>
+            !String.IsNullOrEmpty(SqlUser) && !String.IsNullOrEmpty(SqlPassword);
 
         private ACPropertyConfigValue<bool> _RequireOAuth;
         /// <summary>
@@ -172,13 +215,15 @@ namespace gip.core.webservices
 
         /// <summary>
         /// Stage 1: validates a bearer token against the in-memory token store.
-        /// Production upgrade path: replace this method with real IdP validation
-        /// (JWT bearer via Microsoft.Identity.Web) — open question §6.1.
+        /// When the issuer mode is "Entra" (SQLTUNNEL_TOKEN_ISSUER=Entra), the token is
+        /// instead validated as a Microsoft Entra ID JWT (see ValidateEntraTokenAsync).
         /// </summary>
-        private static bool ValidateBearerToken(string token)
+        private async Task<bool> ValidateBearerTokenAsync(string token)
         {
             if (String.IsNullOrEmpty(token))
                 return false;
+            if (UseEntraIssuer)
+                return await ValidateEntraTokenAsync(token);
             if (_OAuthTokens.TryGetValue(token, out DateTime expiry))
             {
                 if (expiry > DateTime.UtcNow)
@@ -187,6 +232,177 @@ namespace gip.core.webservices
             }
             return false;
         }
+
+        #region Entra ID issuer (stage 1, real IdP — docs §9.21 / open question §6.1)
+
+        /// <summary>Issuer mode: "Local" (default, in-memory tokens) or "Entra" (JWT validation).</summary>
+        private static bool UseEntraIssuer =>
+            String.Equals(System.Environment.GetEnvironmentVariable("SQLTUNNEL_TOKEN_ISSUER"), "Entra", StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>Entra tenant: GUID or domain (e.g. contoso.onmicrosoft.com). "organizations" accepts any work/school tenant (multi-tenant app).</summary>
+        private static string EntraTenant =>
+            System.Environment.GetEnvironmentVariable("SQLTUNNEL_ENTRA_TENANT") ?? "organizations";
+
+        /// <summary>Expected "aud" claim: the app registration's Client ID or its api:// URI.</summary>
+        private static string EntraAudience =>
+            System.Environment.GetEnvironmentVariable("SQLTUNNEL_ENTRA_AUDIENCE");
+
+        /// <summary>Cloud instance override (sovereign clouds); default global Entra.</summary>
+        private static string EntraInstance =>
+            System.Environment.GetEnvironmentVariable("SQLTUNNEL_ENTRA_INSTANCE") ?? "https://login.microsoftonline.com";
+
+        private static readonly System.Net.Http.HttpClient _EntraHttp = new System.Net.Http.HttpClient();
+
+        /// <summary>Cached JWKS signing keys (kid -> RSA parameters). Refreshed after 12h or on unknown kid.</summary>
+        private static readonly ConcurrentDictionary<string, (DateTime Fetched, byte[] Modulus, byte[] Exponent)> _JwksKeys = new();
+        private static DateTime _JwksFetchedUtc = DateTime.MinValue;
+        private static readonly TimeSpan JwksCacheLifetime = TimeSpan.FromHours(12);
+        private static readonly TimeSpan ClockSkew = TimeSpan.FromMinutes(5);
+
+        /// <summary>
+        /// Validates a Microsoft Entra ID access token (JWT) against the tenant's published
+        /// signing keys: RS256 signature, issuer, audience and lifetime. No external package
+        /// dependency (hand-rolled JWS verification via System.Security.Cryptography).
+        /// </summary>
+        private async Task<bool> ValidateEntraTokenAsync(string token)
+        {
+            try
+            {
+                string[] parts = token.Split('.');
+                if (parts.Length != 3)
+                    return false;
+                byte[] headerBytes = Base64UrlDecode(parts[0]);
+                byte[] payloadBytes = Base64UrlDecode(parts[1]);
+                byte[] signature = Base64UrlDecode(parts[2]);
+                if (headerBytes == null || payloadBytes == null || signature == null)
+                    return false;
+
+                using JsonDocument headerDoc = JsonDocument.Parse(headerBytes);
+                string alg = headerDoc.RootElement.TryGetProperty("alg", out JsonElement a) && a.ValueKind == JsonValueKind.String ? a.GetString() : null;
+                string kid = headerDoc.RootElement.TryGetProperty("kid", out JsonElement k) && k.ValueKind == JsonValueKind.String ? k.GetString() : null;
+                if (!String.Equals(alg, "RS256", StringComparison.Ordinal) || String.IsNullOrEmpty(kid))
+                {
+                    Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", $"Entra token rejected: unsupported alg '{alg}' or missing kid");
+                    return false;
+                }
+
+                // The signing keys are published PER TENANT — "organizations" is not a
+                // valid discovery tenant, so always resolve the JWKS via the token's tid.
+                string tid = null;
+                string iss = null, aud = null;
+                long exp = 0, nbf = 0;
+                try
+                {
+                    using JsonDocument payloadDoc = JsonDocument.Parse(payloadBytes);
+                    JsonElement root = payloadDoc.RootElement;
+                    iss = root.TryGetProperty("iss", out JsonElement i) && i.ValueKind == JsonValueKind.String ? i.GetString() : null;
+                    aud = root.TryGetProperty("aud", out JsonElement au) && au.ValueKind == JsonValueKind.String ? au.GetString() : null;
+                    tid = root.TryGetProperty("tid", out JsonElement ti) && ti.ValueKind == JsonValueKind.String ? ti.GetString() : null;
+                    exp = root.TryGetProperty("exp", out JsonElement e) && e.TryGetInt64(out long expV) ? expV : 0;
+                    nbf = root.TryGetProperty("nbf", out JsonElement n) && n.TryGetInt64(out long nbfV) ? nbfV : 0;
+                }
+                catch
+                {
+                    Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", "Entra token rejected: payload is not valid JSON");
+                    return false;
+                }
+                if (String.IsNullOrEmpty(tid))
+                {
+                    Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", "Entra token rejected: missing tid claim");
+                    return false;
+                }
+
+                (byte[] modulus, byte[] exponent)? key = await GetEntraSigningKeyAsync(kid, tid);
+                if (key == null)
+                {
+                    Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", $"Entra token rejected: unknown kid '{kid}' for tenant '{tid}'");
+                    return false;
+                }
+
+                byte[] signed = Encoding.ASCII.GetBytes(parts[0] + "." + parts[1]);
+                using RSA rsa = RSA.Create();
+                rsa.ImportParameters(new RSAParameters { Modulus = key.Value.modulus, Exponent = key.Value.exponent });
+                if (!rsa.VerifyData(signed, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1))
+                {
+                    Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", "Entra token rejected: signature invalid");
+                    return false;
+                }
+
+                // Single-tenant config: iss must match exactly. Multi-tenant ("organizations"):
+                // accept any tenant issuer on the configured instance. Both token versions are
+                // accepted: v2.0 tokens use https://{instance}/{tid}/v2.0, v1 tokens (returned
+                // for {clientId}/.default on v1-only APIs) use https://sts.windows.net/{tid}/.
+                string expectedIssV2 = $"{EntraInstance.TrimEnd('/')}/{EntraTenant}/v2.0";
+                string instanceBase = EntraInstance.TrimEnd('/') + "/";
+                bool issuerOk = String.Equals(iss, expectedIssV2, StringComparison.OrdinalIgnoreCase)
+                    || (String.Equals(EntraTenant, "organizations", StringComparison.OrdinalIgnoreCase)
+                        && iss != null
+                        && (iss.StartsWith(instanceBase, StringComparison.OrdinalIgnoreCase) && iss.EndsWith("/v2.0", StringComparison.OrdinalIgnoreCase)
+                            || iss.StartsWith("https://sts.windows.net/", StringComparison.OrdinalIgnoreCase) && iss.EndsWith("/")));
+                bool audienceOk = !String.IsNullOrEmpty(EntraAudience) && String.Equals(aud, EntraAudience, StringComparison.OrdinalIgnoreCase);
+                bool lifetimeOk = exp > DateTimeOffset.UtcNow.Add(-ClockSkew).ToUnixTimeSeconds()
+                    && nbf < DateTimeOffset.UtcNow.Add(ClockSkew).ToUnixTimeSeconds();
+
+                if (!issuerOk || !audienceOk || !lifetimeOk)
+                {
+                    Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", $"Entra token rejected: issuerOk={issuerOk} audienceOk={audienceOk} (aud='{aud}') lifetimeOk={lifetimeOk}");
+                    return false;
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Messages.LogException(GetACUrl(), "SqlTunnelAuth", new Exception("Entra token validation failed: " + ex.Message));
+                return false;
+            }
+        }
+
+        /// <summary>Fetches (and caches) the tenant JWKS and returns the RSA parameters for kid.</summary>
+        private async Task<(byte[] Modulus, byte[] Exponent)?> GetEntraSigningKeyAsync(string kid, string tenantId)
+        {
+            string cacheKey = tenantId + "/" + kid;
+            if (_JwksKeys.TryGetValue(cacheKey, out var cached) && DateTime.UtcNow - cached.Fetched < JwksCacheLifetime)
+                return (cached.Modulus, cached.Exponent);
+
+            string url = $"{EntraInstance.TrimEnd('/')}/{tenantId}/discovery/v2.0/keys";
+            string json;
+            try
+            {
+                json = await _EntraHttp.GetStringAsync(url);
+            }
+            catch (Exception ex)
+            {
+                Messages.LogException(GetACUrl(), "SqlTunnelAuth", new Exception($"JWKS fetch failed for {url}: {ex.Message}"));
+                return null;
+            }
+            using JsonDocument doc = JsonDocument.Parse(json);
+            foreach (JsonElement keyEl in doc.RootElement.GetProperty("keys").EnumerateArray())
+            {
+                string keyKid = keyEl.TryGetProperty("kid", out JsonElement kk) && kk.ValueKind == JsonValueKind.String ? kk.GetString() : null;
+                string kty = keyEl.TryGetProperty("kty", out JsonElement kt) && kt.ValueKind == JsonValueKind.String ? kt.GetString() : null;
+                string n = keyEl.TryGetProperty("n", out JsonElement nn) && nn.ValueKind == JsonValueKind.String ? nn.GetString() : null;
+                string e = keyEl.TryGetProperty("e", out JsonElement ee) && ee.ValueKind == JsonValueKind.String ? ee.GetString() : null;
+                if (keyKid != null && kty == "RSA" && n != null && e != null)
+                    _JwksKeys[tenantId + "/" + keyKid] = (DateTime.UtcNow, Base64UrlDecode(n), Base64UrlDecode(e));
+            }
+            return _JwksKeys.TryGetValue(cacheKey, out var found) ? (found.Modulus, found.Exponent) : null;
+        }
+
+        private static byte[] Base64UrlDecode(string input)
+        {
+            if (String.IsNullOrEmpty(input))
+                return null;
+            string s = input.Replace('-', '+').Replace('_', '/');
+            switch (s.Length % 4)
+            {
+                case 2: s += "=="; break;
+                case 3: s += "="; break;
+            }
+            try { return Convert.FromBase64String(s); }
+            catch { return null; }
+        }
+
+        #endregion
 
         /// <summary>
         /// Stage 2: validates iPlus credentials via the iPlus login stack
@@ -331,7 +547,7 @@ namespace gip.core.webservices
 
                     // Stage 1 on the handshake: reject before the socket is even accepted.
                     string bearerToken = GetBearerToken(context.Request.Headers);
-                    if (RequireOAuth && !ValidateBearerToken(bearerToken))
+                    if (RequireOAuth && !await ValidateBearerTokenAsync(bearerToken))
                     {
                         // TEMPORARY diagnostics: remove with the auth-tracing cleanup.
                         Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", "WebSocket handshake rejected: missing/invalid bearer token");
@@ -342,6 +558,32 @@ namespace gip.core.webservices
 
                     using System.Net.WebSockets.WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
                     await RelayAsync(webSocket, bearerToken);
+                });
+
+                // SQL credential delivery (docs §9.24): authenticated clients fetch the
+                // server-side SQL login here and put it into their connection string, so
+                // no SQL password is stored client-side. Requires a valid bearer token.
+                app.MapGet("/sqltunnel-sqlcred", async (HttpContext context) =>
+                {
+                    if (!SqlCredentialDeliveryEnabled)
+                    {
+                        context.Response.StatusCode = 404;
+                        await context.Response.WriteAsync("SQL Tunnel: credential delivery not configured.");
+                        return;
+                    }
+                    if (RequireOAuth && !await ValidateBearerTokenAsync(GetBearerToken(context.Request.Headers)))
+                    {
+                        context.Response.StatusCode = 401;
+                        await context.Response.WriteAsync("SQL Tunnel: invalid or missing bearer token.");
+                        return;
+                    }
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsync(
+                        System.Text.Json.JsonSerializer.Serialize(new System.Collections.Generic.Dictionary<string, string>
+                        {
+                            ["user"] = SqlUser,
+                            ["password"] = SqlPassword,
+                        }));
                 });
 
                 MapSyncShimEndpoints(app);
@@ -465,24 +707,29 @@ namespace gip.core.webservices
             if (frameUser != null || frameToken != null)
             {
                 frameConsumed = true;
-                if (RequireOAuth && !ValidateBearerToken(frameToken ?? bearerToken))
+                if (RequireOAuth && !await ValidateBearerTokenAsync(frameToken ?? bearerToken))
                 {
                     authError = "invalid OAuth token";
                 }
-                if (authError == null && !ValidateIPlusUser(frameUser, framePassword))
+                // Stage 2 (iPlus login) only applies when the frame carries iPlus
+                // credentials. A token-only frame (Entra ID mode — the JWT is the
+                // identity) skips stage 2; user mapping to VBUser is a future step.
+                if (authError == null && frameUser != null && !ValidateIPlusUser(frameUser, framePassword))
                 {
                     authError = "iPlus login failed";
                 }
                 // TEMPORARY diagnostics: remove with the auth-tracing cleanup.
                 Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", $"WebSocket auth frame for user '{frameUser}': {(authError == null ? "OK" : authError)}");
             }
-            else if (RequireIPlusLogin || (RequireOAuth && String.IsNullOrEmpty(bearerToken)))
+            else if ((RequireIPlusLogin || RequireOAuth) && String.IsNullOrEmpty(bearerToken))
             {
+                // No auth frame AND no bearer token validated at the handshake (e.g. the
+                // ?authtoken= query parameter) — nothing to authenticate with.
                 authError = "auth frame required";
             }
-
             if (authError != null)
             {
+                Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", $"WebSocket relay rejected: {authError}");
                 ArrayPool<byte>.Shared.Return(firstBuffer);
                 await CloseWebSocketAsync(webSocket, System.Net.WebSockets.WebSocketCloseStatus.PolicyViolation, "SQL Tunnel auth failed: " + authError);
                 return;
@@ -523,6 +770,12 @@ namespace gip.core.webservices
                 {
                     ArrayPool<byte>.Shared.Return(firstBuffer);
                 }
+
+                // NOTE (docs §9.23): server-side SQL credential injection into the TDS
+                // LOGIN7 packet was investigated and is NOT possible — SQL Server always
+                // encrypts the login packet (TLS via SslOverTdsStream), even with
+                // Encrypt=False. The relay is a plain byte proxy and never sees the
+                // credentials; the client must keep them (protected end-to-end by TLS).
 
                 Task wsToTcp = PumpWebSocketToTcpAsync(webSocket, tcpStream, wsBuffer);
                 Task tcpToWs = PumpTcpToWebSocketAsync(tcpStream, webSocket, tcpBuffer);
@@ -614,6 +867,7 @@ namespace gip.core.webservices
 
         #endregion
 
+
         #region HTTP Sync Shim (browser WASM clients)
 
         /// <summary>
@@ -631,7 +885,7 @@ namespace gip.core.webservices
                 if (context.Request.Path.StartsWithSegments("/sqltunnel-sync") &&
                     !String.Equals(context.Request.Method, "OPTIONS", StringComparison.OrdinalIgnoreCase) &&
                     RequireOAuth &&
-                    !ValidateBearerToken(GetBearerToken(context.Request.Headers)))
+                    !await ValidateBearerTokenAsync(GetBearerToken(context.Request.Headers)))
                 {
                     // TEMPORARY diagnostics: remove with the auth-tracing cleanup.
                     Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", $"Shim request {context.Request.Path} rejected: missing/invalid bearer token");
@@ -666,7 +920,7 @@ namespace gip.core.webservices
                 }
 
                 // Stage 1: Authorization header OR token from the body.
-                if (RequireOAuth && !ValidateBearerToken(GetBearerToken(context.Request.Headers) ?? bodyToken))
+                if (RequireOAuth && !await ValidateBearerTokenAsync(GetBearerToken(context.Request.Headers) ?? bodyToken))
                 {
                     // TEMPORARY diagnostics: remove with the auth-tracing cleanup.
                     Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", "Shim session rejected: missing/invalid bearer token");

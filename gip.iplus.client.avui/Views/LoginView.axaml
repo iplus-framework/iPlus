@@ -176,6 +176,8 @@
 
           <CheckBox VerticalAlignment="Bottom" Grid.Row="13" Grid.Column="1" Name="MobileModeEnabled" Content="Mobile mode (hamburger menu). Unchecked: desktop menu" Margin="0,5,0,0" ToolTip.Tip="Checked: touch-optimized mobile designs (DUMainMobile). Unchecked: desktop layout with menu bar (DUMain), like the Windows client."/>
 
+          <Button VerticalAlignment="Bottom" Grid.Row="14" Grid.Column="1" Name="ButtonResetEntraToken" Click="ButtonResetEntraToken_Click" HorizontalAlignment="Left" Padding="10,4,10,4" ToolTip.Tip="Removes the stored Entra ID sign-in (access + refresh token). The next login asks for a new device code.">Reset Entra sign-in</Button>
+
         </Grid>
 
         <Button Grid.Row="2" Grid.Column="1" Name="ButtonSave" IsDefault="True" Click="ButtonSave_Click" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 

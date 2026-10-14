@@ -14,6 +14,8 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm"  />
+    <!-- DPAPI token protection on Windows (EntraTokenProtector); no-op on other OS. -->
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" />
     <PackageReference Include="ReactiveUI"  />
     <PackageReference Include="ReactiveUI.Avalonia" Condition="'$(UseAvaloniaFork)' == 'False'" />
     <PackageReference Include="ReactiveUI.Avalonia" Condition="'$(UseAvaloniaFork)' == 'True'" GeneratePathProperty="true">

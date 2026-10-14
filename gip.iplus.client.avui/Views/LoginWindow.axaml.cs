@@ -46,6 +46,11 @@ public partial class LoginWindow : ReactiveWindow<Settings>
         _LoginAction = loginAction;
         _ShowMainWindowAction = mainAction;
         _externalLoginProviders = (externalLoginProviders ?? Enumerable.Empty<IExternalLoginProvider>()).ToList();
+        // Ctrl+Click on Cancel resets the persisted Entra token cache (desktop equivalent
+        // of the LoginView "Reset Entra Token" button) — handled in ButtonCancel_Click via
+        // the _IsLeftCtrlPressed flag (the Button raises Click from its class handler on
+        // PointerReleased BEFORE instance handlers run, so a PointerReleased hook on the
+        // button would never be reached — the window is already closed by then).
     }
 
     private Settings UserSettings => DataContext as Settings;
@@ -302,6 +307,17 @@ public partial class LoginWindow : ReactiveWindow<Settings>
     private void ButtonCancel_Click(object sender, RoutedEventArgs e)
     {
         StopExternalLoginWatcher();
+
+        // Ctrl+Click: reset the persisted Entra token cache instead of closing — the next
+        // login runs the interactive device-code flow again. The window stays open.
+        if (_IsLeftCtrlPressed)
+        {
+            LoginView.ResetEntraTokenCache();
+            AsyncMessageBox.BeginMessageBoxAsync(
+                "The Entra ID token cache has been reset.\nThe next login will show the device-code sign-in again.",
+                "Entra Token Reset", ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Info);
+            return;
+        }
 
         this.Close();
         UserSettings.UserName = string.Empty;

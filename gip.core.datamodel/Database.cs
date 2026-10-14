@@ -208,7 +208,17 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public static string ModifiedConnectionString(string appName)
         {
-            var connString = ConfigurationManager.ConnectionStrings[C_DefaultContainerName].ConnectionString.Replace("iPlus_db", appName);
+            // Prefer the editable ConfigCurrentDir (vbiplus.config / exe config): it carries
+            // the tunnel connection string (Tunnel URL + delivered credentials) prepared by
+            // the login flow, while the global ConfigurationManager collection is read-only
+            // and may still hold the placeholder entry (docs/SqlTunnel-OptionB-Implementation.md §9.24).
+            ConnectionStringSettings setting = CommandLineHelper.ConfigCurrentDir?.ConnectionStrings?.ConnectionStrings[C_DefaultContainerName];
+            if (setting == null)
+                setting = ConfigurationManager.ConnectionStrings?[C_DefaultContainerName];
+            if (setting == null)
+                throw new InvalidOperationException(
+                    $"No connection string '{C_DefaultContainerName}' configured (neither in ConfigurationManager nor ConfigCurrentDir).");
+            var connString = setting.ConnectionString.Replace("iPlus_db", appName);
             return ApplyTunnelUrl(connString);
         }
 
