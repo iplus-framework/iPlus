@@ -503,7 +503,12 @@ namespace gip.core.webservices
             }
 
             NetworkStream tcpStream = tcp.GetStream();
-            byte[] buffer = ArrayPool<byte>.Shared.Rent(16 * 1024);
+            // IMPORTANT: each direction needs its OWN buffer. The two pumps run
+            // concurrently; sharing one ArrayPool buffer corrupted TDS in both
+            // directions (observed 2026-10-14: Android/desktop WS path failed with
+            // "error during the pre-login handshake" while the browser shim worked).
+            byte[] wsBuffer = ArrayPool<byte>.Shared.Rent(16 * 1024);
+            byte[] tcpBuffer = ArrayPool<byte>.Shared.Rent(16 * 1024);
             try
             {
                 // Legacy path: the first message was TDS bytes, not the auth frame — forward it.
@@ -519,8 +524,8 @@ namespace gip.core.webservices
                     ArrayPool<byte>.Shared.Return(firstBuffer);
                 }
 
-                Task wsToTcp = PumpWebSocketToTcpAsync(webSocket, tcpStream, buffer);
-                Task tcpToWs = PumpTcpToWebSocketAsync(tcpStream, webSocket, buffer);
+                Task wsToTcp = PumpWebSocketToTcpAsync(webSocket, tcpStream, wsBuffer);
+                Task tcpToWs = PumpTcpToWebSocketAsync(tcpStream, webSocket, tcpBuffer);
 
                 await Task.WhenAny(wsToTcp, tcpToWs);
 
@@ -534,7 +539,8 @@ namespace gip.core.webservices
             }
             finally
             {
-                ArrayPool<byte>.Shared.Return(buffer);
+                ArrayPool<byte>.Shared.Return(wsBuffer);
+                ArrayPool<byte>.Shared.Return(tcpBuffer);
             }
         }
 

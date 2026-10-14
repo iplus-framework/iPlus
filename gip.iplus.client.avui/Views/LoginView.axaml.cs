@@ -150,12 +150,14 @@ public partial class LoginView : UserControl
     // injects the connection settings + login credentials programmatically and
     // presses Login automatically on startup.
     // =======================================================================
-    private const bool AutoLoginBypassEnabled = true; // TEMP: re-enabled to capture ConfigCurrentDir trace without debugger
+    private const bool AutoLoginBypassEnabled = false; // TEMP: agent-driven Android debugging
     private const string BypassDbSource = "sqltunnel";               // placeholder; relay config decides the real target
     private const string BypassDbName = "iPlusV5";
     private const string BypassDbUser = "gip";
     private const string BypassDbPassword = "netspirit";
-    private const string BypassTunnelUrl = "http://localhost:8751/sqltunnel-sync"; // HTTP sync shim, NOT ws://
+    // WebSocket transport (Android/desktop), NOT the HTTP sync shim
+    private const string BypassTunnelUrl = "ws://192.168.0.196:8751/sqltunnel"; 
+    //private const string BypassTunnelUrl = "http://localhost:8751/sqltunnel-sync"; 
     private const string BypassLoginUser = "superuser";              // iPlus login credentials
     private const string BypassLoginPassword = "superuser";          // adjust if different
     // true = mobile "hamburger" mode (MainSingleView/DUMainMobile);
@@ -207,6 +209,24 @@ public partial class LoginView : UserControl
             if (AutoLoginBypassEnabled)
             {
                 ApplyAutoLoginBypass();
+                // Apply connection settings (incl. tunnel token + Database.TunnelUrl)
+                // BEFORE any Database static init: ACRoot.SRoot access below triggers
+                // the Database static constructor which opens the global context — it
+                // must already carry the Tunnel URL or it fails with a DNS error that
+                // then stays cached in the type initializer.
+                UserSettings.UserName = BypassLoginUser;
+                UserSettings.Password = BypassLoginPassword;
+                try
+                {
+                    ApplyConnectionSettingsFromHelper();
+                }
+                catch (Exception exApply)
+                {
+                    var msg = exApply.Message;
+                    var inner = exApply.InnerException;
+                    while (inner != null) { msg += " Inner: " + inner.Message; inner = inner.InnerException; }
+                    Console.WriteLine($"LoginView: early ApplyConnectionSettingsFromHelper failed. {msg}\n{exApply}");
+                }
             }
             bool configured = HasDatabaseConnectionConfigured();
             Console.WriteLine($"LoginView: OnLoaded, database configured: {configured}");
@@ -760,6 +780,7 @@ public partial class LoginView : UserControl
             ? @"Integrated Security=False; Encrypt=False; data source={0}; initial catalog={1}; Trusted_Connection=False; persist security info=True; user id={2}; password={3}; application name=iPlus; multipleactiveresultsets=True"
             : @"Integrated Security=True; Encrypt=False; data source={0}; initial catalog={1}; application name=iPlus; multipleactiveresultsets=True");
         string connectionString = String.Format(connSettingsFormat, dbSource, dbName, dbUser, dbPass);
+        string tunnelUrlWithAuth = null;
 
         // SQL Tunnel (browser/WASM): when a tunnel URL is configured, the forked
         // Microsoft.Data.SqlClient routes the TDS stream over the WebSocket relay and the
@@ -787,6 +808,10 @@ public partial class LoginView : UserControl
             if (!String.IsNullOrEmpty(token))
                 tunnelWithAuth.Append("&authtoken=").Append(Uri.EscapeDataString(token));
             connectionString += "; Tunnel URL=" + tunnelWithAuth.ToString();
+            tunnelUrlWithAuth = tunnelWithAuth.ToString();
+            // NOTE: do NOT touch any Database static member here (including
+            // Database.TunnelUrl) — that would trigger the Database static constructor
+            // before the connection string below is registered in the config section.
         }
 
         var setting = new ConnectionStringSettings(
@@ -846,6 +871,17 @@ public partial class LoginView : UserControl
             }
         }
 
+        // NOTE: Database.ModifiedConnectionString / Database.ConnectionString now append
+        // Database.TunnelUrl (set above), so app-specific contexts (ACClassTaskQueue etc.)
+        // get the Tunnel URL even though the global ConfigurationManager collection is
+        // read-only on Android and cannot be registered here.
+
+        // Register the tunnel URL statically AFTER the config section entry exists:
+        // this is the first Database static touch and triggers the Database static
+        // constructor (global context) — the config must already be resolvable.
+        if (tunnelUrlWithAuth != null)
+            Database.TunnelUrl = tunnelUrlWithAuth;
+
         // Diagnostic probe: verify the connection string resolves and whether SqlClient
         // can open a connection at all on this platform. Uses the forked Microsoft.Data.SqlClient
         // (System.Data.SqlClient has no WebSocket tunnel support and no raw TCP on WASM).
@@ -884,34 +920,61 @@ public partial class LoginView : UserControl
     /// <summary>
     /// Stage 1: acquires an OAuth-style bearer token from the relay host's
     /// <c>POST /sqltunnel-auth/token</c> endpoint (v1 local issuer validating iPlus
-    /// credentials). Browser/WASM only — the acquisition is a synchronous XHR because
-    /// <see cref="ApplyConnectionSettingsFromHelper"/> is synchronous and runs on the WASM
-    /// main thread (async fetch would need the event loop). Returns null when no token
-    /// could be obtained (relay without RequireOAuth, offline, non-browser) — the tunnel
-    /// then works unauthenticated or fails server-side with a clear 401.
+    /// credentials). Browser/WASM uses a synchronous XHR (the JS event loop cannot be
+    /// blocked from .NET); all other platforms (Android/desktop — real threads) use a
+    /// synchronous HttpClient call. Returns null when no token could be obtained (relay
+    /// without RequireOAuth, offline) — the tunnel then works unauthenticated or fails
+    /// server-side with a clear 401.
     /// </summary>
     private static string TryAcquireTunnelToken(string tunnelUrl, string iPlusUser, string iPlusPassword)
     {
         try
         {
-            if (!OperatingSystem.IsBrowser() || String.IsNullOrEmpty(iPlusUser))
+            if (String.IsNullOrEmpty(iPlusUser))
                 return null;
 
-            Uri tokenUri = new Uri(new Uri(tunnelUrl), "/sqltunnel-auth/token");
+            // The token endpoint is plain HTTP(S). A ws(s):// Tunnel URL must be normalized,
+            // otherwise Android's HttpClient (java.net.URL) throws MalformedURLException
+            // "unknown protocol: ws".
+            string tokenBaseUrl = tunnelUrl;
+            if (tokenBaseUrl.StartsWith("ws://", StringComparison.OrdinalIgnoreCase))
+                tokenBaseUrl = "http://" + tokenBaseUrl.Substring(5);
+            else if (tokenBaseUrl.StartsWith("wss://", StringComparison.OrdinalIgnoreCase))
+                tokenBaseUrl = "https://" + tokenBaseUrl.Substring(6);
+            Uri tokenUri = new Uri(new Uri(tokenBaseUrl), "/sqltunnel-auth/token");
             // Manual JSON (no JsonSerializer.Serialize): reflection-based serialization is
             // disabled in the WASM runtime (JsonSerializerIsReflectionDisabled).
             // JsonEncodedText already includes the surrounding quotes.
             string body = "{\"username\":\"" + System.Text.Json.JsonEncodedText.Encode(iPlusUser ?? "") +
                           "\",\"password\":\"" + System.Text.Json.JsonEncodedText.Encode(iPlusPassword ?? "") + "\"}";
-            string result = SyncXhr("POST", tokenUri.ToString(), body);
-            using System.Text.Json.JsonDocument doc = System.Text.Json.JsonDocument.Parse(result);
-            int status = doc.RootElement.GetProperty("status").GetInt32();
+
+            string text;
+            int status;
+            if (OperatingSystem.IsBrowser())
+            {
+                string result = SyncXhr("POST", tokenUri.ToString(), body);
+                using System.Text.Json.JsonDocument doc = System.Text.Json.JsonDocument.Parse(result);
+                status = doc.RootElement.GetProperty("status").GetInt32();
+                text = doc.RootElement.GetProperty("text").GetString();
+            }
+            else
+            {
+                // Android/desktop: real threads exist, a blocking call is fine here
+                // (ApplyConnectionSettingsFromHelper is synchronous anyway).
+                using System.Net.Http.HttpClient httpClient = new System.Net.Http.HttpClient();
+                httpClient.Timeout = TimeSpan.FromSeconds(10);
+                using System.Net.Http.HttpResponseMessage response = httpClient.PostAsync(tokenUri,
+                    new System.Net.Http.StringContent(body, System.Text.Encoding.UTF8, "application/json")).GetAwaiter().GetResult();
+                status = (int)response.StatusCode;
+                text = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            }
+
             if (status != 200)
             {
                 Console.WriteLine($"LoginView: tunnel token acquisition failed with HTTP {status} (relay may not require OAuth).");
                 return null;
             }
-            using System.Text.Json.JsonDocument tokenDoc = System.Text.Json.JsonDocument.Parse(doc.RootElement.GetProperty("text").GetString());
+            using System.Text.Json.JsonDocument tokenDoc = System.Text.Json.JsonDocument.Parse(text);
             string token = tokenDoc.RootElement.GetProperty("token").GetString();
             Console.WriteLine("LoginView: tunnel token acquired.");
             return token;

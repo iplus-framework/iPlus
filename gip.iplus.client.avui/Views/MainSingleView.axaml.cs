@@ -321,7 +321,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
             caption = menuItem.UseACCaption ? menuItem.ACCaption : "";
         }
 
-        StartBusinessobject(acCommand.GetACUrl(), acCommand.ParameterList, caption);
+        StartBusinessobject(acCommand.GetACUrl(), acCommand.ParameterList, caption, ribbonVisibilityOff);
     }
 
     public List<Control> _VBDesignList = new List<Control>();
@@ -340,6 +340,11 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
 
     public void StartBusinessobject(string acUrl, ACValueList parameterList, string acCaption = "")
     {
+        StartBusinessobject(acUrl, parameterList, acCaption, false);
+    }
+
+    public void StartBusinessobject(string acUrl, ACValueList parameterList, string acCaption, bool ribbonVisibilityOff)
+    {
         if (ContextACObject != null)
         {
             if (acUrl.IndexOf('#') != -1)
@@ -351,6 +356,11 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
             }
             VBDesign vbDesign = new VBDesign();
             vbDesign.Name = String.Format("BSO{0}", VBDesignList.Count);
+            // Same semantics as the desktop VBRibbonBSODefault: when the ribbon/command
+            // bar is switched off for this BSO, the consumer can declare its own
+            // VBCommandBar (or VBRibbon) in the design XAML.
+            VBDockingManager.SetRibbonBarVisibility(vbDesign,
+                ribbonVisibilityOff ? Global.ControlModes.Hidden : Global.ControlModes.Enabled);
             if (!string.IsNullOrEmpty(acCaption))
             {
                 vbDesign.ACCaption = acCaption;

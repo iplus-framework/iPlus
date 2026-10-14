@@ -143,6 +143,24 @@ namespace gip.core.datamodel
 #endregion
 
 #region Public Static
+        /// <summary>
+        /// Optional SQL tunnel URL (e.g. "ws://host:port/sqltunnel") that is appended to every
+        /// resolved connection string when set. Used on platforms where ConfigurationManager
+        /// is read-only or the config section cannot carry the Tunnel URL keyword (Android).
+        /// Must be set before the first connection is opened (LoginView does this).
+        /// </summary>
+        [NotMapped]
+        public static string TunnelUrl { get; set; }
+
+        private static string ApplyTunnelUrl(string connString)
+        {
+            if (string.IsNullOrEmpty(connString) || string.IsNullOrEmpty(TunnelUrl))
+                return connString;
+            if (connString.IndexOf("Tunnel URL=", StringComparison.OrdinalIgnoreCase) >= 0)
+                return connString;
+            return connString + "; Tunnel URL=" + TunnelUrl;
+        }
+
         [NotMapped]
         public static string ConnectionString
         {
@@ -153,7 +171,7 @@ namespace gip.core.datamodel
                     try
                     {
                         ConnectionStringSettings setting = CommandLineHelper.ConfigCurrentDir.ConnectionStrings.ConnectionStrings[C_DefaultContainerName];
-                        return setting.ConnectionString;
+                        return ApplyTunnelUrl(setting.ConnectionString);
                     }
                     catch (Exception e)
                     {
@@ -166,7 +184,20 @@ namespace gip.core.datamodel
                     }
                 }
 
-                return ConfigurationManager.ConnectionStrings[C_DefaultContainerName].ConnectionString;
+                // The global collection may not contain the entry (Android: read-only,
+                // no app.config) — fall back to the ConfigCurrentDir section instead of
+                // throwing NullReferenceException.
+                var globalSetting = ConfigurationManager.ConnectionStrings?[C_DefaultContainerName];
+                if (globalSetting != null)
+                    return ApplyTunnelUrl(globalSetting.ConnectionString);
+
+                var fallbackConfig = CommandLineHelper.ConfigCurrentDir;
+                var fallbackSetting = fallbackConfig?.ConnectionStrings?.ConnectionStrings[C_DefaultContainerName];
+                if (fallbackSetting != null)
+                    return ApplyTunnelUrl(fallbackSetting.ConnectionString);
+
+                throw new InvalidOperationException(
+                    $"No connection string '{C_DefaultContainerName}' configured (neither in ConfigurationManager nor ConfigCurrentDir).");
             }
         }
 
@@ -178,7 +209,7 @@ namespace gip.core.datamodel
         public static string ModifiedConnectionString(string appName)
         {
             var connString = ConfigurationManager.ConnectionStrings[C_DefaultContainerName].ConnectionString.Replace("iPlus_db", appName);
-            return connString;
+            return ApplyTunnelUrl(connString);
         }
 
 
