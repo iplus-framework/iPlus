@@ -980,6 +980,14 @@ SQLTUNNEL_REQUIRE_OAUTH=1
 SQLTUNNEL_REQUIRE_IPLUSLOGIN=1
 ```
 
+**Config sources (2026-10-15):** all four Entra settings are now regular
+`ACPropertyConfig` properties on `PASqlTunnelHost` — `TokenIssuer`, `EntraTenantId`,
+`EntraAudience`, `EntraInstance` — readable/persistable in the iPlus database
+(project config) like `SqlUser`/`SqlPassword`. The env vars above remain as
+fallbacks when the config value is empty (`EntraInstance` defaults to
+`https://login.microsoftonline.com`). Precedence: **database config → env var →
+built-in default**.
+
 **Relay-side details (all fixed & verified 2026-10-14):**
 
 1. **JWKS URL**: per-tenant `https://login.microsoftonline.com/{tid}/discovery/v2.0/keys`
@@ -1155,3 +1163,79 @@ instance handlers run (the window would already be closed).
 **Verified end-to-end 2026-10-14:** desktop login over the tunnel with Entra device
 code + credential delivery; connection is noticeably faster than direct SQL (no
 TLS-wrapped login per connection, warm relay backend pool).
+
+### 9.26 Browser/WASM Entra + async apply — IMPLEMENTED & VERIFIED (2026-10-15)
+
+**Problem (first WASM test):** after pressing Login the client failed with
+`TypeInitializationException ... No connection string 'iPlusV5_Entities' configured
+(neither in ConfigurationManager nor ConfigCurrentDir)`. Root cause: the App
+LoginStarted handler ran the **synchronous** `ApplyConnectionSettingsFromHelper` on the
+WASM UI thread; the async core awaited the credential-delivery HttpClient call, which
+can never complete on the single-threaded WASM runtime → registration never finished →
+the Database static ctor found no connection string.
+
+**Fix — the apply is now async end-to-end and deferred on WASM:**
+
+- `ApplyConnectionSettingsCoreAsync()` — await-based core (token acquisition, credential
+  delivery, registration). `ApplyConnectionSettingsFromHelper()` remains as a blocking
+  wrapper for real-thread platforms (Android/desktop) only.
+- `TryAcquireEntraTokenDeviceCodeAsync` / `TryRefreshEntraTokenAsync` — await-based
+  RFC 8628 device-code flow (no Thread.Sleep): works on WASM; the user completes sign-in
+  on a SECOND device (the app itself is the browser — no Process.Start there).
+- `TryApplySqlCredentialsFromRelayAsync` — await-based credential delivery returning the
+  rewritten connection string (async methods cannot take ref parameters); the sync
+  version is a wrapper for the desktop `PrepareTunnelConnectionFromConfig` path.
+- `ButtonLogin_Click` defers the apply (and completes the login-result TCS after it)
+  when Entra is configured **or** the platform is Browser/WASM.
+- The App LoginStarted handler skips the sync apply on Browser/WASM entirely.
+
+**Verified end-to-end 2026-10-15 (Playwright, local-issuer mode):** token 200 →
+sqlcred 200 (credentials delivered) → TDS over `/sqltunnel-sync` shim (2800+ requests)
+→ iPlus login superuser → main view with menu loaded from the DB.
+
+**Note:** on WASM the Entra keys must come from the settings store (SettingsGrid /
+persisted settings) — there is no App.config, so the `<appSettings>` fallback does not
+apply. The encrypted token cache works (EntraTokenProtector `plain:` prefix on WASM).
+
+### 9.27 WASM Entra end-to-end verified + token-cache persistence fixes (2026-10-15)
+
+**Status: IMPLEMENTED & VERIFIED end-to-end on Browser/WASM (device-code flow).**
+
+**Relay fixes (PASqlTunnelHost):**
+
+1. **Empty-user waiver**: the browser sync shim always serializes `"user":""` in
+   the `/sqltunnel-sync/session` body (and the fork's auth frame always carries
+   `"user":""` when no iPlus credentials are configured). An EMPTY user now counts
+   as "absent" in both stage-2 checks — otherwise Entra mode (JWT-only) always
+   failed with `iPlus login failed for user ''`. `RequireIPlusLogin` still enforces
+   credentials when set.
+2. **Entra config from database**: `TokenIssuer`, `EntraTenantId`, `EntraAudience`,
+   `EntraInstance` are now `ACPropertyConfig` properties (database config like
+   `SqlUser`/`SqlPassword`), with the `SQLTUNNEL_*` env vars as fallbacks.
+
+**Client fixes (LoginView, WASM token cache):**
+
+1. **`JsonSerializerIsReflectionDisabled`**: the WASM build runs with reflection-
+   based System.Text.Json disabled — `JsonSerializer.Serialize/Deserialize` threw
+   (silently swallowed) in `SaveEntraTokenCache`. The cache JSON is now built with
+   `JsonDocument` + `JsonEncodedText` (reflection-free), matching the read path.
+2. **Quoting**: `JsonEncodedText.Encode(...).ToString()` returns escaped text
+   WITHOUT surrounding quotes — values must be wrapped in `"` manually.
+3. **Corrupt-entry resilience**: a legacy/corrupt cache entry no longer aborts the
+   save — it is discarded and the store is rebuilt.
+4. **UI-thread save**: `SaveSettingsOnUiThread()` marshals `SaveSettings` to the
+   Avalonia UI thread on browser (the localStorage `[JSImport]` bridge is
+   main-thread only; the token cache is written from the deferred background
+   apply task).
+
+**Verified end-to-end 2026-10-15 (Playwright, Entra issuer mode):** device-code
+sign-in via the relay's `/sqltunnel-entra-proxy` (CORS) → JWT validated by the
+relay (v1 issuer `sts.windows.net`, audience = client id) → sqlcred 200 → TDS
+over the sync shim → iPlus login → main view. Token cache persists in
+localStorage (`plain:` prefix) and survives reloads; the next login within the
+token's 1 h lifetime signs in silently without the device-code MessageBox.
+
+**Note:** the `{clientId}/.default` scope returns a v1 token WITHOUT a refresh
+token — after expiry a new interactive sign-in is required. Adding
+`offline_access` to the configured `EntraScope` enables the silent
+refresh-token path (`TryRefreshEntraTokenAsync`).

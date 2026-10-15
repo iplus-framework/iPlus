@@ -281,9 +281,10 @@ public partial class App : Application
 
                 // Browser/Android clients have no ConnectionStrings.config: inject the
                 // connection settings entered in the SettingsGrid when the user presses Login.
-                // Skipped when the LoginView defers the apply to a background thread (Entra
-                // device-code flow — it blocks for minutes and must not run on the UI thread).
-                _LoginView.LoginStarted += (s, e) => { if (!LoginView.EntraApplyDeferred) _LoginView.ApplyConnectionSettingsFromHelper(); };
+                // Skipped when the LoginView defers the apply (Entra device-code flow, or
+                // Browser/WASM — the async core must not run via the blocking sync wrapper
+                // on the single-threaded WASM runtime); the deferred path handles it.
+                _LoginView.LoginStarted += (s, e) => { if (!LoginView.EntraApplyDeferred && !OperatingSystem.IsBrowser()) _LoginView.ApplyConnectionSettingsFromHelper(); };
 
                 rootControl.Content = _LoginView;
                 singleViewPlatform.MainView = rootControl;

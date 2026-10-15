@@ -166,8 +166,8 @@ public partial class LoginView : UserControl
     private const string BypassDbUser = "gip";
     private const string BypassDbPassword = "netspirit";
     // WebSocket transport (Android/desktop), NOT the HTTP sync shim
-    private const string BypassTunnelUrl = "ws://192.168.10.4:8751/sqltunnel";
-    //private const string BypassTunnelUrl = "http://localhost:8751/sqltunnel-sync"; 
+    //private const string BypassTunnelUrl = "ws://192.168.10.4:8751/sqltunnel";
+    private const string BypassTunnelUrl = "http://localhost:8751/sqltunnel-sync"; 
     private const string BypassLoginUser = "superuser";              // iPlus login credentials
     private const string BypassLoginPassword = "superuser";          // adjust if different
     // Entra ID stage 1 (device-code flow). When BypassEntraClientId is set, the tunnel
@@ -241,7 +241,13 @@ public partial class LoginView : UserControl
                 UserSettings.Password = BypassLoginPassword;
                 try
                 {
-                    ApplyConnectionSettingsFromHelper();
+                    // Browser/WASM: fire the async core (the sync wrapper would deadlock the
+                    // single-threaded runtime on the awaited credential delivery). The
+                    // deferred apply in ButtonLogin_Click below re-runs it idempotently.
+                    if (OperatingSystem.IsBrowser())
+                        _ = ApplyConnectionSettingsCoreAsync();
+                    else
+                        ApplyConnectionSettingsFromHelper();
                 }
                 catch (Exception exApply)
                 {
@@ -253,6 +259,25 @@ public partial class LoginView : UserControl
             }
             bool configured = HasDatabaseConnectionConfigured();
             Console.WriteLine($"LoginView: OnLoaded, database configured: {configured}");
+            // TEMPORARY diagnostics: persistence self-test (remove with the cleanup).
+            if (OperatingSystem.IsBrowser())
+            {
+                try
+                {
+                    ACValueItem testItem = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == "PersistTest").FirstOrDefault();
+                    if (testItem == null)
+                        CommandLineHelper.Settings.Add(new ACValueItem("PersistTest", "saved@" + DateTime.UtcNow.ToString("HH:mm:ss"), null));
+                    else
+                        testItem.Value = "saved@" + DateTime.UtcNow.ToString("HH:mm:ss");
+                    SaveSettingsOnUiThread();
+                    string readBack = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == "PersistTest").FirstOrDefault()?.Value as string;
+                    Console.WriteLine($"LoginView: PersistTest in-memory after save: '{readBack}'");
+                }
+                catch (Exception exTest)
+                {
+                    Console.WriteLine($"LoginView: PersistTest failed. {exTest.GetType().Name}: {exTest.Message}");
+                }
+            }
             if (configured)
             {
                 _ = DoLoginActionAsync();
@@ -496,10 +521,12 @@ public partial class LoginView : UserControl
 
         // Entra device-code flow: the token acquisition blocks (RFC 8628 polling loop with
         // Thread.Sleep) and must NOT run on the UI thread — Android kills the app with
-        // "not responding" after ~5 s. Defer the whole apply (token + config registration)
-        // to a background thread and complete the login-result handshake when it finishes.
+        // "not responding" after ~5 s. Browser/WASM: the apply must also be deferred —
+        // the runtime is single-threaded, so the sync wrapper (blocking waits inside the
+        // async core) would deadlock the JS event loop. Defer the whole apply (token +
+        // config registration) and complete the login-result handshake when it finishes.
         // The device code is shown to the user in a MessageBox (see onUserCode below).
-        if (!EntraApplyDeferred && EntraDeviceCodeFlowConfigured())
+        if (!EntraApplyDeferred && (EntraDeviceCodeFlowConfigured() || OperatingSystem.IsBrowser()))
         {
             EntraApplyDeferred = true;
             Console.WriteLine("LoginView: deferring connection apply (Entra device-code flow) to background thread.");
@@ -507,7 +534,9 @@ public partial class LoginView : UserControl
             {
                 try
                 {
-                    ApplyConnectionSettingsFromHelper();
+                    // Async core: on Browser/WASM the runtime is single-threaded — blocking
+                    // waits (sync wrapper) would deadlock; awaits keep the JS event loop free.
+                    await ApplyConnectionSettingsCoreAsync();
                 }
                 catch (Exception exApply)
                 {
@@ -554,8 +583,9 @@ public partial class LoginView : UserControl
     /// </summary>
     private static bool EntraDeviceCodeFlowConfigured()
     {
-        if (OperatingSystem.IsBrowser())
-            return false;
+        // Browser/WASM supported since §9.26: the async device-code flow (await-based)
+        // works on the single-threaded WASM runtime; the user code is shown in a MessageBox
+        // and the user completes sign-in on a second device.
         string? entraClientId = CommandLineHelper.Settings
             .Where(c => c.ACCaptionTranslation == "EntraClientId").FirstOrDefault()?.Value as string;
         return !String.IsNullOrWhiteSpace(entraClientId);
@@ -685,6 +715,8 @@ public partial class LoginView : UserControl
         DatabaseUser.Text = settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseUser)).FirstOrDefault()?.Value as string;
         DatabasePassword.Text = settings.Where(c => c.ACCaptionTranslation == nameof(DatabasePassword)).FirstOrDefault()?.Value as string;
         DatabaseTunnelUrl.Text = settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseTunnelUrl)).FirstOrDefault()?.Value as string;
+        EntraClientId.Text = settings.Where(c => c.ACCaptionTranslation == "EntraClientId").FirstOrDefault()?.Value as string;
+        EntraTenantId.Text = settings.Where(c => c.ACCaptionTranslation == "EntraTenantId").FirstOrDefault()?.Value as string;
         bool? singleViewEnabled = settings.Where(c => c.ACCaptionTranslation == nameof(MobileModeEnabled)).FirstOrDefault()?.Value as bool?;
         
         if (singleViewEnabled.HasValue)
@@ -775,6 +807,28 @@ public partial class LoginView : UserControl
             dbTunnelUrlVal.Value = DatabaseTunnelUrl.Text;
         }
 
+        ACValueItem entraClientIdVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == "EntraClientId").FirstOrDefault();
+        if (entraClientIdVal == null)
+        {
+            entraClientIdVal = new ACValueItem("EntraClientId", EntraClientId.Text, null);
+            CommandLineHelper.Settings.Add(entraClientIdVal);
+        }
+        else
+        {
+            entraClientIdVal.Value = EntraClientId.Text;
+        }
+
+        ACValueItem entraTenantIdVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == "EntraTenantId").FirstOrDefault();
+        if (entraTenantIdVal == null)
+        {
+            entraTenantIdVal = new ACValueItem("EntraTenantId", EntraTenantId.Text, null);
+            CommandLineHelper.Settings.Add(entraTenantIdVal);
+        }
+        else
+        {
+            entraTenantIdVal.Value = EntraTenantId.Text;
+        }
+
         ACValueItem singleViewVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(MobileModeEnabled)).FirstOrDefault();
         if (singleViewVal == null)
         {
@@ -831,7 +885,7 @@ public partial class LoginView : UserControl
             if (item != null)
             {
                 CommandLineHelper.Settings.Remove(item);
-                CommandLineHelper.SaveSettings();
+                SaveSettingsOnUiThread();
             }
             Console.WriteLine("LoginView: Entra token cache reset.");
         }
@@ -852,7 +906,24 @@ public partial class LoginView : UserControl
     /// <see cref="Database.ConnectionString"/> resolves them. Mirrors
     /// gip.iplus.client.avui.Android/MainActivity.LoginView_LoginStarted.
     /// </summary>
+    /// <summary>
+    /// Synchronous wrapper for <see cref="ApplyConnectionSettingsCoreAsync"/>. Safe on
+    /// platforms with real threads (Android/desktop). On Browser/WASM the caller MUST use
+    /// the async core (single-threaded runtime — blocking would deadlock); the App
+    /// LoginStarted handler already skips this wrapper when the Entra flow defers the
+    /// apply (EntraApplyDeferred).
+    /// </summary>
     public void ApplyConnectionSettingsFromHelper()
+    {
+        ApplyConnectionSettingsCoreAsync().GetAwaiter().GetResult();
+    }
+
+    /// <summary>
+    /// Async core of the connection apply. Await-based so it also runs on Browser/WASM
+    /// (single-threaded): the Entra device-code flow and the SQL credential delivery use
+    /// awaitable HttpClient calls instead of blocking waits.
+    /// </summary>
+    public async Task ApplyConnectionSettingsCoreAsync()
     {
         ACValueItemList settings = CommandLineHelper.Settings;
 
@@ -928,19 +999,20 @@ public partial class LoginView : UserControl
             if (!String.IsNullOrWhiteSpace(entraClientId))
             {
                 // Stage 1 via Microsoft Entra ID (real IdP): device-code flow — no MSAL
-                // dependency, works on Android/desktop. The relay must run with
-                // SQLTUNNEL_TOKEN_ISSUER=Entra and matching SQLTUNNEL_ENTRA_AUDIENCE.
+                // dependency, works on Android/desktop/browser (async core). The relay must
+                // run with SQLTUNNEL_TOKEN_ISSUER=Entra and matching SQLTUNNEL_ENTRA_AUDIENCE.
                 string? entraTenant = settings.Where(c => c.ACCaptionTranslation == "EntraTenantId").FirstOrDefault()?.Value as string;
                 string? entraScope = settings.Where(c => c.ACCaptionTranslation == "EntraScope").FirstOrDefault()?.Value as string;
                 if (String.IsNullOrWhiteSpace(entraTenant))
                     entraTenant = GetAppConfigValue("EntraTenantId");
                 if (String.IsNullOrWhiteSpace(entraScope))
                     entraScope = GetAppConfigValue("EntraScope");
-                token = TryAcquireEntraTokenDeviceCode(
+                token = await TryAcquireEntraTokenDeviceCodeAsync(
                     String.IsNullOrWhiteSpace(entraTenant) ? "organizations" : entraTenant.Trim(),
                     entraClientId.Trim(),
                     String.IsNullOrWhiteSpace(entraScope) ? entraClientId.Trim() + "/.default" : entraScope.Trim(),
-                    code => ShowEntraUserCode(code));
+                    code => ShowEntraUserCode(code),
+                    relayProxyBase: OperatingSystem.IsBrowser() ? TunnelUrlToHttpBase(tunnelUrl) : null);
             }
             else
             {
@@ -953,7 +1025,7 @@ public partial class LoginView : UserControl
             // server-side SQL login, authenticated clients fetch it here and replace the
             // placeholder credentials — no SQL password is stored in the client config.
             if (!String.IsNullOrEmpty(token))
-                TryApplySqlCredentialsFromRelay(tunnelUrl, token, ref connectionString);
+                connectionString = await TryApplySqlCredentialsFromRelayAsync(tunnelUrl, token, connectionString);
 
             var tunnelWithAuth = new System.Text.StringBuilder(tunnelUrl);
             if (!String.IsNullOrWhiteSpace(entraClientId))
@@ -1004,6 +1076,8 @@ public partial class LoginView : UserControl
         }
 
         var existingConnection = config?.ConnectionStrings?.ConnectionStrings[Database.C_DefaultContainerName];
+
+        Console.WriteLine($"LoginView: registering connection string — config={(config != null ? $"HasFile={config.HasFile}" : "null")}, existing={(existingConnection != null)}");
 
         if (existingConnection != null)
         {
@@ -1231,6 +1305,25 @@ public partial class LoginView : UserControl
     }
 
     /// <summary>
+    /// Normalizes a ws(s):// Tunnel URL into the http(s):// base of the relay host
+    /// (for the token/credential/Entra-proxy endpoints).
+    /// </summary>
+    private static string TunnelUrlToHttpBase(string tunnelUrl)
+    {
+        string baseUrl = tunnelUrl;
+        if (baseUrl.StartsWith("ws://", StringComparison.OrdinalIgnoreCase))
+            baseUrl = "http://" + baseUrl.Substring(5);
+        else if (baseUrl.StartsWith("wss://", StringComparison.OrdinalIgnoreCase))
+            baseUrl = "https://" + baseUrl.Substring(6);
+        int q = baseUrl.IndexOf('?');
+        if (q >= 0)
+            baseUrl = baseUrl.Substring(0, q);
+        // Authority only: the Tunnel URL may carry a path (e.g. /sqltunnel-sync) — the
+        // endpoint paths are appended to the host root, not to that path.
+        return new Uri(baseUrl).GetLeftPart(UriPartial.Authority).TrimEnd('/');
+    }
+
+    /// <summary>
     /// Reads a value from &lt;appSettings&gt; in App.config (desktop clients). Returns
     /// null when the key is absent or ConfigurationManager is unavailable (WASM).
     /// </summary>
@@ -1252,8 +1345,20 @@ public partial class LoginView : UserControl
     /// replaces the user id/password in the connection string, so no SQL password is
     /// stored client-side. No-op when the relay has no delivery configured (404) or the
     /// request fails — the connection string keeps its configured credentials then.
+    /// Synchronous wrapper — only call from platforms with real threads (desktop);
+    /// Browser/WASM must use <see cref="TryApplySqlCredentialsFromRelayAsync"/>.
     /// </summary>
     private static void TryApplySqlCredentialsFromRelay(string tunnelUrl, string token, ref string connectionString)
+    {
+        connectionString = TryApplySqlCredentialsFromRelayAsync(tunnelUrl, token, connectionString).GetAwaiter().GetResult();
+    }
+
+    /// <summary>
+    /// Await-based credential delivery — safe on Browser/WASM (single-threaded runtime).
+    /// Returns the (possibly rewritten) connection string; unchanged when delivery is
+    /// unavailable or fails.
+    /// </summary>
+    private static async Task<string> TryApplySqlCredentialsFromRelayAsync(string tunnelUrl, string token, string connectionString)
     {
         try
         {
@@ -1268,18 +1373,18 @@ public partial class LoginView : UserControl
             http.Timeout = TimeSpan.FromSeconds(10);
             using var req = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Get, credUri);
             req.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            using var resp = http.SendAsync(req).GetAwaiter().GetResult();
+            using var resp = await http.SendAsync(req);
             if ((int)resp.StatusCode != 200)
             {
                 Console.WriteLine($"LoginView: relay has no SQL credential delivery (HTTP {(int)resp.StatusCode}) — keeping configured credentials.");
-                return;
+                return connectionString;
             }
-            string json = resp.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            string json = await resp.Content.ReadAsStringAsync();
             using System.Text.Json.JsonDocument doc = System.Text.Json.JsonDocument.Parse(json);
             string user = doc.RootElement.TryGetProperty("user", out var u) && u.ValueKind == System.Text.Json.JsonValueKind.String ? u.GetString() : null;
             string password = doc.RootElement.TryGetProperty("password", out var p) && p.ValueKind == System.Text.Json.JsonValueKind.String ? p.GetString() : null;
             if (String.IsNullOrEmpty(user) || password == null)
-                return;
+                return connectionString;
 
             // Rewrite user id/password and force SQL auth (Integrated Security would
             // make SqlClient ignore the injected credentials and attempt SSPI).
@@ -1291,10 +1396,12 @@ public partial class LoginView : UserControl
             connectionString = System.Text.RegularExpressions.Regex.Replace(
                 connectionString, @"(?i)Integrated\s+Security\s*=\s*True", "Integrated Security=False");
             Console.WriteLine($"LoginView: SQL credentials delivered by relay for user '{user}'.");
+            return connectionString;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"LoginView: could not fetch SQL credentials from relay. {ex.GetType().Name}: {ex.Message}");
+            return connectionString;
         }
     }
 
@@ -1434,31 +1541,70 @@ public partial class LoginView : UserControl
     {
         try
         {
-            // Read the existing store so multiple keys can coexist.
+            // Read the existing store so multiple keys can coexist. NOTE: built with raw
+            // JsonDocument/string concatenation — reflection-based JsonSerializer is
+            // DISABLED in the WASM build (JsonSerializerIsReflectionDisabled).
             string existing = CommandLineHelper.Settings
                 .Where(c => c.ACCaptionTranslation == EntraTokenCacheSetting).FirstOrDefault()?.Value as string;
-            var root = String.IsNullOrEmpty(existing)
-                ? new Dictionary<string, object>()
-                : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(existing);
-            root[cacheKey] = new Dictionary<string, object>
+            var entries = new List<string>();
+            if (!String.IsNullOrEmpty(existing))
             {
-                ["accessToken"] = accessToken,
-                ["refreshToken"] = refreshToken,
-                ["expiresOn"] = expiresOnUnix,
-            };
-            string json = System.Text.Json.JsonSerializer.Serialize(root);
+                string plain = EntraTokenProtector.Unprotect(existing);
+                if (!String.IsNullOrEmpty(plain))
+                {
+                    // A corrupt/legacy entry must not abort the save — start fresh then.
+                    try
+                    {
+                        using System.Text.Json.JsonDocument doc = System.Text.Json.JsonDocument.Parse(plain);
+                        foreach (System.Text.Json.JsonProperty prop in doc.RootElement.EnumerateObject())
+                        {
+                            if (prop.Name == cacheKey)
+                                continue;
+                            entries.Add(Quote(prop.Name) + ":" + prop.Value.GetRawText());
+                        }
+                    }
+                    catch (System.Text.Json.JsonException)
+                    {
+                        entries.Clear();
+                    }
+                }
+            }
+            // JsonEncodedText.Encode escapes for JSON but does NOT add the surrounding
+            // quotes — wrap manually.
+            string Quote(string s) => "\"" + System.Text.Json.JsonEncodedText.Encode(s ?? "").ToString() + "\"";
+            string newEntry = "{\"accessToken\":" + Quote(accessToken) +
+                              ",\"refreshToken\":" + Quote(refreshToken) +
+                              ",\"expiresOn\":" + expiresOnUnix.ToString(System.Globalization.CultureInfo.InvariantCulture) + "}";
+            entries.Add(Quote(cacheKey) + ":" + newEntry);
+            string json = "{" + String.Join(",", entries) + "}";
             json = EntraTokenProtector.Protect(json);
             ACValueItem item = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == EntraTokenCacheSetting).FirstOrDefault();
             if (item == null)
                 CommandLineHelper.Settings.Add(new ACValueItem(EntraTokenCacheSetting, json, null));
             else
                 item.Value = json;
-            CommandLineHelper.SaveSettings();
+            SaveSettingsOnUiThread();
+            Console.WriteLine("LoginView: Entra token cache persisted.");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"LoginView: could not persist Entra token cache. {ex.GetType().Name}: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Persists the settings on the UI thread when running in the browser: the
+    /// localStorage bridge (<see cref="BrowserSettingsStorage"/>) is a JS interop
+    /// ([JSImport]) call, which is only allowed on the browser's main thread — the
+    /// token cache is written from the deferred background apply task, where a direct
+    /// call would throw and be silently swallowed by SaveSettings' catch-all.
+    /// </summary>
+    private static void SaveSettingsOnUiThread()
+    {
+        if (OperatingSystem.IsBrowser())
+            Dispatcher.UIThread.Post(() => CommandLineHelper.SaveSettings());
+        else
+            CommandLineHelper.SaveSettings();
     }
 
     /// <summary>
@@ -1472,6 +1618,184 @@ public partial class LoginView : UserControl
             + "2. Enter the code:\n\n    " + userCode + "\n\n"
             + "The login continues automatically after you approve.";
         Dispatcher.UIThread.Post(() => AsyncMessageBox.BeginMessageBoxAsync(message, "Entra ID Sign-in", ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Info));
+    }
+
+    /// <summary>
+    /// Await-based variant of <see cref="TryAcquireEntraTokenDeviceCode"/> — works on ALL
+    /// platforms including Browser/WASM (§9.26): no Thread.Sleep polling and no blocking
+    /// waits, so the single-threaded WASM runtime stays responsive while the user completes
+    /// the device-code sign-in on a second device. Same cache semantics (in-process +
+    /// persistent encrypted cache + silent refresh).
+    /// </summary>
+    private static async Task<string> TryAcquireEntraTokenDeviceCodeAsync(string tenant, string clientId, string scope, Action<string> onUserCode = null, string relayProxyBase = null)
+    {
+        string cacheKey = tenant + "|" + clientId + "|" + scope;
+        lock (_EntraTokenCacheLock)
+        {
+            if (_EntraTokenCache.TryGetValue(cacheKey, out string cached))
+                return cached;
+        }
+        try
+        {
+            string instance = "https://login.microsoftonline.com";
+            // Browser/WASM: login.microsoftonline.com sends no CORS headers on the
+            // device-code/token endpoints — the browser blocks direct fetches. Route the
+            // calls through the relay's /sqltunnel-entra-proxy (docs §9.26);
+            // relayProxyBase is the http(s):// base of the relay from the Tunnel URL.
+            string entraBaseUrl = relayProxyBase != null
+                ? relayProxyBase.TrimEnd('/') + "/sqltunnel-entra-proxy"
+                : instance;
+            using System.Net.Http.HttpClient http = new System.Net.Http.HttpClient();
+            http.Timeout = TimeSpan.FromSeconds(30);
+
+            // 1. Persisted cache: a still-valid access token is reused silently (no UI).
+            EntraTokenCacheEntry persisted = LoadEntraTokenCache(cacheKey);
+            if (persisted != null && !String.IsNullOrEmpty(persisted.AccessToken)
+                && persisted.ExpiresOnUnix > DateTimeOffset.UtcNow.AddMinutes(5).ToUnixTimeSeconds())
+            {
+                Console.WriteLine("LoginView: Entra token reused from persistent cache.");
+                lock (_EntraTokenCacheLock) { _EntraTokenCache[cacheKey] = persisted.AccessToken; }
+                return persisted.AccessToken;
+            }
+
+            // 2. Expired access token but refresh token present: silent refresh (no UI).
+            if (persisted != null && !String.IsNullOrEmpty(persisted.RefreshToken))
+            {
+                string refreshed = await TryRefreshEntraTokenAsync(http, instance, tenant, clientId, scope, persisted.RefreshToken, cacheKey, relayProxyBase);
+                if (refreshed != null)
+                    return refreshed;
+                Console.WriteLine("LoginView: silent refresh failed — falling back to device-code sign-in.");
+            }
+
+            // 3. Interactive device-code flow (RFC 8628), await-based polling.
+            using System.Net.Http.HttpResponseMessage deviceCodeResp = await http.PostAsync($"{entraBaseUrl}/{tenant}/oauth2/v2.0/devicecode",
+                new System.Net.Http.FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["client_id"] = clientId,
+                    ["scope"] = scope,
+                }));
+            if ((int)deviceCodeResp.StatusCode != 200)
+            {
+                Console.WriteLine($"LoginView: Entra device-code request failed: HTTP {(int)deviceCodeResp.StatusCode} {await deviceCodeResp.Content.ReadAsStringAsync()}");
+                return null;
+            }
+            using System.Text.Json.JsonDocument dc = System.Text.Json.JsonDocument.Parse(await deviceCodeResp.Content.ReadAsStringAsync());
+            string deviceCode = dc.RootElement.GetProperty("device_code").GetString();
+            string userCode = dc.RootElement.GetProperty("user_code").GetString();
+            string verificationUri = dc.RootElement.GetProperty("verification_uri").GetString();
+            int interval = dc.RootElement.TryGetProperty("interval", out System.Text.Json.JsonElement iv) && iv.TryGetInt32(out int ivV) ? ivV : 5;
+            int expires_in = dc.RootElement.TryGetProperty("expires_in", out System.Text.Json.JsonElement ex) && ex.TryGetInt32(out int exV) ? exV : 900;
+
+            Console.WriteLine("============================================================");
+            Console.WriteLine("LoginView: Entra ID sign-in required.");
+            Console.WriteLine($"LoginView: Open {verificationUri} and enter code: {userCode}");
+            Console.WriteLine("============================================================");
+            try
+            {
+                onUserCode?.Invoke(userCode);
+            }
+            catch { }
+            if (!OperatingSystem.IsBrowser())
+            {
+                // Best effort: open the browser automatically (desktop/Android). On WASM the
+                // app IS the browser — the user completes sign-in on a second device.
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(verificationUri) { UseShellExecute = true });
+                }
+                catch { }
+            }
+
+            DateTime deadline = DateTime.UtcNow + TimeSpan.FromSeconds(expires_in);
+            while (DateTime.UtcNow < deadline)
+            {
+                await Task.Delay(interval * 1000);
+                using System.Net.Http.HttpResponseMessage poll = await http.PostAsync($"{entraBaseUrl}/{tenant}/oauth2/v2.0/token",
+                    new System.Net.Http.FormUrlEncodedContent(new Dictionary<string, string>
+                    {
+                        ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
+                        ["client_id"] = clientId,
+                        ["device_code"] = deviceCode,
+                    }));
+                string body = await poll.Content.ReadAsStringAsync();
+                if ((int)poll.StatusCode == 200)
+                {
+                    using System.Text.Json.JsonDocument tok = System.Text.Json.JsonDocument.Parse(body);
+                    string accessToken = tok.RootElement.GetProperty("access_token").GetString();
+                    string refreshToken = tok.RootElement.TryGetProperty("refresh_token", out System.Text.Json.JsonElement rt) && rt.ValueKind == System.Text.Json.JsonValueKind.String ? rt.GetString() : null;
+                    long expiresOn = DateTimeOffset.UtcNow.AddSeconds(
+                        tok.RootElement.TryGetProperty("expires_in", out System.Text.Json.JsonElement ei) && ei.TryGetInt32(out int eiV) ? eiV : 3600).ToUnixTimeSeconds();
+                    Console.WriteLine("LoginView: Entra token acquired.");
+                    lock (_EntraTokenCacheLock)
+                    {
+                        _EntraTokenCache[cacheKey] = accessToken;
+                    }
+                    SaveEntraTokenCache(cacheKey, accessToken, refreshToken, expiresOn);
+                    return accessToken;
+                }
+                using System.Text.Json.JsonDocument err = System.Text.Json.JsonDocument.Parse(body);
+                string error = err.RootElement.TryGetProperty("error", out System.Text.Json.JsonElement er) && er.ValueKind == System.Text.Json.JsonValueKind.String ? er.GetString() : null;
+                if (error == "authorization_pending" || error == "slow_down")
+                    continue;
+                Console.WriteLine($"LoginView: Entra token polling failed: {error}");
+                return null;
+            }
+            Console.WriteLine("LoginView: Entra device-code flow timed out.");
+            return null;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"LoginView: Entra token acquisition failed. {ex.GetType().Name}: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Await-based silent token refresh via the OAuth 2.0 refresh_token grant (no user
+    /// interaction). Updates the persistent cache on success; returns null on failure
+    /// (caller falls back to the interactive device-code flow).
+    /// </summary>
+    private static async Task<string> TryRefreshEntraTokenAsync(System.Net.Http.HttpClient http, string instance, string tenant,
+        string clientId, string scope, string refreshToken, string cacheKey, string relayProxyBase = null)
+    {
+        try
+        {
+            string entraBaseUrl = relayProxyBase != null
+                ? relayProxyBase.TrimEnd('/') + "/sqltunnel-entra-proxy"
+                : instance;
+            using System.Net.Http.HttpResponseMessage resp = await http.PostAsync($"{entraBaseUrl}/{tenant}/oauth2/v2.0/token",
+                new System.Net.Http.FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["grant_type"] = "refresh_token",
+                    ["client_id"] = clientId,
+                    ["refresh_token"] = refreshToken,
+                    ["scope"] = scope,
+                }));
+            string body = await resp.Content.ReadAsStringAsync();
+            if ((int)resp.StatusCode != 200)
+            {
+                Console.WriteLine($"LoginView: Entra refresh failed: HTTP {(int)resp.StatusCode}");
+                return null;
+            }
+            using System.Text.Json.JsonDocument tok = System.Text.Json.JsonDocument.Parse(body);
+            string accessToken = tok.RootElement.GetProperty("access_token").GetString();
+            // Entra may rotate the refresh token — store the new one when present.
+            string newRefresh = tok.RootElement.TryGetProperty("refresh_token", out System.Text.Json.JsonElement rt) && rt.ValueKind == System.Text.Json.JsonValueKind.String ? rt.GetString() : refreshToken;
+            long expiresOn = DateTimeOffset.UtcNow.AddSeconds(
+                tok.RootElement.TryGetProperty("expires_in", out System.Text.Json.JsonElement ei) && ei.TryGetInt32(out int eiV) ? eiV : 3600).ToUnixTimeSeconds();
+            Console.WriteLine("LoginView: Entra token silently refreshed.");
+            lock (_EntraTokenCacheLock)
+            {
+                _EntraTokenCache[cacheKey] = accessToken;
+            }
+            SaveEntraTokenCache(cacheKey, accessToken, newRefresh, expiresOn);
+            return accessToken;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"LoginView: Entra refresh failed. {ex.GetType().Name}: {ex.Message}");
+            return null;
+        }
     }
 
     /// <summary>

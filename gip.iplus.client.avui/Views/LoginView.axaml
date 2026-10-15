@@ -149,6 +149,10 @@
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="10"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="10*" />
@@ -174,9 +178,15 @@
           <TextBlock VerticalAlignment="Bottom" Grid.Row="10" Grid.Column="1"  Name="DatabaseTunnelUrlCaption">Tunnel URL (optional, ws://host:port/sqltunnel)</TextBlock>
           <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="11" Grid.Column="1" Name="DatabaseTunnelUrl" />
 
-          <CheckBox VerticalAlignment="Bottom" Grid.Row="13" Grid.Column="1" Name="MobileModeEnabled" Content="Mobile mode (hamburger menu). Unchecked: desktop menu" Margin="0,5,0,0" ToolTip.Tip="Checked: touch-optimized mobile designs (DUMainMobile). Unchecked: desktop layout with menu bar (DUMain), like the Windows client."/>
+          <TextBlock VerticalAlignment="Bottom" Grid.Row="12" Grid.Column="1" Name="EntraClientIdCaption">Entra Client ID (optional, enables device-code sign-in)</TextBlock>
+          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="13" Grid.Column="1" Name="EntraClientId" />
 
-          <Button VerticalAlignment="Bottom" Grid.Row="14" Grid.Column="1" Name="ButtonResetEntraToken" Click="ButtonResetEntraToken_Click" HorizontalAlignment="Left" Padding="10,4,10,4" ToolTip.Tip="Removes the stored Entra ID sign-in (access + refresh token). The next login asks for a new device code.">Reset Entra sign-in</Button>
+          <TextBlock VerticalAlignment="Bottom" Grid.Row="14" Grid.Column="1" Name="EntraTenantIdCaption">Entra Tenant (optional, e.g. organizations or tenant GUID)</TextBlock>
+          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="15" Grid.Column="1" Name="EntraTenantId" />
+
+          <CheckBox VerticalAlignment="Bottom" Grid.Row="17" Grid.Column="1" Name="MobileModeEnabled" Content="Mobile mode (hamburger menu). Unchecked: desktop menu" Margin="0,5,0,0" ToolTip.Tip="Checked: touch-optimized mobile designs (DUMainMobile). Unchecked: desktop layout with menu bar (DUMain), like the Windows client."/>
+
+          <Button VerticalAlignment="Bottom" Grid.Row="18" Grid.Column="1" Name="ButtonResetEntraToken" Click="ButtonResetEntraToken_Click" HorizontalAlignment="Left" Padding="10,4,10,4" ToolTip.Tip="Removes the stored Entra ID sign-in (access + refresh token). The next login asks for a new device code.">Reset Entra sign-in</Button>
 
         </Grid>
 

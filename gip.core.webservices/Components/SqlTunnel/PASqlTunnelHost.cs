@@ -52,6 +52,10 @@ namespace gip.core.webservices
             _RequireIPlusLogin = new ACPropertyConfigValue<bool>(this, "RequireIPlusLogin", false);
             _SqlUser = new ACPropertyConfigValue<string>(this, "SqlUser", "");
             _SqlPassword = new ACPropertyConfigValue<string>(this, "SqlPassword", "");
+            _TokenIssuer = new ACPropertyConfigValue<string>(this, "TokenIssuer", "");
+            _EntraTenant = new ACPropertyConfigValue<string>(this, "EntraTenant", "");
+            _EntraAudience = new ACPropertyConfigValue<string>(this, "EntraAudience", "");
+            _EntraInstance = new ACPropertyConfigValue<string>(this, "EntraInstance", "");
             // Command to enable http-Service:
             // >netsh http add urlacl url=http://+:ServicePort/ user="\Everyone"
         }
@@ -67,6 +71,10 @@ namespace gip.core.webservices
             _ = RequireIPlusLogin;
             _ = SqlUser;
             _ = SqlPassword;
+            _ = TokenIssuer;
+            _ = EntraTenantId;
+            _ = EntraAudience;
+            _ = EntraInstance;
             return result;
         }
 
@@ -222,7 +230,7 @@ namespace gip.core.webservices
         {
             if (String.IsNullOrEmpty(token))
                 return false;
-            if (UseEntraIssuer)
+            if (String.Equals(TokenIssuer, "Entra", StringComparison.OrdinalIgnoreCase))
                 return await ValidateEntraTokenAsync(token);
             if (_OAuthTokens.TryGetValue(token, out DateTime expiry))
             {
@@ -235,21 +243,77 @@ namespace gip.core.webservices
 
         #region Entra ID issuer (stage 1, real IdP — docs §9.21 / open question §6.1)
 
-        /// <summary>Issuer mode: "Local" (default, in-memory tokens) or "Entra" (JWT validation).</summary>
-        private static bool UseEntraIssuer =>
-            String.Equals(System.Environment.GetEnvironmentVariable("SQLTUNNEL_TOKEN_ISSUER"), "Entra", StringComparison.OrdinalIgnoreCase);
+        private ACPropertyConfigValue<string> _TokenIssuer;
+        /// <summary>
+        /// Issuer mode: "Local" (default, in-memory tokens) or "Entra" (JWT validation).
+        /// Env override: SQLTUNNEL_TOKEN_ISSUER.
+        /// </summary>
+        [ACPropertyConfig("en{'Token issuer mode'}de{'Token-Issuer-Modus'}")]
+        public string TokenIssuer
+        {
+            get
+            {
+                string v = _TokenIssuer.ValueT;
+                if (String.IsNullOrEmpty(v))
+                    v = System.Environment.GetEnvironmentVariable("SQLTUNNEL_TOKEN_ISSUER");
+                return v;
+            }
+            set => _TokenIssuer.ValueT = value;
+        }
 
-        /// <summary>Entra tenant: GUID or domain (e.g. contoso.onmicrosoft.com). "organizations" accepts any work/school tenant (multi-tenant app).</summary>
-        private static string EntraTenant =>
-            System.Environment.GetEnvironmentVariable("SQLTUNNEL_ENTRA_TENANT") ?? "organizations";
+        private ACPropertyConfigValue<string> _EntraTenant;
+        /// <summary>
+        /// Entra tenant: GUID or domain (e.g. contoso.onmicrosoft.com). "organizations"
+        /// accepts any work/school tenant (multi-tenant app). Env override: SQLTUNNEL_ENTRA_TENANT.
+        /// </summary>
+        [ACPropertyConfig("en{'Entra tenant'}de{'Entra-Mandant'}")]
+        public string EntraTenantId
+        {
+            get
+            {
+                string v = _EntraTenant.ValueT;
+                if (String.IsNullOrEmpty(v))
+                    v = System.Environment.GetEnvironmentVariable("SQLTUNNEL_ENTRA_TENANT");
+                return v;
+            }
+            set => _EntraTenant.ValueT = value;
+        }
 
-        /// <summary>Expected "aud" claim: the app registration's Client ID or its api:// URI.</summary>
-        private static string EntraAudience =>
-            System.Environment.GetEnvironmentVariable("SQLTUNNEL_ENTRA_AUDIENCE");
+        private ACPropertyConfigValue<string> _EntraAudience;
+        /// <summary>
+        /// Expected "aud" claim: the app registration's Client ID or its api:// URI.
+        /// Env override: SQLTUNNEL_ENTRA_AUDIENCE.
+        /// </summary>
+        [ACPropertyConfig("en{'Entra audience'}de{'Entra-Zielgruppe'}")]
+        public string EntraAudience
+        {
+            get
+            {
+                string v = _EntraAudience.ValueT;
+                if (String.IsNullOrEmpty(v))
+                    v = System.Environment.GetEnvironmentVariable("SQLTUNNEL_ENTRA_AUDIENCE");
+                return v;
+            }
+            set => _EntraAudience.ValueT = value;
+        }
 
-        /// <summary>Cloud instance override (sovereign clouds); default global Entra.</summary>
-        private static string EntraInstance =>
-            System.Environment.GetEnvironmentVariable("SQLTUNNEL_ENTRA_INSTANCE") ?? "https://login.microsoftonline.com";
+        private ACPropertyConfigValue<string> _EntraInstance;
+        /// <summary>
+        /// Cloud instance override (sovereign clouds); default global Entra.
+        /// Env override: SQLTUNNEL_ENTRA_INSTANCE.
+        /// </summary>
+        [ACPropertyConfig("en{'Entra instance'}de{'Entra-Instanz'}")]
+        public string EntraInstance
+        {
+            get
+            {
+                string v = _EntraInstance.ValueT;
+                if (String.IsNullOrEmpty(v))
+                    v = System.Environment.GetEnvironmentVariable("SQLTUNNEL_ENTRA_INSTANCE");
+                return String.IsNullOrEmpty(v) ? "https://login.microsoftonline.com" : v;
+            }
+            set => _EntraInstance.ValueT = value;
+        }
 
         private static readonly System.Net.Http.HttpClient _EntraHttp = new System.Net.Http.HttpClient();
 
@@ -332,10 +396,10 @@ namespace gip.core.webservices
                 // accept any tenant issuer on the configured instance. Both token versions are
                 // accepted: v2.0 tokens use https://{instance}/{tid}/v2.0, v1 tokens (returned
                 // for {clientId}/.default on v1-only APIs) use https://sts.windows.net/{tid}/.
-                string expectedIssV2 = $"{EntraInstance.TrimEnd('/')}/{EntraTenant}/v2.0";
+                string expectedIssV2 = $"{EntraInstance.TrimEnd('/')}/{(String.IsNullOrEmpty(EntraTenantId) ? "organizations" : EntraTenantId)}/v2.0";
                 string instanceBase = EntraInstance.TrimEnd('/') + "/";
                 bool issuerOk = String.Equals(iss, expectedIssV2, StringComparison.OrdinalIgnoreCase)
-                    || (String.Equals(EntraTenant, "organizations", StringComparison.OrdinalIgnoreCase)
+                    || (String.Equals(EntraTenantId, "organizations", StringComparison.OrdinalIgnoreCase)
                         && iss != null
                         && (iss.StartsWith(instanceBase, StringComparison.OrdinalIgnoreCase) && iss.EndsWith("/v2.0", StringComparison.OrdinalIgnoreCase)
                             || iss.StartsWith("https://sts.windows.net/", StringComparison.OrdinalIgnoreCase) && iss.EndsWith("/")));
@@ -588,6 +652,27 @@ namespace gip.core.webservices
 
                 MapSyncShimEndpoints(app);
 
+                // Entra proxy (docs §9.26): Browser/WASM clients cannot call
+                // login.microsoftonline.com directly — the device-code/token endpoints send
+                // no CORS headers, so the browser blocks the fetch. Forward the two OAuth
+                // POSTs (devicecode + token) through the relay. No auth required: this only
+                // relays public OAuth endpoints and returns exactly what Entra returns.
+                app.MapPost("/sqltunnel-entra-proxy/{**path}", async (HttpContext context, string path) =>
+                {
+                    using var reader = new System.IO.StreamReader(context.Request.Body);
+                    string body = await reader.ReadToEndAsync();
+                    using var client = new System.Net.Http.HttpClient();
+                    client.Timeout = TimeSpan.FromSeconds(30);
+                    using var req = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Post,
+                        "https://login.microsoftonline.com/" + path);
+                    req.Content = new System.Net.Http.StringContent(body, System.Text.Encoding.UTF8,
+                        "application/x-www-form-urlencoded");
+                    using var resp = await client.SendAsync(req);
+                    context.Response.StatusCode = (int)resp.StatusCode;
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsync(await resp.Content.ReadAsStringAsync());
+                });
+
                 _Host = app;
                 _CancellationTokenSource = new CancellationTokenSource();
 
@@ -714,7 +799,8 @@ namespace gip.core.webservices
                 // Stage 2 (iPlus login) only applies when the frame carries iPlus
                 // credentials. A token-only frame (Entra ID mode — the JWT is the
                 // identity) skips stage 2; user mapping to VBUser is a future step.
-                if (authError == null && frameUser != null && !ValidateIPlusUser(frameUser, framePassword))
+                // An EMPTY user counts as absent (the fork always serializes "user":"").
+                if (authError == null && !String.IsNullOrEmpty(frameUser) && !ValidateIPlusUser(frameUser, framePassword))
                 {
                     authError = "iPlus login failed";
                 }
@@ -931,8 +1017,10 @@ namespace gip.core.webservices
 
                 // Stage 2: iPlus login BEFORE the TCP socket to SQL Server is opened. An
                 // auth frame is always validated when present; RequireIPlusLogin makes it
-                // mandatory.
-                if (bodyUser != null || RequireIPlusLogin)
+                // mandatory. NOTE: the browser shim always serializes "user":"" in the
+                // session body, so an EMPTY user counts as "absent" — otherwise Entra
+                // mode (JWT-only, no iPlus credentials) would always fail here.
+                if (!String.IsNullOrEmpty(bodyUser) || RequireIPlusLogin)
                 {
                     if (!ValidateIPlusUser(bodyUser, bodyPassword))
                     {
