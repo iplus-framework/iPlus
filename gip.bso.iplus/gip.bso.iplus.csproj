@@ -184,6 +184,9 @@
     <None Include="VBControlScripts/2026-10-12 08-00_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="gip.bso.iplus/VBControlScripts/2026-10-15 22-49_dlisak.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ClosedXML" />

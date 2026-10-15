@@ -15,6 +15,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -56,6 +57,9 @@ namespace gip.core.webservices
             _EntraTenant = new ACPropertyConfigValue<string>(this, "EntraTenant", "");
             _EntraAudience = new ACPropertyConfigValue<string>(this, "EntraAudience", "");
             _EntraInstance = new ACPropertyConfigValue<string>(this, "EntraInstance", "");
+            _UseTls = new ACPropertyConfigValue<bool>(this, "UseTls", false);
+            _TlsCertificatePath = new ACPropertyConfigValue<string>(this, "TlsCertificatePath", "");
+            _TlsCertificatePassword = new ACPropertyConfigValue<string>(this, "TlsCertificatePassword", "");
             // Command to enable http-Service:
             // >netsh http add urlacl url=http://+:ServicePort/ user="\Everyone"
         }
@@ -75,6 +79,9 @@ namespace gip.core.webservices
             _ = EntraTenantId;
             _ = EntraAudience;
             _ = EntraInstance;
+            _ = UseTls;
+            _ = TlsCertificatePath;
+            _ = TlsCertificatePassword;
             return result;
         }
 
@@ -315,6 +322,50 @@ namespace gip.core.webservices
             set => _EntraInstance.ValueT = value;
         }
 
+        private ACPropertyConfigValue<bool> _UseTls;
+        /// <summary>
+        /// Serves the relay over HTTPS/WSS (docs §9.28): the WebSocket endpoint, the sync
+        /// shim, the token and sqlcred endpoints are all TLS-encrypted. When no certificate
+        /// is configured, a self-signed certificate is generated and persisted next to the
+        /// executable (clients must trust it — see §9.28). Env override: SQLTUNNEL_USE_TLS=1.
+        /// </summary>
+        [ACPropertyConfig("en{'Use TLS (https/wss)'}de{'TLS verwenden (https/wss)'}")]
+        public bool UseTls
+        {
+            get => _UseTls.ValueT || System.Environment.GetEnvironmentVariable("SQLTUNNEL_USE_TLS") == "1";
+            set => _UseTls.ValueT = value;
+        }
+
+        private ACPropertyConfigValue<string> _TlsCertificatePath;
+        /// <summary>Path to a PFX/PKCS#12 certificate. Empty = auto self-signed at iplus-relay-tls.pfx. Env override: SQLTUNNEL_TLS_CERT_PATH.</summary>
+        [ACPropertyConfig("en{'TLS certificate path (PFX)'}de{'TLS-Zertifikatspfad (PFX)'}")]
+        public string TlsCertificatePath
+        {
+            get
+            {
+                string v = _TlsCertificatePath.ValueT;
+                if (String.IsNullOrEmpty(v))
+                    v = System.Environment.GetEnvironmentVariable("SQLTUNNEL_TLS_CERT_PATH");
+                return v;
+            }
+            set => _TlsCertificatePath.ValueT = value;
+        }
+
+        private ACPropertyConfigValue<string> _TlsCertificatePassword;
+        /// <summary>PFX password. Env override: SQLTUNNEL_TLS_CERT_PASSWORD.</summary>
+        [ACPropertyConfig("en{'TLS certificate password'}de{'TLS-Zertifikatskennwort'}")]
+        public string TlsCertificatePassword
+        {
+            get
+            {
+                string v = _TlsCertificatePassword.ValueT;
+                if (String.IsNullOrEmpty(v))
+                    v = System.Environment.GetEnvironmentVariable("SQLTUNNEL_TLS_CERT_PASSWORD");
+                return v;
+            }
+            set => _TlsCertificatePassword.ValueT = value;
+        }
+
         private static readonly System.Net.Http.HttpClient _EntraHttp = new System.Net.Http.HttpClient();
 
         /// <summary>Cached JWKS signing keys (kid -> RSA parameters). Refreshed after 12h or on unknown kid.</summary>
@@ -548,6 +599,21 @@ namespace gip.core.webservices
                     options.LogToStandardErrorThreshold = LogLevel.Information;
                 });
 
+                X509Certificate2 tlsCertificate = null;
+                if (UseTls)
+                {
+                    tlsCertificate = ACTlsCertificateHelper.GetOrCreateCertificate(TlsCertificatePath, TlsCertificatePassword, "SQL Tunnel");
+                    if (tlsCertificate == null)
+                        throw new InvalidOperationException("UseTls is enabled but no TLS certificate could be loaded or generated.");
+                    // Explicit Listen binding (the certificate cannot be attached to a
+                    // URL-based binding). RunAsync() is then called WITHOUT a URL so the
+                    // Listen endpoint applies.
+                    builder.WebHost.UseKestrel(k =>
+                    {
+                        k.Listen(IPAddress.Any, ServicePort, l => l.UseHttps(tlsCertificate));
+                    });
+                }
+
                 WebApplication app = builder.Build();
                 app.UseWebSockets();
 
@@ -682,8 +748,15 @@ namespace gip.core.webservices
                 {
                     try
                     {
-                        string strUri = String.Format("http://{0}:{1}", this.Root.Environment.UserInstance.Hostname, ServicePort);
-                        await _Host.RunAsync(strUri);
+                        if (tlsCertificate != null)
+                        {
+                            await _Host.RunAsync();
+                        }
+                        else
+                        {
+                            string strUri = String.Format("http://{0}:{1}", this.Root.Environment.UserInstance.Hostname, ServicePort);
+                            await _Host.RunAsync(strUri);
+                        }
                     }
                     catch (OperationCanceledException)
                     {
@@ -698,7 +771,7 @@ namespace gip.core.webservices
                     }
                 });
 
-                Messages.LogInfo(GetACUrl(), "StartSqlTunnel", String.Format("SQL Tunnel relay started on port {0} -> {1}:{2}", ServicePort, SqlServer, SqlPort));
+                Messages.LogInfo(GetACUrl(), "StartSqlTunnel", String.Format("SQL Tunnel relay started on port {0} ({1}) -> {2}:{3}", ServicePort, tlsCertificate != null ? "https/wss" : "http/ws", SqlServer, SqlPort));
             }
             catch (Exception ex)
             {

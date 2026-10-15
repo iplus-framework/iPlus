@@ -1239,3 +1239,132 @@ token's 1 h lifetime signs in silently without the device-code MessageBox.
 token — after expiry a new interactive sign-in is required. Adding
 `offline_access` to the configured `EntraScope` enables the silent
 refresh-token path (`TryRefreshEntraTokenAsync`).
+
+### 9.28 TLS on the relay (https/wss) — self-signed certificates — IMPLEMENTED & VERIFIED (2026-10-15)
+
+**Point 2 of the security follow-ups:** the relay's plaintext HTTP/WS ports are gone —
+the SQL tunnel relay AND the WCF browser host now serve TLS. Self-signed certificates
+are supported out of the box; switch to CA-issued certificates for production.
+
+**Server side (both hosts share `ACTlsCertificateHelper` in `gip.core.autocomponent`):**
+
+| Host | Config | Env fallback | Effect |
+|---|---|---|---|
+| `PASqlTunnelHost` | `UseTls` (bool), `TlsCertificatePath`, `TlsCertificatePassword` | `SQLTUNNEL_USE_TLS=1`, `SQLTUNNEL_TLS_CERT_PATH`, `SQLTUNNEL_TLS_CERT_PASSWORD` | Whole relay (WS `/sqltunnel`, sync shim, token, sqlcred, Entra proxy) on **one** https/wss port |
+| `WCFServiceManager` | `TlsCertificatePath`, `TlsCertificatePassword` (ACPropertyConfig) | `WCF_TLS_CERT_PATH`, `WCF_TLS_CERT_PASSWORD` | HTTP host serves https/wss → browser WCF clients use `wss://host:ServicePortHTTP/wcfbrowser` |
+
+Certificate resolution (both hosts):
+1. `TlsCertificatePath` set + file exists → load PFX.
+2. Otherwise a **self-signed certificate is generated and persisted** next to the
+   executable (`iplus-relay-tls.pfx`, password `iplus` or the configured one):
+   RSA-2048/SHA-256, SANs = machine name + `localhost` + all IPv4 addresses,
+   397-day lifetime (max macOS/iOS acceptance). The same file is reused across
+   restarts, so clients can pin it.
+3. `PASqlTunnelHost` with TLS binds via explicit `Listen(IPAddress.Any, port, UseHttps)`
+   and runs WITHOUT a URL string (URL-based bindings cannot carry a certificate).
+
+**Client side — trusting the self-signed certificate:**
+
+| Client | Mechanism |
+|---|---|
+| Desktop/Android SqlClient (`wss://` Tunnel URL) | AppContext switch `Switch.Microsoft.Data.SqlClient.AcceptUntrustedTunnelCertificates=true` (new, fork `LocalAppContextSwitches`) — honored in `SniWebSocketHandle.CreateWebSocketTransport` via `ClientWebSocket.Options.RemoteCertificateValidationCallback`. iPlus sets it from env `IPLUS_ACCEPT_UNTRUSTED_CERT=1` (LoginView) or runtimeconfig.json. |
+| Desktop/Android relay HTTP calls (token + sqlcred) | Same switch/env — `LoginView.CreateRelayHttpClient()` uses an `HttpClientHandler` with validation callback (browser excluded — the browser owns TLS there). |
+| Browser WCF (`wss://…/wcfbrowser`) | Same AppContext switch, checked in `WCFClientChannel.BrowserConnectionLoopAsync`. |
+| Browser WASM (sync XHR to `https://…/sqltunnel-sync`) | The **browser** validates the certificate: visit `https://<relay-host>:8751/` once and accept the warning, or install `iplus-relay-tls.pfx` into the OS/browser trust store. |
+
+**Verified 2026-10-15 (relay with `SQLTUNNEL_USE_TLS=1`):**
+- `https://…:8751/sqltunnel-sqlcred` → 401 without token (TLS 1.3, self-signed cert);
+  plaintext `http://…:8751` refused (connection closed).
+- Desktop spike over `wss://127.0.0.1:8751/sqltunnel` with
+  `SPIKE_ACCEPT_UNTRUSTED_CERT=1`: full TDS login + `SELECT @@VERSION` +
+  `SELECT COUNT(*) FROM sys.databases` through the TLS relay. Without the switch the
+  connect fails with `RemoteCertificateNameMismatch, RemoteCertificateChainErrors`
+  (correct negative behavior).
+- Note: with `SQLTUNNEL_TOKEN_ISSUER=Entra` the local `/sqltunnel-auth/token` endpoint
+  still issues tokens, but they are rejected by `ValidateBearerTokenAsync` (Entra XOR
+  local, §9.22) — expected.
+
+**Client config changes:** Tunnel URLs switch scheme — browser
+`https://host:8751/sqltunnel-sync`, desktop/Android `wss://host:8751/sqltunnel`
+(`ConnectionStrings.config` updated accordingly). The desktop entry requires
+`IPLUS_ACCEPT_UNTRUSTED_CERT=1` (or the runtimeconfig switch) until the certificate is
+installed into the trust store.
+
+**Production path:** replace the auto-generated PFX with a CA-issued certificate via
+`TlsCertificatePath` — no code change; clients then need no switch at all.
+
+**WCF client scheme (2026-10-15, follow-up):** `WCFClientChannel.EndpointUri` builds
+`ws://`/`http://` by default. With env `IPLUS_WCF_USE_TLS=1` on the CLIENT it switches to
+`wss://`/`https://` (browser transport → `wss://host:ServicePortHTTP/wcfbrowser`). The
+self-signed relay certificate is accepted via the existing
+`Switch.Microsoft.Data.SqlClient.AcceptUntrustedTunnelCertificates` switch /
+`IPLUS_ACCEPT_UNTRUSTED_CERT=1` (or install the cert into the OS trust store — preferred).
+
+### 9.29 WCF TLS configuration moved to the database (VBUserInstance) — IMPLEMENTED & VERIFIED (2026-10-15)
+
+**Design change:** WCF TLS settings no longer live in `ACPropertyConfigValue`/env vars —
+they are stored on the **service user instance** (`VBUserInstance` table) and edited in
+the **BSOiPlusNetConfig** ("Netzwerk-Konfiguration") BSO. Env vars remain only as a
+headless fallback when `Root.Environment.UserInstance` is not yet available.
+
+**Database (dbsync `dbsync_2026-10-15_21-20_dlisak.sql`, already applied):**
+
+```sql
+ALTER TABLE [dbo].[VBUserInstance] ADD
+  [ServiceUseTLS] [bit] NOT NULL DEFAULT 0,
+  [ServiceTlsCertificatePath] [nvarchar](500) NULL,
+  [ServiceTlsCertificatePassword] [nvarchar](500) NULL;
+```
+
+EF model (`EFModels/VBUserInstance.cs`) + `EntityVB/VBUserInstance.cs`
+(`ACPropertyEntity` 15/16/17 + `NewACObject` defaults) regenerated/updated.
+
+**Server (`WCFServiceManager`):**
+
+| Setting | Source order |
+|---|---|
+| `UseTls` | `VBUserInstance.ServiceUseTLS` → env `WCF_USE_TLS=1` |
+| `TlsCertificatePath` | `VBUserInstance.ServiceTlsCertificatePath` → ACPropertyConfig → env `WCF_TLS_CERT_PATH` |
+| `TlsCertificatePassword` | `VBUserInstance.ServiceTlsCertificatePassword` → ACPropertyConfig → env `WCF_TLS_CERT_PASSWORD` |
+
+`ACInit` HTTP branch: `UseTls || !String.IsNullOrEmpty(TlsCertificatePath)` →
+`ACTlsCertificateHelper.GetOrCreateCertificate(...)` + Kestrel `Listen(..., UseHttps)`;
+otherwise plain HTTP. **The Kestrel host is built at startup — changing the DB flag
+requires a server restart to take effect.**
+
+**BSO (`BSOiPlusNetConfig`):** new "TLS-Configuration" expander in the design (stored in
+the DB) with `ServiceUseTLS` checkbox + `ServiceTlsCertificatePath` /
+`ServiceTlsCertificatePassword` text boxes; the two text fields are only enabled when
+`ServiceUseTLS` is checked (`OnGetControlModes`). Recommended: leave path/password
+**empty** — the helper then uses the default `iplus-relay-tls.pfx` next to the exe
+(same certificate as the relay, already trusted).
+
+**Client (`WCFClientChannel.EndpointUri`):** the scheme now follows the same
+`VBUserInstance.ServiceUseTLS` (env `IPLUS_WCF_USE_TLS=1` as fallback), so client and
+server derive TLS from the **same DB row**. Additionally the browser transport performs
+**scheme auto-negotiation**: on connect failure it retries once with the alternate
+scheme (`ws`↔`wss`, `http`↔`https`), caches the working scheme in a static
+`_browserWorkingScheme`, and reuses it for reconnects — so a stale/mismatched DB flag
+degrades to one failed attempt instead of a dead connection.
+
+**Verified 2026-10-15 (server started WITHOUT any `WCF_*` env vars):**
+- `VBUserInstance` "00" with `ServiceUseTLS=1`, empty cert path/password → log:
+  `WCFServiceManager: TLS certificate loaded from '.../iplus-relay-tls.pfx'
+  (subject 'CN=gipsoft-dlmhp-26', thumbprint E6CA…FEA)` — same cert as the relay.
+- `https://…:8000/wcfbrowser` → 400 (Kestrel alive, non-WS GET); plaintext
+  `http://…:8000` refused (connection closed).
+- WASM browser client logs in and connects via `wss://…:8000/wcfbrowser`
+  (green connection icon).
+
+**Implementation status — all planned security points complete:**
+1. ✅ SQL tunnel relay on TLS (https/wss, §9.28)
+2. ✅ WCF browser host on TLS (§9.28 + §9.29, DB-driven)
+3. ✅ Self-signed cert generation/persistence shared by both hosts (`ACTlsCertificateHelper`)
+4. ✅ Client trust: OS trust store (preferred) or `AcceptUntrustedTunnelCertificates` switch
+5. ✅ OAuth/Entra two-stage auth on the relay (§9.21/§9.22)
+6. ✅ DB-driven configuration via BSOiPlusNetConfig (§9.29)
+
+**Remaining (cleanup backlog, §9.17):** remove temporary `Console.WriteLine`
+diagnostics in `WCFClientChannel` (browser transport endpoint / connect FAILED /
+connected-via lines), `LoginView.PersistTest` self-test, and relay auth-tracing logs
+before release.

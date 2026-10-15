@@ -252,6 +252,11 @@ namespace gip.bso.iplus
                     case "CurrentUserInstance\\UseTextEncoding":
                     case "CurrentUserInstance\\ServicePortTCP":
                             return CurrentUserInstance.ServiceAppEnabledTCP ? Global.ControlModes.Enabled : Global.ControlModes.Disabled;
+                    // TLS config (docs SqlTunnel-OptionB-Implementation.md §9.28): the
+                    // certificate fields are only relevant when TLS is enabled.
+                    case "CurrentUserInstance\\ServiceTlsCertificatePath":
+                    case "CurrentUserInstance\\ServiceTlsCertificatePassword":
+                            return CurrentUserInstance.ServiceUseTLS ? Global.ControlModes.Enabled : Global.ControlModes.Disabled;
                 }
             }
 

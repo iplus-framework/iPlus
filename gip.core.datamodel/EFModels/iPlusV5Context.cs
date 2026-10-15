@@ -1854,6 +1854,8 @@ public partial class iPlusV5Context : DbContext
                 .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.ServiceTlsCertificatePassword).HasMaxLength(500);
+            entity.Property(e => e.ServiceTlsCertificatePath).HasMaxLength(500);
             entity.Property(e => e.SessionInfo).HasColumnType("text");
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
             entity.Property(e => e.UpdateName)

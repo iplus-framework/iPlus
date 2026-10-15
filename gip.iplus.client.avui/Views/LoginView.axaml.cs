@@ -1353,6 +1353,46 @@ public partial class LoginView : UserControl
         connectionString = TryApplySqlCredentialsFromRelayAsync(tunnelUrl, token, connectionString).GetAwaiter().GetResult();
     }
 
+    #region TLS: self-signed relay certificates (docs SqlTunnel-OptionB-Implementation.md §9.28)
+
+    private static bool _UntrustedCertSwitchApplied = false;
+
+    /// <summary>
+    /// True when relay certificates that fail chain validation (self-signed) are accepted.
+    /// Sources: the AppContext switch (runtimeconfig.json / AppContext.SetSwitch) or the
+    /// environment variable IPLUS_ACCEPT_UNTRUSTED_CERT=1. The env var also sets the
+    /// AppContext switch so the SqlClient wss:// transport honors it too.
+    /// </summary>
+    private static bool AcceptUntrustedRelayCertificates
+    {
+        get
+        {
+            if (!_UntrustedCertSwitchApplied)
+            {
+                _UntrustedCertSwitchApplied = true;
+                if (System.Environment.GetEnvironmentVariable("IPLUS_ACCEPT_UNTRUSTED_CERT") == "1")
+                    AppContext.SetSwitch("Switch.Microsoft.Data.SqlClient.AcceptUntrustedTunnelCertificates", true);
+            }
+            if (AppContext.TryGetSwitch("Switch.Microsoft.Data.SqlClient.AcceptUntrustedTunnelCertificates", out bool v) && v)
+                return true;
+            return System.Environment.GetEnvironmentVariable("IPLUS_ACCEPT_UNTRUSTED_CERT") == "1";
+        }
+    }
+
+    /// <summary>HttpClient for relay calls; accepts untrusted certificates when enabled (not on browser — there the browser owns TLS).</summary>
+    private static System.Net.Http.HttpClient CreateRelayHttpClient()
+    {
+        if (AcceptUntrustedRelayCertificates && !OperatingSystem.IsBrowser())
+        {
+            System.Net.Http.HttpClientHandler handler = new System.Net.Http.HttpClientHandler();
+            handler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
+            return new System.Net.Http.HttpClient(handler);
+        }
+        return new System.Net.Http.HttpClient();
+    }
+
+    #endregion
+
     /// <summary>
     /// Await-based credential delivery — safe on Browser/WASM (single-threaded runtime).
     /// Returns the (possibly rewritten) connection string; unchanged when delivery is
@@ -1369,7 +1409,7 @@ public partial class LoginView : UserControl
                 credBaseUrl = "https://" + credBaseUrl.Substring(6);
             Uri credUri = new Uri(new Uri(credBaseUrl), "/sqltunnel-sqlcred");
 
-            using System.Net.Http.HttpClient http = new System.Net.Http.HttpClient();
+            using System.Net.Http.HttpClient http = CreateRelayHttpClient();
             http.Timeout = TimeSpan.FromSeconds(10);
             using var req = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Get, credUri);
             req.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
@@ -1449,7 +1489,7 @@ public partial class LoginView : UserControl
             {
                 // Android/desktop: real threads exist, a blocking call is fine here
                 // (ApplyConnectionSettingsFromHelper is synchronous anyway).
-                using System.Net.Http.HttpClient httpClient = new System.Net.Http.HttpClient();
+                using System.Net.Http.HttpClient httpClient = CreateRelayHttpClient();
                 httpClient.Timeout = TimeSpan.FromSeconds(10);
                 using System.Net.Http.HttpResponseMessage response = httpClient.PostAsync(tokenUri,
                     new System.Net.Http.StringContent(body, System.Text.Encoding.UTF8, "application/json")).GetAwaiter().GetResult();

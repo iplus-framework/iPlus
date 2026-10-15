@@ -7,6 +7,10 @@ var user = args.Length > 1 ? args[1] : "gip";
 var password = args.Length > 2 ? args[2] : "netspirit";
 var database = args.Length > 3 ? args[3] : "iPlusV5";
 
+// TLS test (docs §9.28): accept the relay's self-signed certificate for wss:// tunnels.
+if (Environment.GetEnvironmentVariable("SPIKE_ACCEPT_UNTRUSTED_CERT") == "1")
+    AppContext.SetSwitch("Switch.Microsoft.Data.SqlClient.AcceptUntrustedTunnelCertificates", true);
+
 // Data Source is a placeholder; the tunnel URL drives the transport.
 var builder = new SqlConnectionStringBuilder
 {

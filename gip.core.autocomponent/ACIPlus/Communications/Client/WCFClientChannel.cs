@@ -90,6 +90,13 @@ namespace gip.core.autocomponent
         private readonly SemaphoreSlim _browserSendSignal = new SemaphoreSlim(0, int.MaxValue);
         private readonly SemaphoreSlim _browserSendLock = new SemaphoreSlim(1, 1);
         private volatile bool _browserConnected = false;
+
+        // TLS scheme auto-negotiation (docs SqlTunnel-OptionB-Implementation.md §9.28):
+        // the client cannot know whether the server's HTTP host runs TLS (the env-var
+        // approach does not reach the WASM runtime). So the browser transport tries the
+        // configured scheme first and, on connect failure, the alternate one (ws<->wss),
+        // caching the scheme that worked for subsequent (re)connects.
+        private static string _browserWorkingScheme = null;
         #endregion
 
         #region c´tors
@@ -328,14 +335,22 @@ namespace gip.core.autocomponent
                 // Schema / protocol
                 string scheme = "net.tcp";
                 string path = "/";
+                // TLS (docs SqlTunnel-OptionB-Implementation.md §9.28): the server user
+                // instance (VBUserInstance.ServiceUseTLS) decides whether the HTTP host
+                // serves https/wss. If the browser transport auto-negotiation has already
+                // learned the working scheme, that wins (it reflects the live server).
+                bool serverTls = (_VBUserInstance != null && _VBUserInstance.ServiceUseTLS)
+                    || System.Environment.GetEnvironmentVariable("IPLUS_WCF_USE_TLS") == "1";
+                if (_browserWorkingScheme != null)
+                    serverTls = _browserWorkingScheme == "wss" || _browserWorkingScheme == "https";
                 if (_IsBrowserTransport)
                 {
                     // Browser clients use the WebSocket endpoint of the HTTP host
-                    scheme = "ws";
+                    scheme = serverTls ? "wss" : "ws";
                     path = "/wcfbrowser";
                 }
                 else if (_useHttpConnection && !_useNetTCPConnection)
-                    scheme = "http";
+                    scheme = serverTls ? "https" : "http";
 
                 // Authority
                 string authority = _VBUserInstance.ServerIPV4;
@@ -1249,6 +1264,80 @@ namespace gip.core.autocomponent
         }
 
         /// <summary>
+        /// Connects a ClientWebSocket to <paramref name="endpoint"/>; on connect failure the
+        /// alternate scheme (ws↔wss) is tried once and cached when it works (TLS
+        /// auto-negotiation, docs §9.28). Throws the last exception when both fail.
+        /// </summary>
+        private static async Task<System.Net.WebSockets.ClientWebSocket> ConnectBrowserSocketAsync(Uri endpoint, CancellationToken ct)
+        {
+            System.Net.WebSockets.ClientWebSocket socket = CreateBrowserSocket(endpoint);
+            try
+            {
+                await socket.ConnectAsync(endpoint, ct);
+                _browserWorkingScheme = endpoint.Scheme;
+                Console.WriteLine("WCFClientChannel: browser transport connected via " + endpoint.Scheme);
+                return socket;
+            }
+            catch (Exception primaryEx)
+            {
+                socket.Dispose();
+                string altScheme = AlternateScheme(endpoint.Scheme);
+                if (altScheme == null)
+                    throw;
+                Uri altEndpoint = WithScheme(endpoint, altScheme);
+                Console.WriteLine("WCFClientChannel: " + endpoint.Scheme + " failed (" + primaryEx.Message + ") — retrying with " + altScheme);
+                System.Net.WebSockets.ClientWebSocket altSocket = CreateBrowserSocket(altEndpoint);
+                try
+                {
+                    await altSocket.ConnectAsync(altEndpoint, ct);
+                    _browserWorkingScheme = altScheme;
+                    Console.WriteLine("WCFClientChannel: browser transport connected via " + altScheme);
+                    return altSocket;
+                }
+                catch
+                {
+                    altSocket.Dispose();
+                    throw;
+                }
+            }
+        }
+
+        private static System.Net.WebSockets.ClientWebSocket CreateBrowserSocket(Uri endpoint)
+        {
+            System.Net.WebSockets.ClientWebSocket socket = new System.Net.WebSockets.ClientWebSocket();
+            // Self-signed server certificates (docs SqlTunnel-OptionB-Implementation.md
+            // §9.28): when the AppContext switch is set, wss:// connections accept
+            // certificates that fail chain validation (e.g. the relay's auto-generated
+            // self-signed certificate). Set via AppContext.SetSwitch or runtimeconfig.json.
+            // (On WASM the browser owns TLS validation; the callback is only used on
+            // desktop/Android.)
+            if (String.Equals(endpoint.Scheme, "wss", StringComparison.OrdinalIgnoreCase)
+                && AppContext.TryGetSwitch("Switch.Microsoft.Data.SqlClient.AcceptUntrustedTunnelCertificates", out bool acceptUntrusted)
+                && acceptUntrusted)
+            {
+                socket.Options.RemoteCertificateValidationCallback = (_, _, _, policyErrors) => true;
+            }
+            return socket;
+        }
+
+        private static string AlternateScheme(string scheme)
+        {
+            switch (scheme)
+            {
+                case "ws": return "wss";
+                case "wss": return "ws";
+                case "http": return "https";
+                case "https": return "http";
+                default: return null;
+            }
+        }
+
+        private static Uri WithScheme(Uri endpoint, string scheme)
+        {
+            return new Uri(scheme + "://" + endpoint.Host + (endpoint.Port > 0 ? ":" + endpoint.Port : "") + endpoint.PathAndQuery);
+        }
+
+        /// <summary>
         /// Connects to the server's /wcfbrowser WebSocket endpoint, receives frames and
         /// reconnects with growing delay — the async counterpart of
         /// NewConnectionInstance/Reconnect.
@@ -1261,13 +1350,20 @@ namespace gip.core.autocomponent
                 try
                 {
                     Uri endpoint = EndpointUri;
+                    // TEMPORARY diagnostics (remove with §9.17 cleanup): WASM connect failures
+                    // are otherwise silent — Console.WriteLine lands in the browser DevTools console.
+                    Console.WriteLine("WCFClientChannel: browser transport endpoint = " + (endpoint == null ? "<null>" : endpoint.ToString()));
                     if (endpoint == null)
                     {
                         await Task.Delay(1000, ct);
                         continue;
                     }
-                    _browserSocket = new System.Net.WebSockets.ClientWebSocket();
-                    await _browserSocket.ConnectAsync(endpoint, ct);
+                    if (!String.IsNullOrEmpty(_browserWorkingScheme)
+                        && !String.Equals(endpoint.Scheme, _browserWorkingScheme, StringComparison.OrdinalIgnoreCase))
+                    {
+                        endpoint = WithScheme(endpoint, _browserWorkingScheme);
+                    }
+                    _browserSocket = await ConnectBrowserSocketAsync(endpoint, ct);
                     _browserConnected = true;
                     ConnectedSince = DateTime.Now;
                     IsConnected = true;
@@ -1280,6 +1376,8 @@ namespace gip.core.autocomponent
                     string msg = e.Message;
                     if (e.InnerException != null && e.InnerException.Message != null)
                         msg += " Inner:" + e.InnerException.Message;
+                    // TEMPORARY diagnostics (§9.17): surface connect failures in the browser console.
+                    Console.WriteLine("WCFClientChannel: browser connect FAILED. " + msg);
                     Messages.LogException("WCFClientChannel", "BrowserConnectionLoopAsync", msg);
                 }
                 _browserConnected = false;
