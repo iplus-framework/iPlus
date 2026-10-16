@@ -1309,9 +1309,10 @@ namespace gip.core.autocomponent
             // §9.28): when the AppContext switch is set, wss:// connections accept
             // certificates that fail chain validation (e.g. the relay's auto-generated
             // self-signed certificate). Set via AppContext.SetSwitch or runtimeconfig.json.
-            // (On WASM the browser owns TLS validation; the callback is only used on
-            // desktop/Android.)
-            if (String.Equals(endpoint.Scheme, "wss", StringComparison.OrdinalIgnoreCase)
+            // (On WASM the browser owns TLS validation; setting the callback there throws
+            // PlatformNotSupportedException — Arg_PlatformNotSupported on connect.)
+            if (!OperatingSystem.IsBrowser()
+                && String.Equals(endpoint.Scheme, "wss", StringComparison.OrdinalIgnoreCase)
                 && AppContext.TryGetSwitch("Switch.Microsoft.Data.SqlClient.AcceptUntrustedTunnelCertificates", out bool acceptUntrusted)
                 && acceptUntrusted)
             {

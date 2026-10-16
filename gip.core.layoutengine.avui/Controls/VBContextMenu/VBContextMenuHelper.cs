@@ -6,7 +6,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Input;
 using Avalonia.VisualTree;
 using gip.core.datamodel;
 
@@ -23,7 +22,7 @@ namespace gip.core.layoutengine.avui
     ///
     /// This helper installs ONE tunneling handler on the root view. On the browser it
     /// intercepts right-button releases before the controls see them, fetches the menu via
-    /// the async path (<see cref="ACComponent.ACActionAsync"/>) and opens the
+    /// the async path (<see cref="IACInteractiveObjectAsync.ACActionAsync"/>) and opens the
     /// <see cref="VBContextMenu"/> when the server has responded. On other platforms it does
     /// nothing and the controls behave as before.
     /// </summary>

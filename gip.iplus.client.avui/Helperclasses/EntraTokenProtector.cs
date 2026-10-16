@@ -130,14 +130,16 @@ namespace gip.iplus.client.avui
             if (File.Exists(path))
             {
                 raw = File.ReadAllBytes(path);
-                if (protectWithDpapi)
+                // CA1416: DPAPI is Windows-only; protectWithDpapi is only true on Windows
+                // (see GetOrCreateKey), but the analyzer needs the explicit platform guard.
+                if (protectWithDpapi && OperatingSystem.IsWindows())
                     raw = ProtectedData.Unprotect(raw, null, DataProtectionScope.CurrentUser);
                 if (raw != null && raw.Length == KeySizeBytes)
                     return raw;
             }
 
             byte[] key = RandomNumberGenerator.GetBytes(KeySizeBytes);
-            byte[] toWrite = protectWithDpapi
+            byte[] toWrite = protectWithDpapi && OperatingSystem.IsWindows()
                 ? ProtectedData.Protect(key, null, DataProtectionScope.CurrentUser)
                 : key;
             Directory.CreateDirectory(dir);

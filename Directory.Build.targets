@@ -126,7 +126,12 @@
                      affects the project where the PackageReference is declared, so an
                      Include (not Update) is injected into EVERY project — a direct excluded
                      reference overrides the transitive flow of the same package id. -->
-                <PackageReference Include="iPlus.Microsoft.Data.SqlClient" ExcludeAssets="all" />
+                <!-- Update first: projects that declare the package directly keep their single
+                     item (avoids NU1504 duplicate); the conditional Include only fires when
+                     the project has no explicit reference of its own. -->
+                <PackageReference Update="iPlus.Microsoft.Data.SqlClient" ExcludeAssets="all" />
+                <PackageReference Include="iPlus.Microsoft.Data.SqlClient" ExcludeAssets="all"
+                                  Condition="'@(PackageReference->WithMetadataValue('Identity','iPlus.Microsoft.Data.SqlClient'))' == ''" />
                 <ProjectReference Include="$(SqlClientForkProject)" AdditionalProperties="SigningKeyPath=$(SqlClientForkSigningKey)" />
         </ItemGroup>
 

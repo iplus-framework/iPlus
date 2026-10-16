@@ -1,4 +1,5 @@
 ﻿using Avalonia.Interactivity;
+#nullable enable
 using Avalonia.Labs.Input;
 using Avalonia.Threading;
 using gip.core.datamodel;
@@ -51,8 +52,8 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 _RemoveExistingAppCommand = removeExistingAppCommand;
             }
 
-            ICommand _Command = null;
-            public ICommand Command
+            ICommand? _Command = null;
+            public ICommand? Command
             {
                 get { return _Command; }
             }
@@ -60,7 +61,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
             /// <summary>
             /// If the command is a ReactiveCommand, returns it as such.
             /// </summary>
-            public IReactiveCommand ReactiveCommand
+            public IReactiveCommand? ReactiveCommand
             {
                 get { return _Command as IReactiveCommand; }
             }
@@ -83,21 +84,21 @@ namespace gip.core.layoutengine.avui.Helperclasses
         /// <param name="executeDelegate">Delegate for command execution (optional, uses DefaultExecuteHandler if null)</param>
         /// <param name="canExecuteDelegate">Delegate for checking if command can execute (optional, uses DefaultCanExecuteHandler if null)</param>
         /// <returns>If Command was applied, then Result is not null</returns>
-        public static Result ApplyACCommand(IACCommandControl control, IACComponent interactiveObject, string methodNameForCommand, ACCommand acCommmand, ILogical logical, 
-            EventHandler<ExecutedRoutedEventArgs> executeDelegate = null, EventHandler<CanExecuteRoutedEventArgs> canExecuteDelegate = null)
+        public static Result? ApplyACCommand(IACCommandControl control, IACComponent? interactiveObject, string methodNameForCommand, ACCommand acCommmand, ILogical? logical, 
+            EventHandler<ExecutedRoutedEventArgs>? executeDelegate = null, EventHandler<CanExecuteRoutedEventArgs>? canExecuteDelegate = null)
         {
             if (interactiveObject == null)
                 interactiveObject = control.ContextACObject as IACComponent;
             if (interactiveObject == null || control.Command != null)
                 return null;
 
-            Result result = null;
+            Result? result = null;
             bool isBuiltInGesture = false;
-            System.Windows.Input.ICommand iCommand = AppCommands.FindVBApplicationCommand(acCommmand.ACUrl);
-            KeyGesture keyGesture = null;
+            System.Windows.Input.ICommand? iCommand = AppCommands.FindVBApplicationCommand(acCommmand.ACUrl);
+            KeyGesture? keyGesture = null;
             if (control.HotKey == null)
             {
-                RoutedCommand routedCmd = iCommand as RoutedCommand;
+                RoutedCommand? routedCmd = iCommand as RoutedCommand;
                 if (routedCmd != null && routedCmd.Gestures != null && routedCmd.Gestures.Any())
                 {
                     keyGesture = routedCmd.Gestures[0] as KeyGesture;
@@ -127,7 +128,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
                         var lastSegment = acUrlTypeInfo[count - 1];
                         var penultimateSegment = acUrlTypeInfo[count - 2];
                         string path = lastSegment.SegmentName;
-                        INotifyPropertyChanged observableObject = penultimateSegment.Value as INotifyPropertyChanged;
+                        INotifyPropertyChanged? observableObject = penultimateSegment.Value as INotifyPropertyChanged;
                         if (lastSegment.Property != null && lastSegment.Property is IACPropertyNetBase netProp)
                         {
                             observableObject = netProp;
@@ -151,7 +152,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
                     logical = control;
                 if (logical == null)
                     return null;
-                InputElement topLevel = null;
+                InputElement? topLevel = null;
                 if (topLevel == null)
                     topLevel = logical.FindLogicalAncestorOfType<VBDockingManager>() as InputElement;
                 if (logical is ICommandBindingOwner)
@@ -423,7 +424,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
         {
             return Observable.Create<RxVoid>(observer =>
             {
-                void Handler(object sender, PropertyChangedEventArgs e)
+                void Handler(object? sender, PropertyChangedEventArgs e)
                 {
                     if (e.PropertyName == propertyName)
                     {
@@ -494,7 +495,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 if (!methodCmd.StartsWith(ACUrlHelper.Delimiter_InvokeMethod))
                     methodCmd = ACUrlHelper.Delimiter_InvokeMethod + methodName;
                 // Try using ACUrlCommand first (preferred method)
-                object result = propertyOwner.IsEnabledACUrlCommand(methodCmd);
+                object? result = propertyOwner.IsEnabledACUrlCommand(methodCmd);
                 if (result is bool boolResult)
                     return boolResult;
             }
@@ -515,7 +516,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
 
                 if (methodInfo != null && methodInfo.ReturnType == typeof(bool))
                 {
-                    object result = methodInfo.Invoke(propertyOwner, null);
+                    object? result = methodInfo.Invoke(propertyOwner, null);
                     if (result is bool boolResult)
                         return boolResult;
                 }
@@ -536,15 +537,15 @@ namespace gip.core.layoutengine.avui.Helperclasses
             {
                 if (Const.IsAvaloniaHotKeyManagerBugPresent && AppCommands.IsBuiltInAppCommand(methodName) && control is Visual visual)
                 {
-                    TopLevel topLevel = TopLevel.GetTopLevel(visual);
+                    TopLevel? topLevel = TopLevel.GetTopLevel(visual);
                     if (topLevel == null)
                         return;
-                    IFocusChangeListener focusChangeListener = topLevel as IFocusChangeListener;
+                    IFocusChangeListener? focusChangeListener = topLevel as IFocusChangeListener;
                     if (focusChangeListener == null)
                         focusChangeListener = topLevel.Content as IFocusChangeListener;
                     if (focusChangeListener == null)
                         return;
-                    TextBox inputElement = focusChangeListener.LastFocusedElement as TextBox; // topLevel.FocusManager.GetFocusedElement();
+                    TextBox? inputElement = focusChangeListener.LastFocusedElement as TextBox; // topLevel.FocusManager.GetFocusedElement();
                     if (inputElement == null)
                         return;
                     // Select all because Avalonia doesn't have a separate Keyboard-Focus and Logical Focus like WPF
@@ -604,16 +605,16 @@ namespace gip.core.layoutengine.avui.Helperclasses
         /// <summary>
         /// Default execute handler for AC commands via CommandBinding
         /// </summary>
-        public static void DefaultExecuteHandler(object sender, ExecutedRoutedEventArgs e)
+        public static void DefaultExecuteHandler(object? sender, ExecutedRoutedEventArgs e)
         {
             if (sender is not IACCommandControl control)
                 return;
 
-            RoutedUICommandEx vbCommand = null;
+            RoutedUICommandEx? vbCommand = null;
             if (e != null)
                 vbCommand = e.Command as RoutedUICommandEx;
 
-            ACActionArgs actionArgs = null;
+            ACActionArgs? actionArgs = null;
             if (vbCommand != null)
             {
                 if (vbCommand.ACCommand.HandlerACElement != null && vbCommand.ACCommand.HandlerACElement != control)
@@ -643,7 +644,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
         /// <summary>
         /// Default canExecute handler for AC commands via CommandBinding
         /// </summary>
-        public static void DefaultCanExecuteHandler(object sender, CanExecuteRoutedEventArgs e)
+        public static void DefaultCanExecuteHandler(object? sender, CanExecuteRoutedEventArgs e)
         {
             if (sender is not IACCommandControl control)
             {
@@ -657,7 +658,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 return;
             }
 
-            IACComponent acComponent = null;
+            IACComponent? acComponent = null;
             if (control is IVBContent vbContent)
                 acComponent = vbContent.ContextACObject as IACComponent;
 
@@ -666,8 +667,8 @@ namespace gip.core.layoutengine.avui.Helperclasses
 
             if (acComponent != null)
             {
-                RoutedUICommandEx vbCommand = e.Command as RoutedUICommandEx;
-                ACActionArgs actionArgs = null;
+                RoutedUICommandEx? vbCommand = e.Command as RoutedUICommandEx;
+                ACActionArgs? actionArgs = null;
 
                 if (vbCommand != null)
                 {
@@ -697,7 +698,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
             }
         }
 
-        public static void DefaultCannotExecuteHandler(object sender, CanExecuteRoutedEventArgs e)
+        public static void DefaultCannotExecuteHandler(object? sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = false;
         }
@@ -707,7 +708,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
         /// </summary>
         private static ACValueList GetOrCreateParameterList(IACCommandControl control)
         {
-            ACValueList parameterList = null;
+            ACValueList? parameterList = null;
 
             // Try to get existing parameter list
             if (control.ACCommand != null)
@@ -717,7 +718,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 parameterList = new ACValueList();
 
             // Update CommandParameter if needed - check if control has CommandParameter property
-            object commandParameter = null;
+            object? commandParameter = null;
             var commandParamProperty = control.GetType().GetProperty("CommandParameter");
             if (commandParamProperty != null)
             {

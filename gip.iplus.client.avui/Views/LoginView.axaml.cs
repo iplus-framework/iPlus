@@ -1,3 +1,14 @@
+#nullable enable
+// CS0162: the AutoLoginBypassEnabled test bypass (const false) makes its call sites
+// unreachable. TEMPORARY — remove this pragma together with the bypass sections once
+// agent-driven auto-login is no longer needed.
+#pragma warning disable CS0162
+// VSTHRD002/VSTHRD103: LoginView intentionally contains synchronous wrappers over async
+// cores (ApplyConnectionSettingsFromHelper, TryAcquireTunnelToken, Entra device-code
+// polling, the connection probe) — they only run on platforms with real threads
+// (desktop/Android background threads); Browser/WASM uses the await-based cores.
+#pragma warning disable VSTHRD002
+#pragma warning disable VSTHRD103
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Platform;
@@ -37,7 +48,7 @@ public partial class LoginView : UserControl
         //this.WhenActivated(disposable => { });
     }
 
-    public LoginView(Func<Task> loginAction, Action mainAction, IEnumerable<IExternalLoginProvider> externalLoginProviders = null) : this()
+    public LoginView(Func<Task> loginAction, Action mainAction, IEnumerable<IExternalLoginProvider>? externalLoginProviders = null) : this()
     {
         listboxInfo.ItemsSource = MsgDetails;
         listboxInfo.DisplayMemberBinding = new Avalonia.Data.Binding("Message");
@@ -60,21 +71,21 @@ public partial class LoginView : UserControl
     /// </summary>
     private bool _AwaitingSettingsSave;
 
-    private readonly Func<Task> _LoginAction;
-    private readonly Action _ShowMainWindowAction;
+    private readonly Func<Task>? _LoginAction;
+    private readonly Action? _ShowMainWindowAction;
     private IReadOnlyList<IExternalLoginProvider> _externalLoginProviders = Array.Empty<IExternalLoginProvider>();
-    private CancellationTokenSource _externalLoginCts;
+    private CancellationTokenSource? _externalLoginCts;
     private int _externalLoginStarted = 0;
     private int _externalLoginCompleted = 0;
 
-    private Settings UserSettings => DataContext as Settings;
+    private Settings UserSettings => (DataContext as Settings)!;
 
-    public event EventHandler LoginCancelled;
-    public event EventHandler LoginStarted;
+    public event EventHandler? LoginCancelled;
+    public event EventHandler? LoginStarted;
 
-    private TopLevel _topLevel;
-    private IInsetsManager _insetsManager;
-    private IInputPane _inputPane;
+    private TopLevel? _topLevel;
+    private IInsetsManager? _insetsManager;
+    private IInputPane? _inputPane;
 
     #region Properties => Login
 
@@ -91,7 +102,7 @@ public partial class LoginView : UserControl
         }
     }
 
-    ObservableCollection<Msg> _Messages = null;
+    ObservableCollection<Msg>? _Messages = null;
     private bool _CollectionChangedSubscr = false;
     public ObservableCollection<Msg> MsgDetails
     {
@@ -99,13 +110,10 @@ public partial class LoginView : UserControl
         {
             if (_Messages == null)
             {
-                if (InfoMessage.MsgDetails != null)
+                if (InfoMessage.MsgDetails is ObservableCollection<Msg> msgDetails)
                 {
-                    if (InfoMessage.MsgDetails is ObservableCollection<Msg>)
-                    {
-                        _CollectionChangedSubscr = true;
-                        (InfoMessage.MsgDetails as ObservableCollection<Msg>).CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(_Messages_CollectionChanged);
-                    }
+                    _CollectionChangedSubscr = true;
+                    msgDetails.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(_Messages_CollectionChanged);
                 }
                 _Messages = new ObservableCollection<Msg>();
             }
@@ -182,7 +190,7 @@ public partial class LoginView : UserControl
 
     private static void SetBypassSetting(string name, object value)
     {
-        ACValueItem item = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == name).FirstOrDefault();
+        ACValueItem? item = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == name).FirstOrDefault();
         if (item == null)
         {
             CommandLineHelper.Settings.Add(new ACValueItem(name, value, null));
@@ -264,13 +272,13 @@ public partial class LoginView : UserControl
             {
                 try
                 {
-                    ACValueItem testItem = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == "PersistTest").FirstOrDefault();
+                    ACValueItem? testItem = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == "PersistTest").FirstOrDefault();
                     if (testItem == null)
                         CommandLineHelper.Settings.Add(new ACValueItem("PersistTest", "saved@" + DateTime.UtcNow.ToString("HH:mm:ss"), null));
                     else
                         testItem.Value = "saved@" + DateTime.UtcNow.ToString("HH:mm:ss");
                     SaveSettingsOnUiThread();
-                    string readBack = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == "PersistTest").FirstOrDefault()?.Value as string;
+                    string? readBack = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == "PersistTest").FirstOrDefault()?.Value as string;
                     Console.WriteLine($"LoginView: PersistTest in-memory after save: '{readBack}'");
                 }
                 catch (Exception exTest)
@@ -344,10 +352,11 @@ public partial class LoginView : UserControl
         }
     }
 
-    private void InputPane_StateChanged(object sender, InputPaneStateEventArgs e)
+    private void InputPane_StateChanged(object? sender, InputPaneStateEventArgs e)
     {
         if (_inputPane is not null &&
-            _insetsManager is not null)
+            _insetsManager is not null &&
+            _topLevel is not null)
         {
             var safeArea = _insetsManager.SafeAreaPadding;
             var occludedArea = _inputPane.OccludedRect;
@@ -361,7 +370,7 @@ public partial class LoginView : UserControl
                 occludedArea.Height
             );
 
-            Control focusedElement = _topLevel.FocusManager?.GetFocusedElement() as Control;
+            Control? focusedElement = _topLevel.FocusManager?.GetFocusedElement() as Control;
             if (focusedElement != null)
             {
                 try
@@ -381,10 +390,10 @@ public partial class LoginView : UserControl
     {
         StopExternalLoginWatcher();
 
-        if (_CollectionChangedSubscr && InfoMessage.MsgDetails != null)
+        if (_CollectionChangedSubscr && InfoMessage.MsgDetails is ObservableCollection<Msg> msgDetails)
         {
             _CollectionChangedSubscr = false;
-            (InfoMessage.MsgDetails as ObservableCollection<Msg>).CollectionChanged -= _Messages_CollectionChanged;
+            msgDetails.CollectionChanged -= _Messages_CollectionChanged;
         }
         selTheme.ItemsSource = null;
 
@@ -456,7 +465,7 @@ public partial class LoginView : UserControl
             }
             else
             {
-                Msg msgLogon = Messages.GlobalMsg.MsgDetails.Where(c => c.Message == "DB-Connection failed!").FirstOrDefault();
+                Msg? msgLogon = Messages.GlobalMsg.MsgDetails.Where(c => c.Message == "DB-Connection failed!").FirstOrDefault();
                 Msg userMsg;
                 if (msgLogon != null)
                 {
@@ -492,7 +501,7 @@ public partial class LoginView : UserControl
     /// 2. Call from App and waits (asynchronously - WASM forbids synchronous blocking waits!)
     /// on User-OK-click
     /// </summary>
-    public async Task WaitOnLoginResult()
+    public async Task WaitOnLoginResultAsync()
     {
         Console.WriteLine("LoginView: waiting for login result...");
         if (_PendingLoginResult)
@@ -530,7 +539,7 @@ public partial class LoginView : UserControl
         {
             EntraApplyDeferred = true;
             Console.WriteLine("LoginView: deferring connection apply (Entra device-code flow) to background thread.");
-            Task.Run(async () =>
+            _ = Task.Run(async () =>
             {
                 try
                 {
@@ -684,7 +693,7 @@ public partial class LoginView : UserControl
 
     private void StopExternalLoginWatcher()
     {
-        CancellationTokenSource cts = _externalLoginCts;
+        CancellationTokenSource? cts = _externalLoginCts;
         _externalLoginCts = null;
 
         if (cts != null)
@@ -724,6 +733,10 @@ public partial class LoginView : UserControl
         else
             MobileModeEnabled.IsChecked = true;
 
+        bool? acceptUntrusted = settings.Where(c => c.ACCaptionTranslation == nameof(AcceptUntrustedRelayCertificates)).FirstOrDefault()?.Value as bool?;
+        AcceptUntrustedRelayCertificates.IsChecked = acceptUntrusted ?? false;
+        ApplyUntrustedCertSwitch(AcceptUntrustedRelayCertificates.IsChecked == true);
+
         // Temporary setting for debugging with agent with playwright. Needs to bee removed after testing:
         if (AutoLoginBypassEnabled)
             MobileModeEnabled.IsChecked = false;
@@ -752,7 +765,7 @@ public partial class LoginView : UserControl
 
     private void ButtonSave_Click(object sender, RoutedEventArgs e)
     {
-        ACValueItem dbSourceVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseSource)).FirstOrDefault();
+        ACValueItem? dbSourceVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseSource)).FirstOrDefault();
         if (dbSourceVal == null)
         {
             dbSourceVal = new ACValueItem(nameof(DatabaseSource), DatabaseSource.Text, null);
@@ -763,7 +776,7 @@ public partial class LoginView : UserControl
             dbSourceVal.Value = DatabaseSource.Text;
         }
 
-        ACValueItem dbNameVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseName)).FirstOrDefault();
+        ACValueItem? dbNameVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseName)).FirstOrDefault();
         if (dbNameVal == null)
         {
             dbNameVal = new ACValueItem(nameof(DatabaseName), DatabaseName.Text, null);
@@ -774,7 +787,7 @@ public partial class LoginView : UserControl
             dbNameVal.Value = DatabaseName.Text;
         }
 
-        ACValueItem dbUserVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseUser)).FirstOrDefault();
+        ACValueItem? dbUserVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseUser)).FirstOrDefault();
         if (dbUserVal == null)
         {
             dbUserVal = new ACValueItem(nameof(DatabaseUser), DatabaseUser.Text, null);
@@ -785,7 +798,7 @@ public partial class LoginView : UserControl
             dbUserVal.Value = DatabaseUser.Text;
         }
 
-        ACValueItem dbPasswordVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(DatabasePassword)).FirstOrDefault();
+        ACValueItem? dbPasswordVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(DatabasePassword)).FirstOrDefault();
         if (dbPasswordVal == null)
         {
             dbPasswordVal = new ACValueItem(nameof(DatabasePassword), DatabasePassword.Text, null);
@@ -796,7 +809,7 @@ public partial class LoginView : UserControl
             dbPasswordVal.Value = DatabasePassword.Text;
         }
 
-        ACValueItem dbTunnelUrlVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseTunnelUrl)).FirstOrDefault();
+        ACValueItem? dbTunnelUrlVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseTunnelUrl)).FirstOrDefault();
         if (dbTunnelUrlVal == null)
         {
             dbTunnelUrlVal = new ACValueItem(nameof(DatabaseTunnelUrl), DatabaseTunnelUrl.Text, null);
@@ -807,7 +820,7 @@ public partial class LoginView : UserControl
             dbTunnelUrlVal.Value = DatabaseTunnelUrl.Text;
         }
 
-        ACValueItem entraClientIdVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == "EntraClientId").FirstOrDefault();
+        ACValueItem? entraClientIdVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == "EntraClientId").FirstOrDefault();
         if (entraClientIdVal == null)
         {
             entraClientIdVal = new ACValueItem("EntraClientId", EntraClientId.Text, null);
@@ -818,7 +831,7 @@ public partial class LoginView : UserControl
             entraClientIdVal.Value = EntraClientId.Text;
         }
 
-        ACValueItem entraTenantIdVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == "EntraTenantId").FirstOrDefault();
+        ACValueItem? entraTenantIdVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == "EntraTenantId").FirstOrDefault();
         if (entraTenantIdVal == null)
         {
             entraTenantIdVal = new ACValueItem("EntraTenantId", EntraTenantId.Text, null);
@@ -829,7 +842,7 @@ public partial class LoginView : UserControl
             entraTenantIdVal.Value = EntraTenantId.Text;
         }
 
-        ACValueItem singleViewVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(MobileModeEnabled)).FirstOrDefault();
+        ACValueItem? singleViewVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(MobileModeEnabled)).FirstOrDefault();
         if (singleViewVal == null)
         {
             // Store the user's current choice — do NOT force true here (that discarded
@@ -841,6 +854,18 @@ public partial class LoginView : UserControl
         {
             singleViewVal.Value = MobileModeEnabled.IsChecked;
         }
+
+        ACValueItem? acceptUntrustedVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(AcceptUntrustedRelayCertificates)).FirstOrDefault();
+        if (acceptUntrustedVal == null)
+        {
+            acceptUntrustedVal = new ACValueItem(nameof(AcceptUntrustedRelayCertificates), AcceptUntrustedRelayCertificates.IsChecked, null);
+            CommandLineHelper.Settings.Add(acceptUntrustedVal);
+        }
+        else
+        {
+            acceptUntrustedVal.Value = AcceptUntrustedRelayCertificates.IsChecked;
+        }
+        ApplyUntrustedCertSwitch(AcceptUntrustedRelayCertificates.IsChecked == true);
 
         // Switch back to the login grid first, so the user always gets feedback
         // even if persisting the settings fails (e.g. read-only file system on WASM).
@@ -881,7 +906,7 @@ public partial class LoginView : UserControl
             {
                 _EntraTokenCache.Clear();
             }
-            ACValueItem item = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == EntraTokenCacheSetting).FirstOrDefault();
+            ACValueItem? item = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == EntraTokenCacheSetting).FirstOrDefault();
             if (item != null)
             {
                 CommandLineHelper.Settings.Remove(item);
@@ -938,7 +963,7 @@ public partial class LoginView : UserControl
         // App.config so the tunnel token + SQL credential delivery also apply there.
         if (String.IsNullOrWhiteSpace(dbSource) && String.IsNullOrWhiteSpace(dbName))
         {
-            string cfg = null;
+            string? cfg = null;
             try
             {
                 cfg = ConfigurationManager.ConnectionStrings?[Database.C_DefaultContainerName]?.ConnectionString;
@@ -972,7 +997,9 @@ public partial class LoginView : UserControl
             ? @"Integrated Security=False; Encrypt=False; data source={0}; initial catalog={1}; Trusted_Connection=False; persist security info=True; user id={2}; password={3}; application name=iPlus; multipleactiveresultsets=True"
             : @"Integrated Security=True; Encrypt=False; data source={0}; initial catalog={1}; application name=iPlus; multipleactiveresultsets=True");
         string connectionString = String.Format(connSettingsFormat, dbSource, dbName, dbUser, dbPass);
-        string tunnelUrlWithAuth = null;
+        string? tunnelUrlWithAuth = null;
+        string? acquiredToken = null;
+        string? resolvedTunnelUrl = null;
 
         // SQL Tunnel (browser/WASM): when a tunnel URL is configured, the forked
         // Microsoft.Data.SqlClient routes the TDS stream over the WebSocket relay and the
@@ -989,7 +1016,7 @@ public partial class LoginView : UserControl
             if (queryIdx >= 0)
                 tunnelUrl = tunnelUrl.Substring(0, queryIdx);
 
-            string token = null;
+            string? token = null;
             string? entraClientId = settings.Where(c => c.ACCaptionTranslation == "EntraClientId").FirstOrDefault()?.Value as string;
             // Desktop fallback (docs §9.24): when the settings store has no Entra keys,
             // read them from <appSettings> in App.config — the desktop has no SettingsGrid
@@ -1016,8 +1043,8 @@ public partial class LoginView : UserControl
             }
             else
             {
-                string iPlusUser = UserSettings?.UserName;
-                string iPlusPass = UserSettings?.Password;
+                string? iPlusUser = UserSettings?.UserName;
+                string? iPlusPass = UserSettings?.Password;
                 token = TryAcquireTunnelToken(tunnelUrl, iPlusUser, iPlusPass);
             }
 
@@ -1026,6 +1053,8 @@ public partial class LoginView : UserControl
             // placeholder credentials — no SQL password is stored in the client config.
             if (!String.IsNullOrEmpty(token))
                 connectionString = await TryApplySqlCredentialsFromRelayAsync(tunnelUrl, token, connectionString);
+            acquiredToken = token;
+            resolvedTunnelUrl = tunnelUrl;
 
             var tunnelWithAuth = new System.Text.StringBuilder(tunnelUrl);
             if (!String.IsNullOrWhiteSpace(entraClientId))
@@ -1035,8 +1064,8 @@ public partial class LoginView : UserControl
             }
             else
             {
-                string iPlusUser = UserSettings?.UserName;
-                string iPlusPass = UserSettings?.Password;
+                string? iPlusUser = UserSettings?.UserName;
+                string? iPlusPass = UserSettings?.Password;
                 tunnelWithAuth.Append("?iplususer=").Append(Uri.EscapeDataString(iPlusUser ?? ""));
                 if (!String.IsNullOrEmpty(iPlusPass))
                     tunnelWithAuth.Append("&ipluspass=").Append(Uri.EscapeDataString(iPlusPass));
@@ -1120,6 +1149,21 @@ public partial class LoginView : UserControl
         if (tunnelUrlWithAuth != null)
             Database.TunnelUrl = tunnelUrlWithAuth;
 
+        // Multiple EF contexts (e.g. iPlusMESV5_Entities in the MES client): the relay is a
+        // blind TCP proxy to ONE SQL server — the initial catalog travels inside the TDS
+        // login packet, so ONE tunnel serves ANY number of contexts on that server. Apply
+        // the same Tunnel URL + relay-delivered credentials to every additional registered
+        // container name (and to every other entry already present in the config file).
+        if (tunnelUrlWithAuth != null)
+        {
+            await ApplyTunnelToAdditionalConnectionsAsync(
+                config,
+                resolvedTunnelUrl!,
+                tunnelUrlWithAuth,
+                acquiredToken,
+                Database.ConnectionString);
+        }
+
         // Diagnostic probe: verify the connection string resolves and whether SqlClient
         // can open a connection at all on this platform. Uses the forked Microsoft.Data.SqlClient
         // (System.Data.SqlClient has no WebSocket tunnel support and no raw TCP on WASM).
@@ -1179,17 +1223,17 @@ public partial class LoginView : UserControl
             if (hasSettings)
                 return;
 
-            ConnectionStringSettings cfgSetting = null;
+            ConnectionStringSettings? cfgSetting = null;
             try
             {
                 cfgSetting = ConfigurationManager.ConnectionStrings?[Database.C_DefaultContainerName];
             }
             catch { /* ConfigurationManager unavailable — nothing to prepare */ }
-            string cfg = cfgSetting?.ConnectionString;
+            string? cfg = cfgSetting?.ConnectionString;
             if (String.IsNullOrWhiteSpace(cfg))
                 return;
 
-            ParseConfigConnectionString(cfg, out string dbSource, out string dbName, out string dbUser, out string dbPass, out string dbTunnelUrl);
+            ParseConfigConnectionString(cfg, out string? dbSource, out string? dbName, out string? dbUser, out string? dbPass, out string? dbTunnelUrl);
             if (String.IsNullOrWhiteSpace(dbTunnelUrl))
                 return; // no tunnel — plain config connection, nothing to do
             string tunnelUrl = dbTunnelUrl.Trim();
@@ -1200,12 +1244,12 @@ public partial class LoginView : UserControl
             // Stage 1 token: Entra via <appSettings> (the desktop has no settings store
             // for the Entra keys). Local-issuer mode would need iPlus credentials, which
             // the config-file path does not carry.
-            string entraClientId = GetAppConfigValue("EntraClientId");
-            string token = null;
+            string? entraClientId = GetAppConfigValue("EntraClientId");
+            string? token = null;
             if (!String.IsNullOrWhiteSpace(entraClientId))
             {
-                string entraTenant = GetAppConfigValue("EntraTenantId");
-                string entraScope = GetAppConfigValue("EntraScope");
+                string? entraTenant = GetAppConfigValue("EntraTenantId");
+                string? entraScope = GetAppConfigValue("EntraScope");
                 token = TryAcquireEntraTokenDeviceCode(
                     String.IsNullOrWhiteSpace(entraTenant) ? "organizations" : entraTenant.Trim(),
                     entraClientId.Trim(),
@@ -1283,11 +1327,196 @@ public partial class LoginView : UserControl
         }
     }
 
+    #region Multiple EF contexts (SQL Tunnel applies to all of them)
+
+    /// <summary>
+    /// Additional connection container names (app-specific EF contexts, e.g.
+    /// <c>iPlusMESV5_Entities</c> in the MES client) that the SQL Tunnel and the
+    /// relay-delivered SQL credentials should also be applied to. App clients add their
+    /// names here BEFORE the login (e.g. in Program.Main). Additionally, every OTHER
+    /// entry already present in the connection-strings config is rewritten automatically
+    /// (desktop ConnectionStrings.config), so on the desktop no registration is needed.
+    /// The relay is a blind TCP proxy to ONE SQL server — the initial catalog travels
+    /// inside the TDS login packet, so one tunnel serves any number of contexts.
+    /// Syntax: <c>"Name"</c> or <c>"Name|InitialCatalog"</c>. The catalog override is used
+    /// on platforms WITHOUT ConnectionStrings.config (Android/browser), where the
+    /// connection string is derived from the default container — without an override it
+    /// would inherit the default's initial catalog. Example:
+    /// <c>Add("ExampleV5_Entities|ExampleV5")</c> when the context targets the database
+    /// <c>ExampleV5</c> instead of the default container's database.
+    /// </summary>
+    public static readonly System.Collections.Generic.List<string> AdditionalConnectionContainerNames =
+        new System.Collections.Generic.List<string>();
+
+    /// <summary>
+    /// Applies the Tunnel URL (with auth) and the relay-delivered SQL credentials to all
+    /// additional connection strings: every name in <see cref="AdditionalConnectionContainerNames"/>
+    /// plus every other entry found in the editable config or the global ConfigurationManager
+    /// (excluding the default container, which the main flow already handled).
+    /// </summary>
+    private static async Task ApplyTunnelToAdditionalConnectionsAsync(
+        System.Configuration.Configuration? config,
+        string tunnelUrl,
+        string tunnelUrlWithAuth,
+        string? token,
+        string? defaultConnectionString = null)
+    {
+        try
+        {
+            // Candidate names: explicitly registered app contexts + everything already in
+            // the config files (desktop ConnectionStrings.config lists e.g.
+            // iPlusV5_Entities AND iPlusMESV5_Entities).
+            var names = new System.Collections.Generic.List<string>();
+            var catalogOverrides = new System.Collections.Generic.Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            void AddName(string n)
+            {
+                if (String.IsNullOrWhiteSpace(n))
+                    return;
+                // "Name|Catalog" syntax: an app may register an additional EF context with
+                // an explicit initial catalog for platforms without ConnectionStrings.config
+                // (Android/browser). There the connection string is DERIVED from the default
+                // container, and without an override it would inherit the default's catalog —
+                // wrong when the context targets a different database on the same server.
+                string catalog = null;
+                int pipeIdx = n.IndexOf('|');
+                if (pipeIdx > 0)
+                {
+                    catalog = n.Substring(pipeIdx + 1).Trim();
+                    n = n.Substring(0, pipeIdx).Trim();
+                }
+                if (!String.IsNullOrWhiteSpace(catalog))
+                    catalogOverrides[n] = catalog;
+                if (!names.Contains(n))
+                    names.Add(n);
+            }
+            foreach (string n in AdditionalConnectionContainerNames)
+                AddName(n);
+            try
+            {
+                var cfgEntries = config?.ConnectionStrings?.ConnectionStrings;
+                if (cfgEntries != null)
+                    foreach (ConnectionStringSettings s in cfgEntries)
+                        AddName(s.Name);
+            }
+            catch { /* config unavailable */ }
+            try
+            {
+                var globalEntries = ConfigurationManager.ConnectionStrings;
+                if (globalEntries != null)
+                    foreach (ConnectionStringSettings s in globalEntries)
+                        AddName(s.Name);
+            }
+            catch { /* ConfigurationManager unavailable */ }
+
+            foreach (string name in names)
+            {
+                if (String.IsNullOrWhiteSpace(name) || name == Database.C_DefaultContainerName)
+                    continue;
+
+                string? cs = null;
+                try { cs = config?.ConnectionStrings?.ConnectionStrings[name]?.ConnectionString; } catch { }
+                if (String.IsNullOrWhiteSpace(cs))
+                {
+                    try { cs = ConfigurationManager.ConnectionStrings?[name]?.ConnectionString; } catch { }
+                }
+                if (String.IsNullOrWhiteSpace(cs))
+                {
+                    // Android/browser: no ConnectionStrings.config exists. Derive the
+                    // additional context from the default container's rewritten connection
+                    // string — the relay is a blind proxy to ONE server, and the initial
+                    // catalog travels inside the TDS login packet, so the same string works.
+                    if (!String.IsNullOrWhiteSpace(defaultConnectionString))
+                    {
+                        cs = defaultConnectionString;
+                        // Apply the "Name|Catalog" override when registered: replace the
+                        // default container's initial catalog with the context's own database.
+                        if (catalogOverrides.TryGetValue(name, out string overrideCatalog)
+                            && !String.IsNullOrWhiteSpace(overrideCatalog))
+                        {
+                            cs = System.Text.RegularExpressions.Regex.Replace(
+                                cs, @"(?i)(initial\s+catalog\s*=\s*)[^;]*", m => m.Groups[1].Value + overrideCatalog);
+                            Console.WriteLine($"LoginView: additional connection '{name}' derived from default container with catalog override '{overrideCatalog}'.");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"LoginView: additional connection '{name}' derived from default container.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"LoginView: additional connection '{name}' not found in any config — skipped (register its catalog in ConnectionStrings.config).");
+                        continue;
+                    }
+                }
+
+                // Strip any pre-existing Tunnel URL segment, then append the fresh one.
+                cs = System.Text.RegularExpressions.Regex.Replace(
+                    cs, @"(?i);?\s*Tunnel\s+URL\s*=\s*[^;]*", "");
+                cs = cs.TrimEnd(';', ' ');
+
+                // Relay-delivered credentials (docs §9.24): rewrite user id/password and
+                // flip Integrated Security so the delivered login is actually used.
+                if (!String.IsNullOrEmpty(token))
+                    cs = await TryApplySqlCredentialsFromRelayAsync(tunnelUrl, token, cs);
+
+                cs += "; Tunnel URL=" + tunnelUrlWithAuth;
+                RegisterConnectionString(name, cs, config);
+                Console.WriteLine($"LoginView: tunnel applied to additional connection '{name}'.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"LoginView: ApplyTunnelToAdditionalConnectionsAsync failed. {ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Registers a connection string under the given container name: prefers the editable
+    /// CommandLineHelper.ConfigCurrentDir (vbiplus.config / exe config), falls back to the
+    /// global ConfigurationManager collection (read-only on some platforms — best effort).
+    /// </summary>
+    private static void RegisterConnectionString(string containerName, string connectionString, System.Configuration.Configuration? config)
+    {
+        var setting = new ConnectionStringSettings(containerName, connectionString, "System.Data.SqlClient");
+        var existing = config?.ConnectionStrings?.ConnectionStrings[containerName];
+        if (existing != null)
+        {
+            existing.ProviderName = setting.ProviderName;
+            existing.ConnectionString = setting.ConnectionString;
+            return;
+        }
+        if (config?.ConnectionStrings?.ConnectionStrings != null)
+        {
+            config.ConnectionStrings.ConnectionStrings.Add(setting);
+            return;
+        }
+        try
+        {
+            var globalConnections = ConfigurationManager.ConnectionStrings;
+            var existingGlobal = globalConnections?[containerName];
+            if (existingGlobal != null)
+            {
+                existingGlobal.ProviderName = setting.ProviderName;
+                existingGlobal.ConnectionString = setting.ConnectionString;
+            }
+            else
+            {
+                globalConnections?.Add(setting);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"LoginView: could not register connection '{containerName}' globally. {ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    #endregion
+
     /// <summary>
     /// Parses a connection string into the values the tunnel flow needs. Unknown keys
     /// are ignored; keys are matched case-insensitively; values are trimmed.
     /// </summary>
-    private static void ParseConfigConnectionString(string cfg, out string dbSource, out string dbName, out string dbUser, out string dbPass, out string dbTunnelUrl)
+    private static void ParseConfigConnectionString(string cfg, out string? dbSource, out string? dbName, out string? dbUser, out string? dbPass, out string? dbTunnelUrl)
     {
         dbSource = dbName = dbUser = dbPass = dbTunnelUrl = null;
         foreach (string part in cfg.Split(';'))
@@ -1327,7 +1556,7 @@ public partial class LoginView : UserControl
     /// Reads a value from &lt;appSettings&gt; in App.config (desktop clients). Returns
     /// null when the key is absent or ConfigurationManager is unavailable (WASM).
     /// </summary>
-    private static string GetAppConfigValue(string key)
+    private static string? GetAppConfigValue(string key)
     {
         try
         {
@@ -1363,7 +1592,7 @@ public partial class LoginView : UserControl
     /// environment variable IPLUS_ACCEPT_UNTRUSTED_CERT=1. The env var also sets the
     /// AppContext switch so the SqlClient wss:// transport honors it too.
     /// </summary>
-    private static bool AcceptUntrustedRelayCertificates
+    private static bool AcceptUntrustedRelayCertificatesLegacy
     {
         get
         {
@@ -1379,10 +1608,29 @@ public partial class LoginView : UserControl
         }
     }
 
+    /// <summary>
+    /// Propagates the "accept untrusted relay certificates" choice to the SqlClient
+    /// tunnel transport (AppContext switch) and the relay HTTP client. Must run before
+    /// the first connection is opened.
+    /// </summary>
+    private static void ApplyUntrustedCertSwitch(bool enabled)
+    {
+        AppContext.SetSwitch("Switch.Microsoft.Data.SqlClient.AcceptUntrustedTunnelCertificates", enabled);
+    }
+
+    private static bool AcceptUntrustedRelayCertificatesEnabled
+    {
+        get
+        {
+            ACValueItemList settings = CommandLineHelper.Settings;
+            return settings.Where(c => c.ACCaptionTranslation == nameof(AcceptUntrustedRelayCertificates)).FirstOrDefault()?.Value is bool b && b;
+        }
+    }
+
     /// <summary>HttpClient for relay calls; accepts untrusted certificates when enabled (not on browser — there the browser owns TLS).</summary>
     private static System.Net.Http.HttpClient CreateRelayHttpClient()
     {
-        if (AcceptUntrustedRelayCertificates && !OperatingSystem.IsBrowser())
+        if ((AcceptUntrustedRelayCertificatesEnabled || AcceptUntrustedRelayCertificatesLegacy) && !OperatingSystem.IsBrowser())
         {
             System.Net.Http.HttpClientHandler handler = new System.Net.Http.HttpClientHandler();
             handler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
@@ -1421,18 +1669,23 @@ public partial class LoginView : UserControl
             }
             string json = await resp.Content.ReadAsStringAsync();
             using System.Text.Json.JsonDocument doc = System.Text.Json.JsonDocument.Parse(json);
-            string user = doc.RootElement.TryGetProperty("user", out var u) && u.ValueKind == System.Text.Json.JsonValueKind.String ? u.GetString() : null;
-            string password = doc.RootElement.TryGetProperty("password", out var p) && p.ValueKind == System.Text.Json.JsonValueKind.String ? p.GetString() : null;
+            string? user = doc.RootElement.TryGetProperty("user", out var u) && u.ValueKind == System.Text.Json.JsonValueKind.String ? u.GetString() : null;
+            string? password = doc.RootElement.TryGetProperty("password", out var p) && p.ValueKind == System.Text.Json.JsonValueKind.String ? p.GetString() : null;
             if (String.IsNullOrEmpty(user) || password == null)
                 return connectionString;
 
             // Rewrite user id/password and force SQL auth (Integrated Security would
             // make SqlClient ignore the injected credentials and attempt SSPI).
             // MatchEvaluator avoids '$' in the credentials being read as substitution tokens.
-            connectionString = System.Text.RegularExpressions.Regex.Replace(
-                connectionString, @"(?i)(user id\s*=\s*)[^;]*", m => m.Groups[1].Value + user);
-            connectionString = System.Text.RegularExpressions.Regex.Replace(
-                connectionString, @"(?i)(password\s*=\s*)[^;]*", m => m.Groups[1].Value + password);
+            // When the keys are absent (empty username/password in settings), append them.
+            var userExpr = new System.Text.RegularExpressions.Regex(@"(?i)(user id\s*=\s*)[^;]*");
+            var pwdExpr = new System.Text.RegularExpressions.Regex(@"(?i)(password\s*=\s*)[^;]*");
+            connectionString = userExpr.IsMatch(connectionString)
+                ? userExpr.Replace(connectionString, m => m.Groups[1].Value + user)
+                : connectionString + $";User ID={user}";
+            connectionString = pwdExpr.IsMatch(connectionString)
+                ? pwdExpr.Replace(connectionString, m => m.Groups[1].Value + password)
+                : connectionString + $";Password={password}";
             connectionString = System.Text.RegularExpressions.Regex.Replace(
                 connectionString, @"(?i)Integrated\s+Security\s*=\s*True", "Integrated Security=False");
             Console.WriteLine($"LoginView: SQL credentials delivered by relay for user '{user}'.");
@@ -1440,7 +1693,10 @@ public partial class LoginView : UserControl
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"LoginView: could not fetch SQL credentials from relay. {ex.GetType().Name}: {ex.Message}");
+            var sb = new System.Text.StringBuilder();
+            for (var e = (Exception?)ex; e != null; e = e.InnerException)
+                sb.Append(e.GetType().Name).Append(": ").Append(e.Message).Append(" <- ");
+            Console.WriteLine($"LoginView: could not fetch SQL credentials from relay. {sb}");
             return connectionString;
         }
     }
@@ -1454,7 +1710,7 @@ public partial class LoginView : UserControl
     /// without RequireOAuth, offline) — the tunnel then works unauthenticated or fails
     /// server-side with a clear 401.
     /// </summary>
-    private static string TryAcquireTunnelToken(string tunnelUrl, string iPlusUser, string iPlusPassword)
+    private static string? TryAcquireTunnelToken(string tunnelUrl, string? iPlusUser, string? iPlusPassword)
     {
         try
         {
@@ -1483,7 +1739,7 @@ public partial class LoginView : UserControl
                 string result = SyncXhr("POST", tokenUri.ToString(), body);
                 using System.Text.Json.JsonDocument doc = System.Text.Json.JsonDocument.Parse(result);
                 status = doc.RootElement.GetProperty("status").GetInt32();
-                text = doc.RootElement.GetProperty("text").GetString();
+                text = doc.RootElement.GetProperty("text").GetString()!;
             }
             else
             {
@@ -1503,7 +1759,7 @@ public partial class LoginView : UserControl
                 return null;
             }
             using System.Text.Json.JsonDocument tokenDoc = System.Text.Json.JsonDocument.Parse(text);
-            string token = tokenDoc.RootElement.GetProperty("token").GetString();
+            string token = tokenDoc.RootElement.GetProperty("token").GetString()!;
             Console.WriteLine("LoginView: tunnel token acquired.");
             return token;
         }
@@ -1534,8 +1790,8 @@ public partial class LoginView : UserControl
 
     private sealed class EntraTokenCacheEntry
     {
-        public string AccessToken { get; set; }
-        public string RefreshToken { get; set; }
+        public string? AccessToken { get; set; }
+        public string? RefreshToken { get; set; }
         public long ExpiresOnUnix { get; set; }   // access token expiry (UTC seconds)
     }
 
@@ -1544,11 +1800,11 @@ public partial class LoginView : UserControl
     /// app settings file (persisted on Android/desktop; on Browser/WASM the device-code
     /// flow is not used anyway). Returns null when absent or unparsable.
     /// </summary>
-    private static EntraTokenCacheEntry LoadEntraTokenCache(string cacheKey)
+    private static EntraTokenCacheEntry? LoadEntraTokenCache(string cacheKey)
     {
         try
         {
-            string json = CommandLineHelper.Settings
+            string? json = CommandLineHelper.Settings
                 .Where(c => c.ACCaptionTranslation == EntraTokenCacheSetting).FirstOrDefault()?.Value as string;
             if (String.IsNullOrEmpty(json))
                 return null;
@@ -1577,14 +1833,14 @@ public partial class LoginView : UserControl
     /// settings file. Best-effort: a read-only settings store just means the user
     /// signs in again on the next start.
     /// </summary>
-    private static void SaveEntraTokenCache(string cacheKey, string accessToken, string refreshToken, long expiresOnUnix)
+    private static void SaveEntraTokenCache(string cacheKey, string accessToken, string? refreshToken, long expiresOnUnix)
     {
         try
         {
             // Read the existing store so multiple keys can coexist. NOTE: built with raw
             // JsonDocument/string concatenation — reflection-based JsonSerializer is
             // DISABLED in the WASM build (JsonSerializerIsReflectionDisabled).
-            string existing = CommandLineHelper.Settings
+            string? existing = CommandLineHelper.Settings
                 .Where(c => c.ACCaptionTranslation == EntraTokenCacheSetting).FirstOrDefault()?.Value as string;
             var entries = new List<string>();
             if (!String.IsNullOrEmpty(existing))
@@ -1611,14 +1867,14 @@ public partial class LoginView : UserControl
             }
             // JsonEncodedText.Encode escapes for JSON but does NOT add the surrounding
             // quotes — wrap manually.
-            string Quote(string s) => "\"" + System.Text.Json.JsonEncodedText.Encode(s ?? "").ToString() + "\"";
+            string Quote(string? s) => "\"" + System.Text.Json.JsonEncodedText.Encode(s ?? "").ToString() + "\"";
             string newEntry = "{\"accessToken\":" + Quote(accessToken) +
                               ",\"refreshToken\":" + Quote(refreshToken) +
                               ",\"expiresOn\":" + expiresOnUnix.ToString(System.Globalization.CultureInfo.InvariantCulture) + "}";
             entries.Add(Quote(cacheKey) + ":" + newEntry);
             string json = "{" + String.Join(",", entries) + "}";
             json = EntraTokenProtector.Protect(json);
-            ACValueItem item = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == EntraTokenCacheSetting).FirstOrDefault();
+            ACValueItem? item = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == EntraTokenCacheSetting).FirstOrDefault();
             if (item == null)
                 CommandLineHelper.Settings.Add(new ACValueItem(EntraTokenCacheSetting, json, null));
             else
@@ -1667,12 +1923,12 @@ public partial class LoginView : UserControl
     /// the device-code sign-in on a second device. Same cache semantics (in-process +
     /// persistent encrypted cache + silent refresh).
     /// </summary>
-    private static async Task<string> TryAcquireEntraTokenDeviceCodeAsync(string tenant, string clientId, string scope, Action<string> onUserCode = null, string relayProxyBase = null)
+    private static async Task<string?> TryAcquireEntraTokenDeviceCodeAsync(string tenant, string clientId, string scope, Action<string>? onUserCode = null, string? relayProxyBase = null)
     {
         string cacheKey = tenant + "|" + clientId + "|" + scope;
         lock (_EntraTokenCacheLock)
         {
-            if (_EntraTokenCache.TryGetValue(cacheKey, out string cached))
+            if (_EntraTokenCache.TryGetValue(cacheKey, out string? cached) && cached != null)
                 return cached;
         }
         try
@@ -1689,7 +1945,7 @@ public partial class LoginView : UserControl
             http.Timeout = TimeSpan.FromSeconds(30);
 
             // 1. Persisted cache: a still-valid access token is reused silently (no UI).
-            EntraTokenCacheEntry persisted = LoadEntraTokenCache(cacheKey);
+            EntraTokenCacheEntry? persisted = LoadEntraTokenCache(cacheKey);
             if (persisted != null && !String.IsNullOrEmpty(persisted.AccessToken)
                 && persisted.ExpiresOnUnix > DateTimeOffset.UtcNow.AddMinutes(5).ToUnixTimeSeconds())
             {
@@ -1701,7 +1957,7 @@ public partial class LoginView : UserControl
             // 2. Expired access token but refresh token present: silent refresh (no UI).
             if (persisted != null && !String.IsNullOrEmpty(persisted.RefreshToken))
             {
-                string refreshed = await TryRefreshEntraTokenAsync(http, instance, tenant, clientId, scope, persisted.RefreshToken, cacheKey, relayProxyBase);
+                string? refreshed = await TryRefreshEntraTokenAsync(http, instance, tenant, clientId, scope, persisted.RefreshToken!, cacheKey, relayProxyBase);
                 if (refreshed != null)
                     return refreshed;
                 Console.WriteLine("LoginView: silent refresh failed — falling back to device-code sign-in.");
@@ -1720,9 +1976,9 @@ public partial class LoginView : UserControl
                 return null;
             }
             using System.Text.Json.JsonDocument dc = System.Text.Json.JsonDocument.Parse(await deviceCodeResp.Content.ReadAsStringAsync());
-            string deviceCode = dc.RootElement.GetProperty("device_code").GetString();
-            string userCode = dc.RootElement.GetProperty("user_code").GetString();
-            string verificationUri = dc.RootElement.GetProperty("verification_uri").GetString();
+            string deviceCode = dc.RootElement.GetProperty("device_code").GetString()!;
+            string userCode = dc.RootElement.GetProperty("user_code").GetString()!;
+            string verificationUri = dc.RootElement.GetProperty("verification_uri").GetString()!;
             int interval = dc.RootElement.TryGetProperty("interval", out System.Text.Json.JsonElement iv) && iv.TryGetInt32(out int ivV) ? ivV : 5;
             int expires_in = dc.RootElement.TryGetProperty("expires_in", out System.Text.Json.JsonElement ex) && ex.TryGetInt32(out int exV) ? exV : 900;
 
@@ -1761,8 +2017,8 @@ public partial class LoginView : UserControl
                 if ((int)poll.StatusCode == 200)
                 {
                     using System.Text.Json.JsonDocument tok = System.Text.Json.JsonDocument.Parse(body);
-                    string accessToken = tok.RootElement.GetProperty("access_token").GetString();
-                    string refreshToken = tok.RootElement.TryGetProperty("refresh_token", out System.Text.Json.JsonElement rt) && rt.ValueKind == System.Text.Json.JsonValueKind.String ? rt.GetString() : null;
+                    string accessToken = tok.RootElement.GetProperty("access_token").GetString()!;
+                    string? refreshToken = tok.RootElement.TryGetProperty("refresh_token", out System.Text.Json.JsonElement rt) && rt.ValueKind == System.Text.Json.JsonValueKind.String ? rt.GetString() : null;
                     long expiresOn = DateTimeOffset.UtcNow.AddSeconds(
                         tok.RootElement.TryGetProperty("expires_in", out System.Text.Json.JsonElement ei) && ei.TryGetInt32(out int eiV) ? eiV : 3600).ToUnixTimeSeconds();
                     Console.WriteLine("LoginView: Entra token acquired.");
@@ -1774,7 +2030,7 @@ public partial class LoginView : UserControl
                     return accessToken;
                 }
                 using System.Text.Json.JsonDocument err = System.Text.Json.JsonDocument.Parse(body);
-                string error = err.RootElement.TryGetProperty("error", out System.Text.Json.JsonElement er) && er.ValueKind == System.Text.Json.JsonValueKind.String ? er.GetString() : null;
+                string? error = err.RootElement.TryGetProperty("error", out System.Text.Json.JsonElement er) && er.ValueKind == System.Text.Json.JsonValueKind.String ? er.GetString() : null;
                 if (error == "authorization_pending" || error == "slow_down")
                     continue;
                 Console.WriteLine($"LoginView: Entra token polling failed: {error}");
@@ -1795,8 +2051,8 @@ public partial class LoginView : UserControl
     /// interaction). Updates the persistent cache on success; returns null on failure
     /// (caller falls back to the interactive device-code flow).
     /// </summary>
-    private static async Task<string> TryRefreshEntraTokenAsync(System.Net.Http.HttpClient http, string instance, string tenant,
-        string clientId, string scope, string refreshToken, string cacheKey, string relayProxyBase = null)
+    private static async Task<string?> TryRefreshEntraTokenAsync(System.Net.Http.HttpClient http, string instance, string tenant,
+        string clientId, string scope, string refreshToken, string cacheKey, string? relayProxyBase = null)
     {
         try
         {
@@ -1818,9 +2074,9 @@ public partial class LoginView : UserControl
                 return null;
             }
             using System.Text.Json.JsonDocument tok = System.Text.Json.JsonDocument.Parse(body);
-            string accessToken = tok.RootElement.GetProperty("access_token").GetString();
+            string accessToken = tok.RootElement.GetProperty("access_token").GetString()!;
             // Entra may rotate the refresh token — store the new one when present.
-            string newRefresh = tok.RootElement.TryGetProperty("refresh_token", out System.Text.Json.JsonElement rt) && rt.ValueKind == System.Text.Json.JsonValueKind.String ? rt.GetString() : refreshToken;
+            string? newRefresh = tok.RootElement.TryGetProperty("refresh_token", out System.Text.Json.JsonElement rt) && rt.ValueKind == System.Text.Json.JsonValueKind.String ? rt.GetString() : refreshToken;
             long expiresOn = DateTimeOffset.UtcNow.AddSeconds(
                 tok.RootElement.TryGetProperty("expires_in", out System.Text.Json.JsonElement ei) && ei.TryGetInt32(out int eiV) ? eiV : 3600).ToUnixTimeSeconds();
             Console.WriteLine("LoginView: Entra token silently refreshed.");
@@ -1847,12 +2103,12 @@ public partial class LoginView : UserControl
     /// tenant's JWKS). Not supported on Browser/WASM (no background polling thread).
     /// MUST be called from a background thread — the polling loop blocks.
     /// </summary>
-    private static string TryAcquireEntraTokenDeviceCode(string tenant, string clientId, string scope, Action<string> onUserCode = null)
+    private static string? TryAcquireEntraTokenDeviceCode(string tenant, string clientId, string scope, Action<string>? onUserCode = null)
     {
         string cacheKey = tenant + "|" + clientId + "|" + scope;
         lock (_EntraTokenCacheLock)
         {
-            if (_EntraTokenCache.TryGetValue(cacheKey, out string cached))
+            if (_EntraTokenCache.TryGetValue(cacheKey, out string? cached) && cached != null)
                 return cached;
         }
         try
@@ -1867,7 +2123,7 @@ public partial class LoginView : UserControl
             http.Timeout = TimeSpan.FromSeconds(30);
 
             // 1. Persisted cache: a still-valid access token is reused silently (no UI).
-            EntraTokenCacheEntry persisted = LoadEntraTokenCache(cacheKey);
+            EntraTokenCacheEntry? persisted = LoadEntraTokenCache(cacheKey);
             if (persisted != null && !String.IsNullOrEmpty(persisted.AccessToken)
                 && persisted.ExpiresOnUnix > DateTimeOffset.UtcNow.AddMinutes(5).ToUnixTimeSeconds())
             {
@@ -1879,7 +2135,7 @@ public partial class LoginView : UserControl
             // 2. Expired access token but refresh token present: silent refresh (no UI).
             if (persisted != null && !String.IsNullOrEmpty(persisted.RefreshToken))
             {
-                string refreshed = TryRefreshEntraToken(http, instance, tenant, clientId, scope, persisted.RefreshToken, cacheKey);
+                string? refreshed = TryRefreshEntraToken(http, instance, tenant, clientId, scope, persisted.RefreshToken!, cacheKey);
                 if (refreshed != null)
                     return refreshed;
                 Console.WriteLine("LoginView: silent refresh failed — falling back to device-code sign-in.");
@@ -1898,9 +2154,9 @@ public partial class LoginView : UserControl
                 return null;
             }
             using System.Text.Json.JsonDocument dc = System.Text.Json.JsonDocument.Parse(deviceCodeResp.Content.ReadAsStringAsync().GetAwaiter().GetResult());
-            string deviceCode = dc.RootElement.GetProperty("device_code").GetString();
-            string userCode = dc.RootElement.GetProperty("user_code").GetString();
-            string verificationUri = dc.RootElement.GetProperty("verification_uri").GetString();
+            string deviceCode = dc.RootElement.GetProperty("device_code").GetString()!;
+            string userCode = dc.RootElement.GetProperty("user_code").GetString()!;
+            string verificationUri = dc.RootElement.GetProperty("verification_uri").GetString()!;
             int interval = dc.RootElement.TryGetProperty("interval", out System.Text.Json.JsonElement iv) && iv.TryGetInt32(out int ivV) ? ivV : 5;
             int expires_in = dc.RootElement.TryGetProperty("expires_in", out System.Text.Json.JsonElement ex) && ex.TryGetInt32(out int exV) ? exV : 900;
 
@@ -1936,8 +2192,8 @@ public partial class LoginView : UserControl
                 if ((int)poll.StatusCode == 200)
                 {
                     using System.Text.Json.JsonDocument tok = System.Text.Json.JsonDocument.Parse(body);
-                    string accessToken = tok.RootElement.GetProperty("access_token").GetString();
-                    string refreshToken = tok.RootElement.TryGetProperty("refresh_token", out System.Text.Json.JsonElement rt) && rt.ValueKind == System.Text.Json.JsonValueKind.String ? rt.GetString() : null;
+                    string accessToken = tok.RootElement.GetProperty("access_token").GetString()!;
+                    string? refreshToken = tok.RootElement.TryGetProperty("refresh_token", out System.Text.Json.JsonElement rt) && rt.ValueKind == System.Text.Json.JsonValueKind.String ? rt.GetString() : null;
                     long expiresOn = DateTimeOffset.UtcNow.AddSeconds(
                         tok.RootElement.TryGetProperty("expires_in", out System.Text.Json.JsonElement ei) && ei.TryGetInt32(out int eiV) ? eiV : 3600).ToUnixTimeSeconds();
                     Console.WriteLine("LoginView: Entra token acquired.");
@@ -1949,7 +2205,7 @@ public partial class LoginView : UserControl
                     return accessToken;
                 }
                 using System.Text.Json.JsonDocument err = System.Text.Json.JsonDocument.Parse(body);
-                string error = err.RootElement.TryGetProperty("error", out System.Text.Json.JsonElement er) && er.ValueKind == System.Text.Json.JsonValueKind.String ? er.GetString() : null;
+                string? error = err.RootElement.TryGetProperty("error", out System.Text.Json.JsonElement er) && er.ValueKind == System.Text.Json.JsonValueKind.String ? er.GetString() : null;
                 if (error == "authorization_pending" || error == "slow_down")
                     continue;
                 Console.WriteLine($"LoginView: Entra token polling failed: {error}");
@@ -1970,7 +2226,7 @@ public partial class LoginView : UserControl
     /// Updates the persistent cache on success; returns null on failure (caller falls
     /// back to the interactive device-code flow).
     /// </summary>
-    private static string TryRefreshEntraToken(System.Net.Http.HttpClient http, string instance, string tenant,
+    private static string? TryRefreshEntraToken(System.Net.Http.HttpClient http, string instance, string tenant,
         string clientId, string scope, string refreshToken, string cacheKey)
     {
         try
@@ -1990,9 +2246,9 @@ public partial class LoginView : UserControl
                 return null;
             }
             using System.Text.Json.JsonDocument tok = System.Text.Json.JsonDocument.Parse(body);
-            string accessToken = tok.RootElement.GetProperty("access_token").GetString();
+            string accessToken = tok.RootElement.GetProperty("access_token").GetString()!;
             // Entra may rotate the refresh token — store the new one when present.
-            string newRefresh = tok.RootElement.TryGetProperty("refresh_token", out System.Text.Json.JsonElement rt) && rt.ValueKind == System.Text.Json.JsonValueKind.String ? rt.GetString() : refreshToken;
+            string? newRefresh = tok.RootElement.TryGetProperty("refresh_token", out System.Text.Json.JsonElement rt) && rt.ValueKind == System.Text.Json.JsonValueKind.String ? rt.GetString() : refreshToken;
             long expiresOn = DateTimeOffset.UtcNow.AddSeconds(
                 tok.RootElement.TryGetProperty("expires_in", out System.Text.Json.JsonElement ei) && ei.TryGetInt32(out int eiV) ? eiV : 3600).ToUnixTimeSeconds();
             Console.WriteLine("LoginView: Entra token silently refreshed.");
@@ -2016,7 +2272,7 @@ public partial class LoginView : UserControl
 
     #region Methods => Progress
 
-    void _Messages_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    void _Messages_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
         if (e != null)
         {
@@ -2029,7 +2285,7 @@ public partial class LoginView : UserControl
         }
     }
 
-    private void AddItems(IList newItems)
+    private void AddItems(IList? newItems)
     {
         if (_Messages != null)
         {
@@ -2044,7 +2300,7 @@ public partial class LoginView : UserControl
             if (listboxInfo.Items.Count > 0)
             {
                 listboxInfo.SelectedIndex = listboxInfo.Items.Count - 1;
-                listboxInfo.ScrollIntoView(listboxInfo.SelectedItem);
+                listboxInfo.ScrollIntoView(listboxInfo.SelectedItem!);
             }
         }
     }

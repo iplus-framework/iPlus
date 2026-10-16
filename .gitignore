@@ -355,3 +355,5 @@ iplusAvaloniaUI_VSCode.sln
 .continue/mcpServers/iPlus.yaml
 .continue/mcpServers/AvaloniaMCP.yaml
 .venv/
+# Roslyn script-editor metadata references (hardlinked build output, created by CopyScriptReferenceDlls target)
+gip.iplus.client.avui.Browser/wwwroot/scriptrefs/

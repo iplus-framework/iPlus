@@ -46,20 +46,20 @@ namespace gip.core.webservices
         public PASqlTunnelHost(gip.core.datamodel.ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
-            _IsEnabled = new ACPropertyConfigValue<bool>(this, "IsEnabled", false);
-            _SqlServer = new ACPropertyConfigValue<string>(this, "SqlServer", "");
-            _SqlPort = new ACPropertyConfigValue<int>(this, "SqlPort", 1433);
-            _RequireOAuth = new ACPropertyConfigValue<bool>(this, "RequireOAuth", false);
-            _RequireIPlusLogin = new ACPropertyConfigValue<bool>(this, "RequireIPlusLogin", false);
-            _SqlUser = new ACPropertyConfigValue<string>(this, "SqlUser", "");
-            _SqlPassword = new ACPropertyConfigValue<string>(this, "SqlPassword", "");
-            _TokenIssuer = new ACPropertyConfigValue<string>(this, "TokenIssuer", "");
-            _EntraTenant = new ACPropertyConfigValue<string>(this, "EntraTenant", "");
-            _EntraAudience = new ACPropertyConfigValue<string>(this, "EntraAudience", "");
-            _EntraInstance = new ACPropertyConfigValue<string>(this, "EntraInstance", "");
-            _UseTls = new ACPropertyConfigValue<bool>(this, "UseTls", false);
-            _TlsCertificatePath = new ACPropertyConfigValue<string>(this, "TlsCertificatePath", "");
-            _TlsCertificatePassword = new ACPropertyConfigValue<string>(this, "TlsCertificatePassword", "");
+            _IsEnabled = new ACPropertyConfigValue<bool>(this, nameof(IsEnabled), false);
+            _SqlServer = new ACPropertyConfigValue<string>(this, nameof(SqlServer), "");
+            _SqlPort = new ACPropertyConfigValue<int>(this, nameof(SqlPort), 1433);
+            _RequireOAuth = new ACPropertyConfigValue<bool>(this, nameof(RequireOAuth), false);
+            _RequireIPlusLogin = new ACPropertyConfigValue<bool>(this, nameof(RequireIPlusLogin), false);
+            _SqlUser = new ACPropertyConfigValue<string>(this, nameof(SqlUser), "");
+            _SqlPassword = new ACPropertyConfigValue<string>(this, nameof(SqlPassword), "");
+            _TokenIssuer = new ACPropertyConfigValue<string>(this, nameof(TokenIssuer), "");
+            _EntraTenantId = new ACPropertyConfigValue<string>(this, nameof(EntraTenantId), "");
+            _EntraAudience = new ACPropertyConfigValue<string>(this, nameof(EntraAudience), "");
+            _EntraInstance = new ACPropertyConfigValue<string>(this, nameof(EntraInstance), "");
+            _UseTls = new ACPropertyConfigValue<bool>(this, nameof(UseTls), false);
+            _TlsCertificatePath = new ACPropertyConfigValue<string>(this, nameof(TlsCertificatePath), "");
+            _TlsCertificatePassword = new ACPropertyConfigValue<string>(this, nameof(TlsCertificatePassword), "");
             // Command to enable http-Service:
             // >netsh http add urlacl url=http://+:ServicePort/ user="\Everyone"
         }
@@ -268,7 +268,7 @@ namespace gip.core.webservices
             set => _TokenIssuer.ValueT = value;
         }
 
-        private ACPropertyConfigValue<string> _EntraTenant;
+        private ACPropertyConfigValue<string> _EntraTenantId;
         /// <summary>
         /// Entra tenant: GUID or domain (e.g. contoso.onmicrosoft.com). "organizations"
         /// accepts any work/school tenant (multi-tenant app). Env override: SQLTUNNEL_ENTRA_TENANT.
@@ -278,12 +278,12 @@ namespace gip.core.webservices
         {
             get
             {
-                string v = _EntraTenant.ValueT;
+                string v = _EntraTenantId.ValueT;
                 if (String.IsNullOrEmpty(v))
                     v = System.Environment.GetEnvironmentVariable("SQLTUNNEL_ENTRA_TENANT");
                 return v;
             }
-            set => _EntraTenant.ValueT = value;
+            set => _EntraTenantId.ValueT = value;
         }
 
         private ACPropertyConfigValue<string> _EntraAudience;
@@ -443,13 +443,16 @@ namespace gip.core.webservices
                     return false;
                 }
 
-                // Single-tenant config: iss must match exactly. Multi-tenant ("organizations"):
-                // accept any tenant issuer on the configured instance. Both token versions are
-                // accepted: v2.0 tokens use https://{instance}/{tid}/v2.0, v1 tokens (returned
-                // for {clientId}/.default on v1-only APIs) use https://sts.windows.net/{tid}/.
-                string expectedIssV2 = $"{EntraInstance.TrimEnd('/')}/{(String.IsNullOrEmpty(EntraTenantId) ? "organizations" : EntraTenantId)}/v2.0";
+                // Single-tenant config: accept the v2.0 issuer of the configured tenant AND
+                // the v1 issuer (https://sts.windows.net/{tid}/) — the device-code endpoint
+                // returns v1 tokens when no v2.0-specific scope is requested. Multi-tenant
+                // ("organizations"): accept any tenant issuer on the configured instance.
+                string configuredTenant = String.IsNullOrEmpty(EntraTenantId) ? "organizations" : EntraTenantId;
+                string expectedIssV2 = $"{EntraInstance.TrimEnd('/')}/{configuredTenant}/v2.0";
+                string expectedIssV1 = $"https://sts.windows.net/{configuredTenant}/";
                 string instanceBase = EntraInstance.TrimEnd('/') + "/";
                 bool issuerOk = String.Equals(iss, expectedIssV2, StringComparison.OrdinalIgnoreCase)
+                    || String.Equals(iss, expectedIssV1, StringComparison.OrdinalIgnoreCase)
                     || (String.Equals(EntraTenantId, "organizations", StringComparison.OrdinalIgnoreCase)
                         && iss != null
                         && (iss.StartsWith(instanceBase, StringComparison.OrdinalIgnoreCase) && iss.EndsWith("/v2.0", StringComparison.OrdinalIgnoreCase)
@@ -460,7 +463,7 @@ namespace gip.core.webservices
 
                 if (!issuerOk || !audienceOk || !lifetimeOk)
                 {
-                    Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", $"Entra token rejected: issuerOk={issuerOk} audienceOk={audienceOk} (aud='{aud}') lifetimeOk={lifetimeOk}");
+                    Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", $"Entra token rejected: issuerOk={issuerOk} (iss='{iss}') audienceOk={audienceOk} (aud='{aud}') lifetimeOk={lifetimeOk}");
                     return false;
                 }
                 return true;

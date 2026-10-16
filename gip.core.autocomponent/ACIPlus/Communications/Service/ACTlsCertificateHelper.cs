@@ -42,7 +42,7 @@ namespace gip.core.autocomponent
 
                 if (File.Exists(certPath))
                 {
-                    X509Certificate2 cert = new X509Certificate2(certPath, certPassword);
+                    X509Certificate2 cert = X509CertificateLoader.LoadPkcs12FromFile(certPath, certPassword);
                     Console.WriteLine($"{logContext}: TLS certificate loaded from '{certPath}' (subject '{cert.Subject}', thumbprint {cert.Thumbprint}, expires {cert.NotAfter:yyyy-MM-dd}).");
                     return cert;
                 }
@@ -54,7 +54,7 @@ namespace gip.core.autocomponent
                 Console.WriteLine($"{logContext}: self-signed TLS certificate generated and saved to '{certPath}' (subject '{generated.Subject}', thumbprint {generated.Thumbprint}, expires {generated.NotAfter:yyyy-MM-dd}).");
                 Console.WriteLine($"{logContext}: distribute the certificate (or its thumbprint) to clients, or install it into their trust store, to avoid certificate warnings.");
                 // Reload from the persisted PFX so the key is bound to the file (stable across restarts).
-                return new X509Certificate2(certPath, certPassword);
+                return X509CertificateLoader.LoadPkcs12FromFile(certPath, certPassword);
             }
             catch (Exception ex)
             {
@@ -91,7 +91,7 @@ namespace gip.core.autocomponent
 
             // 397 days: the maximum lifetime macOS/iOS accept without extra configuration.
             using X509Certificate2 cert = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(397));
-            return new X509Certificate2(cert.Export(X509ContentType.Pfx, "iplus"), "iplus");
+            return X509CertificateLoader.LoadPkcs12(cert.Export(X509ContentType.Pfx, "iplus"), "iplus");
         }
     }
 }

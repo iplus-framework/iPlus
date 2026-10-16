@@ -153,8 +153,9 @@
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="10"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="10*" />
           </Grid.RowDefinitions>
 
@@ -183,6 +184,8 @@
 
           <TextBlock VerticalAlignment="Bottom" Grid.Row="14" Grid.Column="1" Name="EntraTenantIdCaption">Entra Tenant (optional, e.g. organizations or tenant GUID)</TextBlock>
           <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="15" Grid.Column="1" Name="EntraTenantId" />
+
+          <CheckBox VerticalAlignment="Bottom" Grid.Row="16" Grid.Column="1" Name="AcceptUntrustedRelayCertificates" Content="Accept untrusted relay certificates (self-signed TLS)" Margin="0,5,0,0" ToolTip.Tip="Skip certificate validation for the SQL tunnel relay and its HTTP endpoints. Enable when the relay uses a self-signed certificate that is not installed in the system trust store."/>
 
           <CheckBox VerticalAlignment="Bottom" Grid.Row="17" Grid.Column="1" Name="MobileModeEnabled" Content="Mobile mode (hamburger menu). Unchecked: desktop menu" Margin="0,5,0,0" ToolTip.Tip="Checked: touch-optimized mobile designs (DUMainMobile). Unchecked: desktop layout with menu bar (DUMain), like the Windows client."/>
 

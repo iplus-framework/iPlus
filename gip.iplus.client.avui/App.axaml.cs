@@ -179,7 +179,7 @@ public partial class App : Application
             _LoginWindow = new LoginWindow(
                 () =>
                 {
-                    HandleLoginAndStartup();
+                    _ = HandleLoginAndStartupAsync();
                 },
                 () =>
                 {
@@ -221,7 +221,7 @@ public partial class App : Application
                 _LoginView = new LoginView(
                 () =>
                 {
-                    return HandleLoginAndStartup();
+                    return HandleLoginAndStartupAsync();
                 },
                 () =>
                 {
@@ -399,7 +399,7 @@ public partial class App : Application
     /// </summary>
     /// <param name="varioiplusLogin">Eine Instanz der VarioiplusLogin-Klasse</param>
     /// <remarks>Wird in einer Instanz des ApplicationInitializeDelegate verarbeitet.</remarks>
-    private async Task HandleLoginAndStartup()
+    private async Task HandleLoginAndStartupAsync()
     {
         Console.WriteLine("App: HandleLoginAndStartup started");
         // Tunnel preparation for config-file-driven clients (docs §9.24): must run
@@ -459,7 +459,7 @@ public partial class App : Application
                 {
                     Console.WriteLine($"App: HandleLoginAndStartup: attempt {i}, DisplayLogin + WaitOnLoginResult..."); // TEMPORARY tracing
                     _LoginView.DisplayLogin(true, errorMsg);
-                    await _LoginView.WaitOnLoginResult();
+                    await _LoginView.WaitOnLoginResultAsync();
                     Console.WriteLine("App: HandleLoginAndStartup: WaitOnLoginResult completed."); // TEMPORARY tracing
                     errorMsg = "";
                     _LoginView.DisplayLogin(false, errorMsg);

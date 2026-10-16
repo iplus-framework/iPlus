@@ -28,9 +28,14 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     internal static class XamlBehaviorsAssemblyPreloader
     {
+        // CA2255 suppressed intentionally: this is a deliberate preload of the split
+        // iPlus.Xaml.Behaviors.Avalonia NuGet package (see class doc), not accidental
+        // library misuse of ModuleInitializer.
+#pragma warning disable CA2255
         [System.Runtime.CompilerServices.ModuleInitializer]
         internal static void Initialize()
         {
+#pragma warning restore CA2255
             // IMPORTANT: do NOT use typeof(...) here. A compile-time type reference
             // bakes the assembly identity of the build-time reference into this
             // assembly. When built against the Avalonia fork (merged

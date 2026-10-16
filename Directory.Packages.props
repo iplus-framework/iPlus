@@ -298,7 +298,8 @@
 		<PackageVersion Include="System.Reflection.Context" Version="10.0.2" />
 		<PackageVersion Include="System.Security.AccessControl" Version="6.0.1" />
 		<PackageVersion Include="System.Security.Cryptography.ProtectedData" Version="10.0.10" />
-		<PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.10" />
+		<PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+		<PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.13" />
 		<PackageVersion Include="System.ServiceModel.Duplex" Version="6.0.0" />
 		<PackageVersion Include="System.ServiceModel.Federation" Version="10.0.652802" />
 		<PackageVersion Include="System.ServiceModel.NetTcp" Version="10.0.652802" />
@@ -462,7 +463,7 @@
 			Version="$(HarfBuzzSharpVersion)" />
 		<PackageVersion Include="System.Memory" Version="4.6.3" />
 		<PackageVersion Include="System.CommandLine" Version="2.0.2" />
-		<PackageVersion Include="SixLabors.ImageSharp" Version="3.1.12" />
+		<PackageVersion Include="SixLabors.ImageSharp" Version="4.1.3" />
 		<PackageVersion Include="ProDiagnostics" Version="12.1.0.4" /> <!--$(AvaloniaVersionMin)-->
 
 		<!-- Additional Packages for RichtTextBox -->
