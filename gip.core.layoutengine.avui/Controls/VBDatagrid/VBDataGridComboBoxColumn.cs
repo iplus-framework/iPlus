@@ -14,6 +14,7 @@ using Avalonia.Data.Converters;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
@@ -757,6 +758,30 @@ namespace gip.core.layoutengine.avui
             textBlock.Background = CellBackground;
         }
 
+        // Cache for the materialized ItemsSource used by the display-text lookup.
+        // The ItemsSource is often a deferred IQueryable (e.g. an EF DbSet projection
+        // resolved via VBContent). Enumerating it inside the per-cell MultiBinding
+        // converter would execute a full database query for EVERY realized cell.
+        // The materialized list is cached per ItemsSource instance; live collections
+        // (INotifyCollectionChanged) are enumerated directly so they stay fresh.
+        private IEnumerable _cachedItemsSourceRef;
+        private IReadOnlyList<object> _cachedItems;
+
+        internal IReadOnlyList<object> GetCachedItems(IEnumerable items)
+        {
+            if (items is INotifyCollectionChanged)
+                return items.Cast<object>().ToArray();
+            if (!ReferenceEquals(items, _cachedItemsSourceRef) || _cachedItems == null)
+            {
+                List<object> list = new List<object>();
+                foreach (object item in items)
+                    list.Add(item);
+                _cachedItemsSourceRef = items;
+                _cachedItems = list;
+            }
+            return _cachedItems;
+        }
+
         /// <summary>
         /// Resolves the display text of a combo cell: finds the lookup item in ItemsSource
         /// that matches the cell value (selected item object or selected value) and returns
@@ -765,7 +790,6 @@ namespace gip.core.layoutengine.avui
         private sealed class ComboBoxDisplayTextConverter : IMultiValueConverter
         {
             private readonly VBDataGridComboBoxColumn _column;
-
             public ComboBoxDisplayTextConverter(VBDataGridComboBoxColumn column)
             {
                 _column = column;
@@ -786,7 +810,7 @@ namespace gip.core.layoutengine.avui
                     // If SelectedItemBinding is set, the cell value is the lookup item itself,
                     // otherwise it is the raw selected value (matched against the item's Value member).
                     bool valueIsItem = _column.SelectedItemBinding != null;
-                    foreach (object item in items)
+                    foreach (object item in _column.GetCachedItems(items))
                     {
                         if (item == null)
                             continue;

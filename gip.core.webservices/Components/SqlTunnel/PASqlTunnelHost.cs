@@ -1217,6 +1217,19 @@ namespace gip.core.webservices
                     session.PendingRead = null;
                     session.LastAccess = DateTime.UtcNow;
 
+                    // Coalesce: drain whatever else is already buffered in the socket so each
+                    // poll returns a FULL chunk. Each /recv is a blocking sync XHR on the
+                    // WASM main thread, so round trips dominate throughput for large result
+                    // sets (e.g. ACClassPropertyList). DataAvailable never blocks; if no more
+                    // data is buffered the chunk is simply smaller.
+                    while (count < session.ReadBuffer.Length && session.Stream.DataAvailable)
+                    {
+                        int more = await session.Stream.ReadAsync(session.ReadBuffer, count, session.ReadBuffer.Length - count);
+                        if (more <= 0)
+                            break;
+                        count += more;
+                    }
+
                     if (count == 0)
                     {
                         RemoveSession(session);
@@ -1230,10 +1243,6 @@ namespace gip.core.webservices
                     // cannot consume a raw binary response body.
                     context.Response.ContentType = "text/plain";
                     await context.Response.WriteAsync(Convert.ToBase64String(session.ReadBuffer, 0, count));
-                    // TEMPORARY diagnostics: TDS packet header (type, status, length) of the chunk.
-                    string headerHex = BitConverter.ToString(session.ReadBuffer, 0, Math.Min(8, count));
-                    ushort tdsLen = count >= 8 ? (ushort)((session.ReadBuffer[6] << 8) | session.ReadBuffer[7]) : (ushort)0;
-                    Messages.LogInfo(GetACUrl(), "SyncShim", String.Format("Session {0}: received {1} bytes from SQL socket, header [{2}], TDS packet length {3}", id, count, headerHex, tdsLen));
                 }
                 catch (Exception ex)
                 {
@@ -1305,7 +1314,10 @@ namespace gip.core.webservices
                 Id = id;
                 Tcp = tcp;
                 Stream = tcp.GetStream();
-                ReadBuffer = ArrayPool<byte>.Shared.Rent(16 * 1024);
+                // 64 KB per poll: each /recv is a blocking sync XHR on the browser main
+                // thread, so fewer/larger chunks directly translate into higher throughput.
+                // Must stay in sync with SyncHttpTunnelStream.MaxChunkSize (SqlClient fork).
+                ReadBuffer = ArrayPool<byte>.Shared.Rent(64 * 1024);
                 LastAccess = DateTime.UtcNow;
             }
 

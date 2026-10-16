@@ -993,9 +993,13 @@ public partial class LoginView : UserControl
         // works on the browser like the desktop sync path (verified: desktop spike sync+MARS
         // over the relay = SPIKE OK). iPlus core requires MARS (nested queries in
         // ACActivator/ACInit would otherwise fail with "open DataReader" errors).
+        // Packet Size=32767 (TDS maximum): large result sets (e.g. ACClassPropertyList in
+        // BSOiPlusStudio) then need far fewer TDS packets. This matters especially for the
+        // browser sync-XHR tunnel, where every relay poll is a blocking round trip — fewer,
+        // larger packets let the relay fill its 64 KB chunks in one go.
         string connSettingsFormat = (useSqlAuth
-            ? @"Integrated Security=False; Encrypt=False; data source={0}; initial catalog={1}; Trusted_Connection=False; persist security info=True; user id={2}; password={3}; application name=iPlus; multipleactiveresultsets=True"
-            : @"Integrated Security=True; Encrypt=False; data source={0}; initial catalog={1}; application name=iPlus; multipleactiveresultsets=True");
+            ? @"Integrated Security=False; Encrypt=False; data source={0}; initial catalog={1}; Trusted_Connection=False; persist security info=True; user id={2}; password={3}; application name=iPlus; multipleactiveresultsets=True; Packet Size=32767"
+            : @"Integrated Security=True; Encrypt=False; data source={0}; initial catalog={1}; application name=iPlus; multipleactiveresultsets=True; Packet Size=32767");
         string connectionString = String.Format(connSettingsFormat, dbSource, dbName, dbUser, dbPass);
         string? tunnelUrlWithAuth = null;
         string? acquiredToken = null;
@@ -1169,7 +1173,9 @@ public partial class LoginView : UserControl
         // (System.Data.SqlClient has no WebSocket tunnel support and no raw TCP on WASM).
         try
         {
-            Console.WriteLine($"LoginView: resolved ConnectionString: {Database.ConnectionString}");
+            // SECURITY: never print the connection string — it contains credentials and is
+            // visible to anyone opening the browser dev tools. Log only non-sensitive shape.
+            Console.WriteLine($"LoginView: resolved ConnectionString (length={Database.ConnectionString?.Length ?? 0}, tunnel={(Database.ConnectionString ?? "").Contains("Tunnel URL") || (Database.ConnectionString ?? "").Contains("tunnel")})");
             var probe = new Microsoft.Data.SqlClient.SqlConnection(Database.ConnectionString);
             probe.Open();
             Console.WriteLine("LoginView: probe connection OPENED successfully.");
