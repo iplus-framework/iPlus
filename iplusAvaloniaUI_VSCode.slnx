@@ -87,5 +87,5 @@
 	     a fresh clone without the SqlClient fork checkout must restore/build from the
 	     iPlus.* NuGet packages. To debug the fork, open it in its own solution and build
 	     iPlus with -p:UseSqlClientForkProjectReference=True (see Directory.Build.props). -->
-	<!-- <Project Path="SqlTunnelSpike/SqlTunnelSpike.csproj" />
+	<!-- <Project Path="SqlTunnelSpike/SqlTunnelSpike.csproj" />-->
 </Solution>
