@@ -56,7 +56,112 @@ public partial class LoginView : UserControl
         _LoginAction = loginAction;
         _ShowMainWindowAction = mainAction;
         _externalLoginProviders = (externalLoginProviders ?? Enumerable.Empty<IExternalLoginProvider>()).ToList();
+        LoginStatusCallback = SetStatusText;
     }
+
+    #region Login progress reporting (status line + listboxInfo)
+
+    /// <summary>
+    /// Static hook so static helpers (Entra device-code flow) can update the status
+    /// line of the progress card. Set in the constructor.
+    /// </summary>
+    private static Action<string>? LoginStatusCallback;
+
+    private void SetStatusText(string text)
+    {
+        if (statusInfo == null)
+            return;
+        if (Dispatcher.UIThread.CheckAccess())
+            statusInfo.Text = text;
+        else
+            Dispatcher.UIThread.Post(() => statusInfo.Text = text);
+    }
+
+    private static void SetLoginStatus(string text)
+    {
+        LoginStatusCallback?.Invoke(text);
+        LogLoginInfo(text);
+    }
+
+    /// <summary>
+    /// Writes a login progress message into Messages.GlobalMsg — the collection the
+    /// listboxInfo of the progress card is bound to, so the user sees what is currently
+    /// being loaded (instead of only Console.WriteLine in the browser dev tools).
+    /// </summary>
+    private static void LogLoginInfo(string message)
+    {
+        try
+        {
+            Msg msg = new Msg() { Message = message, MessageLevel = eMsgLevel.Info };
+            void Add()
+            {
+                Messages.GlobalMsg.MsgDetails.Add(msg);
+            }
+            if (Dispatcher.UIThread.CheckAccess())
+                Add();
+            else
+                Dispatcher.UIThread.Post(Add);
+        }
+        catch { }
+    }
+
+    #endregion
+
+    #region Responsive layout (orientation + screen size)
+
+    /// <summary>Width threshold above which the login card is centered with border/shadow.</summary>
+    private const double WideScreenWidth = 700;
+
+    private TopLevel? _responsiveTopLevel = null;
+    private IDisposable? _clientSizeSubscription = null;
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        TopLevel? topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel != null)
+        {
+            _responsiveTopLevel = topLevel;
+            _clientSizeSubscription = topLevel.GetObservable(TopLevel.ClientSizeProperty)
+                .Subscribe(UpdateResponsiveLayout);
+            UpdateResponsiveLayout(topLevel.ClientSize);
+        }
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        _clientSizeSubscription?.Dispose();
+        _clientSizeSubscription = null;
+        _responsiveTopLevel = null;
+        base.OnDetachedFromVisualTree(e);
+    }
+
+    /// <summary>
+    /// Sets pseudo-classes on the root grid that drive the responsive XAML styles:
+    /// landscape/portrait (logo left of the fields vs. above them) and wide/narrow
+    /// (centered card with border + shadow vs. full-span card).
+    /// </summary>
+    private void UpdateResponsiveLayout(Size clientSize)
+    {
+        if (RootGrid == null)
+            return;
+        bool landscape = clientSize.Width > clientSize.Height;
+        bool wide = clientSize.Width >= WideScreenWidth;
+        SetResponsiveClass(RootGrid, "landscape", landscape);
+        SetResponsiveClass(RootGrid, "portrait", !landscape);
+        SetResponsiveClass(RootGrid, "wide", wide);
+        SetResponsiveClass(RootGrid, "narrow", !wide);
+    }
+
+    private static void SetResponsiveClass(StyledElement element, string className, bool active)
+    {
+        if (active)
+            element.Classes.Add(className);
+        else
+            element.Classes.Remove(className);
+    }
+
+    #endregion
 
     #endregion
 
@@ -395,6 +500,12 @@ public partial class LoginView : UserControl
         Console.WriteLine($"LoginView: DoLoginActionAsync starting (loginAction: {_LoginAction != null})");
         if (_LoginAction is not null)
         {
+            // WASM is single-threaded: Task.Run executes inline on the JS thread, so the
+            // login action (ACRoot init + EF loads over the blocking sync-XHR tunnel)
+            // FREEZES the UI (animation, progress bar) until the main view appears.
+            // Paint the final status BEFORE that happens so the user knows what is going on.
+            SetLoginStatus("Loading application — please wait (the display may freeze briefly)...");
+            await Task.Delay(150); // let the status + listbox render before the blocking load
             await Task.Run(async () =>
             {
                 try
@@ -507,6 +618,12 @@ public partial class LoginView : UserControl
     {
         Console.WriteLine("LoginView: Login button clicked");
         StopExternalLoginWatcher();
+
+        // Show the progress card (with listboxInfo) instead of the login fields — the
+        // user must see that loading is underway and what is currently being loaded.
+        LoginGrid.IsVisible = false;
+        SettingsGrid.IsVisible = false;
+        ProgressGrid.IsVisible = true;
 
         // Entra device-code flow: the token acquisition blocks (RFC 8628 polling loop with
         // Thread.Sleep) and must NOT run on the UI thread — Android kills the app with
@@ -726,14 +843,9 @@ public partial class LoginView : UserControl
     {
         SettingsGrid.IsVisible = !SettingsGrid.IsVisible;
         LoginGrid.IsVisible = !SettingsGrid.IsVisible;
-
-        if (SettingsGrid.IsVisible)
-            iPlusLogo.Height = 150;
-        else
-            iPlusLogo.Height = 400;
     }
 
-    private void Image_DoubleTapped(object sender, TappedEventArgs e)
+    private void ButtonSettings_Click(object sender, RoutedEventArgs e)
     {
         if (ProgressGrid.IsVisible)
             return;
@@ -930,6 +1042,7 @@ public partial class LoginView : UserControl
     /// </summary>
     public async Task ApplyConnectionSettingsCoreAsync()
     {
+        SetLoginStatus("Applying connection settings...");
         ACValueItemList settings = CommandLineHelper.Settings;
 
         string? dbSource = settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseSource)).FirstOrDefault()?.Value as string;
@@ -1012,6 +1125,7 @@ public partial class LoginView : UserControl
                 // Stage 1 via Microsoft Entra ID (real IdP): device-code flow — no MSAL
                 // dependency, works on Android/desktop/browser (async core). The relay must
                 // run with SQLTUNNEL_TOKEN_ISSUER=Entra and matching SQLTUNNEL_ENTRA_AUDIENCE.
+                SetLoginStatus("Acquiring Entra ID token (device code sign-in)...");
                 string? entraTenant = settings.Where(c => c.ACCaptionTranslation == "EntraTenantId").FirstOrDefault()?.Value as string;
                 string? entraScope = settings.Where(c => c.ACCaptionTranslation == "EntraScope").FirstOrDefault()?.Value as string;
                 if (String.IsNullOrWhiteSpace(entraTenant))
@@ -1029,14 +1143,23 @@ public partial class LoginView : UserControl
             {
                 string? iPlusUser = UserSettings?.UserName;
                 string? iPlusPass = UserSettings?.Password;
+                SetLoginStatus("Signing in to SQL tunnel with iPlus credentials...");
                 token = TryAcquireTunnelToken(tunnelUrl, iPlusUser, iPlusPass);
             }
+
+            if (String.IsNullOrEmpty(token))
+                SetLoginStatus("Sign-in failed — continuing without a tunnel token.");
+            else
+                SetLoginStatus("Sign-in OK.");
 
             // SQL credential delivery (docs §9.24): when the relay is configured with a
             // server-side SQL login, authenticated clients fetch it here and replace the
             // placeholder credentials — no SQL password is stored in the client config.
             if (!String.IsNullOrEmpty(token))
+            {
+                SetLoginStatus("Fetching SQL credentials from relay...");
                 connectionString = await TryApplySqlCredentialsFromRelayAsync(tunnelUrl, token, connectionString);
+            }
             acquiredToken = token;
             resolvedTunnelUrl = tunnelUrl;
 
@@ -1091,6 +1214,7 @@ public partial class LoginView : UserControl
         var existingConnection = config?.ConnectionStrings?.ConnectionStrings[Database.C_DefaultContainerName];
 
         Console.WriteLine($"LoginView: registering connection string — config={(config != null ? $"HasFile={config.HasFile}" : "null")}, existing={(existingConnection != null)}");
+        SetLoginStatus("Registering connection string...");
 
         if (existingConnection != null)
         {
@@ -1157,12 +1281,15 @@ public partial class LoginView : UserControl
             // visible to anyone opening the browser dev tools. Log only non-sensitive shape.
             Console.WriteLine($"LoginView: resolved ConnectionString (length={Database.ConnectionString?.Length ?? 0}, tunnel={(Database.ConnectionString ?? "").Contains("Tunnel URL") || (Database.ConnectionString ?? "").Contains("tunnel")})");
             var probe = new Microsoft.Data.SqlClient.SqlConnection(Database.ConnectionString);
+            SetLoginStatus("Testing database connection...");
             probe.Open();
+            SetLoginStatus("Database connection OK.");
             Console.WriteLine("LoginView: probe connection OPENED successfully.");
             probe.Dispose();
         }
         catch (Exception ex)
         {
+            SetLoginStatus("Database connection FAILED: " + ex.Message);
             // Full stack traces are essential for diagnosing WASM-only failures
             // (e.g. PlatformNotSupportedException from Monitor/WaitHandle waits).
             Console.WriteLine($"LoginView: probe failed. {ex}");
@@ -1895,11 +2022,11 @@ public partial class LoginView : UserControl
     /// </summary>
     private static void ShowEntraUserCode(string userCode)
     {
-        string message = "Sign in to Microsoft Entra ID:\n\n"
-            + "1. Open https://microsoft.com/devicelogin (on any device)\n"
-            + "2. Enter the code:\n\n    " + userCode + "\n\n"
-            + "The login continues automatically after you approve.";
-        Dispatcher.UIThread.Post(() => AsyncMessageBox.BeginMessageBoxAsync(message, "Entra ID Sign-in", ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Info));
+        // Shown in the progress card (status line + listbox) instead of a MessageBox —
+        // a fire-and-forget MessageBox cannot be closed programmatically when the
+        // sign-in completes and would stay on screen forever.
+        string message = "Waiting for Microsoft Entra ID sign-in: open https://microsoft.com/devicelogin (on any device) and enter the code: " + userCode;
+        SetLoginStatus(message);
     }
 
     /// <summary>
