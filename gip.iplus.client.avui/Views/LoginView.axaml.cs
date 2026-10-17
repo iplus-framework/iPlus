@@ -266,26 +266,6 @@ public partial class LoginView : UserControl
                 }
             }
             bool configured = HasDatabaseConnectionConfigured();
-            Console.WriteLine($"LoginView: OnLoaded, database configured: {configured}");
-            // TEMPORARY diagnostics: persistence self-test (remove with the cleanup).
-            if (OperatingSystem.IsBrowser())
-            {
-                try
-                {
-                    ACValueItem? testItem = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == "PersistTest").FirstOrDefault();
-                    if (testItem == null)
-                        CommandLineHelper.Settings.Add(new ACValueItem("PersistTest", "saved@" + DateTime.UtcNow.ToString("HH:mm:ss"), null));
-                    else
-                        testItem.Value = "saved@" + DateTime.UtcNow.ToString("HH:mm:ss");
-                    SaveSettingsOnUiThread();
-                    string? readBack = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == "PersistTest").FirstOrDefault()?.Value as string;
-                    Console.WriteLine($"LoginView: PersistTest in-memory after save: '{readBack}'");
-                }
-                catch (Exception exTest)
-                {
-                    Console.WriteLine($"LoginView: PersistTest failed. {exTest.GetType().Name}: {exTest.Message}");
-                }
-            }
             if (configured)
             {
                 _ = DoLoginActionAsync();

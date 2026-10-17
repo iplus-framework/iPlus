@@ -653,8 +653,6 @@ namespace gip.core.webservices
 
                     if (!ValidateIPlusUser(username, password))
                     {
-                        // TEMPORARY diagnostics: remove with the auth-tracing cleanup.
-                        Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", $"Token request rejected for user '{username}'");
                         context.Response.StatusCode = 401;
                         await context.Response.WriteAsync("Invalid iPlus credentials.");
                         return;
@@ -663,8 +661,6 @@ namespace gip.core.webservices
                     byte[] tokenBytes = RandomNumberGenerator.GetBytes(32);
                     string token = Convert.ToHexString(tokenBytes);
                     _OAuthTokens[token] = DateTime.UtcNow + OAuthTokenLifetime;
-                    // TEMPORARY diagnostics: remove with the auth-tracing cleanup.
-                    Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", $"Token issued for user '{username}' (valid {OAuthTokenLifetime.TotalHours}h)");
                     context.Response.StatusCode = 200;
                     await context.Response.WriteAsJsonAsync(new { token, expiresIn = (int)OAuthTokenLifetime.TotalSeconds });
                 });
@@ -682,8 +678,6 @@ namespace gip.core.webservices
                     string bearerToken = GetBearerToken(context.Request.Headers);
                     if (RequireOAuth && !await ValidateBearerTokenAsync(bearerToken))
                     {
-                        // TEMPORARY diagnostics: remove with the auth-tracing cleanup.
-                        Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", "WebSocket handshake rejected: missing/invalid bearer token");
                         context.Response.StatusCode = 401;
                         await context.Response.WriteAsync("SQL Tunnel: invalid or missing bearer token.");
                         return;
@@ -880,8 +874,6 @@ namespace gip.core.webservices
                 {
                     authError = "iPlus login failed";
                 }
-                // TEMPORARY diagnostics: remove with the auth-tracing cleanup.
-                Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", $"WebSocket auth frame for user '{frameUser}': {(authError == null ? "OK" : authError)}");
             }
             else if ((RequireIPlusLogin || RequireOAuth) && String.IsNullOrEmpty(bearerToken))
             {
@@ -1049,8 +1041,6 @@ namespace gip.core.webservices
                     RequireOAuth &&
                     !await ValidateBearerTokenAsync(GetBearerToken(context.Request.Headers)))
                 {
-                    // TEMPORARY diagnostics: remove with the auth-tracing cleanup.
-                    Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", $"Shim request {context.Request.Path} rejected: missing/invalid bearer token");
                     context.Response.StatusCode = 401;
                     await context.Response.WriteAsync("SQL Tunnel: invalid or missing bearer token.");
                     return;
@@ -1084,8 +1074,6 @@ namespace gip.core.webservices
                 // Stage 1: Authorization header OR token from the body.
                 if (RequireOAuth && !await ValidateBearerTokenAsync(GetBearerToken(context.Request.Headers) ?? bodyToken))
                 {
-                    // TEMPORARY diagnostics: remove with the auth-tracing cleanup.
-                    Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", "Shim session rejected: missing/invalid bearer token");
                     context.Response.StatusCode = 401;
                     await context.Response.WriteAsync("SQL Tunnel: invalid or missing bearer token.");
                     return;
@@ -1100,14 +1088,10 @@ namespace gip.core.webservices
                 {
                     if (!ValidateIPlusUser(bodyUser, bodyPassword))
                     {
-                        // TEMPORARY diagnostics: remove with the auth-tracing cleanup.
-                        Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", $"Shim session rejected: iPlus login failed for user '{bodyUser}'");
                         context.Response.StatusCode = 401;
                         await context.Response.WriteAsync("SQL Tunnel: iPlus login failed.");
                         return;
                     }
-                    // TEMPORARY diagnostics: remove with the auth-tracing cleanup.
-                    Messages.LogInfo(GetACUrl(), "SqlTunnelAuth", $"Shim session: iPlus login OK for user '{bodyUser}'");
                 }
                 string sessionId = Guid.NewGuid().ToString("N");
                 TcpClient tcp = new TcpClient();
@@ -1167,9 +1151,6 @@ namespace gip.core.webservices
                         ArrayPool<byte>.Shared.Return(buffer);
                     }
                     session.LastAccess = DateTime.UtcNow;
-                    // TEMPORARY diagnostics: TDS header + login7 option flags of the first send.
-                    string headerHex = BitConverter.ToString(firstBytes, 0, Math.Min(32, total));
-                    Messages.LogInfo(GetACUrl(), "SyncShim", String.Format("Session {0}: sent {1} bytes to SQL socket, first bytes [{2}]", id, total, headerHex));
                 }
                 catch (Exception)
                 {

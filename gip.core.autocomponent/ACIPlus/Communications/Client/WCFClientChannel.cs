@@ -1351,9 +1351,6 @@ namespace gip.core.autocomponent
                 try
                 {
                     Uri endpoint = EndpointUri;
-                    // TEMPORARY diagnostics (remove with §9.17 cleanup): WASM connect failures
-                    // are otherwise silent — Console.WriteLine lands in the browser DevTools console.
-                    Console.WriteLine("WCFClientChannel: browser transport endpoint = " + (endpoint == null ? "<null>" : endpoint.ToString()));
                     if (endpoint == null)
                     {
                         await Task.Delay(1000, ct);
@@ -1377,8 +1374,6 @@ namespace gip.core.autocomponent
                     string msg = e.Message;
                     if (e.InnerException != null && e.InnerException.Message != null)
                         msg += " Inner:" + e.InnerException.Message;
-                    // TEMPORARY diagnostics (§9.17): surface connect failures in the browser console.
-                    Console.WriteLine("WCFClientChannel: browser connect FAILED. " + msg);
                     Messages.LogException("WCFClientChannel", "BrowserConnectionLoopAsync", msg);
                 }
                 _browserConnected = false;
