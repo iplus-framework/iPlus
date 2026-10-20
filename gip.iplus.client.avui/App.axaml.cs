@@ -225,7 +225,10 @@ public partial class App : Application
                 },
                 () =>
                 {
+                    var switchCallbackStopwatch = System.Diagnostics.Stopwatch.StartNew();
+                    Console.WriteLine("DOTNET: [AppSwitch] switch callback entered");
                     ControlManager.RegisterImplicitStyles(this);
+                    Console.WriteLine($"DOTNET: [AppSwitch] RegisterImplicitStyles took {switchCallbackStopwatch.ElapsedMilliseconds} ms");
 
                     if (singleViewPlatform != null)
                     {
@@ -248,11 +251,16 @@ public partial class App : Application
 
                             if (singleViewMode)
                             {
+                                var switchStopwatch = System.Diagnostics.Stopwatch.StartNew();
+                                System.Console.WriteLine("DOTNET: [AppSwitch] creating MainSingleView...");
                                 MainSingleView singleView = new MainSingleView();
+                                System.Console.WriteLine($"DOTNET: [AppSwitch] MainSingleView ctor took {switchStopwatch.ElapsedMilliseconds} ms");
                                 singleView.DataContext = ACRoot.SRoot.Businessobjects;
+                                System.Console.WriteLine($"DOTNET: [AppSwitch] DataContext (Businessobjects) took {switchStopwatch.ElapsedMilliseconds} ms total");
                                 ACRoot.SRoot.RootPageWPF = singleView;
 
                                 rootControl.Content = singleView;
+                                System.Console.WriteLine($"DOTNET: [AppSwitch] rootControl.Content set took {switchStopwatch.ElapsedMilliseconds} ms total");
                             }
                             else
                             {
@@ -481,9 +489,11 @@ public partial class App : Application
             Console.WriteLine($"App: LoginUser starting for user '{_AppSettings.UserName}' (attempt {i + 1})...");
             short result = _StartUpManager.LoginUser(_AppSettings.UserName, _AppSettings.Password, registerACObjects, propPersistenceOff, ref errorMsg, wcfOff, simulation, fullscreen);
             Console.WriteLine($"App: LoginUser returned {result}.");
+            var postLoginStopwatch = System.Diagnostics.Stopwatch.StartNew();
             if (result == 1)
             {
                 SaveSettingsToDisk();
+                Console.WriteLine($"App: SaveSettingsToDisk took {postLoginStopwatch.ElapsedMilliseconds} ms");
 
                 if (cmLineArg.Contains("/autologin"))
                 {

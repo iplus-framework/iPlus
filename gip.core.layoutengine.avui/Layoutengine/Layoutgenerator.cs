@@ -308,19 +308,27 @@ namespace gip.core.layoutengine.avui
         static public Visual LoadLayout(IACObjectDesign aCObjectDesign, IACObject dataContext, IACBSO bso, string layoutName)
         {
             ACClassDesign acClassDesign = aCObjectDesign as ACClassDesign;
-            if (acClassDesign != null && acClassDesign.BAMLDesign != null && acClassDesign.IsDesignCompiled)
+            var branchStopwatch = System.Diagnostics.Stopwatch.StartNew();
+            bool hasBaml = acClassDesign != null && acClassDesign.BAMLDesign != null;
+            System.Console.WriteLine($"DOTNET: [LoadLayout|{layoutName}] BAMLDesign getter took {branchStopwatch.ElapsedMilliseconds} ms (hasBaml={hasBaml})");
+            if (hasBaml && acClassDesign.IsDesignCompiled)
             {
                 return LoadBAML(acClassDesign, dataContext, bso) as Visual;
             }
             else
             {
+                var phaseStopwatch = System.Diagnostics.Stopwatch.StartNew();
                 bool xmlDesign2WasEmpty = aCObjectDesign != null && string.IsNullOrEmpty(aCObjectDesign.XMLDesign2);
+                System.Console.WriteLine($"DOTNET: [LoadLayout|{layoutName}] XMLDesign2 check done at {phaseStopwatch.ElapsedMilliseconds} ms");
                 string xamlToLoad = aCObjectDesign.XAMLDesign;
+                System.Console.WriteLine($"DOTNET: [LoadLayout|{layoutName}] XAMLDesign getter took {phaseStopwatch.ElapsedMilliseconds} ms total ({xamlToLoad?.Length ?? 0} chars)");
                 object result = LoadXAML(xamlToLoad, dataContext, bso, layoutName);
+                System.Console.WriteLine($"DOTNET: [LoadLayout|{layoutName}] LoadXAML returned at {phaseStopwatch.ElapsedMilliseconds} ms total");
 
                 // Auto-save the converted XAML on successful runtime load (VBDesign/VBVisual).
                 if (result != null)
                     AutoSaveConvertedDesign(aCObjectDesign, xmlDesign2WasEmpty, xamlToLoad, dataContext);
+                System.Console.WriteLine($"DOTNET: [LoadLayout|{layoutName}] AutoSave done at {phaseStopwatch.ElapsedMilliseconds} ms total");
 
                 return result as Visual;
             }
@@ -330,6 +338,8 @@ namespace gip.core.layoutengine.avui
         {
             CurrentDataContext = dataContext;
             CurrentBSO = bso;
+            System.Diagnostics.Stopwatch xamlStopwatch = System.Diagnostics.Stopwatch.StartNew();
+            System.Console.WriteLine($"DOTNET: [LoadXAML|{layoutName}] parsing {xmlLayout?.Length ?? 0} chars...");
             if (!_WPFAssembliesLoaded)
             {
                 foreach (Assembly assembly in ACxmlnsResolver.Assemblies)
@@ -348,7 +358,14 @@ namespace gip.core.layoutengine.avui
             //        return null;
                 try
                 {
-                    return AvaloniaRuntimeXamlLoader.Load(XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xmlLayout));
+                    string converted = XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xmlLayout);
+                    xamlStopwatch.Stop();
+                    System.Console.WriteLine($"DOTNET: [LoadXAML|{layoutName}] namespace check took {xamlStopwatch.ElapsedMilliseconds} ms");
+                    xamlStopwatch.Restart();
+                    object result = AvaloniaRuntimeXamlLoader.Load(converted);
+                    xamlStopwatch.Stop();
+                    System.Console.WriteLine($"DOTNET: [LoadXAML|{layoutName}] AvaloniaRuntimeXamlLoader.Load took {xamlStopwatch.ElapsedMilliseconds} ms");
+                    return result;
                 }
                 catch (Exception e)
                 {
@@ -388,7 +405,12 @@ namespace gip.core.layoutengine.avui
             }
             try
             {
-                return BamlReader.Load(acClassDesign.BAMLDesign);
+                var bamlStopwatch = System.Diagnostics.Stopwatch.StartNew();
+                System.Console.WriteLine($"DOTNET: [LoadBAML|{acClassDesign?.ACIdentifier}] loading BAML...");
+                object bamlResult = BamlReader.Load(acClassDesign.BAMLDesign);
+                bamlStopwatch.Stop();
+                System.Console.WriteLine($"DOTNET: [LoadBAML|{acClassDesign?.ACIdentifier}] BamlReader.Load took {bamlStopwatch.ElapsedMilliseconds} ms");
+                return bamlResult;
             }
             catch (Exception e)
             {

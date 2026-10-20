@@ -1262,15 +1262,17 @@ public partial class LoginView : UserControl
         // login packet, so ONE tunnel serves ANY number of contexts on that server. Apply
         // the same Tunnel URL + relay-delivered credentials to every additional registered
         // container name (and to every other entry already present in the config file).
-        if (tunnelUrlWithAuth != null)
-        {
-            await ApplyTunnelToAdditionalConnectionsAsync(
-                config,
-                resolvedTunnelUrl!,
-                tunnelUrlWithAuth,
-                acquiredToken,
-                Database.ConnectionString);
-        }
+        // ALSO runs in DIRECT mode (no tunnel): platforms without a ConnectionStrings.config
+        // (Android/browser) have no iPlusMESV5_Entities entry at all, so it must be derived
+        // from the default container here — otherwise business objects on the additional
+        // context (e.g. BSOMaterial) cannot open. With tunnelUrlWithAuth == null the method
+        // only registers the derived connection string (no Tunnel URL, no relay credentials).
+        await ApplyTunnelToAdditionalConnectionsAsync(
+            config,
+            resolvedTunnelUrl,
+            tunnelUrlWithAuth,
+            acquiredToken,
+            Database.ConnectionString);
 
         // Diagnostic probe: verify the connection string resolves and whether SqlClient
         // can open a connection at all on this platform. Uses the forked Microsoft.Data.SqlClient
@@ -1466,11 +1468,15 @@ public partial class LoginView : UserControl
     /// additional connection strings: every name in <see cref="AdditionalConnectionContainerNames"/>
     /// plus every other entry found in the editable config or the global ConfigurationManager
     /// (excluding the default container, which the main flow already handled).
+    /// When <paramref name="tunnelUrlWithAuth"/> is null (DIRECT connection, no tunnel), the
+    /// method still registers every additional context — derived from the default container's
+    /// connection string when the platform has no ConnectionStrings.config — but without a
+    /// Tunnel URL segment and without relay credentials.
     /// </summary>
     private static async Task ApplyTunnelToAdditionalConnectionsAsync(
         System.Configuration.Configuration? config,
-        string tunnelUrl,
-        string tunnelUrlWithAuth,
+        string? tunnelUrl,
+        string? tunnelUrlWithAuth,
         string? token,
         string? defaultConnectionString = null)
     {
@@ -1566,6 +1572,15 @@ public partial class LoginView : UserControl
                 cs = System.Text.RegularExpressions.Regex.Replace(
                     cs, @"(?i);?\s*Tunnel\s+URL\s*=\s*[^;]*", "");
                 cs = cs.TrimEnd(';', ' ');
+
+                if (tunnelUrlWithAuth == null)
+                {
+                    // DIRECT connection (no tunnel): just make sure the additional context
+                    // exists with the correct server/catalog — no Tunnel URL, no credentials.
+                    RegisterConnectionString(name, cs, config);
+                    Console.WriteLine($"LoginView: direct connection applied to additional connection '{name}'.");
+                    continue;
+                }
 
                 // Relay-delivered credentials (docs §9.24): rewrite user id/password and
                 // flip Integrated Security so the delivered login is actually used.

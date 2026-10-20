@@ -1731,6 +1731,31 @@ namespace gip.core.datamodel
                             .Where(c => c.AssemblyQualifiedName == assemblyQualifiedName || c.AssemblyQualifiedName2 == assemblyQualifiedName).FirstOrDefault()
             );
 
+        /// <summary>
+        /// Executes the compiled type-cache query on the (possibly shared) context.
+        /// Even when running under QueryLock_1X000, other threads may access the same
+        /// DbContext instance without this lock (lazy loading, SaveChanges, other queries).
+        /// EF Core then throws InvalidOperationException ("A second operation was started
+        /// on this context instance..."). Because the result is cached in _ACTypeCache and
+        /// only queried once per type, a short retry until the competing operation has
+        /// finished is a safe and sufficient mitigation.
+        /// </summary>
+        private ACClass ExecuteTypeCacheQuery(string assemblyQualifiedName)
+        {
+            const int MaxRetries = 100;
+            for (int retry = 0; ; retry++)
+            {
+                try
+                {
+                    return s_cQry_TypeCache(this, assemblyQualifiedName);
+                }
+                catch (InvalidOperationException) when (retry < MaxRetries)
+                {
+                    Thread.Sleep(10);
+                }
+            }
+        }
+
         public static readonly Func<Database, string, IEnumerable<ACClass>> s_cQry_FindInstancesOfClass =
             EF.CompileQuery<Database, string, IEnumerable<ACClass>>(
                    (ctx, pafACIdentifier) => ctx.ACClass.Where(c => (c.BasedOnACClassID.HasValue
@@ -1819,7 +1844,7 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(QueryLock_1X000))
             {
-                acClass = s_cQry_TypeCache(this, type.AssemblyQualifiedName);
+                acClass = ExecuteTypeCacheQuery(type.AssemblyQualifiedName);
             }
             if (acClass != null)
             {
@@ -1843,7 +1868,7 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(QueryLock_1X000))
             {
-                acClass = s_cQry_TypeCache(this, genericType.AssemblyQualifiedName);
+                acClass = ExecuteTypeCacheQuery(genericType.AssemblyQualifiedName);
             }
             if (acClass != null)
             {

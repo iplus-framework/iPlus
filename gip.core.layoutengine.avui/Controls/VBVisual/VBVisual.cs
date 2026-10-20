@@ -1320,18 +1320,36 @@ namespace gip.core.layoutengine.avui
                 }
 
                 Point point = e.GetPosition(this);
-                ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
-                BSOACComponent.ACAction(actionArgs);
-                if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
+                // VBDynamicContent visuals (e.g. bound to a property that yields arbitrary
+                // components) may have no resolved BSOACComponent; calling ACAction on null
+                // crashed the app. Same guard as VBDesign.OnPointerReleased.
+                if (BSOACComponent == null)
                 {
-                    VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
-                    this.ContextMenu = vbContextMenu;
-                    //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
-                    if (vbContextMenu.PlacementTarget == null)
-                        vbContextMenu.PlacementTarget = this;
-                    vbContextMenu.Closed += (s, args) => { this.ContextMenu = null; };
-                    ContextMenu.Open();
+                    System.Console.WriteLine($"DOTNET: [VBVisual|{Name ?? GetHashCode().ToString()}] ContextMenu skipped: BSOACComponent is null (VBContent={VBContent}, ContentACObject={ContentACObject?.GetACUrl() ?? "null"})");
                     e.Handled = true;
+                    return;
+                }
+                try
+                {
+                    ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
+                    BSOACComponent.ACAction(actionArgs);
+                    if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
+                    {
+                        VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
+                        this.ContextMenu = vbContextMenu;
+                        //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
+                        if (vbContextMenu.PlacementTarget == null)
+                            vbContextMenu.PlacementTarget = this;
+                        vbContextMenu.Closed += (s, args) => { this.ContextMenu = null; };
+                        ContextMenu.Open();
+                        e.Handled = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // TEMP diagnostics: full stack to logcat (I/DOTNET) because the Mono debugger
+                    // does not surface this exception.
+                    System.Console.WriteLine($"DOTNET: [VBVisual|{Name ?? GetHashCode().ToString()}] ContextMenu EXCEPTION: {ex}");
                 }
             }
             base.OnPointerReleased(e);

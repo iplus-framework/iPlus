@@ -66,43 +66,13 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
     ACMenuItem mainMenu;
     protected override void OnLoaded(RoutedEventArgs e)
     {
+        var onLoadedStopwatch = System.Diagnostics.Stopwatch.StartNew();
         string[] cmLineArg = System.Environment.GetCommandLineArgs();
         ACRoot.SRoot.RootPageWPF = this;
-
-        ACClassDesign menuDesign = null;
-        using (ACMonitor.Lock(ACRoot.SRoot.Database.QueryLock_1X000))
-        {
-            menuDesign = ACRoot.SRoot.Environment.User.MenuACClassDesign;
-        }
-
-        if (menuDesign == null)
-        {
-            ACClassDesign acClassDesign = ACRoot.SRoot.GetDesign(Global.ACKinds.DSDesignMenu);
-            mainMenu = acClassDesign.GetMenuEntryWithCheck(ACRoot.SRoot);
-        }
-        else
-        {
-
-            using (ACMonitor.Lock(ACRoot.SRoot.Database.ContextIPlus.QueryLock_1X000))
-            {
-                mainMenu = ACRoot.SRoot.Environment.User.MenuACClassDesign.GetMenuEntryWithCheck(ACRoot.SRoot);
-            }
-        }
-
-        if (mainMenu != null)
-        {
-            VBSideMenuItem rootItem = new VBSideMenuItem();
-            CreateMenu(mainMenu.Items, rootItem.Items);
-
-            MainMenu.Items.Add(rootItem);
-        }
-            
 
         this.DataContext = ACRoot.SRoot.Businessobjects;
 
         this.Content = MainScrollViewer;
-
-        InitAlarms();
         base.OnLoaded(e);
 
         // Get TopLevel after the view is loaded (not in constructor!)
@@ -126,6 +96,62 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
             IsSingleViewApp = singleViewEnabled.Value;
         else
             IsSingleViewApp = Database.Root.IsSingleViewApp;
+
+        // IMPORTANT: the menu query/build and alarm init are heavy DB + UI steps
+        // (0.7s+ each on Android). Running them synchronously inside OnLoaded
+        // stacks several consecutive blocks; a MotionEvent arriving during the
+        // switch then waits across all of them and triggers the 5s ANR watchdog.
+        // Deferring each step onto DispatcherTimer ticks yields to the OS looper
+        // between steps, so pending input is dispatched in time.
+        DispatcherTimer menuTimer = null;
+        int menuStep = 0;
+        menuTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(10), DispatcherPriority.Background,
+            (s, e) =>
+            {
+                if (menuStep == 0)
+                {
+                    menuStep = 1;
+                    ACClassDesign menuDesign = null;
+                    using (ACMonitor.Lock(ACRoot.SRoot.Database.QueryLock_1X000))
+                    {
+                        menuDesign = ACRoot.SRoot.Environment.User.MenuACClassDesign;
+                    }
+                    System.Console.WriteLine($"DOTNET: [MainSingleView] MenuACClassDesign query took {onLoadedStopwatch.ElapsedMilliseconds} ms");
+
+                    if (menuDesign == null)
+                    {
+                        ACClassDesign acClassDesign = ACRoot.SRoot.GetDesign(Global.ACKinds.DSDesignMenu);
+                        mainMenu = acClassDesign.GetMenuEntryWithCheck(ACRoot.SRoot);
+                    }
+                    else
+                    {
+                        using (ACMonitor.Lock(ACRoot.SRoot.Database.ContextIPlus.QueryLock_1X000))
+                        {
+                            mainMenu = ACRoot.SRoot.Environment.User.MenuACClassDesign.GetMenuEntryWithCheck(ACRoot.SRoot);
+                        }
+                    }
+                    System.Console.WriteLine($"DOTNET: [MainSingleView] GetMenuEntryWithCheck took {onLoadedStopwatch.ElapsedMilliseconds} ms total");
+                }
+                else if (menuStep == 1)
+                {
+                    menuStep = 2;
+                    if (mainMenu != null)
+                    {
+                        VBSideMenuItem rootItem = new VBSideMenuItem();
+                        CreateMenu(mainMenu.Items, rootItem.Items);
+
+                        MainMenu.Items.Add(rootItem);
+                    }
+                    System.Console.WriteLine($"DOTNET: [MainSingleView] CreateMenu took {onLoadedStopwatch.ElapsedMilliseconds} ms total");
+                }
+                else
+                {
+                    menuTimer.Stop();
+                    InitAlarms();
+                    System.Console.WriteLine($"DOTNET: [MainSingleView] InitAlarms took {onLoadedStopwatch.ElapsedMilliseconds} ms total");
+                }
+            });
+        menuTimer.Start();
     }
 
     private void InputPane_StateChanged(object sender, InputPaneStateEventArgs e)

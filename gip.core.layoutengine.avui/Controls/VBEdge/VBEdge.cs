@@ -250,8 +250,15 @@ namespace gip.core.layoutengine.avui
                 return;
 
             _ConnectorResolveScheduled = true;
-            Dispatcher.UIThread.Post(() =>
+            // IMPORTANT: use a DispatcherTimer, not self-rescheduling
+            // Dispatcher.UIThread.Post callbacks. A Post that enqueues its
+            // successor before returning starves the Android looper's input
+            // queue (MotionEvent ANR after 5s). The timer returns control to
+            // the OS looper between ticks, letting input events be dispatched.
+            DispatcherTimer resolveTimer = null;
+            resolveTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(10), DispatcherPriority.Loaded, (s, e) =>
             {
+                resolveTimer.Stop();
                 _ConnectorResolveScheduled = false;
                 if (!IsLoaded)
                     return;
@@ -268,7 +275,8 @@ namespace gip.core.layoutengine.avui
                     _ConnectorResolveAttempts = 0;
                     InvalidateVisual();
                 }
-            }, DispatcherPriority.Loaded);
+            });
+            resolveTimer.Start();
         }
         #endregion
 

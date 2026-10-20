@@ -203,6 +203,8 @@ namespace gip.core.autocomponent
 
                 if (wfChilds != null && wfChilds.Any())
                 {
+                    System.Diagnostics.Stopwatch wfStopwatch = System.Diagnostics.Stopwatch.StartNew();
+                    int wfChildIndex = 0;
                     foreach (var acClassWF in wfChilds)
                     {
                         //if (mustRefreshACClassWF.HasValue && mustRefreshACClassWF.Value)
@@ -223,7 +225,11 @@ namespace gip.core.autocomponent
                                 wfDictionary.AddPWComponent((ACClassWF)acClassWF, pwComponent);
                             }
                         }
+                        wfChildIndex++;
+                        System.Console.WriteLine($"DOTNET: [InitWFChilds] child {wfChildIndex}/{wfChilds.Length} ({acClassWF.ACIdentifier}) cumulative {wfStopwatch.ElapsedMilliseconds} ms");
                     }
+                    wfStopwatch.Stop();
+                    System.Console.WriteLine($"DOTNET: [InitWFChilds] group {pwGroupComponent.ACIdentifier} total {wfStopwatch.ElapsedMilliseconds} ms for {wfChildIndex} children");
                 }
 
                 if (pwGroup is PWProcessFunction)
