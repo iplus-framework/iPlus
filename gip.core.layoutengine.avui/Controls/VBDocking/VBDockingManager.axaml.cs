@@ -28,6 +28,14 @@ namespace gip.core.layoutengine.avui
     {
         public event EventHandler OnInitVBControlFinished;
 
+        /// <summary>
+        /// Default preview size (px) used when a pinned dockable is expanded
+        /// via hover (mouse) or tap (touch). Applied through <c>PinnedBounds</c>;
+        /// without it the preview collapses to the 50px minimum of PinnedDockControl.
+        /// </summary>
+        private const double PinnedPreviewWidth = 300;
+        private const double PinnedPreviewHeight = 300;
+
         #region c'tors
         public VBDockingManager() : base()
         {
@@ -1571,6 +1579,15 @@ namespace gip.core.layoutengine.avui
         {
             if (design == null || dockable == null)
                 return;
+
+            // Give pinned (auto-hide) tools a usable preview size. Without PinnedBounds
+            // the preview collapses to the 50px minimum hardcoded in PinnedDockControl.
+            // Only set when not already present, so sizes restored from persisted
+            // layouts (or resized by the user via the splitter) are preserved.
+            if (dockable is Tool && dockable.PinnedBounds is null)
+            {
+                dockable.SetPinnedBounds(0, 0, PinnedPreviewWidth, PinnedPreviewHeight);
+            }
 
             var map = DesignToolMap.Where(c => c.Design == design).FirstOrDefault();
             if (map == null)
