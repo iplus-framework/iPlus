@@ -17,7 +17,7 @@
 		<!-- For Entity Framework -->
 		<NetCorePackageVersion>10.0.0</NetCorePackageVersion>
 		<EFCorePackageVersion>10.0.5</EFCorePackageVersion>
-		<EFCorePackageVersionFork>10.0.6</EFCorePackageVersionFork>
+		<EFCorePackageVersionFork>10.0.7</EFCorePackageVersionFork>
 
 		<!-- $(AvaloniaRootDir)\av_main\build\SkiaSharp.props -->
 		<SkiaSharpVersion>4.150.1</SkiaSharpVersion>
@@ -46,7 +46,7 @@
 		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'"
 			Include="iPlus.EntityFrameworkCore.Proxies" Version="$(EFCorePackageVersionFork)" />
 		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'"
-			Include="iPlus.EntityFrameworkCore.Tools" Version="$(EFCorePackageVersionFork)" />
+			Include="iPlus.EntityFrameworkCore.Tools" Version="10.0.6" />
 		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'"
 			Include="iPlus.EntityFrameworkCore.Relational" Version="$(EFCorePackageVersionFork)" />
 
@@ -86,7 +86,7 @@
 		<PackageVersion Include="Avalonia.Browser" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.Controls.ColorPicker" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.Controls.DataGrid" Version="12.1.2" /> <!--$(AvaloniaVersionMin)-->
-		<PackageVersion Include="iPlus.Avalonia.Controls.DataGrid" Version="12.1.3" />
+		<PackageVersion Include="iPlus.Avalonia.Controls.DataGrid" Version="12.1.4" />
 
 		<PackageVersion Include="Avalonia.Desktop" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.Diagnostics" Version="11.3.22" />
@@ -201,7 +201,7 @@
 		     Do NOT add a CPM entry for the official "Microsoft.Data.SqlClient" id: the
 		     transitive flow from the iPlus.EntityFrameworkCore.* packages is suppressed in
 		     Directory.Build.targets and must not be pinned to a non-existent version. -->
-		<PackageVersion Include="iPlus.Microsoft.Data.SqlClient" Version="7.1.1-iplus.2" />
+		<PackageVersion Include="iPlus.Microsoft.Data.SqlClient" Version="7.1.1-iplus.3" />
 		<PackageVersion Include="Azure.Core" Version="1.51.1" />
 		<PackageVersion Include="Microsoft.Database.Collections.Generic" Version="3.2.0" />
 		<PackageVersion Include="Microsoft.FASTER.Core" Version="2.6.5" />
@@ -310,8 +310,8 @@
 		<PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.2.0.2" />
 		<PackageVersion Include="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm" Version="1.10.0.1" />
 		<PackageVersion Include="Xamarin.AndroidX.Window" Version="1.5.1.2" />
-		<PackageVersion Include="Xaml.Behaviors" Version="12.0.7" />
-		<PackageVersion Include="iPlus.Xaml.Behaviors.Avalonia" Version="12.0.7" />
+		<PackageVersion Include="Xaml.Behaviors" Version="12.0.8" />
+		<PackageVersion Include="iPlus.Xaml.Behaviors.Avalonia" Version="12.0.8" />
 		<!--<PackageVersion
 		Include="System.Text.Json" Version="$(NetCorePackageVersion)" />-->
 		<PackageVersion Include="System.Text.Json" Version="10.0.8" />
@@ -463,7 +463,16 @@
 			Version="$(HarfBuzzSharpVersion)" />
 		<PackageVersion Include="System.Memory" Version="4.6.3" />
 		<PackageVersion Include="System.CommandLine" Version="2.0.2" />
-		<PackageVersion Include="SixLabors.ImageSharp" Version="4.1.3" />
+		<PackageVersion Include="SixLabors.ImageSharp" Version="3.1.12" />
+		<!-- ImageSharp 3.1.12 is pinned intentionally (no build-time license gate like 4.x).
+		     GHSA-j9gm-c75j-xc9q affects decoding of untrusted image input; Scryber only
+		     decodes images embedded in trusted report templates. Suppress until the
+		     Six Labors license arrives and we can move to 4.x. -->
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-j9gm-c75j-xc9q" />
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-gwg2-r3hj-4w44" />
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-j3p4-wp97-rph4" />
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-jjfr-hcj7-qf5w" />
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-wmxv-xphr-5c9g" />
 		<PackageVersion Include="ProDiagnostics" Version="12.1.0.4" /> <!--$(AvaloniaVersionMin)-->
 
 		<!-- Additional Packages for RichtTextBox -->

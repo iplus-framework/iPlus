@@ -26,6 +26,10 @@
       Set with: dotnet build -p:UseSqlClientForkProjectReference=True
   -->
   <PropertyGroup>
+    <!-- Default False so fresh clones (without the SqlClient fork checkout) compile
+         from NuGet packages. For fork debugging, override locally WITHOUT committing:
+         dotnet build -p:UseSqlClientForkProjectReference=True
+         (or set the property in a local, untracked Directory.Build.props.user / env). -->
     <UseSqlClientForkProjectReference Condition="'$(UseSqlClientForkProjectReference)' == ''">False</UseSqlClientForkProjectReference>
     <SqlClientForkProject Condition="'$(SqlClientForkProject)' == ''">$(MSBuildThisFileDirectory)..\SqlClient\src\Microsoft.Data.SqlClient\src\Microsoft.Data.SqlClient.csproj</SqlClientForkProject>
     <SqlClientForkSigningKey Condition="'$(SqlClientForkSigningKey)' == ''">$(MSBuildThisFileDirectory)..\SqlClient\tools\iplus-fork.snk</SqlClientForkSigningKey>
