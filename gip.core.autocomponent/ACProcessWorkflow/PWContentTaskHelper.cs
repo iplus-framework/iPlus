@@ -203,6 +203,7 @@ namespace gip.core.autocomponent
 
                 if (wfChilds != null && wfChilds.Any())
                 {
+                    int wfChildIndex = 0;
                     foreach (var acClassWF in wfChilds)
                     {
                         //if (mustRefreshACClassWF.HasValue && mustRefreshACClassWF.Value)
@@ -223,6 +224,7 @@ namespace gip.core.autocomponent
                                 wfDictionary.AddPWComponent((ACClassWF)acClassWF, pwComponent);
                             }
                         }
+                        wfChildIndex++;
                     }
                 }
 

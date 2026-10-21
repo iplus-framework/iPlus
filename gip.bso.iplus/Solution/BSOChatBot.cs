@@ -42,7 +42,7 @@ CHAT MANAGEMENT:
 - ChatMessagesObservable (ObservableCollection<ChatMessageWrapper>): Complete conversation history with the chatbot
 - SelectedChatMessage (ChatMessageWrapper): Currently selected message in the conversation
 - CurrentChatUpdates (ObservableCollection<ChatResponseUpdateWrapper>): Real-time updates during active agent processing
-- ChatHistoryList (List<ChatConfigWrapper>): List of saved chat sessions
+- ChatHistoryList (ObservableCollection<ChatConfigWrapper>): List of saved chat sessions
 - SelectedChatHistory (ChatConfigWrapper): Currently selected chat history session
 
 AI CLIENT CONFIGURATION:
@@ -282,9 +282,9 @@ IMPORTANT NOTES:
         }
 
         private ACClassDesign _DummyDesignForChat;
-        List<ChatConfigWrapper> _ChatHistoryList;
+        ObservableCollection<ChatConfigWrapper> _ChatHistoryList;
         [ACPropertyList(150, "ChatHistory", "en{'Chat History'}de{'Chat History'}")]
-        public List<ChatConfigWrapper> ChatHistoryList
+        public ObservableCollection<ChatConfigWrapper> ChatHistoryList
         {
             get
             {
@@ -311,10 +311,10 @@ IMPORTANT NOTES:
                     Db.ACSaveChanges();
                 }
             }
-            _ChatHistoryList = Db.VBUserACClassDesign.Where(c => c.VBUserID == Root.Environment.User.VBUserID && c.ACClassDesignID == _DummyDesignForChat.ACClassDesignID)
+            var query = Db.VBUserACClassDesign.Where(c => c.VBUserID == Root.Environment.User.VBUserID && c.ACClassDesignID == _DummyDesignForChat.ACClassDesignID)
                 .OrderByDescending(c => c.InsertDate)
-                .Select(c => new ChatConfigWrapper(null, c.VBUserACClassDesignID, c.ACIdentifier, c.InsertDate))
-                .ToList();
+                .Select(c => new ChatConfigWrapper(null, c.VBUserACClassDesignID, c.ACIdentifier, c.InsertDate));
+            _ChatHistoryList = new ObservableCollection<ChatConfigWrapper>(query);
             OnPropertyChanged(nameof(ChatHistoryList));
         }
 
@@ -710,10 +710,15 @@ IMPORTANT NOTES:
             }
             catch (Exception ex)
             {
+                Messages.LogException(this.GetACUrl(), "SendMessage", ex);
                 ChatOutput = $"Error sending message: {ex.Message}";
 
+                string errorDetail = $"{ex.GetType().Name}: {ex.Message}";
+                for (var inner = ex.InnerException; inner != null; inner = inner.InnerException)
+                    errorDetail += $" --> {inner.GetType().Name}: {inner.Message}";
+
                 // Add error message to observable collection
-                var errorMessageWrapper = new ChatMessageWrapper(this, ChatRole.System, $"Error: {ex.Message}");
+                var errorMessageWrapper = new ChatMessageWrapper(this, ChatRole.System, $"Error: {errorDetail}");
                 ChatMessagesObservable.Add(errorMessageWrapper);
                 SaveCurrentChat();
             }

@@ -267,10 +267,40 @@ public partial class MainView : UserControl, IRootPageWPF, IFocusChangeListener
     }
 
 
+    bool _DockingManagerInitialized = false;
+
     void RootVBDesign_Loaded(object sender, RoutedEventArgs e)
     {
-        if ((_RootVBDesign.Content == null) || !(_RootVBDesign.Content is VBDockingManager))
+        if (_DockingManagerInitialized)
+            return;
+        // With IncrementalDesignLoading the root design's Content is assigned on a
+        // later dispatcher tick. Initializing the DockingManager before the design
+        // XAML is attached would create a bare VBDockingManager that the deferred
+        // LoadDesign then replaces with the (uninitialized) one from the design,
+        // leaving IsBSOManager=false so that no BSO could be opened. Wait until the
+        // design content has arrived, then initialize it.
+        DispatcherTimer initTimer = null;
+        int attempts = 0;
+        initTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(10), DispatcherPriority.Background,
+            (s, e) =>
+            {
+                if (_RootVBDesign.Content is VBDockingManager || attempts++ > 200)
+                {
+                    initTimer.Stop();
+                    InitDockingManager();
+                }
+            });
+        initTimer.Start();
+    }
+
+    private void InitDockingManager()
+    {
+        if (_DockingManagerInitialized)
+            return;
+        _DockingManagerInitialized = true;
+        if (!(_RootVBDesign.Content is VBDockingManager))
         {
+            // Design provides no VBDockingManager (or failed to load): create a bare one.
             _RootVBDesign.Content = new VBDockingManager();
             DockingManager.Name = "mainDockingManager";
         }

@@ -206,6 +206,7 @@ namespace gip.core.layoutengine.avui
             LayoutUpdated -= VBEdge_LayoutUpdated;
             _ConnectorResolveScheduled = false;
             _ConnectorResolveAttempts = 0;
+            VBEdgeConnectorResolver.Remove(this);
             // Remove List in VBConnector
             this.Source = null;
             this.Target = null;
@@ -250,25 +251,68 @@ namespace gip.core.layoutengine.avui
                 return;
 
             _ConnectorResolveScheduled = true;
-            Dispatcher.UIThread.Post(() =>
+            // Batched resolution: instead of one DispatcherTimer and one full
+            // visual-tree search PER EDGE PER RETRY (N edges × 64 attempts =
+            // thousands of tree walks on large workflows), all pending edges are
+            // resolved by a single shared timer that walks each container's tree
+            // once per tick and resolves every pending edge against the collected
+            // VBConnector dictionary. See VBEdgeConnectorResolver.
+            VBEdgeConnectorResolver.ScheduleResolve(this);
+        }
+
+        /// <summary>
+        /// Called by the <see cref="VBEdgeConnectorResolver"/> once per batch tick.
+        /// </summary>
+        internal void IncrementResolveAttempt()
+        {
+            _ConnectorResolveAttempts++;
+        }
+
+        /// <summary>
+        /// True when the edge has used up its resolve attempts and should be dropped
+        /// from the batch queue (same cut-off as the old per-edge retry loop).
+        /// </summary>
+        internal bool ResolveAttemptsExhausted
+        {
+            get { return _ConnectorResolveAttempts >= MaxConnectorResolveAttempts; }
+        }
+
+        /// <summary>
+        /// Resolves Source/Target connectors against a name dictionary collected by
+        /// one tree walk of the parent container. Returns true when both connectors
+        /// are resolved.
+        /// </summary>
+        internal bool ResolveConnectors(Dictionary<string, VBConnector> connectorDict)
+        {
+            bool changed = false;
+            if (Source == null && !string.IsNullOrEmpty(VBConnectorSource))
+            {
+                if (connectorDict.TryGetValue(VBConnectorSource, out var source))
+                {
+                    Source = source;
+                    changed = true;
+                }
+            }
+            if (Target == null && !string.IsNullOrEmpty(VBConnectorTarget))
+            {
+                if (connectorDict.TryGetValue(VBConnectorTarget, out var target))
+                {
+                    Target = target;
+                    changed = true;
+                }
+            }
+
+            if (Source != null && Target != null)
             {
                 _ConnectorResolveScheduled = false;
-                if (!IsLoaded)
-                    return;
-
-                if (_ConnectorResolveAttempts >= MaxConnectorResolveAttempts)
-                    return;
-
-                _ConnectorResolveAttempts++;
-                InitConnectionPoints();
-                if (Source == null || Target == null)
-                    ScheduleConnectorResolve();
-                else
-                {
-                    _ConnectorResolveAttempts = 0;
-                    InvalidateVisual();
-                }
-            }, DispatcherPriority.Loaded);
+                _ConnectorResolveAttempts = 0;
+                UpdateEdgeGeometry();
+                InvalidateVisual();
+                return true;
+            }
+            if (changed)
+                InvalidateVisual();
+            return false;
         }
         #endregion
 
@@ -650,14 +694,12 @@ namespace gip.core.layoutengine.avui
 
             if (Source == null || Target == null)
             {
-                InitConnectionPoints();
-                if (Source == null || Target == null)
-                {
-                    ScheduleConnectorResolve();
-                    return;
-                }
-
-                _ConnectorResolveAttempts = 0;
+                // Do NOT run the tree search here: OnRender is invoked on every
+                // measure/arrange pass, and a full visual-tree search per pass is
+                // prohibitively expensive with many edges. The batched resolver
+                // (deduplicated) handles lookup; until then skip geometry update.
+                ScheduleConnectorResolve();
+                return;
             }
             if (Source != null && Target != null && ParentContainerOfEdge != null)
             {

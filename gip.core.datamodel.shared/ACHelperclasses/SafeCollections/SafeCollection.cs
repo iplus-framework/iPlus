@@ -22,7 +22,13 @@ namespace gip.core.datamodel
         protected List<T> _Items;
 
         [NonSerialized]
-        private ReaderWriterLockSlim _RWLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+        // SupportsRecursion: the Enumerator holds the read lock for a whole enumeration
+        // (guarded via IsReadLockHeld), and re-entrant Count/CopyTo calls on the SAME
+        // thread (e.g. ACPropertyManager.Serialize → ToList while an outer enumeration
+        // holds the lock) would throw LockRecursionException with NoRecursion. This is
+        // deterministic on single-threaded WASM. Read/read and write→read recursion on
+        // one thread are safe here; cross-thread protection is unchanged.
+        private ReaderWriterLockSlim _RWLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         protected virtual ReaderWriterLockSlim RWLock
         {
             get

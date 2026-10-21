@@ -143,6 +143,24 @@ namespace gip.core.datamodel
 #endregion
 
 #region Public Static
+        /// <summary>
+        /// Optional SQL tunnel URL (e.g. "ws://host:port/sqltunnel") that is appended to every
+        /// resolved connection string when set. Used on platforms where ConfigurationManager
+        /// is read-only or the config section cannot carry the Tunnel URL keyword (Android).
+        /// Must be set before the first connection is opened (LoginView does this).
+        /// </summary>
+        [NotMapped]
+        public static string TunnelUrl { get; set; }
+
+        private static string ApplyTunnelUrl(string connString)
+        {
+            if (string.IsNullOrEmpty(connString) || string.IsNullOrEmpty(TunnelUrl))
+                return connString;
+            if (connString.IndexOf("Tunnel URL=", StringComparison.OrdinalIgnoreCase) >= 0)
+                return connString;
+            return connString + "; Tunnel URL=" + TunnelUrl;
+        }
+
         [NotMapped]
         public static string ConnectionString
         {
@@ -153,7 +171,7 @@ namespace gip.core.datamodel
                     try
                     {
                         ConnectionStringSettings setting = CommandLineHelper.ConfigCurrentDir.ConnectionStrings.ConnectionStrings[C_DefaultContainerName];
-                        return setting.ConnectionString;
+                        return ApplyTunnelUrl(setting.ConnectionString);
                     }
                     catch (Exception e)
                     {
@@ -166,7 +184,20 @@ namespace gip.core.datamodel
                     }
                 }
 
-                return ConfigurationManager.ConnectionStrings[C_DefaultContainerName].ConnectionString;
+                // The global collection may not contain the entry (Android: read-only,
+                // no app.config) — fall back to the ConfigCurrentDir section instead of
+                // throwing NullReferenceException.
+                var globalSetting = ConfigurationManager.ConnectionStrings?[C_DefaultContainerName];
+                if (globalSetting != null)
+                    return ApplyTunnelUrl(globalSetting.ConnectionString);
+
+                var fallbackConfig = CommandLineHelper.ConfigCurrentDir;
+                var fallbackSetting = fallbackConfig?.ConnectionStrings?.ConnectionStrings[C_DefaultContainerName];
+                if (fallbackSetting != null)
+                    return ApplyTunnelUrl(fallbackSetting.ConnectionString);
+
+                throw new InvalidOperationException(
+                    $"No connection string '{C_DefaultContainerName}' configured (neither in ConfigurationManager nor ConfigCurrentDir).");
             }
         }
 
@@ -177,8 +208,18 @@ namespace gip.core.datamodel
         /// <returns></returns>
         public static string ModifiedConnectionString(string appName)
         {
-            var connString = ConfigurationManager.ConnectionStrings[C_DefaultContainerName].ConnectionString.Replace("iPlus_db", appName);
-            return connString;
+            // Prefer the editable ConfigCurrentDir (vbiplus.config / exe config): it carries
+            // the tunnel connection string (Tunnel URL + delivered credentials) prepared by
+            // the login flow, while the global ConfigurationManager collection is read-only
+            // and may still hold the placeholder entry (docs/SqlTunnel-OptionB-Implementation.md §9.24).
+            ConnectionStringSettings setting = CommandLineHelper.ConfigCurrentDir?.ConnectionStrings?.ConnectionStrings[C_DefaultContainerName];
+            if (setting == null)
+                setting = ConfigurationManager.ConnectionStrings?[C_DefaultContainerName];
+            if (setting == null)
+                throw new InvalidOperationException(
+                    $"No connection string '{C_DefaultContainerName}' configured (neither in ConfigurationManager nor ConfigCurrentDir).");
+            var connString = setting.ConnectionString.Replace("iPlus_db", appName);
+            return ApplyTunnelUrl(connString);
         }
 
 
@@ -1690,6 +1731,31 @@ namespace gip.core.datamodel
                             .Where(c => c.AssemblyQualifiedName == assemblyQualifiedName || c.AssemblyQualifiedName2 == assemblyQualifiedName).FirstOrDefault()
             );
 
+        /// <summary>
+        /// Executes the compiled type-cache query on the (possibly shared) context.
+        /// Even when running under QueryLock_1X000, other threads may access the same
+        /// DbContext instance without this lock (lazy loading, SaveChanges, other queries).
+        /// EF Core then throws InvalidOperationException ("A second operation was started
+        /// on this context instance..."). Because the result is cached in _ACTypeCache and
+        /// only queried once per type, a short retry until the competing operation has
+        /// finished is a safe and sufficient mitigation.
+        /// </summary>
+        private ACClass ExecuteTypeCacheQuery(string assemblyQualifiedName)
+        {
+            const int MaxRetries = 100;
+            for (int retry = 0; ; retry++)
+            {
+                try
+                {
+                    return s_cQry_TypeCache(this, assemblyQualifiedName);
+                }
+                catch (InvalidOperationException) when (retry < MaxRetries)
+                {
+                    Thread.Sleep(10);
+                }
+            }
+        }
+
         public static readonly Func<Database, string, IEnumerable<ACClass>> s_cQry_FindInstancesOfClass =
             EF.CompileQuery<Database, string, IEnumerable<ACClass>>(
                    (ctx, pafACIdentifier) => ctx.ACClass.Where(c => (c.BasedOnACClassID.HasValue
@@ -1778,7 +1844,7 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(QueryLock_1X000))
             {
-                acClass = s_cQry_TypeCache(this, type.AssemblyQualifiedName);
+                acClass = ExecuteTypeCacheQuery(type.AssemblyQualifiedName);
             }
             if (acClass != null)
             {
@@ -1802,7 +1868,7 @@ namespace gip.core.datamodel
 
             using (ACMonitor.Lock(QueryLock_1X000))
             {
-                acClass = s_cQry_TypeCache(this, genericType.AssemblyQualifiedName);
+                acClass = ExecuteTypeCacheQuery(genericType.AssemblyQualifiedName);
             }
             if (acClass != null)
             {

@@ -126,6 +126,12 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         _GlobalApp = this;
+        // Browser (WASM): single-threaded runtime — the same synchronous design-load
+        // cascades that cause Android ANRs freeze the whole tab here. Opt in to
+        // incremental design/VBVisual loading (deferred via Background-priority
+        // dispatcher ticks) so input is processed between load steps.
+        if (OperatingSystem.IsBrowser())
+            gip.core.layoutengine.avui.VBDesign.IncrementalDesignLoading = true;
         // Browser (WASM): route client-local settings to localStorage before anything
         // reads CommandLineHelper.Settings or the App user settings.
         BrowserSettingsStorage.Register();
@@ -179,7 +185,7 @@ public partial class App : Application
             _LoginWindow = new LoginWindow(
                 () =>
                 {
-                    HandleLoginAndStartup();
+                    _ = HandleLoginAndStartupAsync();
                 },
                 () =>
                 {
@@ -221,11 +227,21 @@ public partial class App : Application
                 _LoginView = new LoginView(
                 () =>
                 {
-                    return HandleLoginAndStartup();
+                    return HandleLoginAndStartupAsync();
                 },
                 () =>
                 {
-                    ControlManager.RegisterImplicitStyles(this);
+                    // Fast registrations run synchronously (~1 s). The expensive
+                    // IPlusTheme instantiation (~3.5 s on Android) plus the view
+                    // creation run in a separate dispatcher turn: pending input is
+                    // dispatched between the turns (ANR prevention), and controls
+                    // are still created only AFTER the theme is fully applied
+                    // (controls created before their ControlTheme exists never
+                    // re-template correctly).
+                    ControlManager.RegisterImplicitStylesFast(this);
+                    Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                    {
+                        ControlManager.RegisterIPlusTheme(this);
 
                     if (singleViewPlatform != null)
                     {
@@ -272,6 +288,7 @@ public partial class App : Application
 
                         }
                     }
+                    }, Avalonia.Threading.DispatcherPriority.Normal);
                 },
                 externalLoginProviders
             );
@@ -281,7 +298,10 @@ public partial class App : Application
 
                 // Browser/Android clients have no ConnectionStrings.config: inject the
                 // connection settings entered in the SettingsGrid when the user presses Login.
-                _LoginView.LoginStarted += (s, e) => _LoginView.ApplyConnectionSettingsFromHelper();
+                // Skipped when the LoginView defers the apply (Entra device-code flow, or
+                // Browser/WASM — the async core must not run via the blocking sync wrapper
+                // on the single-threaded WASM runtime); the deferred path handles it.
+                _LoginView.LoginStarted += (s, e) => { if (!LoginView.EntraApplyDeferred && !OperatingSystem.IsBrowser()) _LoginView.ApplyConnectionSettingsFromHelper(); };
 
                 rootControl.Content = _LoginView;
                 singleViewPlatform.MainView = rootControl;
@@ -396,9 +416,14 @@ public partial class App : Application
     /// </summary>
     /// <param name="varioiplusLogin">Eine Instanz der VarioiplusLogin-Klasse</param>
     /// <remarks>Wird in einer Instanz des ApplicationInitializeDelegate verarbeitet.</remarks>
-    private async Task HandleLoginAndStartup()
+    private async Task HandleLoginAndStartupAsync()
     {
         Console.WriteLine("App: HandleLoginAndStartup started");
+        // Tunnel preparation for config-file-driven clients (docs §9.24): must run
+        // BEFORE any Database static init (ACRoot.SRoot below) and on this background
+        // thread (the Entra device-code poll blocks). No-op when the settings store
+        // drives the connection (LoginView path) or no tunnel is configured.
+        LoginView.PrepareTunnelConnectionFromConfig();
         // Browser/WASM has no real command line; GetCommandLineArgs may throw there.
         string[] cmLineArg = Array.Empty<string>();
         try
@@ -451,7 +476,7 @@ public partial class App : Application
                 {
                     Console.WriteLine($"App: HandleLoginAndStartup: attempt {i}, DisplayLogin + WaitOnLoginResult..."); // TEMPORARY tracing
                     _LoginView.DisplayLogin(true, errorMsg);
-                    await _LoginView.WaitOnLoginResult();
+                    await _LoginView.WaitOnLoginResultAsync();
                     Console.WriteLine("App: HandleLoginAndStartup: WaitOnLoginResult completed."); // TEMPORARY tracing
                     errorMsg = "";
                     _LoginView.DisplayLogin(false, errorMsg);
@@ -473,9 +498,11 @@ public partial class App : Application
             Console.WriteLine($"App: LoginUser starting for user '{_AppSettings.UserName}' (attempt {i + 1})...");
             short result = _StartUpManager.LoginUser(_AppSettings.UserName, _AppSettings.Password, registerACObjects, propPersistenceOff, ref errorMsg, wcfOff, simulation, fullscreen);
             Console.WriteLine($"App: LoginUser returned {result}.");
+            var postLoginStopwatch = System.Diagnostics.Stopwatch.StartNew();
             if (result == 1)
             {
                 SaveSettingsToDisk();
+                Console.WriteLine($"App: SaveSettingsToDisk took {postLoginStopwatch.ElapsedMilliseconds} ms");
 
                 if (cmLineArg.Contains("/autologin"))
                 {

@@ -1340,6 +1340,28 @@ namespace gip.core.webservices
 
 
         #region Create new Instance
+
+        private static IACComponent WaitForNewBSOInstance(string acIdentifier, IEnumerable<IACBSO> snapshot, TimeSpan timeout)
+        {
+            var snapshotSet = new HashSet<IACBSO>(snapshot);
+            DateTime deadline = DateTime.UtcNow + timeout;
+            while (DateTime.UtcNow < deadline)
+            {
+                Thread.Sleep(100);
+                var newBSO = ACRoot.SRoot.Businessobjects
+                    .FindChildComponents<IACBSO>(c => c.ACIdentifier.Contains(acIdentifier), null)
+                    .Except(snapshotSet)
+                    .FirstOrDefault();
+                if (newBSO != null)
+                    return newBSO;
+            }
+            // StartBusinessobject reuses an already running instance with the same ACUrl
+            // instead of creating a new one - report that instance in this case.
+            return ACRoot.SRoot.Businessobjects
+                .FindChildComponents<IACBSO>(c => c.ACIdentifier.Contains(acIdentifier), null)
+                .FirstOrDefault();
+        }
+
         public virtual string create_new_instance(IACComponent requester, VBUserRights userRights, string classID, string acUrl)
         {
             using (requester.Root.UsingThread(userRights.VBUser))
@@ -1407,9 +1429,9 @@ namespace gip.core.webservices
                                         var snapshotBSOs = ACRoot.SRoot.Businessobjects.FindChildComponents<IACBSO>(c => c.ACIdentifier.Contains(cls.ACIdentifier), null);
                                         string acUrlCommand = Const.BusinessobjectsACUrl + "\\#" + cls.ACIdentifier;
                                         ACRoot.SRoot.RootPageWPF.DispatcherInvoke(() => { ACRoot.SRoot.RootPageWPF.StartBusinessobject(acUrlCommand, new ACValueList()); });
-                                        var listRunningBSOs = ACRoot.SRoot.Businessobjects.FindChildComponents<IACBSO>(c => c.ACIdentifier.Contains(cls.ACIdentifier), null);
-                                        var newBSOs = listRunningBSOs.Except(snapshotBSOs).ToList();
-                                        newInstance = newBSOs.FirstOrDefault();
+                                        // StartBusinessobject only queues the component start on the UI thread (VBDesign.AutoStartACComponent),
+                                        // so the new BSO is registered asynchronously. Poll until it appears.
+                                        newInstance = WaitForNewBSOInstance(cls.ACIdentifier, snapshotBSOs, TimeSpan.FromSeconds(10));
                                     }
                                     else
                                     {

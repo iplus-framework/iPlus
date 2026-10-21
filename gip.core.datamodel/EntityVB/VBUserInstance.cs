@@ -29,6 +29,13 @@ namespace gip.core.datamodel
 
     [ACPropertyEntity(9999, "ServicePortObserverHTTP", "en{'deprecated-ServicePortObserverHTTP'}de{'Veraltet-ServicePortObserverHTTP'}", "", "", true)]
     [ACPropertyEntity(9999, "ServiceAppEnabledTCP", "en{'Enable TCP-Binary-Transport'}de{'Aktiviere TCP-Binary-Transport'}", "", "", true)]
+
+    // TLS-Configuration (docs SqlTunnel-OptionB-Implementation.md §9.28): encrypts the
+    // HTTP/WebSocket host (https/wss). Browser WCF clients auto-negotiate wss://; the
+    // certificate path is empty -> a self-signed certificate is generated and persisted.
+    [ACPropertyEntity(15, "ServiceUseTLS", "en{'Use TLS (https/wss)'}de{'TLS verwenden (https/wss)'}", "", "", true)]
+    [ACPropertyEntity(16, "ServiceTlsCertificatePath", "en{'TLS certificate path (PFX)'}de{'TLS-Zertifikatspfad (PFX)'}", "", "", true)]
+    [ACPropertyEntity(17, "ServiceTlsCertificatePassword", "en{'TLS certificate password'}de{'TLS-Zertifikatskennwort'}", "", "", true)]
     [ACPropertyEntity(9999, "ServiceWorkflowEnabledHTTP", "en{'deprecated-ServiceWorkflowEnabledHTTP'}de{'Veraltet-ServiceWorkflowEnabledHTTP'}", "", "", true)]
     [ACPropertyEntity(9999, "ServiceWorkflowEnabledTCP", "en{'deprecated-ServiceWorkflowEnabledTCP'}de{'Veraltet-ServiceWorkflowEnabledTCP'}", "", "", true)]
     [ACPropertyEntity(10, "ServiceObserverEnabledTCP", "en{'Autodiscover IP-Interface'}de{'Automatische Suche nach IP-Interface'}", "", "", true)]
@@ -65,6 +72,9 @@ namespace gip.core.datamodel
 
             entity.ServiceAppEnbledHTTP = false;
             entity.ServiceAppEnabledTCP = false;
+            entity.ServiceUseTLS = false;
+            entity.ServiceTlsCertificatePath = "";
+            entity.ServiceTlsCertificatePassword = "";
             entity.ServiceWorkflowEnabledHTTP = false;
             entity.ServiceWorkflowEnabledTCP = false;
             entity.ServiceObserverEnabledTCP = true;

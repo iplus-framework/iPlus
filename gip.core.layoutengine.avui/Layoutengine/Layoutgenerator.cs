@@ -28,9 +28,14 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     internal static class XamlBehaviorsAssemblyPreloader
     {
+        // CA2255 suppressed intentionally: this is a deliberate preload of the split
+        // iPlus.Xaml.Behaviors.Avalonia NuGet package (see class doc), not accidental
+        // library misuse of ModuleInitializer.
+#pragma warning disable CA2255
         [System.Runtime.CompilerServices.ModuleInitializer]
         internal static void Initialize()
         {
+#pragma warning restore CA2255
             // IMPORTANT: do NOT use typeof(...) here. A compile-time type reference
             // bakes the assembly identity of the build-time reference into this
             // assembly. When built against the Avalonia fork (merged
@@ -303,7 +308,8 @@ namespace gip.core.layoutengine.avui
         static public Visual LoadLayout(IACObjectDesign aCObjectDesign, IACObject dataContext, IACBSO bso, string layoutName)
         {
             ACClassDesign acClassDesign = aCObjectDesign as ACClassDesign;
-            if (acClassDesign != null && acClassDesign.BAMLDesign != null && acClassDesign.IsDesignCompiled)
+            bool hasBaml = acClassDesign != null && acClassDesign.BAMLDesign != null;
+            if (hasBaml && acClassDesign.IsDesignCompiled)
             {
                 return LoadBAML(acClassDesign, dataContext, bso) as Visual;
             }
@@ -343,7 +349,9 @@ namespace gip.core.layoutengine.avui
             //        return null;
                 try
                 {
-                    return AvaloniaRuntimeXamlLoader.Load(XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xmlLayout));
+                    string converted = XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xmlLayout);
+                    object result = AvaloniaRuntimeXamlLoader.Load(converted);
+                    return result;
                 }
                 catch (Exception e)
                 {
@@ -383,7 +391,8 @@ namespace gip.core.layoutengine.avui
             }
             try
             {
-                return BamlReader.Load(acClassDesign.BAMLDesign);
+                object bamlResult = BamlReader.Load(acClassDesign.BAMLDesign);
+                return bamlResult;
             }
             catch (Exception e)
             {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives.PopupPositioning;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Labs.Input;
@@ -22,6 +23,35 @@ namespace gip.core.layoutengine.avui
     /// Bind <see cref="BSOACComponent"/> to the BSO of the currently shown design
     /// (VBDesignController.CurrentBSO) — the bar rebuilds itself whenever the BSO changes
     /// and hides itself when no BSO is active.
+    /// <para>
+    /// HOW-TO: Custom icons and captions
+    /// ---------------------------------
+    /// For every command the icon resource key is resolved as "Icon{IconName}Style"
+    /// (a ControlTheme targeting ContentControl, same convention as all VBRibbon icons,
+    /// see Controls/VBRibbon/Icons/*.axaml). The icon name is looked up in
+    /// <see cref="s_IconNames"/>; unknown commands fall back to the command name itself.
+    ///
+    /// 1) Custom method "!PrintLabel" (no code change):
+    ///    Declare a ControlTheme with key "IconPrintLabelStyle" anywhere in the merged
+    ///    application resources (client App.axaml, Controls.axaml or a customer resource
+    ///    dictionary / AppResourceDict design). TryFindResource walks up to
+    ///    Application.Resources, so it is found regardless of where it is merged:
+    ///    <code>
+    ///    &lt;ControlTheme x:Key="IconPrintLabelStyle" TargetType="ContentControl"&gt;
+    ///        &lt;Setter Property="Template"&gt;
+    ///            &lt;ControlTemplate TargetType="ContentControl"&gt;
+    ///                &lt;Viewbox Stretch="Uniform"&gt; ... vector geometry ... &lt;/Viewbox&gt;
+    ///            &lt;/ControlTemplate&gt;
+    ///        &lt;/Setter&gt;
+    ///    &lt;/ControlTheme&gt;
+    ///    </code>
+    ///
+    /// 2) Reuse an existing ribbon icon:
+    ///    Add one line to <see cref="s_IconNames"/>, e.g. { "PrintLabel", "Print" }.
+    ///
+    /// Captions work the same way: unknown commands fall back to the command name, or
+    /// add an entry to <see cref="s_Captions"/> for a proper (translatable) label.
+    /// </para>
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBCommandBar'}de{'VBCommandBar'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBCommandBar : StackPanel, ICommandBindingOwner
@@ -108,6 +138,26 @@ namespace gip.core.layoutengine.avui
             set { SetValue(CommandListProperty, value); }
         }
 
+        /// <summary>
+        /// Represents the styled property for MaxVisibleButtons.
+        /// </summary>
+        public static readonly StyledProperty<int> MaxVisibleButtonsProperty =
+            AvaloniaProperty.Register<VBCommandBar, int>(nameof(MaxVisibleButtons), 3);
+
+        /// <summary>
+        /// Maximum number of buttons shown directly in the bar. On a smartphone only
+        /// 3-4 buttons fit next to the header text. When more commands pass the rights
+        /// checks, the first <see cref="MaxVisibleButtons"/> buttons are shown and the
+        /// remaining ones move into an overflow popup ("⋮" button with a Flyout
+        /// containing a WrapPanel), like the MAUI toolbar overflow.
+        /// </summary>
+        [ACPropertyInfo(9999)]
+        public int MaxVisibleButtons
+        {
+            get { return GetValue(MaxVisibleButtonsProperty); }
+            set { SetValue(MaxVisibleButtonsProperty, value); }
+        }
+
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             base.OnPropertyChanged(change);
@@ -127,7 +177,9 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Builds one <see cref="VBRibbonButton"/> per configured command.
+        /// Builds one <see cref="VBRibbonButton"/> per configured command. If more than
+        /// <see cref="MaxVisibleButtons"/> commands pass the rights checks, the excess
+        /// buttons are placed into an overflow Flyout (WrapPanel) behind a "⋮" button.
         /// </summary>
         protected virtual void InitVBControl()
         {
@@ -139,6 +191,7 @@ namespace gip.core.layoutengine.avui
             if (bso == null || String.IsNullOrEmpty(CommandList))
                 return;
 
+            List<VBRibbonButton> buttons = new List<VBRibbonButton>();
             foreach (string command in CommandList.Split(',')
                 .Select(c => c.Trim())
                 .Where(c => !String.IsNullOrEmpty(c)))
@@ -193,7 +246,51 @@ namespace gip.core.layoutengine.avui
                     ExecutedCommandHandler, CanExecuteCommandHandler);
                 ToolTip.SetTip(button, caption);
 
-                Children.Add(button);
+                buttons.Add(button);
+            }
+
+            int maxVisible = Math.Max(1, MaxVisibleButtons);
+            if (buttons.Count <= maxVisible)
+            {
+                foreach (VBRibbonButton button in buttons)
+                    Children.Add(button);
+            }
+            else
+            {
+                for (int i = 0; i < maxVisible; i++)
+                    Children.Add(buttons[i]);
+
+                // Overflow button: opens a popup with the remaining commands in a
+                // WrapPanel (like the MAUI toolbar overflow menu).
+                Button overflowButton = new Button
+                {
+                    Content = "\u22EE",
+                    FontSize = 20,
+                    FontWeight = FontWeight.Bold,
+                    Width = 36,
+                    Height = 48,
+                    Padding = new Thickness(0),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    VerticalContentAlignment = VerticalAlignment.Center,
+                };
+                ToolTip.SetTip(overflowButton, Database.Root.Environment.TranslateText(bso, "More"));
+
+                WrapPanel overflowPanel = new WrapPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    MaxWidth = 340,
+                };
+                for (int i = maxVisible; i < buttons.Count; i++)
+                    overflowPanel.Children.Add(buttons[i]);
+
+                overflowButton.Flyout = new Flyout
+                {
+                    Content = overflowPanel,
+                    Placement = PlacementMode.BottomEdgeAlignedRight,
+                };
+
+                Children.Add(overflowButton);
             }
         }
 

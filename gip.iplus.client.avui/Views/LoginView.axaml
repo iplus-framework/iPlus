@@ -3,187 +3,353 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vb="http://www.iplus-framework.com/axaml"
-             mc:Ignorable="d"              
+             mc:Ignorable="d"
 			 x:Class="gip.iplus.client.avui.LoginView">
+  <UserControl.Styles>
+    <!-- Logo: flip around the vertical axis (same effect as the desktop LoginWindow) -->
+    <Style Selector="Image.iPlusLogoClass">
+      <Style.Animations>
+        <Animation IterationCount="Infinite" PlaybackDirection="Normal" Duration="0:0:6">
+          <KeyFrame Cue="0%">
+            <Setter Property="ScaleTransform.ScaleX" Value="1.0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="ScaleTransform.ScaleX" Value="-1.0"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="ScaleTransform.ScaleX" Value="1.0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- Card look: border + shadow on screens with enough space -->
+    <Style Selector="Border.loginCard">
+      <Setter Property="Background" Value="#FF2D2D2D"/>
+      <Setter Property="BorderBrush" Value="#FF4A4A4A"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Padding" Value="16"/>
+      <Setter Property="BoxShadow" Value="0 8 32 0 #B3000000"/>
+    </Style>
+    <Style Selector="Grid.wide Border.loginCard">
+      <Setter Property="MaxWidth" Value="640"/>
+      <Setter Property="Margin" Value="24,24,24,24"/>
+    </Style>
+    <Style Selector="Grid.narrow Border.loginCard">
+      <Setter Property="Margin" Value="0"/>
+      <Setter Property="CornerRadius" Value="0"/>
+      <Setter Property="BoxShadow" Value="0 0 0 0 #00000000"/>
+    </Style>
+
+    <!-- Portrait (default): logo above the fields, full width -->
+    <!-- NOTE: placement is done purely via styles — local Grid.Row/Column attributes
+         would take precedence over the landscape setters below. -->
+    <Style Selector="Grid#RootGrid Panel#LogoPanel">
+      <Setter Property="Grid.Row" Value="0"/>
+      <Setter Property="Grid.Column" Value="0"/>
+      <Setter Property="Grid.RowSpan" Value="1"/>
+      <Setter Property="Grid.ColumnSpan" Value="2"/>
+    </Style>
+    <Style Selector="Grid#RootGrid Grid#LoginFields">
+      <Setter Property="Grid.Row" Value="1"/>
+      <Setter Property="Grid.Column" Value="0"/>
+      <Setter Property="Grid.RowSpan" Value="1"/>
+      <Setter Property="Grid.ColumnSpan" Value="2"/>
+    </Style>
+    <Style Selector="Grid#RootGrid Grid#LoginButtons">
+      <Setter Property="Grid.Row" Value="2"/>
+      <Setter Property="Grid.Column" Value="0"/>
+      <Setter Property="Grid.RowSpan" Value="1"/>
+      <Setter Property="Grid.ColumnSpan" Value="2"/>
+    </Style>
+
+    <!-- Landscape: logo left (like the desktop LoginWindow), fields right -->
+    <Style Selector="Grid#RootGrid.landscape Panel#LogoPanel">
+      <Setter Property="Grid.Row" Value="0"/>
+      <Setter Property="Grid.Column" Value="0"/>
+      <Setter Property="Grid.RowSpan" Value="3"/>
+      <Setter Property="Grid.ColumnSpan" Value="1"/>
+      <Setter Property="Margin" Value="0,0,8,0"/>
+    </Style>
+    <Style Selector="Grid#RootGrid.landscape Image#iPlusLogo">
+      <Setter Property="Height" Value="NaN"/>
+      <Setter Property="Width" Value="200"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Grid#RootGrid.landscape Grid#LoginFields">
+      <Setter Property="Grid.Row" Value="1"/>
+      <Setter Property="Grid.Column" Value="1"/>
+      <Setter Property="Grid.ColumnSpan" Value="1"/>
+    </Style>
+    <Style Selector="Grid#RootGrid.landscape Grid#LoginButtons">
+      <Setter Property="Grid.Row" Value="2"/>
+      <Setter Property="Grid.Column" Value="1"/>
+      <Setter Property="Grid.ColumnSpan" Value="1"/>
+    </Style>
+
+    <!-- Logo height per orientation (portrait) -->
+    <Style Selector="Grid#RootGrid.portrait Image#iPlusLogo">
+      <Setter Property="Height" Value="220"/>
+    </Style>
+    <Style Selector="Grid#RootGrid.portrait.narrow Image#iPlusLogo">
+      <Setter Property="Height" Value="160"/>
+    </Style>
+
+    <!-- Progress card: same two-column scheme as the login card -->
+    <Style Selector="Grid#RootGrid Panel#ProgressLogoPanel">
+      <Setter Property="Grid.Row" Value="0"/>
+      <Setter Property="Grid.Column" Value="0"/>
+      <Setter Property="Grid.RowSpan" Value="1"/>
+      <Setter Property="Grid.ColumnSpan" Value="2"/>
+    </Style>
+    <Style Selector="Grid#RootGrid Grid#ProgressContent">
+      <Setter Property="Grid.Row" Value="1"/>
+      <Setter Property="Grid.Column" Value="0"/>
+      <Setter Property="Grid.RowSpan" Value="2"/>
+      <Setter Property="Grid.ColumnSpan" Value="2"/>
+    </Style>
+    <Style Selector="Grid#RootGrid.portrait Image#iPlusLogoProgress">
+      <Setter Property="Height" Value="160"/>
+    </Style>
+    <Style Selector="Grid#RootGrid.landscape Panel#ProgressLogoPanel">
+      <Setter Property="Grid.Row" Value="0"/>
+      <Setter Property="Grid.Column" Value="0"/>
+      <Setter Property="Grid.RowSpan" Value="2"/>
+      <Setter Property="Grid.ColumnSpan" Value="1"/>
+      <Setter Property="Margin" Value="0,0,8,0"/>
+    </Style>
+    <Style Selector="Grid#RootGrid.landscape Image#iPlusLogoProgress">
+      <Setter Property="Height" Value="NaN"/>
+      <Setter Property="Width" Value="200"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Grid#RootGrid.landscape Grid#ProgressContent">
+      <Setter Property="Grid.Row" Value="0"/>
+      <Setter Property="Grid.RowSpan" Value="2"/>
+      <Setter Property="Grid.Column" Value="1"/>
+      <Setter Property="Grid.ColumnSpan" Value="1"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+  </UserControl.Styles>
   <ThemeVariantScope RequestedThemeVariant="Dark">
-  <ScrollViewer Name="scrollViewer"   >
-      <Grid Background="#FF333333">
-  <Grid.RowDefinitions>
-    <RowDefinition Height="Auto"></RowDefinition>
-    <RowDefinition Height="Auto"></RowDefinition>
-  </Grid.RowDefinitions>
+  <ScrollViewer Name="scrollViewer" Background="#FF333333">
+    <Grid x:Name="RootGrid" VerticalAlignment="Center">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"></RowDefinition>
+        <RowDefinition Height="Auto"></RowDefinition>
+        <RowDefinition Height="Auto"></RowDefinition>
+      </Grid.RowDefinitions>
 
-    <Border>
-      <Border.Background>
-        <LinearGradientBrush Opacity="1" SpreadMethod="Pad" StartPoint="50%,0%" EndPoint="50%,100%">
-          <GradientStop Color="#FF000004" Offset="0" />
-          <GradientStop Color="#FF000020" Offset="0.3" />
-          <GradientStop Color="#FF000030" Offset="1"  />
-        </LinearGradientBrush>
-      </Border.Background>
-    </Border>
-	  
-	  <Image Height="400" x:Name="iPlusLogo" Classes="iPlusLogoClass" Source="/Assets/Login.png" DoubleTapped="Image_DoubleTapped">
+      <!-- Login card -->
+      <Grid x:Name="LoginGrid" Grid.Row="0" IsVisible="true">
+        <Border Classes="loginCard">
+          <Panel>
+            <Grid x:Name="LoginCardGrid" ColumnDefinitions="225,*" RowDefinitions="Auto,Auto,Auto,*">
 
-    </Image>
-   
-	  <StackPanel Grid.Row="1">
-      <Grid x:Name="ProgressGrid" IsVisible="false" >
-        <Grid.RowDefinitions>
-          <RowDefinition Height="250"></RowDefinition>
-          <RowDefinition></RowDefinition>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <Grid>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-            <ColumnDefinition Width="10"></ColumnDefinition>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="10"></RowDefinition>
-            <RowDefinition Height="20"></RowDefinition>
-            <RowDefinition Height="10"></RowDefinition>
-            <RowDefinition Height="40"></RowDefinition>
-            <RowDefinition Height="10"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-          </Grid.RowDefinitions>
+              <Panel x:Name="LogoPanel">
+                <Image x:Name="iPlusLogo" Classes="iPlusLogoClass" Source="/Assets/Login.png" HorizontalAlignment="Center">
+                  <Image.RenderTransform>
+                    <ScaleTransform ScaleX="1" ScaleY="1" />
+                  </Image.RenderTransform>
+                </Image>
+                <!-- Gear icon (top-left corner of the logo) opens the settings -->
+                <Button x:Name="ButtonSettings" Click="ButtonSettings_Click"
+                        Width="36" Height="36" MinWidth="36" MinHeight="36" Padding="0"
+                        HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0"
+                        Background="Transparent" BorderThickness="0" Opacity="0.75"
+                        ToolTip.Tip="Settings">
+                  <Path Data="M19.14,12.94C19.18,12.64 19.2,12.33 19.2,12C19.2,11.68 19.18,11.36 19.14,11.06L21.16,9.48C21.34,9.34 21.39,9.09 21.28,8.89L19.36,5.55C19.25,5.35 19,5.27 18.81,5.34L16.47,6.26C15.97,5.88 15.43,5.57 14.84,5.33L14.5,2.83C14.46,2.62 14.28,2.46 14.07,2.46H10.23C10,2.46 9.83,2.62 9.79,2.83L9.45,5.33C8.86,5.57 8.31,5.88 7.82,6.26L5.48,5.34C5.28,5.27 5.04,5.35 4.93,5.55L3,8.89C2.89,9.09 2.94,9.34 3.12,9.48L5.14,11.06C5.1,11.36 5.08,11.68 5.08,12C5.08,12.33 5.1,12.64 5.14,12.94L3.12,14.53C2.94,14.67 2.89,14.91 3,15.11L4.93,18.45C5.04,18.66 5.28,18.73 5.48,18.66L7.82,17.75C8.31,18.13 8.86,18.44 9.45,18.68L9.79,21.18C9.83,21.38 10,21.55 10.23,21.55H14.07C14.28,21.55 14.46,21.38 14.5,21.18L14.84,18.68C15.43,18.44 15.97,18.13 16.46,17.75L18.81,18.66C19,18.73 19.25,18.66 19.36,18.45L21.28,15.11C21.39,14.91 21.34,14.67 21.16,14.53L19.14,12.94M12.15,15.6A3.6,3.6 0 0,1 8.55,12A3.6,3.6 0 0,1 12.15,8.4C14.05,8.4 15.75,10.1 15.75,12C15.75,13.91 14.05,15.6 12.15,15.6Z"
+                        Fill="#FFCCCCCC" Stretch="Uniform" Width="20" Height="20"/>
+                </Button>
+              </Panel>
 
-          <Border Grid.ColumnSpan="3" Grid.RowSpan="6" CornerRadius="4" BorderThickness="1"></Border>
-          <Border Grid.Row="1" Grid.Column="1" CornerRadius="4" Margin="3,0,3,0" HorizontalAlignment="Left">
-            <TextBlock Text="Initialization..." FontStyle="Italic" FontSize="14" FontWeight="Bold">
-            </TextBlock>
-          </Border>
-          <ProgressBar x:Name="progressBar" Grid.Row="3" Grid.Column="1" IsIndeterminate="True"></ProgressBar>
-          <ListBox x:Name="listboxInfo" Grid.Row="5" Grid.Column="1"></ListBox>
-        </Grid>
+              <Grid x:Name="LoginFields">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="10"></ColumnDefinition>
+                  <ColumnDefinition Width="80*"></ColumnDefinition>
+                  <ColumnDefinition Width="120*"></ColumnDefinition>
+                  <ColumnDefinition Width="10"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="10"></RowDefinition>
+                  <RowDefinition Height="20"></RowDefinition>
+                  <RowDefinition Height="40"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="10"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="1" Grid.Column="1" CornerRadius="4" Margin="3,0,3,0"  Width="100" HorizontalAlignment="Left">
+                  <TextBlock Text="Login" FontStyle="Italic" FontSize="14" FontWeight="Bold">
+                  </TextBlock>
+                </Border>
+
+                <TextBlock VerticalAlignment="Bottom" Grid.Row="2" Grid.Column="1" Name="label1">User</TextBlock>
+                <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="2" Grid.Column="2" Name="TextboxUser" Text="{Binding UserName, Mode=TwoWay}"/>
+
+                <TextBlock VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="1" Name="label2">Password</TextBlock>
+                <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="3" Margin="-1,0,-1,0" Grid.Column="2" Name="TextboxPassword" RevealPassword="False" PasswordChar="*" Text="{Binding Password, Mode=TwoWay}"/>
+
+                <TextBlock VerticalAlignment="Bottom" Grid.Row="4" Grid.Column="1" >Style</TextBlock>
+                <ComboBox VerticalAlignment="Bottom" Height="25" Grid.Row="4" Grid.Column="2" Name="selTheme" IsEditable="False" SelectedValue="{Binding WPFTheme}"></ComboBox>
+
+              </Grid>
+
+              <Grid x:Name="LoginButtons">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="10"></ColumnDefinition>
+                  <ColumnDefinition Width="50*"></ColumnDefinition>
+                  <ColumnDefinition Width="10"></ColumnDefinition>
+                  <ColumnDefinition Width="50*"></ColumnDefinition>
+                  <ColumnDefinition Width="10"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="10"></RowDefinition>
+                  <RowDefinition Height="40"></RowDefinition>
+                  <RowDefinition Height="10"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <Button Grid.Row="1" Grid.Column="1" Name="ButtonLogin" Click="ButtonLogin_Click" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Login</Button>
+                <Button Grid.Row="1" Grid.Column="3" Name="ButtonCancel" Click="ButtonCancel_Click" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Cancel</Button>
+              </Grid>
+
+            </Grid>
+          </Panel>
+        </Border>
       </Grid>
-      <Grid x:Name="LoginGrid" IsVisible="true">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"></RowDefinition>
-          <RowDefinition></RowDefinition>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition></ColumnDefinition>
-        </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="0" Grid.Column="0">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10"></ColumnDefinition>
-            <ColumnDefinition Width="80*"></ColumnDefinition>
-            <ColumnDefinition Width="120*"></ColumnDefinition>
-            <ColumnDefinition Width="10"></ColumnDefinition>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="10"></RowDefinition>
-            <RowDefinition Height="20"></RowDefinition>
-            <RowDefinition Height="40"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="25*" />
-          </Grid.RowDefinitions>
+      <!-- Progress card: shown after successful credential entry while loading -->
+      <Grid x:Name="ProgressGrid" Grid.Row="1" IsVisible="false">
+        <Border Classes="loginCard">
+          <Grid x:Name="ProgressCardGrid" ColumnDefinitions="225,*" RowDefinitions="Auto,Auto,*">
 
-          <Border Grid.Row="1" Grid.Column="1" CornerRadius="4" Margin="3,0,3,0"  Width="100" HorizontalAlignment="Left">
-            <TextBlock Text="Login" FontStyle="Italic" FontSize="14" FontWeight="Bold">
-            </TextBlock>
-          </Border>
+            <Panel x:Name="ProgressLogoPanel">
+              <!-- No animation here: the WASM UI thread is blocked during loading,
+                   so a frozen animation would look broken. -->
+              <Image x:Name="iPlusLogoProgress" Source="/Assets/Login.png" HorizontalAlignment="Center">
+                <Image.RenderTransform>
+                  <ScaleTransform ScaleX="1" ScaleY="1" />
+                </Image.RenderTransform>
+              </Image>
+            </Panel>
 
-          <TextBlock VerticalAlignment="Bottom" Grid.Row="2" Grid.Column="1" Name="label1">User</TextBlock>
-          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="2" Grid.Column="2" Name="TextboxUser" Text="{Binding UserName, Mode=TwoWay}"/>
+            <Grid x:Name="ProgressContent">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="10"></ColumnDefinition>
+              <ColumnDefinition Width="*"></ColumnDefinition>
+              <ColumnDefinition Width="10"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="10"></RowDefinition>
+              <RowDefinition Height="20"></RowDefinition>
+              <RowDefinition Height="10"></RowDefinition>
+              <RowDefinition Height="40"></RowDefinition>
+              <RowDefinition Height="10"></RowDefinition>
+              <RowDefinition Height="Auto"></RowDefinition>
+              <RowDefinition Height="10"></RowDefinition>
+              <RowDefinition Height="200"></RowDefinition>
+              <RowDefinition Height="10"></RowDefinition>
+            </Grid.RowDefinitions>
 
-          <TextBlock VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="1" Name="label2">Password</TextBlock>
-          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="3" Margin="-1,0,-1,0" Grid.Column="2" Name="TextboxPassword" RevealPassword="False" PasswordChar="*" Text="{Binding Password, Mode=TwoWay}"/>
-
-          <TextBlock VerticalAlignment="Bottom" Grid.Row="4" Grid.Column="1" >Style</TextBlock>
-          <ComboBox VerticalAlignment="Bottom" Height="25" Grid.Row="4" Grid.Column="2" Name="selTheme" IsEditable="False" SelectedValue="{Binding WPFTheme}"></ComboBox>
-
-        </Grid>
-        <Grid Grid.Row="1" Grid.Column="0">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10"></ColumnDefinition>
-            <ColumnDefinition Width="50*"></ColumnDefinition>
-            <ColumnDefinition Width="10"></ColumnDefinition>
-            <ColumnDefinition Width="50*"></ColumnDefinition>
-            <ColumnDefinition Width="10"></ColumnDefinition>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="10"></RowDefinition>
-            <RowDefinition Height="40"></RowDefinition>
-            <RowDefinition Height="10"></RowDefinition>
-            <RowDefinition Height="16*" />
-          </Grid.RowDefinitions>
-          <Border Grid.ColumnSpan="5" Grid.RowSpan="3"  CornerRadius="4" BorderThickness="1"></Border>
-
-          <Button Grid.Row="1" Grid.Column="1" Name="ButtonLogin" Click="ButtonLogin_Click" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Login</Button>
-          <Button Grid.Row="1" Grid.Column="3" Name="ButtonCancel" Click="ButtonCancel_Click" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Cancel</Button>
-        </Grid>
+            <Border Grid.Row="1" Grid.Column="1" CornerRadius="4" Margin="3,0,3,0" HorizontalAlignment="Left">
+              <TextBlock Text="Initialization..." FontStyle="Italic" FontSize="14" FontWeight="Bold">
+              </TextBlock>
+            </Border>
+            <ProgressBar x:Name="progressBar" Grid.Row="3" Grid.Column="1" IsIndeterminate="True"></ProgressBar>
+            <TextBox x:Name="statusInfo" Grid.Row="5" Grid.Column="1" IsReadOnly="True" TextWrapping="Wrap" Background="Transparent" BorderThickness="0"
+                     FontSize="12" Foreground="#FFDDDDDD" />
+            <Border Grid.Row="7" Grid.Column="1" CornerRadius="4" BorderThickness="1" BorderBrush="#FF4A4A4A" Background="#FF262626" Padding="4">
+              <ListBox x:Name="listboxInfo" Background="Transparent" BorderThickness="0"></ListBox>
+            </Border>
+            </Grid>
+          </Grid>
+        </Border>
       </Grid>
-      <Grid x:Name="SettingsGrid" IsVisible="False">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="10"></RowDefinition>
-          <RowDefinition></RowDefinition>
-        </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" >
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10"></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition Width="10"></ColumnDefinition>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="10"></RowDefinition>
-            <RowDefinition Height="20"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="10"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="10*" />
-          </Grid.RowDefinitions>
+      <!-- Settings card -->
+      <Grid x:Name="SettingsGrid" Grid.Row="2" IsVisible="False">
+        <Border Classes="loginCard">
+          <ScrollViewer MaxHeight="520">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="10"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+              </Grid.RowDefinitions>
 
-          <Border Grid.Row="1" Grid.Column="1" CornerRadius="4" Margin="3,0,3,0"  Width="100" HorizontalAlignment="Left">
-            <TextBlock Text="Settings" FontStyle="Italic" FontSize="14" FontWeight="Bold">
-            </TextBlock>
-          </Border>
+              <Grid Grid.Row="0" HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="10"></ColumnDefinition>
+                  <ColumnDefinition></ColumnDefinition>
+                  <ColumnDefinition Width="10"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="10"></RowDefinition>
+                  <RowDefinition Height="20"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="30"></RowDefinition>
+                  <RowDefinition Height="40"></RowDefinition>
+                  <RowDefinition Height="10*" />
+                </Grid.RowDefinitions>
 
-          <TextBlock VerticalAlignment="Bottom" Grid.Row="2" Grid.Column="1"  Name="DatabaseSourceCaption">Database source</TextBlock>
-          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="3" Grid.Column="1" Name="DatabaseSource" />
+                <Border Grid.Row="1" Grid.Column="1" CornerRadius="4" Margin="3,0,3,0"  Width="100" HorizontalAlignment="Left">
+                  <TextBlock Text="Settings" FontStyle="Italic" FontSize="14" FontWeight="Bold">
+                  </TextBlock>
+                </Border>
 
-          <TextBlock VerticalAlignment="Bottom" Grid.Row="4" Grid.Column="1"  Name="DatabaseNameCaption">Database name</TextBlock>
-          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="5" Grid.Column="1" Margin="-1,0,-1,0" Name="DatabaseName"  />
-          
-          <TextBlock VerticalAlignment="Bottom" Grid.Row="6" Grid.Column="1"  Name="DatabaseUserCaption">Database username</TextBlock>
-          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="7" Grid.Column="1" Name="DatabaseUser" />
+                <TextBlock VerticalAlignment="Bottom" Grid.Row="2" Grid.Column="1"  Name="DatabaseSourceCaption">Database source</TextBlock>
+                <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="3" Grid.Column="1" Name="DatabaseSource" />
 
-          <TextBlock VerticalAlignment="Bottom" Grid.Row="8" Grid.Column="1"  Name="DatabasePasswordCaption">Database password</TextBlock>
-          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="9" Grid.Column="1" Name="DatabasePassword" RevealPassword="False" PasswordChar="*" />
+                <TextBlock VerticalAlignment="Bottom" Grid.Row="4" Grid.Column="1"  Name="DatabaseNameCaption">Database name</TextBlock>
+                <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="5" Grid.Column="1" Margin="-1,0,-1,0" Name="DatabaseName"  />
 
-          <TextBlock VerticalAlignment="Bottom" Grid.Row="10" Grid.Column="1"  Name="DatabaseTunnelUrlCaption">Tunnel URL (optional, ws://host:port/sqltunnel)</TextBlock>
-          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="11" Grid.Column="1" Name="DatabaseTunnelUrl" />
+                <TextBlock VerticalAlignment="Bottom" Grid.Row="6" Grid.Column="1"  Name="DatabaseUserCaption">Database username</TextBlock>
+                <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="7" Grid.Column="1" Name="DatabaseUser" />
 
-          <CheckBox VerticalAlignment="Bottom" Grid.Row="13" Grid.Column="1" Name="MobileModeEnabled" Content="Mobile mode (hamburger menu). Unchecked: desktop menu" Margin="0,5,0,0" ToolTip.Tip="Checked: touch-optimized mobile designs (DUMainMobile). Unchecked: desktop layout with menu bar (DUMain), like the Windows client."/>
+                <TextBlock VerticalAlignment="Bottom" Grid.Row="8" Grid.Column="1"  Name="DatabasePasswordCaption">Database password</TextBlock>
+                <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="9" Grid.Column="1" Name="DatabasePassword" RevealPassword="False" PasswordChar="*" />
 
-        </Grid>
+                <TextBlock VerticalAlignment="Bottom" Grid.Row="10" Grid.Column="1"  Name="DatabaseTunnelUrlCaption">Tunnel URL (optional, ws://host:port/sqltunnel)</TextBlock>
+                <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="11" Grid.Column="1" Name="DatabaseTunnelUrl" />
 
-        <Button Grid.Row="2" Grid.Column="1" Name="ButtonSave" IsDefault="True" Click="ButtonSave_Click" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
-                  HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Save</Button>
+                <TextBlock VerticalAlignment="Bottom" Grid.Row="12" Grid.Column="1" Name="EntraClientIdCaption">Entra Client ID (optional, enables device-code sign-in)</TextBlock>
+                <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="13" Grid.Column="1" Name="EntraClientId" />
 
+                <TextBlock VerticalAlignment="Bottom" Grid.Row="14" Grid.Column="1" Name="EntraTenantIdCaption">Entra Tenant (optional, e.g. organizations or tenant GUID)</TextBlock>
+                <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="15" Grid.Column="1" Name="EntraTenantId" />
+
+                <CheckBox VerticalAlignment="Bottom" Grid.Row="16" Grid.Column="1" Name="AcceptUntrustedRelayCertificates" Content="Accept untrusted relay certificates (self-signed TLS)" Margin="0,5,0,0" ToolTip.Tip="Skip certificate validation for the SQL tunnel relay and its HTTP endpoints. Enable when the relay uses a self-signed certificate that is not installed in the system trust store."/>
+
+                <CheckBox VerticalAlignment="Bottom" Grid.Row="17" Grid.Column="1" Name="MobileModeEnabled" Content="Mobile mode (hamburger menu). Unchecked: desktop menu" Margin="0,5,0,0" ToolTip.Tip="Checked: touch-optimized mobile designs (DUMainMobile). Unchecked: desktop layout with menu bar (DUMain), like the Windows client."/>
+
+                <Button VerticalAlignment="Bottom" Grid.Row="18" Grid.Column="1" Name="ButtonResetEntraToken" Click="ButtonResetEntraToken_Click" HorizontalAlignment="Left" Padding="10,4,10,4" ToolTip.Tip="Removes the stored Entra ID sign-in (access + refresh token). The next login asks for a new device code.">Reset Entra sign-in</Button>
+
+              </Grid>
+
+              <Button Grid.Row="2" Grid.Column="1" Name="ButtonSave" IsDefault="True" Click="ButtonSave_Click" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Save</Button>
+
+            </Grid>
+          </ScrollViewer>
+        </Border>
       </Grid>
-    </StackPanel>
-  </Grid>
-</ScrollViewer>
+    </Grid>
+  </ScrollViewer>
   </ThemeVariantScope>
 </UserControl>

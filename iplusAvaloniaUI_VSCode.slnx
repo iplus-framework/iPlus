@@ -82,9 +82,10 @@
 		<File Path="build/Build-AvaloniaProjects.ps1" />
 		<File Path="build/EntityFramework.Build.props" />
 	</Folder>
+	<!-- <Project Path="../../../../../../../tmp/sqltest/sqltest.csproj" /> -->
 	<!-- The forked SqlClient projects (../SqlClient/...) are NOT part of this solution:
 	     a fresh clone without the SqlClient fork checkout must restore/build from the
 	     iPlus.* NuGet packages. To debug the fork, open it in its own solution and build
 	     iPlus with -p:UseSqlClientForkProjectReference=True (see Directory.Build.props). -->
-	<Project Path="SqlTunnelSpike/SqlTunnelSpike.csproj" />
+	<!-- <Project Path="SqlTunnelSpike/SqlTunnelSpike.csproj" />-->
 </Solution>

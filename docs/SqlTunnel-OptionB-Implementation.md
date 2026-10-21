@@ -770,12 +770,14 @@ package test). Remove it once the tunnel is stable:
 | `gip.core.datamodel/ACQueryDefinition/ACQueryDefinition.cs` | `CreateRootQueryDefinition` tracing (1 `Console.WriteLine`) |
 | `gip.iplus.client.avui/Views/LoginView.axaml.cs` (~line 146) | Auto-login bypass block (`AutoLoginBypassEnabled` const + `ApplyAutoLoginBypass` + `SetBypassSetting`) — currently `false` |
 | `gip.iplus.client.avui/Views/LoginView.axaml.cs` | `ApplyConnectionSettingsFromHelper`: MARS removal + `Integrated Security=False` override (TEMPORARY, §9.4) |
+| `gip.core.webservices/Components/SqlTunnel/PASqlTunnelHost.cs` | `// TEMPORARY diagnostics:` auth-tracing `Messages.LogInfo` lines (`SqlTunnelAuth` log source: token issued/rejected, shim session login OK/failed, WS auth frame result) — §9.21 |
 
 **SqlClient fork repo (`iplus/browser-transport`):**
 | File | What |
 |---|---|
 | `src/.../ManagedSni/SyncHttpTunnelStream.netcore.cs` | `SyncHttpTunnelStream: Read/Write ...` `Console.WriteLine` tracing (2) |
 | `src/.../ManagedSni/SniMarsConnection.netcore.cs` | pull-based demux tracing `Console.WriteLine` (2) |
+| `src/.../ManagedSni/SyncHttpTunnelStream.netcore.cs` | `SyncHttpTunnelStream: Read/Write ...` `Console.WriteLine` tracing (§9.4, still present) |
 
 ### 9.18 Current state (2026-10-11, first commit)
 
@@ -790,3 +792,579 @@ package test). Remove it once the tunnel is stable:
   `7.1.1-iplus.1` NuGet packages and switch iPlus to package mode to verify restore.
 - **Commits:** first local commits of both repos (iPlus `main`, fork `iplus/browser-transport`);
   push deferred until the NuGet round-trip (pack → restore → runtime test) succeeds.
+
+### 9.19 Current state (2026-10-13): SQL Tunnel + browser client fully working
+
+- **End-to-end verified:** browser WASM client → sync-XHR shim → `PASqlTunnelHost` relay →
+  SQL Server 2019, with MARS (pull-based demux, §9.11), iPlus user login (managed-MD5
+  fallback, §9.12) and the full desktop-parity UI. The SQL Tunnel Option A transport and the
+  browser WCF transport are both in daily-use shape on the local test setup.
+- **Browser UI bugs fixed and verified via Playwright** (session 2026-10-13, all in
+  `gip.core.layoutengine.avui` / `gip.iplus.client.avui` unless noted):
+  1. Auto-search on BSO open (desktop-mode parity; row 00 preselected).
+  2. `Next` button stuck disabled after the ReactiveCommand replacement — fixed via
+     `ACCanExecuteCommand` in `ACCommandHelper` (its temporary `Debug.WriteLine` was removed
+     again on 2026-10-13).
+  3. Context menu → *Tools → Designmode On* opened a MessageBox
+     ("Cannot find type vb:VBScrollViewer") instead of the designer — `VBDesignEditor` now
+     registers all `iplus-framework.com` XmlnsDefinition assemblies
+     (`GetXamlAssemblies()` + `TypeFinder.RegisterAssembly`).
+  4. *? → Development Environment → Methods* crashed with
+     `TypeInitialization_Type ... Cannot bind to the target method` — fixed in the RoslynPad
+     fork (`roslynpad-d6c079`, `ReflectionUtil.CreateDelegate`): open generic methods are now
+     closed via `MakeGenericMethod(typeof(TOwner))`; rebuilt DLL copied to the HintPath
+     location in `roslynpad/`.
+  5. Script editor rendered all-white — `GetRuntimeDirectory()` is `/` on WASM, so
+     `MetadataReference.CreateFromFile` threw and killed the RoslynHost setup; references are
+     now added only if the file exists (`AddReferenceIfExists`).
+  6. Types were white instead of lime (no semantic classification without metadata
+     references): the browser host now serves all 463 managed PE assemblies under
+     `/scriptrefs` (hardlinked by the `CopyScriptReferenceDlls` target in
+     `gip.iplus.client.avui.Browser.csproj`, declared as `Content` so the static-web-assets
+     manifest registers them — files dropped into `bin/.../wwwroot` after manifest
+     generation are NOT served). `VBScriptEditor.GetBrowserMetadataReferencesAsync()`
+     fetches them via `HttpClient` (absolute URLs resolved against `window.location.href`
+     via the `window.iPlusGetUrl` JS bridge — relative request URIs fail on WASM HttpClient)
+     and caches them statically. Verified: `ACStateEnum`/`ISolidColorBrush` render lime
+     (RGB 0,255,0), matching the desktop Dark theme (`ClassificationHighlightColorsGip`).
+- **Repo hygiene:** `gip.iplus.client.avui.Browser/wwwroot/scriptrefs/` is git-ignored
+  (build artifacts, hardlinks → zero disk cost).
+- **Desktop regression:** `gip.iplus.client.avui.Desktop` builds clean with all changes.
+- **Still open (cleanup backlog, §9.5):** SyncShim hex-dump logging,
+  `SyncHttpTunnelStream` tracing, `CommandLineHelper`/`ACActivator`/`ACQueryDefinition`
+  tracing (§9.17 memo), auto-login bypass, MARS-on-browser design decision, relay
+  two-stage auth, wss:// for production, fork pack flow fix, disable fork GitHub Actions
+  before push.
+
+### 9.20 NEXT STEP: secure the SQL connection with OAuth
+
+The tunnel endpoint is currently unauthenticated (v1 spike scope, §4.1) — anyone who can
+reach `:8751` gets a raw TCP relay into SQL Server. Implement the two-stage auth from §4.2
+(OAuth stage 1 + iPlus login stage 2) on `PASqlTunnelHost` (both the WebSocket and the
+`/sqltunnel-sync` HTTP shim endpoints) and the matching client-side token acquisition in the
+fork/iPlus browser client. See the security model in `SqlTunnelProvider-Design-Draft.md` §2b.
+
+### 9.21 SQL Tunnel two-stage auth — **IMPLEMENTED & VERIFIED 2026-10-13**
+
+Implements §4.2 (per-connection flow) and the §2b security model. Both repos changed;
+iPlus consumes the fork via ProjectReference (no packing).
+
+**Design decisions (v1):**
+
+- **Stage 1 (OAuth):** a v1 local issuer on the relay host itself —
+  `POST /sqltunnel-auth/token` with `{"username","password"}` validates the iPlus
+  credentials and returns an opaque 256-bit token (in-memory store, 8 h expiry).
+  `RequireOAuth` config (default **false**) enforces `Authorization: Bearer` on the
+  WebSocket handshake and on every `/sqltunnel-sync/*` request. The check is isolated in
+  `PASqlTunnelHost.ValidateBearerToken` — swapping in a real IdP (JWT via
+  Microsoft.Identity.Web) touches exactly that method (open question §6.1 stays open).
+- **Stage 2 (iPlus login):** after the transport is accepted, the client sends an auth
+  frame (WebSocket: first binary message; HTTP shim: session POST body) with the iPlus
+  user/password; the relay validates via `VBUser.CheckEnteredPassword` against
+  `ACRoot.SRoot.Database` and **only then opens the TcpClient** to SQL Server.
+  `RequireIPlusLogin` config (default false) makes the frame mandatory; a present frame is
+  *always* validated, even when the switch is off. The SQL target stays server-configured
+  (`SqlServer`/`SqlPort`) — full per-project connection-string resolution remains §6.3.
+- **Credential transport:** query parameters on the existing `Tunnel URL` keyword —
+  `?iplususer=&ipluspass=&authtoken=` — parsed and stripped by the fork
+  (`TunnelAuthInfo`), no public API/keyword plumbing change. The SQL password still
+  travels inside the TDS login (v1 blind relay, no packet rewriting — see §4.2 note).
+
+**Changes:**
+
+| Repo | File | What |
+|---|---|---|
+| fork | `ManagedSni/TunnelAuthInfo.netcore.cs` (new) | Parses `?iplususer/ipluspass/authtoken` off the TunnelUrl, builds the `IPTUNNEL-AUTH1\n{json}` auth frame |
+| fork | `ManagedSni/SyncHttpTunnelStream.netcore.cs` | Session POST carries `{user,password,token}` + Authorization header on all shim XHRs; 401 → clear IOException |
+| fork | `ManagedSni/SniWebSocketHandle.netcore.cs` | WS handshake sends `Authorization: Bearer`; auth frame sent as first binary message before any TDS |
+| fork | `ManagedSni/SniProxy.netcore.cs` | `CreateTunnelHandle` parses/strips auth for both transports |
+| iPlus | `PASqlTunnelHost.cs` | `RequireOAuth`/`RequireIPlusLogin` config (+ env overrides `SQLTUNNEL_REQUIRE_OAUTH=1` / `SQLTUNNEL_REQUIRE_IPLUSLOGIN=1`), token endpoint, `ValidateBearerToken`/`ValidateIPlusUser`, WS pre-auth before TCP connect, shim auth middleware + session-body auth |
+| iPlus | `LoginView.axaml.cs` | `TryAcquireTunnelToken` (browser: sync XHR via `window.iPlusSyncXhr` bridge — `ApplyConnectionSettingsFromHelper` is sync on the WASM main thread) + appends the auth query params to the Tunnel URL |
+| iPlus | `Browser/wwwroot/index.html` | `window.iPlusSyncXhr` JS bridge |
+| iPlus | `Directory.Build.targets` | Fork mode now also strips `iPlus.Microsoft.Data.SqlClient` package assets (see bug below) |
+
+**Verified (2026-10-13, server with `SQLTUNNEL_REQUIRE_OAUTH=1
+SQLTUNNEL_REQUIRE_IPLUSLOGIN=1`):**
+
+- `POST /sqltunnel-sync/session` without token → **401**; with wrong iPlus password → **401**.
+- `POST /sqltunnel-auth/token` with `superuser` → token issued; authenticated session +
+  send/recv round-trip via curl OK.
+- Full browser WASM login (auto-login bypass) through the authenticated shim: token
+  acquired, stage 2 `iPlus login OK for user 'superuser'`, main UI loaded.
+- Regression (server without env overrides): browser login `Login succeed! …
+  LoginUser returned 1`. Desktop WebSocket path compile-verified (frame only sent when
+  the URL carries credentials; legacy URLs unchanged).
+
+**Bug found & fixed on the way:** the browser client kept serving the **stale packaged
+fork DLL** (`iPlus.Microsoft.Data.SqlClient` 7.1.1-iplus.2 from the global packages
+store) instead of the ProjectReference build — `ExcludeAssets=all` on the official
+`Microsoft.Data.SqlClient` id didn't cover the iPlus package id, and `ExcludeAssets`
+only affects the project where the reference is declared (transitive consumers re-expand
+the package). Fix: fork mode now injects `<PackageReference
+Include="iPlus.Microsoft.Data.SqlClient" ExcludeAssets="all" />` into every project
+(`Directory.Build.targets`) + one forced restore. Symptom was `/session` appended after
+the query string (`...sqltunnel-sync?...&authtoken=.../session`).
+
+**Platform matrix (transport per client):**
+
+| Client | Tunnel URL form | Transport |
+|---|---|---|
+| Browser (WASM) | `http(s)://host:8751/sqltunnel-sync` | HTTP sync-XHR shim (main thread cannot sync-over-async, §7.1) |
+| Desktop / **Android** | `ws(s)://host:8751/sqltunnel` | WebSocket (`SniWebSocketHandle`) — Android has real threads, the shim is unnecessary there |
+
+> **Android (2026-10-14):** an `http(s)://` TunnelUrl on `net10.0-android` fails with
+> `Only Uris starting with 'ws://' or 'wss://' are supported` — the shim branch is
+> `#if IPLUS_BROWSER`, so Android falls through to the WebSocket transport. Use
+> `ws://host:8751/sqltunnel`. Also: `localhost` from the emulator is the device itself
+> (host loopback is `10.0.2.2`); use the real hostname or LAN IP. `.local` mDNS names
+> are NOT resolvable from Android. Stage-1 token acquisition works on Android
+> (`TryAcquireTunnelToken` uses a synchronous `HttpClient` on non-browser platforms;
+> the ws→http scheme is normalized for the token request). Android blocks cleartext
+> by default since API 28 → `android:usesCleartextTraffic="true"` in the Android
+> manifest (remove once the tunnel runs behind TLS).
+>
+> **Android VERIFIED end-to-end 2026-10-14** (token → auth frame → iPlus login
+> `superuser` → `Login succeed! Connected!`). Three bugs fixed on the way:
+>
+> 1. **Relay pump buffer race** (`PASqlTunnelHost.RelayAsync`): the WS→TCP and
+>    TCP→WS pumps shared one `ArrayPool` buffer, corrupting TDS in both directions
+>    ("error during the pre-login handshake"). Each direction now rents its own
+>    buffer. The browser shim was unaffected (separate request/response buffering) —
+>    this bug hit every WS-path client (desktop AND Android).
+> 2. **Fork resource name mismatch**: `Strings.Designer.cs` used base name
+>    `System.Strings` while the csproj embedded the resx as
+>    `Microsoft.Data.SqlClient.Resources.Strings.resources` → every SqlClient
+>    exception-message construction threw `MissingManifestResourceException`,
+>    masking the real error. Both `Strings.Designer.cs` and `StringsHelper` now use
+>    `System.Strings`; the csproj `LogicalName` is `System.Strings.resources`.
+> 3. **WS `EnableSsl` target host**: `SniWebSocketHandle.EnableSsl` passed the full
+>    `ws://host:port/path` URL as the TLS target host; Android's
+>    `SSLStreamSetTargetHost` throws for anything containing `://`. It now uses
+>    `Host Name In Certificate` if set, else the URI's `DnsSafeHost`.
+
+**How to test:**
+
+1. Server: `cd bin/Debug/net10.0 && SQLTUNNEL_REQUIRE_OAUTH=1
+   SQLTUNNEL_REQUIRE_IPLUSLOGIN=1 dotnet gip.iplus.console.dll` (or set the
+   `RequireOAuth`/`RequireIPlusLogin` config properties on the `PASqlTunnelHost`
+   component).
+2. Browser client as usual (§10.2) — the bypass/manual login acquires the token and sends
+   the credentials automatically.
+3. Negative tests: `curl -X POST http://localhost:8751/sqltunnel-sync/session` → 401;
+   token endpoint with a wrong password → 401.
+
+**Open questions / follow-ups:**
+
+1. Real IdP for stage 1 (§6.1) — replace `ValidateBearerToken`; token revocation list,
+   rate limiting on `/sqltunnel-auth/token` (brute force) not implemented yet.
+2. Passwords cross the relay in plaintext inside the auth frame — production needs
+   `wss://`/HTTPS on the relay (cleanup backlog §9.5).
+3. Full server-side connection-string resolution per application project (§6.3) — v1
+   still relies on the client's TDS login for the SQL credentials.
+4. Desktop WebSocket path with auth is compile-verified only; a desktop spike with
+   `?iplususer=...` in a `ws://` TunnelUrl would exercise it end-to-end.
+
+### 9.22 Entra ID issuer mode + persistent encrypted token cache (2026-10-14)
+
+**Status: IMPLEMENTED & VERIFIED end-to-end on Android (device-code flow).**
+
+The relay (`PASqlTunnelHost`) can now validate stage-1 tokens against **Microsoft
+Entra ID** instead of the built-in local issuer. Enable with env vars (or the
+component's config properties):
+
+```bash
+SQLTUNNEL_TOKEN_ISSUER=Entra
+SQLTUNNEL_ENTRA_TENANT=organizations        # or a tenant GUID
+SQLTUNNEL_ENTRA_AUDIENCE=<app-client-id>
+SQLTUNNEL_REQUIRE_OAUTH=1
+SQLTUNNEL_REQUIRE_IPLUSLOGIN=1
+```
+
+**Config sources (2026-10-15):** all four Entra settings are now regular
+`ACPropertyConfig` properties on `PASqlTunnelHost` — `TokenIssuer`, `EntraTenantId`,
+`EntraAudience`, `EntraInstance` — readable/persistable in the iPlus database
+(project config) like `SqlUser`/`SqlPassword`. The env vars above remain as
+fallbacks when the config value is empty (`EntraInstance` defaults to
+`https://login.microsoftonline.com`). Precedence: **database config → env var →
+built-in default**.
+
+**Relay-side details (all fixed & verified 2026-10-14):**
+
+1. **JWKS URL**: per-tenant `https://login.microsoftonline.com/{tid}/discovery/v2.0/keys`
+   (`tid` taken from the token's `tid` claim). Earlier typo `discovery/v2/keys`
+   caused `JWKS fetch failed for {url}` (logged, token rejected).
+2. **Issuer check**: `{clientId}/.default` scope returns a **v1 token** with issuer
+   `https://sts.windows.net/{tid}/`. When `EntraTenant == "organizations"`
+   (multitenant), both v1 (`sts.windows.net`) and v2 (`{instance}/{tid}/v2.0`)
+   issuer forms are accepted.
+3. **Auth-frame waiver**: when the WS handshake already carried a validated bearer
+   token (`?authtoken=`), the stage-2 auth frame requirement is waived — the token
+   replaces the frame. Connections without any token are still rejected when
+   `RequireOAuth`/`RequireIPlusLogin` are set.
+4. **LAN IP gotcha**: the host IP changed 192.168.0.196 → 192.168.10.4; all Tunnel
+   URLs (device settings AND `BypassTunnelUrl` const) must use the current IP.
+
+**Client-side (LoginView, shared AVUI project):**
+
+- **Device-code flow** (`TryAcquireEntraTokenDeviceCode`): runs on a background
+  thread; the user code is shown in a MessageBox (Android cannot rely on console
+  output). The connection-apply is deferred (`EntraApplyDeferred`) so the UI never
+  blocks — fixes the ANR seen when polling ran on the UI thread.
+- **Persistent token cache**: access + refresh token + expiry stored in the app
+  settings under key `EntraTokenCache` (per cacheKey, JSON). On the next start the
+  token is reused silently; an expired access token is refreshed via the refresh
+  token (rotation handled). **Reset Entra sign-in** button in the SettingsGrid
+  clears the cache.
+- **Encrypted at rest** (`Helperclasses/EntraTokenProtector.cs`): payload
+  `enc1:<base64(iv ‖ ciphertext ‖ tag)>` — AES-256-GCM.
+  - Windows: DPAPI (`ProtectedData`, CurrentUser) wraps the random 32-byte key file.
+  - Android: key file in app-private storage (`files/iplus/`), OS-sandboxed.
+  - Linux/macOS: key file in `~/.local/share/iPlus/TokenKeys/`, chmod 600.
+  - Browser/WASM: stored as `plain:<json>` — localStorage is per-origin isolated;
+    encryption adds nothing against XSS.
+  - Legacy plain JSON (no prefix) is still readable (migration).
+  - ClientId/TenantId are **not** secrets (public client + PKCE/device-code);
+    only the tokens are protected.
+
+**Verified on Android:** device-code sign-in → relay validates v1 token via per-tenant
+JWKS → stage-2 skipped (token at handshake) → SQL login succeeds; app restart reuses
+the encrypted cache silently; reset button clears it.
+
+**Not yet done:** browser/WASM Entra support needs the redirect/PKCE flow (Option B
+extension, SPA redirect URI in the app registration); the relay serves one issuer
+mode at a time (Entra XOR local); desktop WS-path regression test still pending (§9.21).
+
+### 9.23 INVESTIGATED & REJECTED: server-side SQL credential injection (2026-10-14)
+
+**Goal:** remove the SQL credentials (`gip`/`netspirit`) from the client connection
+string by having the relay inject server-side credentials into the client's TDS
+LOGIN7 packet (the relay validates OAuth first, then rewrites user/password fields
+in place — offsets are well-documented in MS-TDS §2.2.6.3 and the rewrite logic
+was implemented and unit-verified).
+
+**Result: IMPOSSIBLE by design.** Wire capture through the relay showed:
+
+1. Client prelogin (0x12, 268 B) → server prelogin response (0x04, 54 B).
+2. The client then sends **TLS handshake records wrapped in TDS 0x12 packets**
+   (268 B ClientHello etc.) — `SslOverTdsStream` encapsulates the SSL handshake
+   in prelogin-type packets, and after the handshake raw TLS frames flow.
+3. The LOGIN7 packet travels **inside TLS application data** (`17 03 03 ...`).
+
+SQL Server **always encrypts the LOGIN7 packet**, even when the connection string
+says `Encrypt=False` (encryption-off only affects post-login traffic). A byte-proxy
+relay therefore can never see or rewrite the credentials — the observed failure
+mode was SQL error 18456 (login failed) with the dummy credentials passing through
+untouched.
+
+**Consequences / silver lining:** the relay never sees the SQL password — the
+credentials are protected end-to-end by the client↔SQL Server TLS session. The
+client must keep them (exposure is limited to the client config file, which the
+encrypted-token-cache work §9.22 does not cover — a follow-up could encrypt
+ConnectionStrings.config the same way).
+
+**Realistic alternatives if client-side SQL credentials must go away entirely:**
+
+1. **SQL Server Entra auth**: client passes the OAuth token as the SQL credential
+   (`SqlConnection.AccessToken` / `Authentication=ActiveDirectory...`) — no SQL
+   password exists at all. Requires SQL Server 2022+ (or Azure SQL) with Entra
+   auth configured; the relay stays a dumb proxy. Cleanest option.
+2. **Protocol-aware gateway**: relay terminates the client's TLS (own cert +
+   `TrustServerCertificate=true`), rewrites LOGIN7 in the clear, re-encrypts to
+   SQL Server. Large, fragile (~2–3 d), not recommended.
+3. **Status quo**: keep SQL creds on the client (protected by TLS in transit).
+
+The injection experiment code was removed; the relay remains a pure byte proxy.
+
+### 9.24 SQL credential delivery to authenticated clients — IMPLEMENTED & VERIFIED (2026-10-14)
+
+**Goal (follow-up to §9.23):** the SQL password must not be stored in the client
+config — but instead of TDS injection (impossible, see §9.23), the client now
+FETCHES the credentials from the relay after stage-1 authentication.
+
+**Relay (`PASqlTunnelHost`):**
+
+- New config `SqlUser`/`SqlPassword` (env `SQLTUNNEL_SQL_USER`/`SQLTUNNEL_SQL_PASSWORD`).
+- New endpoint `GET /sqltunnel-sqlcred`: returns `{"user":"...","password":"..."}`
+  when configured; **401 without a valid bearer token** (RequireOAuth enforced),
+  404 when credential delivery is not configured.
+
+**Client (`LoginView.ApplyConnectionSettingsFromHelper`):**
+
+- After the stage-1 token is acquired (Entra device-code OR local issuer), the
+  client calls `TryApplySqlCredentialsFromRelay(tunnelUrl, token, ref connectionString)`:
+  `ws(s)://` is normalized to `http(s)://`, the endpoint is queried with the
+  bearer token, and `user id=`/`password=` in the connection string are rewritten
+  (MatchEvaluator — `$` in credentials is safe). `Integrated Security=True` is
+  forced to `False` so SqlClient uses the delivered credentials.
+- On 404/failure the configured credentials are kept (backward compatible).
+
+**Client config:** the tunnel connection string now carries placeholders
+(`user id=sqltunnel; password=sqltunnel`) — the real login arrives at runtime.
+The SettingsGrid `DatabaseUser`/`DatabasePassword` should also hold placeholders
+when the relay delivers credentials.
+
+**Verified end-to-end (local-issuer relay + forked SqlClient):** placeholder
+connection string → `sqlcred` fetch → tunnel open in ~100 ms →
+`SELECT SUSER_SNAME()` returns `gip`. Negative: endpoint returns 401 without/with
+invalid token.
+
+**Security notes:** the password still crosses the relay↔client HTTP connection
+in plaintext (same trust level as the stage-2 auth frame; use `wss://`/HTTPS in
+production). It is visible in a debugger on the client — unavoidable, as the
+client must put it into the TDS login. But it is no longer stored in any
+client-side config file or settings store.
+
+### 9.25 Desktop (LoginWindow) tunnel flow — IMPLEMENTED & VERIFIED (2026-10-14)
+
+The Avalonia desktop app uses `LoginWindow` (windowed), **not** `LoginView` — it has no
+connection logic of its own and goes straight to `Database.ConnectionString` from
+`ConnectionStrings.config` via `HandleLoginAndStartup`. The tunnel flow was extended to
+cover this path:
+
+**Client flow (`LoginView.PrepareTunnelConnectionFromConfig`, called first in
+`App.HandleLoginAndStartup` on the LoginWindow background thread):**
+
+1. No-op when the settings store drives the connection (Android/browser LoginView path).
+2. Reads the `iPlusV5_Entities` entry from `ConnectionStrings.config`; returns when it
+   has no `Tunnel URL`.
+3. Acquires the stage-1 Entra token via device-code flow — keys from `<appSettings>`
+   (`EntraClientId` / `EntraTenantId` / `EntraScope` in `App.Fork.config` /
+   `App.NuGet.config`, mapped to `gip.iplus.client.avui.Desktop.dll.config`).
+4. Fetches the delivered SQL credentials (`GET /sqltunnel-sqlcred`, §9.24) and rewrites
+   `user id=`/`password=` in the connection string.
+5. Tokenizes the `Tunnel URL` **inside** the connection string
+   (`?authtoken=<jwt>`) and registers it under `iPlusV5_Entities` in
+   `CommandLineHelper.ConfigCurrentDir` (editable `vbiplus.config`/exe config).
+6. Sets `Database.TunnelUrl` (first static touch → triggers the `Database` static ctor).
+
+**Pitfalls found (both fixed):**
+
+- **Read-only config**: the global `ConfigurationManager.ConnectionStrings` collection
+  is read-only on desktop (`ConfigurationErrorsException: The configuration is read
+  only`). Registration must go through `CommandLineHelper.ConfigCurrentDir`.
+- **Static-ctor ordering**: assigning `Database.TunnelUrl` fires the `Database` static
+  constructor, whose global context is created via
+  `ACObjectContextManager.GetOrCreateContext` → `Database.ModifiedConnectionString` —
+  which read the *global* (read-only, placeholder, tunnel-less) entry → SqlClient
+  dialed the placeholder `data source=sqltunnel` via raw TCP → DNS failure.
+  Fix: `ModifiedConnectionString` now prefers `CommandLineHelper.ConfigCurrentDir`
+  (which carries the tokenized tunnel URL + delivered credentials) and falls back to
+  the global collection; and the tokenized `Tunnel URL` stays **inside** the
+  connection string itself (`ApplyTunnelUrl` skips appending when the keyword is
+  already present, so no duplication).
+
+**Entra token reset on desktop:** Ctrl+Click on the Cancel button in `LoginWindow`
+calls `LoginView.ResetEntraTokenCache()` (static, shared with the LoginView reset
+button) and keeps the window open. Implemented in `ButtonCancel_Click` using the
+window's existing `_IsLeftCtrlPressed` flag — a `PointerReleased` hook on the button
+does NOT work because Avalonia's `Button` raises `Click` from its class handler before
+instance handlers run (the window would already be closed).
+
+**Verified end-to-end 2026-10-14:** desktop login over the tunnel with Entra device
+code + credential delivery; connection is noticeably faster than direct SQL (no
+TLS-wrapped login per connection, warm relay backend pool).
+
+### 9.26 Browser/WASM Entra + async apply — IMPLEMENTED & VERIFIED (2026-10-15)
+
+**Problem (first WASM test):** after pressing Login the client failed with
+`TypeInitializationException ... No connection string 'iPlusV5_Entities' configured
+(neither in ConfigurationManager nor ConfigCurrentDir)`. Root cause: the App
+LoginStarted handler ran the **synchronous** `ApplyConnectionSettingsFromHelper` on the
+WASM UI thread; the async core awaited the credential-delivery HttpClient call, which
+can never complete on the single-threaded WASM runtime → registration never finished →
+the Database static ctor found no connection string.
+
+**Fix — the apply is now async end-to-end and deferred on WASM:**
+
+- `ApplyConnectionSettingsCoreAsync()` — await-based core (token acquisition, credential
+  delivery, registration). `ApplyConnectionSettingsFromHelper()` remains as a blocking
+  wrapper for real-thread platforms (Android/desktop) only.
+- `TryAcquireEntraTokenDeviceCodeAsync` / `TryRefreshEntraTokenAsync` — await-based
+  RFC 8628 device-code flow (no Thread.Sleep): works on WASM; the user completes sign-in
+  on a SECOND device (the app itself is the browser — no Process.Start there).
+- `TryApplySqlCredentialsFromRelayAsync` — await-based credential delivery returning the
+  rewritten connection string (async methods cannot take ref parameters); the sync
+  version is a wrapper for the desktop `PrepareTunnelConnectionFromConfig` path.
+- `ButtonLogin_Click` defers the apply (and completes the login-result TCS after it)
+  when Entra is configured **or** the platform is Browser/WASM.
+- The App LoginStarted handler skips the sync apply on Browser/WASM entirely.
+
+**Verified end-to-end 2026-10-15 (Playwright, local-issuer mode):** token 200 →
+sqlcred 200 (credentials delivered) → TDS over `/sqltunnel-sync` shim (2800+ requests)
+→ iPlus login superuser → main view with menu loaded from the DB.
+
+**Note:** on WASM the Entra keys must come from the settings store (SettingsGrid /
+persisted settings) — there is no App.config, so the `<appSettings>` fallback does not
+apply. The encrypted token cache works (EntraTokenProtector `plain:` prefix on WASM).
+
+### 9.27 WASM Entra end-to-end verified + token-cache persistence fixes (2026-10-15)
+
+**Status: IMPLEMENTED & VERIFIED end-to-end on Browser/WASM (device-code flow).**
+
+**Relay fixes (PASqlTunnelHost):**
+
+1. **Empty-user waiver**: the browser sync shim always serializes `"user":""` in
+   the `/sqltunnel-sync/session` body (and the fork's auth frame always carries
+   `"user":""` when no iPlus credentials are configured). An EMPTY user now counts
+   as "absent" in both stage-2 checks — otherwise Entra mode (JWT-only) always
+   failed with `iPlus login failed for user ''`. `RequireIPlusLogin` still enforces
+   credentials when set.
+2. **Entra config from database**: `TokenIssuer`, `EntraTenantId`, `EntraAudience`,
+   `EntraInstance` are now `ACPropertyConfig` properties (database config like
+   `SqlUser`/`SqlPassword`), with the `SQLTUNNEL_*` env vars as fallbacks.
+
+**Client fixes (LoginView, WASM token cache):**
+
+1. **`JsonSerializerIsReflectionDisabled`**: the WASM build runs with reflection-
+   based System.Text.Json disabled — `JsonSerializer.Serialize/Deserialize` threw
+   (silently swallowed) in `SaveEntraTokenCache`. The cache JSON is now built with
+   `JsonDocument` + `JsonEncodedText` (reflection-free), matching the read path.
+2. **Quoting**: `JsonEncodedText.Encode(...).ToString()` returns escaped text
+   WITHOUT surrounding quotes — values must be wrapped in `"` manually.
+3. **Corrupt-entry resilience**: a legacy/corrupt cache entry no longer aborts the
+   save — it is discarded and the store is rebuilt.
+4. **UI-thread save**: `SaveSettingsOnUiThread()` marshals `SaveSettings` to the
+   Avalonia UI thread on browser (the localStorage `[JSImport]` bridge is
+   main-thread only; the token cache is written from the deferred background
+   apply task).
+
+**Verified end-to-end 2026-10-15 (Playwright, Entra issuer mode):** device-code
+sign-in via the relay's `/sqltunnel-entra-proxy` (CORS) → JWT validated by the
+relay (v1 issuer `sts.windows.net`, audience = client id) → sqlcred 200 → TDS
+over the sync shim → iPlus login → main view. Token cache persists in
+localStorage (`plain:` prefix) and survives reloads; the next login within the
+token's 1 h lifetime signs in silently without the device-code MessageBox.
+
+**Note:** the `{clientId}/.default` scope returns a v1 token WITHOUT a refresh
+token — after expiry a new interactive sign-in is required. Adding
+`offline_access` to the configured `EntraScope` enables the silent
+refresh-token path (`TryRefreshEntraTokenAsync`).
+
+### 9.28 TLS on the relay (https/wss) — self-signed certificates — IMPLEMENTED & VERIFIED (2026-10-15)
+
+**Point 2 of the security follow-ups:** the relay's plaintext HTTP/WS ports are gone —
+the SQL tunnel relay AND the WCF browser host now serve TLS. Self-signed certificates
+are supported out of the box; switch to CA-issued certificates for production.
+
+**Server side (both hosts share `ACTlsCertificateHelper` in `gip.core.autocomponent`):**
+
+| Host | Config | Env fallback | Effect |
+|---|---|---|---|
+| `PASqlTunnelHost` | `UseTls` (bool), `TlsCertificatePath`, `TlsCertificatePassword` | `SQLTUNNEL_USE_TLS=1`, `SQLTUNNEL_TLS_CERT_PATH`, `SQLTUNNEL_TLS_CERT_PASSWORD` | Whole relay (WS `/sqltunnel`, sync shim, token, sqlcred, Entra proxy) on **one** https/wss port |
+| `WCFServiceManager` | `TlsCertificatePath`, `TlsCertificatePassword` (ACPropertyConfig) | `WCF_TLS_CERT_PATH`, `WCF_TLS_CERT_PASSWORD` | HTTP host serves https/wss → browser WCF clients use `wss://host:ServicePortHTTP/wcfbrowser` |
+
+Certificate resolution (both hosts):
+1. `TlsCertificatePath` set + file exists → load PFX.
+2. Otherwise a **self-signed certificate is generated and persisted** next to the
+   executable (`iplus-relay-tls.pfx`, password `iplus` or the configured one):
+   RSA-2048/SHA-256, SANs = machine name + `localhost` + all IPv4 addresses,
+   397-day lifetime (max macOS/iOS acceptance). The same file is reused across
+   restarts, so clients can pin it.
+3. `PASqlTunnelHost` with TLS binds via explicit `Listen(IPAddress.Any, port, UseHttps)`
+   and runs WITHOUT a URL string (URL-based bindings cannot carry a certificate).
+
+**Client side — trusting the self-signed certificate:**
+
+| Client | Mechanism |
+|---|---|
+| Desktop/Android SqlClient (`wss://` Tunnel URL) | AppContext switch `Switch.Microsoft.Data.SqlClient.AcceptUntrustedTunnelCertificates=true` (new, fork `LocalAppContextSwitches`) — honored in `SniWebSocketHandle.CreateWebSocketTransport` via `ClientWebSocket.Options.RemoteCertificateValidationCallback`. iPlus sets it from env `IPLUS_ACCEPT_UNTRUSTED_CERT=1` (LoginView) or runtimeconfig.json. |
+| Desktop/Android relay HTTP calls (token + sqlcred) | Same switch/env — `LoginView.CreateRelayHttpClient()` uses an `HttpClientHandler` with validation callback (browser excluded — the browser owns TLS there). |
+| Browser WCF (`wss://…/wcfbrowser`) | Same AppContext switch, checked in `WCFClientChannel.BrowserConnectionLoopAsync`. |
+| Browser WASM (sync XHR to `https://…/sqltunnel-sync`) | The **browser** validates the certificate: visit `https://<relay-host>:8751/` once and accept the warning, or install `iplus-relay-tls.pfx` into the OS/browser trust store. |
+
+**Verified 2026-10-15 (relay with `SQLTUNNEL_USE_TLS=1`):**
+- `https://…:8751/sqltunnel-sqlcred` → 401 without token (TLS 1.3, self-signed cert);
+  plaintext `http://…:8751` refused (connection closed).
+- Desktop spike over `wss://127.0.0.1:8751/sqltunnel` with
+  `SPIKE_ACCEPT_UNTRUSTED_CERT=1`: full TDS login + `SELECT @@VERSION` +
+  `SELECT COUNT(*) FROM sys.databases` through the TLS relay. Without the switch the
+  connect fails with `RemoteCertificateNameMismatch, RemoteCertificateChainErrors`
+  (correct negative behavior).
+- Note: with `SQLTUNNEL_TOKEN_ISSUER=Entra` the local `/sqltunnel-auth/token` endpoint
+  still issues tokens, but they are rejected by `ValidateBearerTokenAsync` (Entra XOR
+  local, §9.22) — expected.
+
+**Client config changes:** Tunnel URLs switch scheme — browser
+`https://host:8751/sqltunnel-sync`, desktop/Android `wss://host:8751/sqltunnel`
+(`ConnectionStrings.config` updated accordingly). The desktop entry requires
+`IPLUS_ACCEPT_UNTRUSTED_CERT=1` (or the runtimeconfig switch) until the certificate is
+installed into the trust store.
+
+**Production path:** replace the auto-generated PFX with a CA-issued certificate via
+`TlsCertificatePath` — no code change; clients then need no switch at all.
+
+**WCF client scheme (2026-10-15, follow-up):** `WCFClientChannel.EndpointUri` builds
+`ws://`/`http://` by default. With env `IPLUS_WCF_USE_TLS=1` on the CLIENT it switches to
+`wss://`/`https://` (browser transport → `wss://host:ServicePortHTTP/wcfbrowser`). The
+self-signed relay certificate is accepted via the existing
+`Switch.Microsoft.Data.SqlClient.AcceptUntrustedTunnelCertificates` switch /
+`IPLUS_ACCEPT_UNTRUSTED_CERT=1` (or install the cert into the OS trust store — preferred).
+
+### 9.29 WCF TLS configuration moved to the database (VBUserInstance) — IMPLEMENTED & VERIFIED (2026-10-15)
+
+**Design change:** WCF TLS settings no longer live in `ACPropertyConfigValue`/env vars —
+they are stored on the **service user instance** (`VBUserInstance` table) and edited in
+the **BSOiPlusNetConfig** ("Netzwerk-Konfiguration") BSO. Env vars remain only as a
+headless fallback when `Root.Environment.UserInstance` is not yet available.
+
+**Database (dbsync `dbsync_2026-10-15_21-20_dlisak.sql`, already applied):**
+
+```sql
+ALTER TABLE [dbo].[VBUserInstance] ADD
+  [ServiceUseTLS] [bit] NOT NULL DEFAULT 0,
+  [ServiceTlsCertificatePath] [nvarchar](500) NULL,
+  [ServiceTlsCertificatePassword] [nvarchar](500) NULL;
+```
+
+EF model (`EFModels/VBUserInstance.cs`) + `EntityVB/VBUserInstance.cs`
+(`ACPropertyEntity` 15/16/17 + `NewACObject` defaults) regenerated/updated.
+
+**Server (`WCFServiceManager`):**
+
+| Setting | Source order |
+|---|---|
+| `UseTls` | `VBUserInstance.ServiceUseTLS` → env `WCF_USE_TLS=1` |
+| `TlsCertificatePath` | `VBUserInstance.ServiceTlsCertificatePath` → ACPropertyConfig → env `WCF_TLS_CERT_PATH` |
+| `TlsCertificatePassword` | `VBUserInstance.ServiceTlsCertificatePassword` → ACPropertyConfig → env `WCF_TLS_CERT_PASSWORD` |
+
+`ACInit` HTTP branch: `UseTls || !String.IsNullOrEmpty(TlsCertificatePath)` →
+`ACTlsCertificateHelper.GetOrCreateCertificate(...)` + Kestrel `Listen(..., UseHttps)`;
+otherwise plain HTTP. **The Kestrel host is built at startup — changing the DB flag
+requires a server restart to take effect.**
+
+**BSO (`BSOiPlusNetConfig`):** new "TLS-Configuration" expander in the design (stored in
+the DB) with `ServiceUseTLS` checkbox + `ServiceTlsCertificatePath` /
+`ServiceTlsCertificatePassword` text boxes; the two text fields are only enabled when
+`ServiceUseTLS` is checked (`OnGetControlModes`). Recommended: leave path/password
+**empty** — the helper then uses the default `iplus-relay-tls.pfx` next to the exe
+(same certificate as the relay, already trusted).
+
+**Client (`WCFClientChannel.EndpointUri`):** the scheme now follows the same
+`VBUserInstance.ServiceUseTLS` (env `IPLUS_WCF_USE_TLS=1` as fallback), so client and
+server derive TLS from the **same DB row**. Additionally the browser transport performs
+**scheme auto-negotiation**: on connect failure it retries once with the alternate
+scheme (`ws`↔`wss`, `http`↔`https`), caches the working scheme in a static
+`_browserWorkingScheme`, and reuses it for reconnects — so a stale/mismatched DB flag
+degrades to one failed attempt instead of a dead connection.
+
+**Verified 2026-10-15 (server started WITHOUT any `WCF_*` env vars):**
+- `VBUserInstance` "00" with `ServiceUseTLS=1`, empty cert path/password → log:
+  `WCFServiceManager: TLS certificate loaded from '.../iplus-relay-tls.pfx'
+  (subject 'CN=gipsoft-dlmhp-26', thumbprint E6CA…FEA)` — same cert as the relay.
+- `https://…:8000/wcfbrowser` → 400 (Kestrel alive, non-WS GET); plaintext
+  `http://…:8000` refused (connection closed).
+- WASM browser client logs in and connects via `wss://…:8000/wcfbrowser`
+  (green connection icon).
+
+**Implementation status — all planned security points complete:**
+1. ✅ SQL tunnel relay on TLS (https/wss, §9.28)
+2. ✅ WCF browser host on TLS (§9.28 + §9.29, DB-driven)
+3. ✅ Self-signed cert generation/persistence shared by both hosts (`ACTlsCertificateHelper`)
+4. ✅ Client trust: OS trust store (preferred) or `AcceptUntrustedTunnelCertificates` switch
+5. ✅ OAuth/Entra two-stage auth on the relay (§9.21/§9.22)
+6. ✅ DB-driven configuration via BSOiPlusNetConfig (§9.29)
+
+**Remaining (cleanup backlog, §9.17):** remove temporary `Console.WriteLine`
+diagnostics in `WCFClientChannel` (browser transport endpoint / connect FAILED /
+connected-via lines), `LoginView.PersistTest` self-test, and relay auth-tracing logs
+before release.

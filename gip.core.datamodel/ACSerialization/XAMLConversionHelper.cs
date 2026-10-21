@@ -3421,6 +3421,25 @@ namespace gip.core.datamodel
             }
         }
 
+        /// <summary>
+        /// Standard iPlus/Avalonia namespace declarations appended to layouts that were stored
+        /// without (complete) namespace declarations. Prefixes must match the ones used by the
+        /// design generator (see VBDesign/VBDockingManager generated XAML headers).
+        /// A null prefix means the default namespace (xmlns="...").
+        /// </summary>
+        static public readonly (string Prefix, string Namespace)[] C_StandardNamespaceDeclarations = new[]
+        {
+            ((string)null, "https://github.com/avaloniaui"),
+            ("x", "http://schemas.microsoft.com/winfx/2006/xaml"),
+            ("s", "http://schemas.abtsoftware.co.uk/scichart"),
+            ("vbs", "http://www.iplus-framework.com/shapes/axaml"),
+            ("vb", "http://www.iplus-framework.com/axaml"),
+            ("vbc", "http://www.iplus-framework.com/scichart/xaml"),
+            ("vbm", "http://www.iplus-framework.com/manager/xaml"),
+            ("vbv", "http://www.iplus-framework.com/visual/axaml"),
+            ("vbr", "http://www.iplus-framework.com/report/axaml"),
+        };
+
         static public string CheckOrUpdateNamespaceInLayout(string xmlLayout)
         {
             if (String.IsNullOrEmpty(xmlLayout))
@@ -3456,6 +3475,13 @@ namespace gip.core.datamodel
                 part1 = xamlContent.Substring(0, pos1);
                 part2 = xamlContent.Substring(pos1);
             }
+
+            // Self-closing root element ("<Grid/>"): part1 ends with '/'. Remember and
+            // re-append it after the namespace declarations, otherwise the result is invalid.
+            bool selfClosingRoot = part1.EndsWith("/");
+            if (selfClosingRoot)
+                part1 = part1.Substring(0, part1.Length - 1);
+
             // Falls keine Namespace-Deklaration im Root-Element vorhanden, dann füge ein
             if (part1.IndexOf("xmlns") < 0)
             {
@@ -3464,6 +3490,23 @@ namespace gip.core.datamodel
                     part1 += " " + nameSpace;
                 }
             }
+
+            // Ensure the standard iPlus namespace prefixes are declared as well. Layouts that
+            // were stored WITHOUT any namespace declarations (e.g. hand-written designs like
+            // "<vb:VBDockingManager ...>") use prefixes such as 'vb:' which XamlX cannot
+            // resolve unless they are explicitly declared. ACxmlnsResolver.NamespaceList only
+            // contains the default namespace and 'x', so append the well-known iPlus prefixes
+            // here (same set as in generated designs). Missing prefixes are added individually
+            // so layouts that already declare some namespaces keep working.
+            foreach ((string prefix, string ns) in C_StandardNamespaceDeclarations)
+            {
+                string declaration = prefix == null ? "xmlns=" : ("xmlns:" + prefix + "=");
+                if (!part1.Contains(declaration))
+                    part1 += " " + (prefix == null ? "xmlns=\"" + ns + "\"" : "xmlns:" + prefix + "=\"" + ns + "\"");
+            }
+
+            if (selfClosingRoot)
+                part1 += "/";
 
             string result = xmlDeclaration + part1 + part2;
 

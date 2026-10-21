@@ -6,6 +6,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using DialogHostAvalonia;
 using DocumentFormat.OpenXml.Bibliography;
 using DynamicData.Kernel;
@@ -103,6 +104,73 @@ namespace gip.core.layoutengine.avui
             set => SetValue(CurrentBSOProperty, value);
         }
 
+        /// <summary>
+        /// True when the automatic command bar (VBCommandBar in MainSingleView) should be
+        /// shown for the currently active design. Mirrors the desktop behaviour of
+        /// VBRibbonBSODefault: the automatic bar is suppressed when the BSO was started
+        /// with RibbonOff (RibbonBarVisibility=Hidden) OR when the loaded design XAML
+        /// already declares its own VBCommandBar (like a desktop DUMain declares its own
+        /// VBRibbon with VBRibbonButtons bound via VBContent).
+        /// </summary>
+        public static readonly StyledProperty<bool> IsCommandBarActiveProperty =
+            AvaloniaProperty.Register<VBDesignController, bool>(nameof(IsCommandBarActive), true);
+
+        public bool IsCommandBarActive
+        {
+            get => GetValue(IsCommandBarActiveProperty);
+            set => SetValue(IsCommandBarActiveProperty, value);
+        }
+
+        private VBDesign _CommandBarCheckDesign;
+
+        private void UpdateCommandBarActive()
+        {
+            // Detach the deferred re-check subscription from the previously active design.
+            if (_CommandBarCheckDesign != null)
+            {
+                _CommandBarCheckDesign.PropertyChanged -= OnCommandBarCheckDesignPropertyChanged;
+                _CommandBarCheckDesign = null;
+            }
+
+            bool active = !IsMainDesignActive;
+            if (active && Content is VBDesign currentDesign)
+            {
+                if (currentDesign.IsSet(VBDockingManager.RibbonBarVisibilityProperty)
+                    && VBDockingManager.GetRibbonBarVisibility(currentDesign) == Global.ControlModes.Hidden)
+                    active = false;
+                else if (ContainsCommandBar(currentDesign.Content as Visual))
+                    active = false;
+                else
+                {
+                    // The design XAML is loaded asynchronously after the VBDesign is shown.
+                    // Re-check as soon as its Content (the loaded layout) is assigned.
+                    _CommandBarCheckDesign = currentDesign;
+                    currentDesign.PropertyChanged += OnCommandBarCheckDesignPropertyChanged;
+                }
+            }
+            IsCommandBarActive = active;
+        }
+
+        private void OnCommandBarCheckDesignPropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.Property == ContentProperty)
+                Dispatcher.UIThread.Post(UpdateCommandBarActive, DispatcherPriority.Loaded);
+        }
+
+        private static bool ContainsCommandBar(Visual visual)
+        {
+            if (visual == null)
+                return false;
+            if (visual is VBCommandBar)
+                return true;
+            foreach (Visual child in visual.GetVisualChildren())
+            {
+                if (ContainsCommandBar(child))
+                    return true;
+            }
+            return false;
+        }
+
 
         public void ShowDesign(string designName)
         {
@@ -118,6 +186,7 @@ namespace gip.core.layoutengine.avui
                 ACCaption = vbDesign.ACCaption;
 
                 IsMainDesignActive = false;
+                UpdateCommandBarActive();
             }
         }
 
@@ -132,6 +201,7 @@ namespace gip.core.layoutengine.avui
 
                 if (Content == MainDesign)
                     IsMainDesignActive = true;
+                UpdateCommandBarActive();
             }
         }
 
@@ -145,6 +215,7 @@ namespace gip.core.layoutengine.avui
             Content = design;
             IsMainDesignActive = true;
             CurrentBSO = design.BSOACComponent;
+            UpdateCommandBarActive();
 
             ACCaption = MainDesign.ACCaption;
 

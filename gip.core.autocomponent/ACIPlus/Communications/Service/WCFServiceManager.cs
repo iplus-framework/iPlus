@@ -57,6 +57,67 @@ namespace gip.core.autocomponent
         SyncQueueEvents _syncDispatch;
         ACThread _ACPDispatchThread = null;
 
+        #region TLS (docs SqlTunnel-OptionB-Implementation.md §9.28)
+
+        /// <summary>
+        /// True when the HTTP/WebSocket host serves https/wss. Primary source: the service
+        /// user instance in the database (VBUserInstance.ServiceUseTLS, configured in
+        /// BSOiPlusNetConfig). Env fallback for headless starts: WCF_USE_TLS=1.
+        /// </summary>
+        public bool UseTls
+        {
+            get
+            {
+                VBUserInstance ui = this.Root?.Environment?.UserInstance;
+                if (ui != null)
+                    return ui.ServiceUseTLS;
+                return System.Environment.GetEnvironmentVariable("WCF_USE_TLS") == "1";
+            }
+        }
+
+        private ACPropertyConfigValue<string> _TlsCertificatePath;
+        /// <summary>
+        /// Path to a PFX/PKCS#12 certificate for the HTTP/WebSocket host (wss:// for browser
+        /// WCF clients). Primary source: VBUserInstance.ServiceTlsCertificatePath. Empty +
+        /// TLS on -> a self-signed certificate is generated and persisted (see
+        /// ACTlsCertificateHelper). Env fallback: WCF_TLS_CERT_PATH.
+        /// </summary>
+        [ACPropertyConfig("en{'TLS certificate path (PFX)'}de{'TLS-Zertifikatspfad (PFX)'}")]
+        public string TlsCertificatePath
+        {
+            get
+            {
+                VBUserInstance ui = this.Root?.Environment?.UserInstance;
+                if (ui != null && !String.IsNullOrEmpty(ui.ServiceTlsCertificatePath))
+                    return ui.ServiceTlsCertificatePath;
+                string v = _TlsCertificatePath.ValueT;
+                if (String.IsNullOrEmpty(v))
+                    v = System.Environment.GetEnvironmentVariable("WCF_TLS_CERT_PATH");
+                return v;
+            }
+            set => _TlsCertificatePath.ValueT = value;
+        }
+
+        private ACPropertyConfigValue<string> _TlsCertificatePassword;
+        /// <summary>PFX password. Primary source: VBUserInstance.ServiceTlsCertificatePassword. Env fallback: WCF_TLS_CERT_PASSWORD.</summary>
+        [ACPropertyConfig("en{'TLS certificate password'}de{'TLS-Zertifikatskennwort'}")]
+        public string TlsCertificatePassword
+        {
+            get
+            {
+                VBUserInstance ui = this.Root?.Environment?.UserInstance;
+                if (ui != null && !String.IsNullOrEmpty(ui.ServiceTlsCertificatePassword))
+                    return ui.ServiceTlsCertificatePassword;
+                string v = _TlsCertificatePassword.ValueT;
+                if (String.IsNullOrEmpty(v))
+                    v = System.Environment.GetEnvironmentVariable("WCF_TLS_CERT_PASSWORD");
+                return v;
+            }
+            set => _TlsCertificatePassword.ValueT = value;
+        }
+
+        #endregion
+
         SyncQueueEvents _syncDispatchPoints;
         ACThread _ACPDispatchPointsThread = null;
 
@@ -69,6 +130,8 @@ namespace gip.core.autocomponent
         public WCFServiceManager(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
+            _TlsCertificatePath = new ACPropertyConfigValue<string>(this, "TlsCertificatePath", "");
+            _TlsCertificatePassword = new ACPropertyConfigValue<string>(this, "TlsCertificatePassword", "");
             if (parameter != null)
             {
                 int i = 0;
@@ -132,9 +195,23 @@ namespace gip.core.autocomponent
                     int httpPort = this.Root.Environment.UserInstance.ServicePortHTTP;
                     if (httpPort <= 0)
                         httpPort = 8000;
+                    // TLS (docs §9.28): when enabled (VBUserInstance.ServiceUseTLS or a
+                    // certificate path configured), the HTTP host serves https/wss — browser
+                    // WCF clients then connect to wss://host:port/wcfbrowser.
+                    System.Security.Cryptography.X509Certificates.X509Certificate2 tlsCert = null;
+                    if (UseTls || !String.IsNullOrEmpty(TlsCertificatePath))
+                    {
+                        tlsCert = ACTlsCertificateHelper.GetOrCreateCertificate(TlsCertificatePath, TlsCertificatePassword, "WCFServiceManager");
+                        if (tlsCert == null)
+                            throw new InvalidOperationException("WCFServiceManager: TLS certificate configured but could not be loaded or generated.");
+                    }
+                    System.Security.Cryptography.X509Certificates.X509Certificate2 capturedCert = tlsCert;
                     builder.WebHost.UseKestrel(k =>
                     {
-                        k.Listen(_useIPV6 ? IPAddress.IPv6Any : IPAddress.Any, httpPort);
+                        if (capturedCert != null)
+                            k.Listen(_useIPV6 ? IPAddress.IPv6Any : IPAddress.Any, httpPort, l => l.UseHttps(capturedCert));
+                        else
+                            k.Listen(_useIPV6 ? IPAddress.IPv6Any : IPAddress.Any, httpPort);
                     });
                 }
                 else

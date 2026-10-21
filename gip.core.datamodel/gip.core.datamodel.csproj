@@ -111,6 +111,9 @@
     <None Include="DbScripts\iPlus\dbsync_2026-03-24_14-10_dlisak.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="DbScripts\iPlus\dbsync_2026-10-15_21-20_dlisak.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'False'">
     <PackageReference Include="Microsoft.EntityFrameworkCore" />

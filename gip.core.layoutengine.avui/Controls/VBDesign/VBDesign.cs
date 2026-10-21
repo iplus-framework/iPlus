@@ -96,12 +96,17 @@ namespace gip.core.layoutengine.avui
 
             // Auto-hide roundtrips can temporarily break inherited context during visual detachment.
             // If we come back loaded but content/context is inconsistent, force one recovery rebind.
+            // NOTE: With IncrementalDesignLoading the LoadDesign body runs on a DispatcherTimer tick,
+            // so Content is null for a short window AFTER InitBinding has already run. That is NOT an
+            // inconsistency - treating it as one would re-run InitBinding and re-execute the AutoStart,
+            // starting a SECOND BSO instance whose fresh ACAccess stays empty (first-search skip in
+            // SingleViewApp) and whose DataContext rebinding replaces the populated instance.
             bool needsRecoveryRebind = _Loaded &&
+                                       !_LoadDesignScheduled &&
                                        DataContext != null &&
                                        (Content == null || (ContextACObject == null && BSOACComponent == null));
             if (needsRecoveryRebind)
             {
-                System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] OnLoaded recovery: forcing rebind (_Loaded={_Loaded}, Content={(Content == null ? "null" : "set")}, DataContext={DataContext.GetType().Name}, BSOACComponent={(BSOACComponent == null ? "null" : BSOACComponent.GetACUrl())})");
                 _Loaded = false;
                 InitBinding();
             }
@@ -151,7 +156,6 @@ namespace gip.core.layoutengine.avui
         /// <param name="bso">The bound BSOACComponent</param>
         public override void DeInitVBControl(IACComponent bso)
         {
-            System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] DeInitVBControl: _Loaded={_Loaded}, IsLoaded={IsLoaded}, bso={bso?.GetACUrl()}");
             if (_Loaded)
             {
                 _LoadDesignLocked = true;
@@ -169,46 +173,59 @@ namespace gip.core.layoutengine.avui
 
         private void InitBinding()
         {
-            System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] InitBinding: _Loaded={_Loaded}, DataContext={(DataContext == null ? "null" : DataContext.GetType().Name)}, BSOACComponent={(BSOACComponent == null ? "null" : BSOACComponent.GetACUrl())}, Content={(Content == null ? "null" : "set")}, IsLoaded={IsLoaded}");
             if (_Loaded || DataContext == null)
             {
-                System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] InitBinding early return: _Loaded={_Loaded}, DataContext={(DataContext == null ? "null" : "set")}");
                 return;
             }
 
-            if (!string.IsNullOrEmpty(this.AutoStartACComponent))
+            // Only execute the AutoStart when this design has not loaded its layout yet.
+            // When the design comes back from the design stack (VBDesignController.CloseDesign),
+            // Content is already set and the BSO instance started by the first InitBinding is
+            // still running (with its ACQueryDefinition filters and NavList results). Re-executing
+            // the AutoStart here would create a SECOND BSO instance whose ACInit re-runs Search —
+            // and because of the ACAccess._IsFirstSearch skip in SingleViewApp the new access
+            // stays empty, so the grid would lose the previous filtered data.
+            // With IncrementalDesignLoading, Content is also null while a LoadDesign tick is still
+            // pending (_LoadDesignScheduled); in that case InitBinding has already run and the
+            // AutoStart must NOT fire a second time.
+            // With IncrementalDesignLoading, Content is also null while a LoadDesign tick is still
+            // pending (_LoadDesignScheduled); in that case InitBinding has already run and the
+            // AutoStart must NOT fire a second time.
+            // NOTE: Do NOT skip the AutoStart when DataContext is locally set (IsSet) —
+            // MainSingleView.ShowVBDesign assigns a fallback DataContext (Businessobjects) to
+            // AutoStart designs before they are attached; the AutoStart must override it with
+            // the actually started BSO, otherwise the root Businessobjects layout is loaded
+            // instead of the BSO's own design.
+            if (!string.IsNullOrEmpty(this.AutoStartACComponent) && Content == null && !_LoadDesignScheduled)
             {
                 // During startup restore, pinned/auto-hide tools may be initialized before
                 // BSOACComponent binding is available. Defer auto-start binding until it exists.
                 if (BSOACComponent == null)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] InitBinding defer: BSOACComponent is null for AutoStart '{AutoStartACComponent}'");
                     return;
                 }
 
+                object autoStartResult;
                 if (AutoStartParameter == null || !AutoStartParameter.Any())
                 {
-                    var binding = new Binding
-                    {
-                        Source = BSOACComponent.ACUrlCommand(AutoStartACComponent, null)
-                    };
-                    this.Bind(DataContextProperty, binding);
+                    autoStartResult = BSOACComponent.ACUrlCommand(AutoStartACComponent, null);
                 }
                 else
                 {
-                    var binding = new Binding
-                    {
-                        Source = BSOACComponent.ACUrlCommand(AutoStartACComponent, this.AutoStartParameter)
-                    };
-                    this.Bind(DataContextProperty, binding);
+                    autoStartResult = BSOACComponent.ACUrlCommand(AutoStartACComponent, this.AutoStartParameter);
                 }
+                var binding = new Binding
+                {
+                    Source = autoStartResult
+                };
+                this.Bind(DataContextProperty, binding);
                 if (BSOACComponent.ACType.ACKind == Global.ACKinds.TACBusinessobjects)
                 {
-                    var binding = new Binding
+                    var bindingBso = new Binding
                     {
                         Source = DataContext
                     };
-                    this.Bind(VBDesign.BSOACComponentProperty, binding);
+                    this.Bind(VBDesign.BSOACComponentProperty, bindingBso);
                 }
             }
 
@@ -357,6 +374,25 @@ namespace gip.core.layoutengine.avui
 
         #region Static Layout from ACClassDesign
         private bool _LoadDesignLocked = false;
+        private bool _LoadDesignScheduled = false;
+
+        /// <summary>
+        /// When true, complex designs are attached to the visual tree incrementally
+        /// (children across several dispatcher frames) to avoid blocking the UI thread
+        /// for more than the Android ANR threshold of 5 seconds. Set to true by the
+        /// Android client at startup; Desktop and Browser keep the default (false).
+        /// </summary>
+        public static bool IncrementalDesignLoading { get; set; }
+
+        private static int CountControls(Visual visual)
+        {
+            if (visual == null)
+                return 0;
+            int count = 1;
+            foreach (Visual child in visual.GetVisualChildren())
+                count += CountControls(child);
+            return count;
+        }
         /// <summary>
         /// Gets or sets the ContentACObject.
         /// </summary>
@@ -382,7 +418,9 @@ namespace gip.core.layoutengine.avui
             if (change.Property == ContentACObjectProperty)
             {
                 if (!_LoadDesignLocked)
+                {
                     LoadDesign();
+                }
             }
             else if (change.Property == MasterPageSelProperty)
             {
@@ -419,6 +457,33 @@ namespace gip.core.layoutengine.avui
         [ACMethodCommand("", "", 9999)]
         public void LoadDesign()
         {
+            // When incremental loading is enabled (Android), defer the actual load
+            // onto a DispatcherTimer tick. During a single layout pass dozens of
+            // nested VBDesigns fire InitBinding->LoadDesign synchronously; without
+            // deferral they run back-to-back and starve the Android looper's input
+            // queue (MotionEvent ANR after 5s). The timer yields to the OS looper
+            // between loads, spreading the cascade over multiple ticks.
+            if (IncrementalDesignLoading && !_LoadDesignScheduled)
+            {
+                _LoadDesignScheduled = true;
+                Avalonia.Threading.DispatcherTimer loadTimer = null;
+                loadTimer = new Avalonia.Threading.DispatcherTimer(
+                    TimeSpan.FromMilliseconds(10), Avalonia.Threading.DispatcherPriority.Background,
+                    (s, e) =>
+                    {
+                        loadTimer.Stop();
+                        // IMPORTANT: do NOT reset _LoadDesignScheduled before the nested
+                        // LoadDesign() call. While the flag is still true, the nested call
+                        // skips the deferral branch and executes the body synchronously.
+                        // Resetting it first would make the nested call re-enter the
+                        // deferral branch and reschedule forever -> the design never loads.
+                        LoadDesign();
+                        _LoadDesignScheduled = false;
+                    });
+                loadTimer.Start();
+                return;
+            }
+
             string xaml = "";
 
             Visual parentObj = this.GetVisualParent();
@@ -481,7 +546,7 @@ namespace gip.core.layoutengine.avui
 
             Content = null;
             Visual uiElement = null;
-            
+
             if (ContentACObject != null && !hasUserSpecificDesign)
             {
                 // Use ACClassDesign overload for base designs - this handles BAML, conversion, and caching to XMLDesign2
@@ -501,7 +566,43 @@ namespace gip.core.layoutengine.avui
                 uiElement = contentControl;
             }
 
-            Content = uiElement;
+            // On slow devices (Android) a single synchronous layout pass of a complex
+            // design can block the UI thread for >5s, which triggers the Android ANR
+            // ("input dispatching timed out"). When IncrementalDesignLoading is enabled,
+            // the root container is shown immediately and its direct children are
+            // attached across several dispatcher frames, so the looper can process
+            // input between chunks. Layoutgenerator itself stays platform-independent.
+            if (IncrementalDesignLoading
+                && uiElement is Panel incrementalPanel
+                && incrementalPanel.Children.Count > 1)
+            {
+                List<Control> deferredChildren = incrementalPanel.Children.ToList();
+                incrementalPanel.Children.Clear();
+                Content = uiElement;
+                int deferredIndex = 0;
+                // IMPORTANT: use a DispatcherTimer, not self-rescheduling
+                // Dispatcher.UIThread.Post callbacks. A Post that enqueues its
+                // successor before returning starves the Android looper's input
+                // queue (MotionEvent ANR after 5s), because posted operations are
+                // processed before pending input. The timer returns control to the
+                // OS looper between ticks, letting input events be dispatched.
+                Avalonia.Threading.DispatcherTimer attachTimer = null;
+                attachTimer = new Avalonia.Threading.DispatcherTimer(
+                    TimeSpan.FromMilliseconds(10), Avalonia.Threading.DispatcherPriority.Background, (s, e) =>
+                {
+                    if (deferredIndex < deferredChildren.Count)
+                    {
+                        incrementalPanel.Children.Add(deferredChildren[deferredIndex++]);
+                    }
+                    else
+                    {
+                        attachTimer.Stop();
+                    }
+                });
+                attachTimer.Start();
+            }
+            else
+                Content = uiElement;
 
             if (OuterDesignEditor != null)
             {

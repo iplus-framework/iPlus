@@ -1,5 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto">
 	<uses-permission android:name="android.permission.INTERNET" />
-	<application android:label="gip.iplus.client.avui" android:icon="@drawable/Icon" />
+	<!-- usesCleartextTraffic: the SQL Tunnel relay is plain http/ws (no TLS yet, see
+	     docs/SqlTunnel-OptionB-Implementation.md §9.21 open question 2). Android blocks
+	     cleartext by default since API 28 ("Cleartext HTTP traffic ... not permitted").
+	     Remove once the tunnel runs behind TLS (wss/https). -->
+	<application android:label="gip.iplus.client.avui" android:icon="@drawable/Icon" android:usesCleartextTraffic="true" />
 </manifest>

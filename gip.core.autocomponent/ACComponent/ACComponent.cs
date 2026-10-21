@@ -274,6 +274,7 @@ namespace gip.core.autocomponent
         /// <returns><c>true</c> if succeeded, <c>false</c> otherwise</returns>
         public virtual bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
+            var acInitStopwatch = System.Diagnostics.Stopwatch.StartNew();
             if (InitState == ACInitState.Constructed)
                 InitState = ACInitState.Initializing;
 
@@ -412,6 +413,9 @@ namespace gip.core.autocomponent
                     StartComponent(acEntityChild, null, null, startChildMode, false);
                 }
             }
+            acInitStopwatch.Stop();
+            if (acInitStopwatch.ElapsedMilliseconds > 50)
+                System.Console.WriteLine($"DOTNET: [ACInit|SLOW] {this.GetACUrl()} took {acInitStopwatch.ElapsedMilliseconds} ms");
             return true;
         }
 
@@ -449,12 +453,16 @@ namespace gip.core.autocomponent
         [ACMethodInfo("ACComponent", "en{'ACPostInit'}de{'ACPostInit'}", 9999)]
         public virtual bool ACPostInit()
         {
+            var postInitStopwatch = System.Diagnostics.Stopwatch.StartNew();
             ACPostInitACProperties();
             //ACState = Global.ACStates.Idle;
             //ACProcessPhase = Global.ACProcessPhases.Idle;
             PostExecute("ACPostInit");
             ACPostInitEvent.Raise(new ACEventArgs());
             InitState = ACInitState.Initialized;
+            postInitStopwatch.Stop();
+            if (postInitStopwatch.ElapsedMilliseconds > 50)
+                System.Console.WriteLine($"DOTNET: [ACPostInit|SLOW] {this.GetACUrl()} took {postInitStopwatch.ElapsedMilliseconds} ms");
 
             return true;
         }

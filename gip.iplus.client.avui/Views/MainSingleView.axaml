@@ -71,15 +71,15 @@
 
                     <!-- Mobile-mode replacement for the MAUI ToolbarItems: standard
                          BSO commands (New/Delete/Restore/Save/UndoSave) of the active
-                         BSO. Only shown on detail pages (IsMainDesignActive=false) —
-                         the explorer page has no record commands, like the MAUI app
-                         where ToolbarItems live on the detail page. -->
+                         BSO. Only shown on detail pages (IsCommandBarActive=false on
+                         the explorer page and when the BSO was started with RibbonOff,
+                         in which case the design declares its own VBCommandBar). -->
                     <vb:VBCommandBar Grid.Row="0" Grid.Column="1"
                                      x:Name="MainCommandBar"
                                      HorizontalAlignment="Right"
                                      VerticalAlignment="Center"
                                      Margin="0,0,10,0"
-                                     IsVisible="{Binding !IsMainDesignActive, ElementName=MainContentControl}"
+                                     IsVisible="{Binding IsCommandBarActive, ElementName=MainContentControl}"
                                      BSOACComponent="{Binding CurrentBSO, ElementName=MainContentControl}" />
 
                     <vb:VBDesignController x:Name="MainContentControl"

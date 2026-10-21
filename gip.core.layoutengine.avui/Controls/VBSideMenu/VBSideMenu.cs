@@ -71,6 +71,19 @@ namespace gip.core.layoutengine.avui
                 _backButton.Click += OnBackClick;
             }
 
+            // The menu items may be populated AFTER the template is applied
+            // (e.g. MainSingleView builds the menu asynchronously on dispatcher
+            // timer ticks to avoid ANR on slow devices). Without this hook the
+            // ItemsSource would never be set and the menu would stay empty.
+            if (Items is System.Collections.Specialized.INotifyCollectionChanged notifyCollection)
+            {
+                notifyCollection.CollectionChanged += (s, args) =>
+                {
+                    if (CurrentItem == null)
+                        InitializeMenu();
+                };
+            }
+
             InitializeMenu();
         }
 

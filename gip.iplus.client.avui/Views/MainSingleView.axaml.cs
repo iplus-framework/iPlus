@@ -69,40 +69,9 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
         string[] cmLineArg = System.Environment.GetCommandLineArgs();
         ACRoot.SRoot.RootPageWPF = this;
 
-        ACClassDesign menuDesign = null;
-        using (ACMonitor.Lock(ACRoot.SRoot.Database.QueryLock_1X000))
-        {
-            menuDesign = ACRoot.SRoot.Environment.User.MenuACClassDesign;
-        }
-
-        if (menuDesign == null)
-        {
-            ACClassDesign acClassDesign = ACRoot.SRoot.GetDesign(Global.ACKinds.DSDesignMenu);
-            mainMenu = acClassDesign.GetMenuEntryWithCheck(ACRoot.SRoot);
-        }
-        else
-        {
-
-            using (ACMonitor.Lock(ACRoot.SRoot.Database.ContextIPlus.QueryLock_1X000))
-            {
-                mainMenu = ACRoot.SRoot.Environment.User.MenuACClassDesign.GetMenuEntryWithCheck(ACRoot.SRoot);
-            }
-        }
-
-        if (mainMenu != null)
-        {
-            VBSideMenuItem rootItem = new VBSideMenuItem();
-            CreateMenu(mainMenu.Items, rootItem.Items);
-
-            MainMenu.Items.Add(rootItem);
-        }
-            
-
         this.DataContext = ACRoot.SRoot.Businessobjects;
 
         this.Content = MainScrollViewer;
-
-        InitAlarms();
         base.OnLoaded(e);
 
         // Get TopLevel after the view is loaded (not in constructor!)
@@ -126,6 +95,58 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
             IsSingleViewApp = singleViewEnabled.Value;
         else
             IsSingleViewApp = Database.Root.IsSingleViewApp;
+
+        // IMPORTANT: the menu query/build and alarm init are heavy DB + UI steps
+        // (0.7s+ each on Android). Running them synchronously inside OnLoaded
+        // stacks several consecutive blocks; a MotionEvent arriving during the
+        // switch then waits across all of them and triggers the 5s ANR watchdog.
+        // Deferring each step onto DispatcherTimer ticks yields to the OS looper
+        // between steps, so pending input is dispatched in time.
+        DispatcherTimer menuTimer = null;
+        int menuStep = 0;
+        menuTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(10), DispatcherPriority.Background,
+            (s, e) =>
+            {
+                if (menuStep == 0)
+                {
+                    menuStep = 1;
+                    ACClassDesign menuDesign = null;
+                    using (ACMonitor.Lock(ACRoot.SRoot.Database.QueryLock_1X000))
+                    {
+                        menuDesign = ACRoot.SRoot.Environment.User.MenuACClassDesign;
+                    }
+
+                    if (menuDesign == null)
+                    {
+                        ACClassDesign acClassDesign = ACRoot.SRoot.GetDesign(Global.ACKinds.DSDesignMenu);
+                        mainMenu = acClassDesign.GetMenuEntryWithCheck(ACRoot.SRoot);
+                    }
+                    else
+                    {
+                        using (ACMonitor.Lock(ACRoot.SRoot.Database.ContextIPlus.QueryLock_1X000))
+                        {
+                            mainMenu = ACRoot.SRoot.Environment.User.MenuACClassDesign.GetMenuEntryWithCheck(ACRoot.SRoot);
+                        }
+                    }
+                }
+                else if (menuStep == 1)
+                {
+                    menuStep = 2;
+                    if (mainMenu != null)
+                    {
+                        VBSideMenuItem rootItem = new VBSideMenuItem();
+                        CreateMenu(mainMenu.Items, rootItem.Items);
+
+                        MainMenu.Items.Add(rootItem);
+                    }
+                }
+                else
+                {
+                    menuTimer.Stop();
+                    InitAlarms();
+                }
+            });
+        menuTimer.Start();
     }
 
     private void InputPane_StateChanged(object sender, InputPaneStateEventArgs e)
@@ -321,7 +342,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
             caption = menuItem.UseACCaption ? menuItem.ACCaption : "";
         }
 
-        StartBusinessobject(acCommand.GetACUrl(), acCommand.ParameterList, caption);
+        StartBusinessobject(acCommand.GetACUrl(), acCommand.ParameterList, caption, ribbonVisibilityOff);
     }
 
     public List<Control> _VBDesignList = new List<Control>();
@@ -340,6 +361,11 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
 
     public void StartBusinessobject(string acUrl, ACValueList parameterList, string acCaption = "")
     {
+        StartBusinessobject(acUrl, parameterList, acCaption, false);
+    }
+
+    public void StartBusinessobject(string acUrl, ACValueList parameterList, string acCaption, bool ribbonVisibilityOff)
+    {
         if (ContextACObject != null)
         {
             if (acUrl.IndexOf('#') != -1)
@@ -351,6 +377,11 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
             }
             VBDesign vbDesign = new VBDesign();
             vbDesign.Name = String.Format("BSO{0}", VBDesignList.Count);
+            // Same semantics as the desktop VBRibbonBSODefault: when the ribbon/command
+            // bar is switched off for this BSO, the consumer can declare its own
+            // VBCommandBar (or VBRibbon) in the design XAML.
+            VBDockingManager.SetRibbonBarVisibility(vbDesign,
+                ribbonVisibilityOff ? Global.ControlModes.Hidden : Global.ControlModes.Enabled);
             if (!string.IsNullOrEmpty(acCaption))
             {
                 vbDesign.ACCaption = acCaption;

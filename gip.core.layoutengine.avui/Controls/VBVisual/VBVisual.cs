@@ -1217,12 +1217,40 @@ namespace gip.core.layoutengine.avui
             }
         }
 
+        // True while a deferred LoadDesign is pending; the nested call must then
+        // run synchronously (see LoadDesign).
+        private bool _loadDesignScheduled = false;
+
         void LoadDesign()
         {
+            // Break synchronous load cascades: when a VBVisual's content is attached,
+            // its child VBVisuals initialize and load their designs within the SAME
+            // call stack. Deep visualisation trees (Mixery etc.) then block the UI
+            // thread for >5 s and trigger the Android ANR watchdog. With incremental
+            // loading each VBVisual defers its own design load to a Background-
+            // priority dispatcher tick, so pending input is processed between levels.
+            // IMPORTANT: do NOT reset _loadDesignScheduled before the nested
+            // LoadDesign() call — while the flag is true the nested call skips the
+            // deferral branch and executes the body synchronously.
+            if (VBDesign.IncrementalDesignLoading && !_loadDesignScheduled)
+            {
+                _loadDesignScheduled = true;
+                Avalonia.Threading.DispatcherTimer loadTimer = null;
+                loadTimer = new Avalonia.Threading.DispatcherTimer(
+                    TimeSpan.FromMilliseconds(10), Avalonia.Threading.DispatcherPriority.Background,
+                    (s, e) =>
+                    {
+                        loadTimer.Stop();
+                        LoadDesign();
+                        _loadDesignScheduled = false;
+                    });
+                loadTimer.Start();
+                return;
+            }
+
             ACClassDesign = null;
             UpdateACClassDesign();
 
-            TraceLayoutState("LoadDesign-Before", Content as Visual);
             Content = null;
             Visual uiElement = null;
             if (ACClassDesign != null && (!string.IsNullOrEmpty(ACClassDesign.XMLDesign) || !string.IsNullOrEmpty(ACClassDesign.XMLDesign2)))
@@ -1234,13 +1262,7 @@ namespace gip.core.layoutengine.avui
                 uiElement = contentControl;
             }
 
-            if (uiElement == null)
-                TraceLayoutState("LoadDesign-ResultNull", null);
-            else
-                TraceLayoutState("LoadDesign-Result", uiElement);
-
             Content = uiElement;
-            TraceLayoutState("LoadDesign-Assigned", Content as Visual);
             OnDesignLoaded();
         }
 
@@ -1320,6 +1342,14 @@ namespace gip.core.layoutengine.avui
                 }
 
                 Point point = e.GetPosition(this);
+                // VBDynamicContent visuals (e.g. bound to a property that yields arbitrary
+                // components) may have no resolved BSOACComponent; calling ACAction on null
+                // crashed the app. Same guard as VBDesign.OnPointerReleased.
+                if (BSOACComponent == null)
+                {
+                    e.Handled = true;
+                    return;
+                }
                 ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
                 BSOACComponent.ACAction(actionArgs);
                 if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
