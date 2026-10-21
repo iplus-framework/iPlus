@@ -11,7 +11,7 @@ namespace gip.core.autocomponent
 {
     /// <summary>
     /// TLS certificate handling for the server-side HTTP/WebSocket hosts (SQL tunnel relay
-    /// <see cref="PASqlTunnelHost"/> and <see cref="WCFServiceManager"/>, docs
+    /// <c>PASqlTunnelHost</c> and <see cref="WCFServiceManager"/>, docs
     /// SqlTunnel-OptionB-Implementation.md §9.28).
     ///
     /// Loads a PFX/PKCS#12 certificate from disk, or — when none exists yet — generates a

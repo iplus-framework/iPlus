@@ -10,7 +10,7 @@ namespace gip.core.autocomponent
 {
     /// <summary>
     /// Transport-agnostic peer of a <see cref="WCFServiceChannel"/>. Implemented by
-    /// <see cref="WCFService"/> (WCF duplex, net.tcp/http) and by <see cref="WCFBrowserService"/>
+    /// <see cref="WCFService"/> (WCF duplex, net.tcp/http) and by <c>WCFBrowserService</c>
     /// (WebSocket endpoint for browser/WASM clients, see SqlTunnel-OptionB-Implementation.md §8).
     /// </summary>
     public interface IWCFServicePeer

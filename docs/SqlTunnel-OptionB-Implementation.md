@@ -758,7 +758,28 @@ NRE) if an unsupported flag combination ever reaches it.
 
 ### 9.17 Debug instrumentation memo — where to remove it later (2026-10-11)
 
-The debug instrumentation is **intentionally kept for now** (may be needed for the NuGet
+> **✅ REMOVED (2026-10-21):** all temporary debug instrumentation listed below has been
+> removed and all affected projects rebuilt successfully (`gip.core.datamodel`,
+> `gip.core.webservices`, `gip.core.autocomponent`, `gip.iplus.client.avui`,
+> SqlClient fork `net10.0`). Details:
+>
+> - `CommandLineHelper.cs` — all 8 `ConfigCurrentDir:` tracing lines removed.
+> - `ACActivator.cs` — all 3 `CreateInstance` diagnostic lines removed.
+> - `ACQueryDefinition.cs` — NULL-tracing line removed.
+> - `LoginView.axaml.cs` — entire auto-login bypass removed (const block, `SetBypassSetting`,
+>   `ApplyAutoLoginBypass`, both `OnLoaded` call sites, `LoadSettings` leftover check,
+>   `#pragma warning disable CS0162`).
+> - `WCFClientChannel.cs` — 3 browser-transport `Console.WriteLine` lines removed.
+> - SqlClient fork `SniMarsConnection.netcore.cs` — 2 `StartReceive` tracing lines removed
+>   (EventSource SNI trace kept).
+>
+> **Kept (functional, not debug):** `PASqlTunnelHost` `SyncShim`/`SqlTunnelAuth`
+> `LogInfo`/`LogException` operational logging (session lifecycle, token rejection
+> reasons); `LoginView` credential delivery incl. `Integrated Security=False` rewrite
+> (§9.24) — MARS already re-enabled (`multipleactiveresultsets=True`); the TDS hex-dump
+> and `SyncHttpTunnelStream` tracing were already gone before this cleanup.
+
+The debug instrumentation was **intentionally kept for now** (may be needed for the NuGet
 package test). Remove it once the tunnel is stable:
 
 **iPlus repo:**
@@ -1364,7 +1385,9 @@ degrades to one failed attempt instead of a dead connection.
 5. ✅ OAuth/Entra two-stage auth on the relay (§9.21/§9.22)
 6. ✅ DB-driven configuration via BSOiPlusNetConfig (§9.29)
 
-**Remaining (cleanup backlog, §9.17):** remove temporary `Console.WriteLine`
-diagnostics in `WCFClientChannel` (browser transport endpoint / connect FAILED /
-connected-via lines), `LoginView.PersistTest` self-test, and relay auth-tracing logs
-before release.
+**Remaining (cleanup backlog, §9.17):** ✅ DONE (2026-10-21) — the temporary
+`Console.WriteLine` diagnostics in `WCFClientChannel` (browser transport endpoint /
+connect FAILED / connected-via lines) and the relay auth-tracing logs were reviewed and
+resolved as part of the §9.17 cleanup: the `WCFClientChannel` lines were removed, the
+relay `SqlTunnelAuth`/`SyncShim` `LogInfo`/`LogException` lines were kept as legitimate
+operational logging, and `LoginView.PersistTest` no longer exists in the code.

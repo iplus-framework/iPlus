@@ -21,7 +21,7 @@ namespace gip.core.autocomponent
 
         /// <summary>
         /// Browser (WASM) hook, registered by the UI framework at startup (e.g. the Avalonia
-        /// client). A plain blocking <see cref="EventWaitHandle.WaitOne(int)"/> deadlocks the
+        /// client). A plain blocking <see cref="WaitHandle.WaitOne(int)"/> deadlocks the
         /// single-threaded browser UI: the response can only be delivered when the UI thread
         /// keeps pumping its event loop. The hook runs a nested dispatcher pump until the
         /// handle is set or the timeout (ms) elapses; returns true when signaled.

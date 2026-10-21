@@ -1380,7 +1380,7 @@ public partial class LoginView : UserControl
                 // (Android/browser). There the connection string is DERIVED from the default
                 // container, and without an override it would inherit the default's catalog —
                 // wrong when the context targets a different database on the same server.
-                string catalog = null;
+                string? catalog = null;
                 int pipeIdx = n.IndexOf('|');
                 if (pipeIdx > 0)
                 {
@@ -1433,7 +1433,7 @@ public partial class LoginView : UserControl
                         cs = defaultConnectionString;
                         // Apply the "Name|Catalog" override when registered: replace the
                         // default container's initial catalog with the context's own database.
-                        if (catalogOverrides.TryGetValue(name, out string overrideCatalog)
+                        if (catalogOverrides.TryGetValue(name, out string? overrideCatalog)
                             && !String.IsNullOrWhiteSpace(overrideCatalog))
                         {
                             cs = System.Text.RegularExpressions.Regex.Replace(
@@ -1469,7 +1469,16 @@ public partial class LoginView : UserControl
                 // Relay-delivered credentials (docs §9.24): rewrite user id/password and
                 // flip Integrated Security so the delivered login is actually used.
                 if (!String.IsNullOrEmpty(token))
-                    cs = await TryApplySqlCredentialsFromRelayAsync(tunnelUrl, token, cs);
+                {
+                    if (String.IsNullOrWhiteSpace(tunnelUrl))
+                    {
+                        Console.WriteLine($"LoginView: cannot fetch SQL credentials for additional connection '{name}' because the relay URL is missing.");
+                    }
+                    else
+                    {
+                        cs = await TryApplySqlCredentialsFromRelayAsync(tunnelUrl, token, cs);
+                    }
+                }
 
                 cs += "; Tunnel URL=" + tunnelUrlWithAuth;
                 RegisterConnectionString(name, cs, config);
@@ -1935,6 +1944,22 @@ public partial class LoginView : UserControl
     /// the device-code sign-in on a second device. Same cache semantics (in-process +
     /// persistent encrypted cache + silent refresh).
     /// </summary>
+    /// <summary>
+    /// Ensures the OAuth scope requests a refresh token: the Entra v2 endpoint only
+    /// issues a refresh_token when the scope contains "offline_access" — ".default"
+    /// alone does NOT (MSAL adds it implicitly, raw OAuth calls must do it themselves).
+    /// Without it the client cannot silently refresh and falls back to the interactive
+    /// device-code flow after every access-token expiry (~1 h).
+    /// </summary>
+    private static string EnsureOfflineAccessScope(string scope)
+    {
+        if (String.IsNullOrWhiteSpace(scope))
+            return "offline_access";
+        return scope.Contains("offline_access", StringComparison.OrdinalIgnoreCase)
+            ? scope
+            : scope.TrimEnd() + " offline_access";
+    }
+
     private static async Task<string?> TryAcquireEntraTokenDeviceCodeAsync(string tenant, string clientId, string scope, Action<string>? onUserCode = null, string? relayProxyBase = null)
     {
         string cacheKey = tenant + "|" + clientId + "|" + scope;
@@ -1980,7 +2005,7 @@ public partial class LoginView : UserControl
                 new System.Net.Http.FormUrlEncodedContent(new Dictionary<string, string>
                 {
                     ["client_id"] = clientId,
-                    ["scope"] = scope,
+                    ["scope"] = EnsureOfflineAccessScope(scope),
                 }));
             if ((int)deviceCodeResp.StatusCode != 200)
             {
@@ -2031,6 +2056,8 @@ public partial class LoginView : UserControl
                     using System.Text.Json.JsonDocument tok = System.Text.Json.JsonDocument.Parse(body);
                     string accessToken = tok.RootElement.GetProperty("access_token").GetString()!;
                     string? refreshToken = tok.RootElement.TryGetProperty("refresh_token", out System.Text.Json.JsonElement rt) && rt.ValueKind == System.Text.Json.JsonValueKind.String ? rt.GetString() : null;
+                    if (String.IsNullOrEmpty(refreshToken))
+                        Console.WriteLine("LoginView: WARNING - Entra token response contained no refresh_token; silent refresh will not be possible (scope must include offline_access).");
                     long expiresOn = DateTimeOffset.UtcNow.AddSeconds(
                         tok.RootElement.TryGetProperty("expires_in", out System.Text.Json.JsonElement ei) && ei.TryGetInt32(out int eiV) ? eiV : 3600).ToUnixTimeSeconds();
                     Console.WriteLine("LoginView: Entra token acquired.");
@@ -2077,7 +2104,7 @@ public partial class LoginView : UserControl
                     ["grant_type"] = "refresh_token",
                     ["client_id"] = clientId,
                     ["refresh_token"] = refreshToken,
-                    ["scope"] = scope,
+                    ["scope"] = EnsureOfflineAccessScope(scope),
                 }));
             string body = await resp.Content.ReadAsStringAsync();
             if ((int)resp.StatusCode != 200)
@@ -2158,7 +2185,7 @@ public partial class LoginView : UserControl
                 new System.Net.Http.FormUrlEncodedContent(new Dictionary<string, string>
                 {
                     ["client_id"] = clientId,
-                    ["scope"] = scope,
+                    ["scope"] = EnsureOfflineAccessScope(scope),
                 })).GetAwaiter().GetResult();
             if ((int)deviceCodeResp.StatusCode != 200)
             {
@@ -2206,6 +2233,8 @@ public partial class LoginView : UserControl
                     using System.Text.Json.JsonDocument tok = System.Text.Json.JsonDocument.Parse(body);
                     string accessToken = tok.RootElement.GetProperty("access_token").GetString()!;
                     string? refreshToken = tok.RootElement.TryGetProperty("refresh_token", out System.Text.Json.JsonElement rt) && rt.ValueKind == System.Text.Json.JsonValueKind.String ? rt.GetString() : null;
+                    if (String.IsNullOrEmpty(refreshToken))
+                        Console.WriteLine("LoginView: WARNING - Entra token response contained no refresh_token; silent refresh will not be possible (scope must include offline_access).");
                     long expiresOn = DateTimeOffset.UtcNow.AddSeconds(
                         tok.RootElement.TryGetProperty("expires_in", out System.Text.Json.JsonElement ei) && ei.TryGetInt32(out int eiV) ? eiV : 3600).ToUnixTimeSeconds();
                     Console.WriteLine("LoginView: Entra token acquired.");
@@ -2249,7 +2278,7 @@ public partial class LoginView : UserControl
                     ["grant_type"] = "refresh_token",
                     ["client_id"] = clientId,
                     ["refresh_token"] = refreshToken,
-                    ["scope"] = scope,
+                    ["scope"] = EnsureOfflineAccessScope(scope),
                 })).GetAwaiter().GetResult();
             string body = resp.Content.ReadAsStringAsync().GetAwaiter().GetResult();
             if ((int)resp.StatusCode != 200)
