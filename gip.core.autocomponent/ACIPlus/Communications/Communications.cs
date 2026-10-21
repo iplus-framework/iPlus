@@ -351,6 +351,8 @@ namespace gip.core.autocomponent
             }
         }
 
+        private const int ConnectTimeoutMilliseconds = 5000;
+
         public static bool IsUserInstanceStillActive(VBUserInstance userInstance)
         {
             IPHostEntry entryToTest = null;
@@ -452,22 +454,36 @@ namespace gip.core.autocomponent
             bool connectionEstablished = true;
             foreach (IPAddress adress in addressesToTest)
             {
-                TcpClient tcpScan = new TcpClient();
-                try
+                using (TcpClient tcpScan = new TcpClient())
                 {
-                    tcpScan.Connect(adress, port);
-                    connectionEstablished = false;
-                }
-                catch (Exception e)
-                {
-                    string msg = e.Message;
-                    if (e.InnerException != null && e.InnerException.Message != null)
-                        msg += " Inner:" + e.InnerException.Message;
+                    try
+                    {
+                        // Use async connect with bounded wait to avoid blocking on the OS TCP timeout (up to ~2 min)
+                        Task connectTask = tcpScan.ConnectAsync(adress, port);
+                        if (!connectTask.Wait(ConnectTimeoutMilliseconds))
+                            throw new TimeoutException($"Connection attempt to {adress}:{port} timed out after {ConnectTimeoutMilliseconds} ms.");
+                        connectionEstablished = false;
+                    }
+                    catch (AggregateException ae)
+                    {
+                        Exception e = ae.InnerException ?? ae;
+                        string msg = e.Message;
+                        if (e.InnerException != null && e.InnerException.Message != null)
+                            msg += " Inner:" + e.InnerException.Message;
 
-                    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
-                        datamodel.Database.Root.Messages.LogException("Communications", "IsUserInstanceStillActive(20)", msg);
+                        if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
+                            datamodel.Database.Root.Messages.LogException("Communications", "IsUserInstanceStillActive(20)", msg);
+                    }
+                    catch (Exception e)
+                    {
+                        string msg = e.Message;
+                        if (e.InnerException != null && e.InnerException.Message != null)
+                            msg += " Inner:" + e.InnerException.Message;
+
+                        if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
+                            datamodel.Database.Root.Messages.LogException("Communications", "IsUserInstanceStillActive(20)", msg);
+                    }
                 }
-                tcpScan.Close();
             }
             return !connectionEstablished;
         }

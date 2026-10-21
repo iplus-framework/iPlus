@@ -1,6 +1,8 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Templates;
 using Avalonia.Markup.Xaml;
+using Avalonia.Markup.Xaml.Templates;
 using gip.core.datamodel;
 using MsBox.Avalonia.Enums;
 using System;
@@ -350,7 +352,12 @@ namespace gip.core.layoutengine.avui
                 try
                 {
                     string converted = XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xmlLayout);
-                    object result = AvaloniaRuntimeXamlLoader.Load(converted);
+                    object result;
+                    IDataTemplate cachedTemplate = GetOrCompileTemplate(converted);
+                    if (cachedTemplate != null)
+                        result = cachedTemplate.Build(null);
+                    else
+                        result = AvaloniaRuntimeXamlLoader.Load(converted);
                     return result;
                 }
                 catch (Exception e)
@@ -374,6 +381,113 @@ namespace gip.core.layoutengine.avui
                 }
             //}
         }
+
+        #region XAML-Template-Cache
+
+        // Caches compiled XAML as DataTemplate factories (like DataTemplates, each
+        // Build() creates a fresh control tree). Markup extensions (VBBinding etc.)
+        // run inside Build(), so they still resolve against the static
+        // CurrentDataContext/CurrentBSO that LoadXAML sets before each build.
+        static readonly object _templateCacheLock = new object();
+        static readonly Dictionary<string, IDataTemplate> _templateCache = new Dictionary<string, IDataTemplate>();
+
+        // Each cached template holds a dynamically emitted type; cap the cache and
+        // clear it wholesale when exceeded (simple, avoids unbounded leaks).
+        const int MaxCachedTemplates = 200;
+
+        /// <summary>
+        /// Gets a cached compiled factory for the given (already namespace-converted) XAML,
+        /// or compiles and caches one. Returns null if the XAML cannot be wrapped into a
+        /// template (caller falls back to a plain AvaloniaRuntimeXamlLoader.Load).
+        /// </summary>
+        static IDataTemplate GetOrCompileTemplate(string convertedXaml)
+        {
+            if (string.IsNullOrEmpty(convertedXaml))
+                return null;
+
+            string key = HashXaml(convertedXaml);
+            lock (_templateCacheLock)
+            {
+                if (_templateCache.TryGetValue(key, out var cached))
+                    return cached;
+            }
+
+            try
+            {
+                IDataTemplate template = WrapAsDataTemplate(convertedXaml);
+                if (template == null)
+                    return null;
+
+                // Verify the template actually builds before caching it, so a design
+                // that fails inside the wrapper never poisons the cache.
+                template.Build(null);
+
+                lock (_templateCacheLock)
+                {
+                    if (_templateCache.Count >= MaxCachedTemplates)
+                        _templateCache.Clear();
+                    _templateCache[key] = template;
+                }
+                return template;
+            }
+            catch
+            {
+                // Wrapping not possible for this design (e.g. x:Class root, parser
+                // restrictions) - caller falls back to the plain load path.
+                return null;
+            }
+        }
+
+        static string HashXaml(string xaml)
+        {
+            using (var sha = System.Security.Cryptography.SHA256.Create())
+            {
+                byte[] hash = sha.ComputeHash(Encoding.UTF8.GetBytes(xaml));
+                return Convert.ToBase64String(hash);
+            }
+        }
+
+        /// <summary>
+        /// Wraps a design XAML root into a DataTemplate so the compiled populate/build
+        /// methods can be reused for every subsequent instantiation. All xmlns
+        /// declarations of the design root are moved to the DataTemplate root, because
+        /// XamlX only allows xmlns on the root element.
+        /// </summary>
+        static IDataTemplate WrapAsDataTemplate(string convertedXaml)
+        {
+            XDocument doc = XDocument.Parse(convertedXaml);
+            XElement designRoot = doc.Root;
+            if (designRoot == null)
+                return null;
+
+            // ResourceDictionaries and similar non-control roots cannot be templated.
+            if (designRoot.Name.LocalName == "ResourceDictionary")
+                return null;
+
+            XNamespace avaloniaNs = "https://github.com/avaloniaui";
+            XElement templateRoot = new XElement(avaloniaNs + "DataTemplate");
+
+            // Re-declare every namespace of the design root on the template root,
+            // preserving prefixes, then strip them from the child element.
+            var nsDeclarations = designRoot.Attributes().Where(a => a.IsNamespaceDeclaration).ToList();
+            foreach (var nsDecl in nsDeclarations)
+            {
+                string prefix = nsDecl.Name.LocalName == "xmlns" ? "" : nsDecl.Name.LocalName;
+                templateRoot.Add(new XAttribute(nsDecl.Name.Namespace == XNamespace.Xmlns && prefix != ""
+                    ? XNamespace.Xmlns + prefix : nsDecl.Name, nsDecl.Value));
+            }
+            foreach (var nsDecl in nsDeclarations)
+                nsDecl.Remove();
+
+            // x:Class has no meaning inside a template and breaks compilation.
+            designRoot.Attributes("{http://schemas.microsoft.com/winfx/2006/xaml}Class").Remove();
+
+            templateRoot.Add(designRoot);
+
+            return AvaloniaRuntimeXamlLoader.Load(templateRoot.ToString()) as IDataTemplate;
+        }
+
+        #endregion
 
         public static object LoadBAML(ACClassDesign acClassDesign, IACObject dataContext, IACBSO bso)
         {
