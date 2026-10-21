@@ -1,8 +1,4 @@
 #nullable enable
-// CS0162: the AutoLoginBypassEnabled test bypass (const false) makes its call sites
-// unreachable. TEMPORARY — remove this pragma together with the bypass sections once
-// agent-driven auto-login is no longer needed.
-#pragma warning disable CS0162
 // VSTHRD002/VSTHRD103: LoginView intentionally contains synchronous wrappers over async
 // cores (ApplyConnectionSettingsFromHelper, TryAcquireTunnelToken, Entra device-code
 // polling, the connection probe) — they only run on platforms with real threads
@@ -265,123 +261,15 @@ public partial class LoginView : UserControl
     /// </summary>
     public static bool EntraApplyDeferred { get; private set; }
 
-    // =======================================================================
-    // TEMPORARY TEST BYPASS (SQL Tunnel Option B debugging) — REMOVE once the
-    // browser login works end-to-end. See docs/SqlTunnelProvider-Design-Draft.md §10.
-    // Rationale: Avalonia renders to canvas, so agent browser tools cannot type into
-    // the textboxes, and WASM settings do not persist between reloads. This bypass
-    // injects the connection settings + login credentials programmatically and
-    // presses Login automatically on startup.
-    // =======================================================================
-    private const bool AutoLoginBypassEnabled = false; // TEMP: agent-driven Android debugging
-    private const string BypassDbSource = "sqltunnel";               // placeholder; relay config decides the real target
-    private const string BypassDbName = "iPlusV5";
-    private const string BypassDbUser = "gip";
-    private const string BypassDbPassword = "netspirit";
-    // WebSocket transport (Android/desktop), NOT the HTTP sync shim
-    //private const string BypassTunnelUrl = "ws://192.168.10.4:8751/sqltunnel";
-    private const string BypassTunnelUrl = "http://localhost:8751/sqltunnel-sync"; 
-    private const string BypassLoginUser = "superuser";              // iPlus login credentials
-    private const string BypassLoginPassword = "superuser";          // adjust if different
-    // Entra ID stage 1 (device-code flow). When BypassEntraClientId is set, the tunnel
-    // token is acquired from Entra instead of the relay's local issuer. Relay must run
-    // with SQLTUNNEL_TOKEN_ISSUER=Entra SQLTUNNEL_ENTRA_AUDIENCE=<same client id>.
-    private const string BypassEntraClientId = "03a3ca8b-9b97-4c9b-a628-8bc05bd25ee6";
-    private const string BypassEntraTenantId = "6305329f-b091-4d11-9c3b-32242f90e767"; // test tenant; production: "organizations"
-    private const string BypassEntraScope = null;                    // default: {clientId}/.default
-    // true = mobile "hamburger" mode (MainSingleView/DUMainMobile);
-    // false = desktop mode (MainView with menu bar/DUMain) — also on browser.
-    private const bool BypassSingleViewMode = true;
-
-    private static void SetBypassSetting(string name, object value)
-    {
-        ACValueItem? item = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == name).FirstOrDefault();
-        if (item == null)
-        {
-            CommandLineHelper.Settings.Add(new ACValueItem(name, value, null));
-        }
-        else
-        {
-            item.Value = value;
-        }
-    }
-
-    private void ApplyAutoLoginBypass()
-    {
-        SetBypassSetting(nameof(DatabaseSource), BypassDbSource);
-        SetBypassSetting(nameof(DatabaseName), BypassDbName);
-        SetBypassSetting(nameof(DatabaseUser), BypassDbUser);
-        SetBypassSetting(nameof(DatabasePassword), BypassDbPassword);
-        SetBypassSetting(nameof(DatabaseTunnelUrl), BypassTunnelUrl);
-        if (!String.IsNullOrWhiteSpace(BypassEntraClientId))
-        {
-            SetBypassSetting("EntraClientId", BypassEntraClientId);
-            SetBypassSetting("EntraTenantId", BypassEntraTenantId);
-            if (!String.IsNullOrWhiteSpace(BypassEntraScope))
-                SetBypassSetting("EntraScope", BypassEntraScope);
-        }
-        // Force desktop mode (menu bar, DUMain) while the bypass is active: a previously
-        // saved MobileModeEnabled=true persists in localStorage (BrowserSettingsStorage)
-        // and would otherwise override the bypass default on every reload.
-        SetBypassSetting(nameof(MobileModeEnabled), true);
-        try
-        {
-            // Persist the injected connection settings (on Browser/WASM this goes to
-            // localStorage via CommandLineHelper.SaveSettingsToStorage, see BrowserSettingsStorage).
-            CommandLineHelper.SaveSettings();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"LoginView: could not persist bypass settings. {ex.GetType().Name}: {ex.Message}");
-        }
-        Console.WriteLine("LoginView: AUTO-LOGIN BYPASS active — settings injected, login will start automatically.");
-    }
-
     protected override void OnLoaded(RoutedEventArgs e)
     {
         if (!_LoginFlowInitialized)
         {
             _LoginFlowInitialized = true;
-            if (AutoLoginBypassEnabled)
-            {
-                ApplyAutoLoginBypass();
-                // Apply connection settings (incl. tunnel token + Database.TunnelUrl)
-                // BEFORE any Database static init: ACRoot.SRoot access below triggers
-                // the Database static constructor which opens the global context — it
-                // must already carry the Tunnel URL or it fails with a DNS error that
-                // then stays cached in the type initializer.
-                UserSettings.UserName = BypassLoginUser;
-                UserSettings.Password = BypassLoginPassword;
-                try
-                {
-                    // Browser/WASM: fire the async core (the sync wrapper would deadlock the
-                    // single-threaded runtime on the awaited credential delivery). The
-                    // deferred apply in ButtonLogin_Click below re-runs it idempotently.
-                    if (OperatingSystem.IsBrowser())
-                        _ = ApplyConnectionSettingsCoreAsync();
-                    else
-                        ApplyConnectionSettingsFromHelper();
-                }
-                catch (Exception exApply)
-                {
-                    var msg = exApply.Message;
-                    var inner = exApply.InnerException;
-                    while (inner != null) { msg += " Inner: " + inner.Message; inner = inner.InnerException; }
-                    Console.WriteLine($"LoginView: early ApplyConnectionSettingsFromHelper failed. {msg}\n{exApply}");
-                }
-            }
             bool configured = HasDatabaseConnectionConfigured();
             if (configured)
             {
                 _ = DoLoginActionAsync();
-                if (AutoLoginBypassEnabled)
-                {
-                    // Fire LoginStarted + complete the login-result TCS, exactly like a
-                    // physical click on the Login button would.
-                    UserSettings.UserName = BypassLoginUser;
-                    UserSettings.Password = BypassLoginPassword;
-                    ButtonLogin_Click(this, new RoutedEventArgs());
-                }
             }
             else
             {
@@ -833,10 +721,6 @@ public partial class LoginView : UserControl
         bool? acceptUntrusted = settings.Where(c => c.ACCaptionTranslation == nameof(AcceptUntrustedRelayCertificates)).FirstOrDefault()?.Value as bool?;
         AcceptUntrustedRelayCertificates.IsChecked = acceptUntrusted ?? false;
         ApplyUntrustedCertSwitch(AcceptUntrustedRelayCertificates.IsChecked == true);
-
-        // Temporary setting for debugging with agent with playwright. Needs to bee removed after testing:
-        if (AutoLoginBypassEnabled)
-            MobileModeEnabled.IsChecked = false;
     }
 
     private void SwitchSettingsView()

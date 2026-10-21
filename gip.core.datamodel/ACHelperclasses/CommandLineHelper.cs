@@ -97,20 +97,16 @@ namespace gip.core.datamodel
             {
                 if (_ConfigCurrentDir != null)
                     return _ConfigCurrentDir;
-                Console.WriteLine("ConfigCurrentDir: getter entered, CurrentDirectory=" + Environment.CurrentDirectory + " BaseDirectory=" + AppContext.BaseDirectory);
                 ExeConfigurationFileMap configFile = new ExeConfigurationFileMap();
                 configFile.ExeConfigFilename = Path.Combine(Environment.CurrentDirectory, "vbiplus.config");
-                Console.WriteLine("ConfigCurrentDir: OpenMappedExeConfiguration for " + configFile.ExeConfigFilename);
                 try
                 {
                     Configuration config = ConfigurationManager.OpenMappedExeConfiguration(configFile, ConfigurationUserLevel.None);
-                    Console.WriteLine("ConfigCurrentDir: OpenMappedExeConfiguration returned, HasFile=" + config.HasFile);
                     if (config != null && config.HasFile)
                         _ConfigCurrentDir = config;
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("ConfigCurrentDir: OpenMappedExeConfiguration failed. " + e.GetType().Name + ": " + e.Message + " :: " + e.StackTrace);
                     string msg = e.Message;
                     if (e.InnerException != null && e.InnerException.Message != null)
                         msg += " Inner:" + e.InnerException.Message;
@@ -121,17 +117,14 @@ namespace gip.core.datamodel
 
                 if (_ConfigCurrentDir == null)
                 {
-                    Console.WriteLine("ConfigCurrentDir: falling back to OpenExeConfiguration");
                     try
                     {
                         Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                        Console.WriteLine("ConfigCurrentDir: OpenExeConfiguration returned, HasFile=" + config.HasFile);
                         if (config != null)
                             _ConfigCurrentDir = config;
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("ConfigCurrentDir: OpenExeConfiguration failed. " + e.GetType().Name + ": " + e.Message + " :: " + e.StackTrace);
                         string msg = e.Message;
                         if (e.InnerException != null && e.InnerException.Message != null)
                             msg += " Inner:" + e.InnerException.Message;
@@ -141,7 +134,6 @@ namespace gip.core.datamodel
                     }
                 }
 
-                Console.WriteLine("ConfigCurrentDir: returning " + (_ConfigCurrentDir != null ? "config" : "null"));
                 return _ConfigCurrentDir;
             }
             set

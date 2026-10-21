@@ -1275,7 +1275,6 @@ namespace gip.core.autocomponent
             {
                 await socket.ConnectAsync(endpoint, ct);
                 _browserWorkingScheme = endpoint.Scheme;
-                Console.WriteLine("WCFClientChannel: browser transport connected via " + endpoint.Scheme);
                 return socket;
             }
             catch (Exception primaryEx)
@@ -1285,13 +1284,11 @@ namespace gip.core.autocomponent
                 if (altScheme == null)
                     throw;
                 Uri altEndpoint = WithScheme(endpoint, altScheme);
-                Console.WriteLine("WCFClientChannel: " + endpoint.Scheme + " failed (" + primaryEx.Message + ") — retrying with " + altScheme);
                 System.Net.WebSockets.ClientWebSocket altSocket = CreateBrowserSocket(altEndpoint);
                 try
                 {
                     await altSocket.ConnectAsync(altEndpoint, ct);
                     _browserWorkingScheme = altScheme;
-                    Console.WriteLine("WCFClientChannel: browser transport connected via " + altScheme);
                     return altSocket;
                 }
                 catch

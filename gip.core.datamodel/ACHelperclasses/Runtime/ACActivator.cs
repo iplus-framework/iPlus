@@ -279,14 +279,12 @@ namespace gip.core.datamodel
             if (controlMode < Global.ControlModes.Disabled 
                 && acClass.ParentACClassID.HasValue) // Root-Applications are allowed
             {
-                Console.WriteLine("ACActivator.CreateInstance: NULL because controlMode=" + controlMode + " for " + acClass.AssemblyQualifiedName);
                 return null;
             }
             if (acObjectType == null)
                 acObjectType = GetACObjectType(acClass);
             if (acObjectType == null)
             {
-                Console.WriteLine("ACActivator.CreateInstance: NULL because acObjectType unresolved for ASQN=" + acClass.BaseClassWithASQN?.FinalAssemblyQualifiedName);
                 return null;
             }
             IACObjectWithInit newACObject = null;
@@ -412,7 +410,6 @@ namespace gip.core.datamodel
             }
             catch (Exception e)
             {
-                Console.WriteLine("ACActivator.CreateInstance: EXCEPTION creating " + acClass.AssemblyQualifiedName + " -> " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
                 if (currentThreadInACInit != null)
                 {
                     currentThreadInACInit.InstanceDepth--;
