@@ -107,7 +107,6 @@ namespace gip.core.layoutengine.avui
                                        (Content == null || (ContextACObject == null && BSOACComponent == null));
             if (needsRecoveryRebind)
             {
-                System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] OnLoaded recovery: forcing rebind (_Loaded={_Loaded}, Content={(Content == null ? "null" : "set")}, DataContext={DataContext.GetType().Name}, BSOACComponent={(BSOACComponent == null ? "null" : BSOACComponent.GetACUrl())})");
                 _Loaded = false;
                 InitBinding();
             }
@@ -157,7 +156,6 @@ namespace gip.core.layoutengine.avui
         /// <param name="bso">The bound BSOACComponent</param>
         public override void DeInitVBControl(IACComponent bso)
         {
-            System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] DeInitVBControl: _Loaded={_Loaded}, IsLoaded={IsLoaded}, bso={bso?.GetACUrl()}");
             if (_Loaded)
             {
                 _LoadDesignLocked = true;
@@ -175,10 +173,8 @@ namespace gip.core.layoutengine.avui
 
         private void InitBinding()
         {
-            System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] InitBinding: _Loaded={_Loaded}, DataContext={(DataContext == null ? "null" : DataContext.GetType().Name)}, BSOACComponent={(BSOACComponent == null ? "null" : BSOACComponent.GetACUrl())}, Content={(Content == null ? "null" : "set")}, IsLoaded={IsLoaded}");
             if (_Loaded || DataContext == null)
             {
-                System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] InitBinding early return: _Loaded={_Loaded}, DataContext={(DataContext == null ? "null" : "set")}");
                 return;
             }
 
@@ -206,33 +202,30 @@ namespace gip.core.layoutengine.avui
                 // BSOACComponent binding is available. Defer auto-start binding until it exists.
                 if (BSOACComponent == null)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] InitBinding defer: BSOACComponent is null for AutoStart '{AutoStartACComponent}'");
                     return;
                 }
 
+                object autoStartResult;
                 if (AutoStartParameter == null || !AutoStartParameter.Any())
                 {
-                    var binding = new Binding
-                    {
-                        Source = BSOACComponent.ACUrlCommand(AutoStartACComponent, null)
-                    };
-                    this.Bind(DataContextProperty, binding);
+                    autoStartResult = BSOACComponent.ACUrlCommand(AutoStartACComponent, null);
                 }
                 else
                 {
-                    var binding = new Binding
-                    {
-                        Source = BSOACComponent.ACUrlCommand(AutoStartACComponent, this.AutoStartParameter)
-                    };
-                    this.Bind(DataContextProperty, binding);
+                    autoStartResult = BSOACComponent.ACUrlCommand(AutoStartACComponent, this.AutoStartParameter);
                 }
+                var binding = new Binding
+                {
+                    Source = autoStartResult
+                };
+                this.Bind(DataContextProperty, binding);
                 if (BSOACComponent.ACType.ACKind == Global.ACKinds.TACBusinessobjects)
                 {
-                    var binding = new Binding
+                    var bindingBso = new Binding
                     {
                         Source = DataContext
                     };
-                    this.Bind(VBDesign.BSOACComponentProperty, binding);
+                    this.Bind(VBDesign.BSOACComponentProperty, bindingBso);
                 }
             }
 
@@ -426,7 +419,6 @@ namespace gip.core.layoutengine.avui
             {
                 if (!_LoadDesignLocked)
                 {
-                    System.Console.WriteLine($"DOTNET: [VBDesign|{Name ?? GetHashCode().ToString()}] ContentACObject changed -> LoadDesign (new={(change.NewValue as IACObjectDesign)?.ACIdentifier})");
                     LoadDesign();
                 }
             }
@@ -492,8 +484,6 @@ namespace gip.core.layoutengine.avui
                 return;
             }
 
-            var loadDesignStopwatch = System.Diagnostics.Stopwatch.StartNew();
-            System.Console.WriteLine($"DOTNET: [VBDesign|{Name ?? GetHashCode().ToString()}] LoadDesign enter");
             string xaml = "";
 
             Visual parentObj = this.GetVisualParent();
@@ -556,8 +546,6 @@ namespace gip.core.layoutengine.avui
 
             Content = null;
             Visual uiElement = null;
-            System.Diagnostics.Stopwatch loadStopwatch = System.Diagnostics.Stopwatch.StartNew();
-            System.Console.WriteLine($"DOTNET: [VBDesign|{Name ?? GetHashCode().ToString()}] LoadLayout starting... (LoadDesign pre-phase took {loadDesignStopwatch.ElapsedMilliseconds} ms)");
 
             if (ContentACObject != null && !hasUserSpecificDesign)
             {
@@ -577,8 +565,6 @@ namespace gip.core.layoutengine.avui
                 contentControl.Theme = (ControlTheme)resource;
                 uiElement = contentControl;
             }
-            loadStopwatch.Stop();
-            System.Console.WriteLine($"DOTNET: [VBDesign|{Name ?? GetHashCode().ToString()}] LoadLayout took {loadStopwatch.ElapsedMilliseconds} ms (Controls={CountControls(uiElement)})");
 
             // On slow devices (Android) a single synchronous layout pass of a complex
             // design can block the UI thread for >5s, which triggers the Android ANR
@@ -601,13 +587,11 @@ namespace gip.core.layoutengine.avui
                 // processed before pending input. The timer returns control to the
                 // OS looper between ticks, letting input events be dispatched.
                 Avalonia.Threading.DispatcherTimer attachTimer = null;
-                System.Diagnostics.Stopwatch attachStopwatch = System.Diagnostics.Stopwatch.StartNew();
                 attachTimer = new Avalonia.Threading.DispatcherTimer(
                     TimeSpan.FromMilliseconds(10), Avalonia.Threading.DispatcherPriority.Background, (s, e) =>
                 {
                     if (deferredIndex < deferredChildren.Count)
                     {
-                        System.Console.WriteLine($"DOTNET: [VBDesign|{Name ?? GetHashCode().ToString()}] attach tick {deferredIndex + 1}/{deferredChildren.Count} at {attachStopwatch.ElapsedMilliseconds} ms");
                         incrementalPanel.Children.Add(deferredChildren[deferredIndex++]);
                     }
                     else
@@ -616,7 +600,6 @@ namespace gip.core.layoutengine.avui
                     }
                 });
                 attachTimer.Start();
-                System.Console.WriteLine($"DOTNET: [VBDesign|{Name ?? GetHashCode().ToString()}] Incremental attach of {deferredChildren.Count} children");
             }
             else
                 Content = uiElement;

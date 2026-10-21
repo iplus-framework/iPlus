@@ -66,7 +66,6 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
     ACMenuItem mainMenu;
     protected override void OnLoaded(RoutedEventArgs e)
     {
-        var onLoadedStopwatch = System.Diagnostics.Stopwatch.StartNew();
         string[] cmLineArg = System.Environment.GetCommandLineArgs();
         ACRoot.SRoot.RootPageWPF = this;
 
@@ -116,7 +115,6 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
                     {
                         menuDesign = ACRoot.SRoot.Environment.User.MenuACClassDesign;
                     }
-                    System.Console.WriteLine($"DOTNET: [MainSingleView] MenuACClassDesign query took {onLoadedStopwatch.ElapsedMilliseconds} ms");
 
                     if (menuDesign == null)
                     {
@@ -130,7 +128,6 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
                             mainMenu = ACRoot.SRoot.Environment.User.MenuACClassDesign.GetMenuEntryWithCheck(ACRoot.SRoot);
                         }
                     }
-                    System.Console.WriteLine($"DOTNET: [MainSingleView] GetMenuEntryWithCheck took {onLoadedStopwatch.ElapsedMilliseconds} ms total");
                 }
                 else if (menuStep == 1)
                 {
@@ -142,13 +139,11 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
 
                         MainMenu.Items.Add(rootItem);
                     }
-                    System.Console.WriteLine($"DOTNET: [MainSingleView] CreateMenu took {onLoadedStopwatch.ElapsedMilliseconds} ms total");
                 }
                 else
                 {
                     menuTimer.Stop();
                     InitAlarms();
-                    System.Console.WriteLine($"DOTNET: [MainSingleView] InitAlarms took {onLoadedStopwatch.ElapsedMilliseconds} ms total");
                 }
             });
         menuTimer.Start();

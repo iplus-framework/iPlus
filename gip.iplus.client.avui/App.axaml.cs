@@ -126,6 +126,12 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         _GlobalApp = this;
+        // Browser (WASM): single-threaded runtime — the same synchronous design-load
+        // cascades that cause Android ANRs freeze the whole tab here. Opt in to
+        // incremental design/VBVisual loading (deferred via Background-priority
+        // dispatcher ticks) so input is processed between load steps.
+        if (OperatingSystem.IsBrowser())
+            gip.core.layoutengine.avui.VBDesign.IncrementalDesignLoading = true;
         // Browser (WASM): route client-local settings to localStorage before anything
         // reads CommandLineHelper.Settings or the App user settings.
         BrowserSettingsStorage.Register();
@@ -225,10 +231,17 @@ public partial class App : Application
                 },
                 () =>
                 {
-                    var switchCallbackStopwatch = System.Diagnostics.Stopwatch.StartNew();
-                    Console.WriteLine("DOTNET: [AppSwitch] switch callback entered");
-                    ControlManager.RegisterImplicitStyles(this);
-                    Console.WriteLine($"DOTNET: [AppSwitch] RegisterImplicitStyles took {switchCallbackStopwatch.ElapsedMilliseconds} ms");
+                    // Fast registrations run synchronously (~1 s). The expensive
+                    // IPlusTheme instantiation (~3.5 s on Android) plus the view
+                    // creation run in a separate dispatcher turn: pending input is
+                    // dispatched between the turns (ANR prevention), and controls
+                    // are still created only AFTER the theme is fully applied
+                    // (controls created before their ControlTheme exists never
+                    // re-template correctly).
+                    ControlManager.RegisterImplicitStylesFast(this);
+                    Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                    {
+                        ControlManager.RegisterIPlusTheme(this);
 
                     if (singleViewPlatform != null)
                     {
@@ -251,16 +264,11 @@ public partial class App : Application
 
                             if (singleViewMode)
                             {
-                                var switchStopwatch = System.Diagnostics.Stopwatch.StartNew();
-                                System.Console.WriteLine("DOTNET: [AppSwitch] creating MainSingleView...");
                                 MainSingleView singleView = new MainSingleView();
-                                System.Console.WriteLine($"DOTNET: [AppSwitch] MainSingleView ctor took {switchStopwatch.ElapsedMilliseconds} ms");
                                 singleView.DataContext = ACRoot.SRoot.Businessobjects;
-                                System.Console.WriteLine($"DOTNET: [AppSwitch] DataContext (Businessobjects) took {switchStopwatch.ElapsedMilliseconds} ms total");
                                 ACRoot.SRoot.RootPageWPF = singleView;
 
                                 rootControl.Content = singleView;
-                                System.Console.WriteLine($"DOTNET: [AppSwitch] rootControl.Content set took {switchStopwatch.ElapsedMilliseconds} ms total");
                             }
                             else
                             {
@@ -280,6 +288,7 @@ public partial class App : Application
 
                         }
                     }
+                    }, Avalonia.Threading.DispatcherPriority.Normal);
                 },
                 externalLoginProviders
             );

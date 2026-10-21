@@ -136,7 +136,13 @@ namespace gip.core.layoutengine.avui
             set;
         }
 
-        static public void RegisterImplicitStyles(Application app)
+        /// <summary>
+        /// Registers all implicit style resources EXCEPT the expensive IPlusTheme.
+        /// Use together with RegisterIPlusTheme when the theme instantiation should
+        /// run in its own dispatcher turn (ANR prevention on slow devices). Controls
+        /// must not be created before RegisterIPlusTheme has run.
+        /// </summary>
+        static public void RegisterImplicitStylesFast(Application app)
         {
             if (app == null)
                 return;
@@ -148,7 +154,6 @@ namespace gip.core.layoutengine.avui
                     continue;
                 app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri(CustomControlStyleInfo.styleUri, UriKind.Relative)));
             }
-
             if (WpfTheme == eWpfTheme.Light)
             {
                 app.RequestedThemeVariant = ThemeVariant.Light;
@@ -161,13 +166,32 @@ namespace gip.core.layoutengine.avui
                 app.Resources.MergedDictionaries.Add(
                     AvaloniaXamlLoader.Load(new Uri("avares://gip.core.layoutengine.avui/Controls/DarkThemeColors.axaml", UriKind.Absolute)) as ResourceDictionary);
             }
+
+            // StyleInclude and DockFluentTheme MUST be applied before any control is
+            // created: Dock controls (ProportionalStackPanel etc.) crash when measured
+            // before their theme templates are applied.
             app.Styles.Add(new StyleInclude(new Uri("avares://gip.core.layoutengine.avui/", UriKind.Absolute))
             {
                 Source = new Uri("avares://gip.core.visualcontrols.avui/Themes/IPlusTheme.axaml", UriKind.Absolute)
             });
 
             app.Styles.Add(new DockFluentTheme() { CacheDocumentTabContent = true });
+        }
+
+        /// <summary>
+        /// Instantiates and registers the IPlusTheme (the most expensive registration
+        /// step: ~3.5 s on Android). Must run before any controls are created, but can
+        /// run in its own dispatcher turn so pending input is processed first (ANR).
+        /// </summary>
+        static public void RegisterIPlusTheme(Application app)
+        {
             app.Styles.Add(new IPlusTheme());
+        }
+
+        static public void RegisterImplicitStyles(Application app)
+        {
+            RegisterImplicitStylesFast(app);
+            RegisterIPlusTheme(app);
         }
 
         static public ResourceInclude GetResourceDict(List<CustomControlStyleInfo> CustomControlStyleInfoList)
