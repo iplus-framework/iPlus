@@ -57,6 +57,8 @@ namespace gip.core.layoutengine.avui
             : base()
         {
             this.Focusable = true;
+            InputElement.SetIsHoldingEnabled(this, true);
+            AddHandler(InputElement.HoldingEvent, OnHolding);
         }
 
         /// <summary>
@@ -1078,21 +1080,46 @@ namespace gip.core.layoutengine.avui
                 }
 
                 Point point = e.GetPosition(this);
-                ACActionMenuArgs actionArgs = new ACActionMenuArgs(this as IACInteractiveObject, point.X, point.Y, Global.ElementActionType.ContextMenu);
-                BSOACComponent.ACAction(actionArgs);
-                if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
-                {
-
-                    VBContextMenu vbContextMenu = new VBContextMenu(this as IACInteractiveObject, actionArgs.ACMenuItemList);
-                    this.ContextMenu = vbContextMenu;
-                    if (vbContextMenu.PlacementTarget == null)
-                        vbContextMenu.PlacementTarget = this;
-                    vbContextMenu.Closed += (s, args) => { this.ContextMenu = null; };
-                    ContextMenu.Open();
+                if (TryOpenContextMenu(point))
                     e.Handled = true;
-                }
             }
             base.OnPointerReleased(e);
+        }
+
+        private void OnHolding(object sender, HoldingRoutedEventArgs e)
+        {
+            if (e.HoldingState != HoldingState.Started || e.Handled)
+                return;
+            if (ContextACObject == null || BSOACComponent == null)
+                return;
+            if (DisableContextMenu)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            Point point = e.Position;
+            if (e.Source is Visual source && source != this)
+                point = source.TranslatePoint(point, this) ?? point;
+
+            if (TryOpenContextMenu(point))
+                e.Handled = true;
+        }
+
+        private bool TryOpenContextMenu(Point point)
+        {
+            ACActionMenuArgs actionArgs = new ACActionMenuArgs(this as IACInteractiveObject, point.X, point.Y, Global.ElementActionType.ContextMenu);
+            BSOACComponent.ACAction(actionArgs);
+            if (actionArgs.ACMenuItemList == null || !actionArgs.ACMenuItemList.Any())
+                return false;
+
+            VBContextMenu vbContextMenu = new VBContextMenu(this as IACInteractiveObject, actionArgs.ACMenuItemList);
+            this.ContextMenu = vbContextMenu;
+            if (vbContextMenu.PlacementTarget == null)
+                vbContextMenu.PlacementTarget = this;
+            vbContextMenu.Closed += (s, args) => { this.ContextMenu = null; };
+            ContextMenu.Open();
+            return true;
         }
 
         IACComponentDesignManager _DesignManager = null;

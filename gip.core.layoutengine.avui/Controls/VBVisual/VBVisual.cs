@@ -50,6 +50,8 @@ namespace gip.core.layoutengine.avui
         {
             RightControlMode = Global.ControlModes.Enabled;
             this.DoubleTapped += VBVisual_DoubleTapped;
+            InputElement.SetIsHoldingEnabled(this, true);
+            AddHandler(InputElement.HoldingEvent, OnHolding);
             VBDesignBase.IsSelectableEnum isSelectable = VBDesignBase.GetIsSelectable(this);
             if (isSelectable == VBDesignBase.IsSelectableEnum.Unset)
                 VBDesignBase.SetIsSelectable(this, VBDesignBase.IsSelectableEnum.True);
@@ -1350,21 +1352,65 @@ namespace gip.core.layoutengine.avui
                     e.Handled = true;
                     return;
                 }
-                ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
-                BSOACComponent.ACAction(actionArgs);
-                if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
-                {
-                    VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
-                    this.ContextMenu = vbContextMenu;
-                    //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
-                    if (vbContextMenu.PlacementTarget == null)
-                        vbContextMenu.PlacementTarget = this;
-                    vbContextMenu.Closed += (s, args) => { this.ContextMenu = null; };
-                    ContextMenu.Open();
+                if (TryOpenContextMenu(point))
                     e.Handled = true;
-                }
             }
             base.OnPointerReleased(e);
+        }
+
+        private void OnHolding(object sender, HoldingRoutedEventArgs e)
+        {
+            if (e.HoldingState != HoldingState.Started)
+                return;
+
+            if (DisableContextMenu)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            VBDesign vbDesign = this.GetVBDesign();
+            if (   vbDesign != null
+                && vbDesign.IsDesignerActive
+                && (   vbDesign.GetDesignManager() == null
+                    || (   !vbDesign.GetDesignManager().ACIdentifier.StartsWith("VBDesignerWorkflowMethod")
+                        && !vbDesign.GetDesignManager().ACIdentifier.StartsWith("VBDesignerMaterialWF")
+                       )
+                   )
+               )
+            {
+                return;
+            }
+
+            if (BSOACComponent == null)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            Point point = e.Position;
+            if (e.Source is Visual source && source != this)
+                point = source.TranslatePoint(point, this) ?? point;
+
+            if (TryOpenContextMenu(point))
+                e.Handled = true;
+        }
+
+        private bool TryOpenContextMenu(Point point)
+        {
+            ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
+            BSOACComponent.ACAction(actionArgs);
+            if (actionArgs.ACMenuItemList == null || !actionArgs.ACMenuItemList.Any())
+                return false;
+
+            VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
+            this.ContextMenu = vbContextMenu;
+            //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
+            if (vbContextMenu.PlacementTarget == null)
+                vbContextMenu.PlacementTarget = this;
+            vbContextMenu.Closed += (s, args) => { this.ContextMenu = null; };
+            ContextMenu.Open();
+            return true;
         }
 
         bool internalTooltip = false;
