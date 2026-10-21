@@ -407,6 +407,25 @@ namespace gip.core.layoutengine.avui
             ShowVBDesign(vbDesign, tools2Unpin, vbDesign.VBContent);
         }
 
+        public async Task ShowWindowAsync(IACComponent forObject, string acClassDesignName, bool isClosableBSORoot, Global.VBDesignContainer containerType, Global.VBDesignDockState dockState,
+            Global.VBDesignDockPosition dockPosition, Global.ControlModes ribbonVisibility, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
+        {
+            VBDesign vbDesign = new VBDesign();
+            vbDesign.DataContext = forObject;
+            vbDesign.VBContent = "*" + acClassDesignName;
+            VBDockingManager.SetContainer(vbDesign, containerType);
+            VBDockingManager.SetDockState(vbDesign, dockState);
+            VBDockingManager.SetDockPosition(vbDesign, dockPosition);
+            VBDockingManager.SetIsCloseableBSORoot(vbDesign, isClosableBSORoot);
+            VBDockingManager.SetRibbonBarVisibility(vbDesign, ribbonVisibility);
+            VBDockingManager.SetCloseButtonVisibility(vbDesign, closeButtonVisibility);
+
+            //VBDockingManager.SetWindowSize(vbDesign, defaultWindowSize);
+            VBDesignList.Add(vbDesign);
+            List<IDockable> tools2Unpin = new List<IDockable>();
+            await ShowVBDesignAsync(vbDesign, tools2Unpin, vbDesign.VBContent);
+        }
+
         /// <summary>
         /// Shows a compiled control instance in the docking manager.
         /// </summary>

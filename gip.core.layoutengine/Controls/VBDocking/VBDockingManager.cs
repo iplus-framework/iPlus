@@ -970,6 +970,13 @@ namespace gip.core.layoutengine
             ShowVBDesign(vbDesign);
         }
 
+        public Task ShowWindowAsync(IACComponent forObject, string acClassDesignName, bool isClosableBSORoot, Global.VBDesignContainer containerType, Global.VBDesignDockState dockState,
+            Global.VBDesignDockPosition dockPosition, Global.ControlModes ribbonVisibility, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
+        {
+            ShowWindow(forObject, acClassDesignName, isClosableBSORoot, containerType, dockState, dockPosition, ribbonVisibility, closeButtonVisibility);
+            return Task.CompletedTask;
+        }
+
         public void StartBusinessobject(string acUrl, ACValueList parameterList, string acCaption, bool ribbonVisibilityOff = false, Global.VBDesignDockState dockState = Global.VBDesignDockState.Tabbed)
         {
             if (IsBSOManager && (ContextACObject != null))

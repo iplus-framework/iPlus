@@ -67,6 +67,20 @@ namespace gip.core.datamodel
             Global.VBDesignDockPosition dockPosition, Global.ControlModes ribbonVisibility, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled);
 
         /// <summary>
+        /// Shows the window asynchronously.
+        /// </summary>
+        /// <param name="forObject">For object.</param>
+        /// <param name="acClassDesignName">Name of the ac class design.</param>
+        /// <param name="isClosableBSORoot">if set to <c>true</c> [is closable BSO root].</param>
+        /// <param name="containerType">Type of the container.</param>
+        /// <param name="dockState">State of the dock.</param>
+        /// <param name="dockPosition">The dock position.</param>
+        /// <param name="ribbonVisibility">The ribbon visibility.</param>
+        /// <param name="closeButtonVisibility">visibility of the close button</param>
+        Task ShowWindowAsync(IACComponent forObject, string acClassDesignName, bool isClosableBSORoot, Global.VBDesignContainer containerType, Global.VBDesignDockState dockState,
+            Global.VBDesignDockPosition dockPosition, Global.ControlModes ribbonVisibility, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled);
+
+        /// <summary>
         /// Closes the top dialog.
         /// </summary>
         void CloseTopDialog();

@@ -34,6 +34,7 @@ namespace gip.core.autocomponent
         static PAProcessModule()
         {
             RegisterExecuteHandler(typeof(PAProcessModule), HandleExecuteACMethod_PAProcessModule);
+            RegisterExecuteHandlerAsync(typeof(PAProcessModule), HandleExecuteACMethodAsync_PAProcessModule);
             ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModule, (c, p) => c.ComponentInstance is PAProcessModule, null);
             ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModule_Deselector, null, (c, p) => c.ComponentInstance is PAProcessModule);
             ACRoutingService.RegisterSelectionQuery(SelRuleID_ProcessModuleParam_Deselector, null, (c, p) => c.ComponentInstance is PAProcessModule 
@@ -382,13 +383,28 @@ namespace gip.core.autocomponent
             switch (acMethodName)
             {
                 case nameof(WorkflowDialogOn):
-                    WorkflowDialogOn(acComponent);
+                    _ = WorkflowDialogOn(acComponent);
                     return true;
                 case nameof(IsEnabledWorkflowDialogOn):
                     result = IsEnabledWorkflowDialogOn(acComponent);
                     return true;
             }
             return HandleExecuteACMethod_PAClassPhysicalBase(out result, acComponent, acMethodName, acClassMethod, acParameter);
+        }
+
+        public static async Task<object> HandleExecuteACMethodAsync_PAProcessModule(IACComponent acComponent, string acMethodName, gip.core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
+        {
+            switch (acMethodName)
+            {
+                case nameof(WorkflowDialogOn):
+                    await WorkflowDialogOn(acComponent);
+                    return true;
+            }
+            // Fall back to the synchronous handler for all other methods
+            object result = null;
+            if (HandleExecuteACMethod_PAProcessModule(out result, acComponent, acMethodName, acClassMethod, acParameter))
+                return result;
+            return null;
         }
 
         #endregion
@@ -722,7 +738,7 @@ namespace gip.core.autocomponent
 
         #region Workflow and Alarms
         [ACMethodInteractionClient("", "en{'Workflowdialog'}de{'Workflow-dialog'}", (short)MISort.ComponentExplorer-1, false)]
-        public static void WorkflowDialogOn(IACComponent acComponent)
+        public static async Task WorkflowDialogOn(IACComponent acComponent)
         {
             ACComponent _this = acComponent as ACComponent;
             if (_this.CurrentInvokingACCommand == null)
@@ -738,7 +754,7 @@ namespace gip.core.autocomponent
             if (dialog == null)
                 dialog = bso.StartComponent("VBBSOWorkflowDialog(CurrentDesign)", null, null) as VBBSOSelectionDependentDialog;
             if (dialog != null)
-                dialog.ShowDialogForComponent(_this);
+                await dialog.ShowDialogForComponent(_this);
         }
 
         public static bool IsEnabledWorkflowDialogOn(IACComponent acComponent)

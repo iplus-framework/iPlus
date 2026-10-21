@@ -329,6 +329,12 @@ namespace gip.core.layoutengine.avui
             }
         }
 
+        public Task ShowWindowAsync(IACComponent forObject, string acClassDesignName, bool isClosableBSORoot, Global.VBDesignContainer containerType, Global.VBDesignDockState dockState, Global.VBDesignDockPosition dockPosition, Global.ControlModes ribbonVisibility, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
+        {
+            ShowWindow(forObject, acClassDesignName, isClosableBSORoot, containerType, dockState, dockPosition, ribbonVisibility, closeButtonVisibility);
+            return Task.CompletedTask;
+        }
+
         public void CloseTopDialog()
         {
             _CloseAction?.Invoke();

@@ -332,7 +332,7 @@ namespace gip.core.autocomponent
         public override void ShowSelectionDialog(IACInteractiveObject acElement)
         {
             //UpdateACComponentList();            
-            ShowDialogForComponent(this);
+            _ = ShowDialogForComponent(this);
         }
 
         [ACMethodInfo("","en{'Search'}de{'Suchen'}",999)]

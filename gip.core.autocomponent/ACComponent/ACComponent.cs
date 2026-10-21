@@ -4080,6 +4080,19 @@ namespace gip.core.autocomponent
                 gui.ShowWindow(forObject == null ? this : forObject, acClassDesignName, isClosableBSORoot, containerType, dockState, dockPosition, ribbonVisibility, closeButtonVisibility);
         }
 
+        /// <summary>Opens a floating window asynchronously with the XAML-Layout of the passed design-name.</summary>
+        public async Task ShowWindowAsync(IACComponent forObject, string acClassDesignName, bool isClosableBSORoot, Global.VBDesignContainer containerType, Global.VBDesignDockState dockState,
+            Global.VBDesignDockPosition dockPosition, Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden, string dockingManagerName = "",
+            Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
+        {
+            IVBGui gui = FindGui("VBDockingManager", dockingManagerName) as IVBGui;
+
+            if (gui == null)
+                gui = ((ACComponent)this.ParentACComponent).FindGui("VBDockingManager") as IVBGui;
+            if (gui != null)
+                await gui.ShowWindowAsync(forObject == null ? this : forObject, acClassDesignName, isClosableBSORoot, containerType, dockState, dockPosition, ribbonVisibility, closeButtonVisibility);
+        }
+
         public void CloseWindow(IACComponent forObject, string acClassDesignName)
         {
             IACObject window = FindGui("", "", "*" + acClassDesignName, this.ACIdentifier);
@@ -5249,7 +5262,7 @@ namespace gip.core.autocomponent
             if (dialog == null)
                 dialog = bso.StartComponent(VBBSODiagnosticDialogACIdentifier, null, null) as VBBSODiagnosticDialog;
             if (dialog != null)
-                dialog.ShowDialogForComponent(this);
+                _ = dialog.ShowDialogForComponent(this);
         }
 
         public virtual string VBBSODiagnosticDialogACIdentifier

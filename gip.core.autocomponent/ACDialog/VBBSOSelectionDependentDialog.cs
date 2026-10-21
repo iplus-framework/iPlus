@@ -213,10 +213,10 @@ namespace gip.core.autocomponent
             IACObject acComponent = acElement.ACContentList.FirstOrDefault() as IACObject;
             if (acComponent == null)
                 return;
-            ShowDialogForComponent(acComponent);
+            _ = ShowDialogForComponent(acComponent);
         }
 
-        public void ShowDialogForComponent(IACObject acComponent, string acClassDesignName="")
+        public async Task ShowDialogForComponent(IACObject acComponent, string acClassDesignName="")
         {
             
             if (acComponent == null)
@@ -240,7 +240,7 @@ namespace gip.core.autocomponent
                     containerType = Global.VBDesignContainer.ModalDialog;
                     //containerType = Global.VBDesignContainer.DockableWindow;
 
-                ShowWindow(this, acClassDesignName, true,
+                await ShowWindowAsync(this, acClassDesignName, true,
                     containerType,
                     Global.VBDesignDockState.FloatingWindow,
                     Global.VBDesignDockPosition.Right);
