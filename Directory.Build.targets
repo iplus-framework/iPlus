@@ -26,6 +26,10 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(IPlusIsPackable)' == 'true'">
+		<!-- Web/WebAssembly SDKs (e.g. Microsoft.NET.Sdk.WebAssembly used by the
+		     Browser client) set IsPackable=false in Microsoft.NET.Sdk.Web.ProjectSystem.props;
+		     re-assert it so pack-local.sh can pack them. -->
+		<IsPackable>true</IsPackable>
 		<!-- Package IDs get an additional "iPlus." prefix (nuget.org has the "gip"
 		     prefix reserved by another owner). Assembly names / namespaces /
 		     project names remain unchanged. -->
