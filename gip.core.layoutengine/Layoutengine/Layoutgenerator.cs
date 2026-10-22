@@ -322,7 +322,9 @@ namespace gip.core.layoutengine
             {
                 string converted = CheckOrUpdateNamespaceInLayout(xmlLayout);
                 object result;
-                DataTemplate cachedTemplate = GetOrCompileTemplate(converted);
+                bool cacheDisabled = Environment.GetEnvironmentVariable("IPLUS_XAML_DEBUG_NOCACHE") == "1";
+                DataTemplate cachedTemplate = cacheDisabled ? null : GetOrCompileTemplate(converted);
+                XamlCacheDbg.Log($"LoadXAML '{layoutName}' -> {(cacheDisabled ? "CACHE DISABLED (A/B)" : cachedTemplate != null ? "CACHE HIT" : "FALLBACK Parse")}");
                 if (cachedTemplate != null)
                 {
                     result = cachedTemplate.LoadContent();
@@ -357,6 +359,30 @@ namespace gip.core.layoutengine
 
         #region XAML-Template-Cache
 
+        /// <summary>
+        /// Temporary diagnostic logger (remove after debugging). Enabled via environment
+        /// variable IPLUS_XAML_DEBUG=1.
+        /// </summary>
+        internal static class XamlCacheDbg
+        {
+            static readonly bool _enabled = Environment.GetEnvironmentVariable("IPLUS_XAML_DEBUG") == "1";
+            internal static void Log(string message)
+            {
+                if (!_enabled)
+                    return;
+                string line = DateTime.Now.ToString("HH:mm:ss.fff") + " [XamlCacheDbg] " + message;
+                System.Diagnostics.Debug.WriteLine(line);
+                System.Diagnostics.Trace.WriteLine(line);
+                try
+                {
+                    lock (_fileLock)
+                        System.IO.File.AppendAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "iplus_xaml_debug.log"), line + Environment.NewLine);
+                }
+                catch { }
+            }
+            static readonly object _fileLock = new object();
+        }
+
         // Caches compiled XAML as DataTemplate factories (like DataTemplates, each
         // LoadContent() creates a fresh control tree). Markup extensions (VBBindingExt
         // etc.) run inside LoadContent(), so they still resolve against the static
@@ -369,6 +395,14 @@ namespace gip.core.layoutengine
         const int MaxCachedTemplates = 500;
 
         /// <summary>
+        /// Set by VBBindingExt.ResolveAndProvideValue when a binding resolves against a
+        /// non-DependencyObject target (DataTrigger.Binding, Setter.Value, ...). Such
+        /// bindings are stored shared inside a compiled DataTemplate and would be frozen
+        /// to the compile-time ACComponent - these designs must not be cached.
+        /// </summary>
+        internal static bool TemplateHasSharedBindings;
+
+        /// <summary>
         /// Gets a cached compiled factory for the given (already namespace-converted) XAML,
         /// or compiles and caches one. Returns null if the XAML cannot be wrapped into a
         /// template (caller falls back to a plain XamlReader.Parse).
@@ -376,11 +410,6 @@ namespace gip.core.layoutengine
         static DataTemplate GetOrCompileTemplate(string convertedXaml)
         {
             if (string.IsNullOrEmpty(convertedXaml))
-                return null;
-
-            // A/B test switch: set IPLUS_DISABLE_TEMPLATE_CACHE=1 to compare the cached
-            // path against the plain XamlReader.Parse path.
-            if (Environment.GetEnvironmentVariable("IPLUS_DISABLE_TEMPLATE_CACHE") == "1")
                 return null;
 
             string key = HashXaml(convertedXaml);
@@ -392,13 +421,37 @@ namespace gip.core.layoutengine
 
             try
             {
+                // Bindings inside DataTriggers (and Setter values) are stored SHARED in a
+                // compiled DataTemplate: resolved once at compile time, frozen to the
+                // compile-time ACComponent for every instantiation. Detect this directly
+                // in the XAML text - independent of any runtime flag.
+                if (XamlHasSharedBindings(convertedXaml))
+                {
+                    XamlCacheDbg.Log("GetOrCompileTemplate: design contains DataTrigger/Setter bindings - not cacheable");
+                    return null;
+                }
+
+                TemplateHasSharedBindings = false;
                 DataTemplate template = WrapAsDataTemplate(convertedXaml);
                 if (template == null)
                     return null;
 
                 // Verify the template actually builds before caching it, so a design
-                // that fails inside the wrapper never poisons the cache.
+                // that fails inside the wrapper never poisons the cache. This also
+                // flushes bindings on non-DependencyObject targets (DataTrigger.Binding,
+                // Setter.Value): they are resolved during instantiation, not during the
+                // probe parse, so the flag can only be checked afterwards.
                 template.LoadContent();
+
+                // Bindings on non-DependencyObject targets are stored shared inside the
+                // compiled DataTemplate - they would bind every instantiation to the
+                // compile-time ACComponent. Don't cache such designs; the caller falls
+                // back to XamlReader.Parse which resolves fresh per load.
+                if (TemplateHasSharedBindings)
+                {
+                    XamlCacheDbg.Log("GetOrCompileTemplate: design contains shared bindings (DataTrigger/Setter) - not cacheable");
+                    return null;
+                }
 
                 lock (_templateCacheLock)
                 {
@@ -408,12 +461,39 @@ namespace gip.core.layoutengine
                 }
                 return template;
             }
-            catch
+            catch (Exception ex)
             {
                 // Wrapping not possible for this design (e.g. x:Class root, parser
                 // restrictions) - caller falls back to the plain load path.
+                XamlCacheDbg.Log("GetOrCompileTemplate FAILED, falling back to Parse: " + ex.Message);
                 return null;
             }
+        }
+
+        /// <summary>
+        /// True when the XAML contains constructs that cannot be shared inside a compiled
+        /// DataTemplate: vb:VBBinding inside a DataTrigger/Setter (frozen to the
+        /// compile-time ACComponent) or Storyboards (shared style instances cannot
+        /// animate per-instance: named BeginStoryboards and frozen brushes break).
+        /// Such designs must be loaded via plain XamlReader.Parse.
+        /// </summary>
+        static bool XamlHasSharedBindings(string convertedXaml)
+        {
+            if (convertedXaml == null)
+                return false;
+            // Attribute form: <DataTrigger Binding="{vb:VBBinding ...}" ...> / <Setter Value="{vb:VBBinding ...}">
+            if (Regex.IsMatch(convertedXaml, @"<(?:[\w.-]+:)?(?:DataTrigger|Setter)\b[^>]*=\s*""[^""]*VBBinding"))
+                return true;
+            // Element form: <DataTrigger.Binding> <vb:VBBinding .../> </DataTrigger.Binding>
+            int idx = convertedXaml.IndexOf("DataTrigger", StringComparison.Ordinal);
+            if (idx >= 0 && convertedXaml.IndexOf("VBBinding", idx, StringComparison.Ordinal) >= 0)
+                return true;
+            // Storyboards: a shared Style instance cannot animate per-instance
+            // (named BeginStoryboards collide across instances, brushes get frozen).
+            if (convertedXaml.Contains("BeginStoryboard") ||
+                Regex.IsMatch(convertedXaml, @"<(?:[\w.-]+:)?Storyboard\b"))
+                return true;
+            return false;
         }
 
         static string HashXaml(string xaml)
@@ -463,7 +543,10 @@ namespace gip.core.layoutengine
 
             templateRoot.Add(designRoot);
 
-            return XamlReader.Parse(templateRoot.ToString()) as DataTemplate;
+            DataTemplate template = XamlReader.Parse(templateRoot.ToString()) as DataTemplate;
+            if (template == null)
+                XamlCacheDbg.Log("WrapAsDataTemplate: root is not a DataTemplate after parse");
+            return template;
         }
 
         /// <summary>

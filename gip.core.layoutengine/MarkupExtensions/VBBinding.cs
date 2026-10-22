@@ -384,18 +384,61 @@ namespace gip.core.layoutengine
             DependencyObject target;
             DependencyProperty dp;
             TryGetTargetItems(provider, out target, out dp);
-
             // WPF DataTemplate probe: TemplateContent evaluates markup extensions ONCE at
-            // template-parse time with a non-DependencyObject target (internal SharedDp,
-            // Setter, DataTrigger) but a real DependencyProperty, and would store the
-            // returned Binding as a SHARED value for every instantiation - frozen to the
-            // probe-time context. In that case return a deferred MarkupExtension instead:
-            // WPF stores it per-instance and invokes ITS ProvideValue with the real element
-            // target on each instantiation (StyleHelper.ConvertInstanceValue).
-            if (target == null && dp != null)
+            // template-parse time via its internal SharedDp placeholder (TargetObject is a
+            // System.Windows.SharedDp, not a DependencyObject) and would store the returned
+            // Binding as a SHARED value for every instantiation - frozen to the probe-time
+            // context. In that case return a deferred MarkupExtension instead: WPF stores it
+            // per-instance and invokes ITS ProvideValue with the real element target on each
+            // instantiation (StyleHelper.ConvertInstanceValue).
+            // Other non-DependencyObject targets with a DependencyProperty (DataTrigger.Binding,
+            // Setter.Value, MultiBinding children) must keep resolving to a Binding: their
+            // target property expects a BindingBase, and Binding.ProvideValue returns the
+            // binding itself when the target is not a DependencyObject.
+            if (target == null && dp != null && IsTemplateProbe(provider))
+            {
+                VBBindingDbg.Log($"ProvideValue PROBE-DEFERRED vbContent={_VBContent} dp={dp?.Name}");
                 return new VBBindingDeferred(CloneBindingConfig(binding), _VBContent, BindToBSO);
+            }
 
+            VBBindingDbg.Log($"ProvideValue IMMEDIATE vbContent={_VBContent} target={(target?.GetType().FullName ?? "<null>")} dp={dp?.Name ?? "<null>"}");
             return ResolveAndProvideValue(CloneBindingConfig(binding), _VBContent, BindToBSO, provider);
+        }
+
+        /// <summary>
+        /// Temporary diagnostic logger (remove after debugging). Enabled via environment
+        /// variable IPLUS_XAML_DEBUG=1; writes to Debug/Trace output (visible in DebugView
+        /// or the VS Output window).
+        /// </summary>
+        internal static class VBBindingDbg
+        {
+            static readonly bool _enabled = Environment.GetEnvironmentVariable("IPLUS_XAML_DEBUG") == "1";
+            internal static void Log(string message)
+            {
+                if (!_enabled)
+                    return;
+                string line = DateTime.Now.ToString("HH:mm:ss.fff") + " [VBBindingDbg] " + message;
+                System.Diagnostics.Debug.WriteLine(line);
+                System.Diagnostics.Trace.WriteLine(line);
+                try
+                {
+                    lock (_fileLock)
+                        System.IO.File.AppendAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "iplus_xaml_debug.log"), line + Environment.NewLine);
+                }
+                catch { }
+            }
+            static readonly object _fileLock = new object();
+        }
+
+        /// <summary>
+        /// True when the service provider is the WPF TemplateContent probe, which passes its
+        /// internal System.Windows.SharedDp placeholder (not a DependencyObject) as target.
+        /// </summary>
+        private static bool IsTemplateProbe(IServiceProvider provider)
+        {
+            var rawSvc = provider?.GetService(typeof(IProvideValueTarget)) as IProvideValueTarget;
+            object rawTarget = rawSvc?.TargetObject;
+            return rawTarget != null && rawTarget.GetType().FullName == "System.Windows.SharedDp";
         }
 
         /// <summary>
@@ -408,6 +451,15 @@ namespace gip.core.layoutengine
             IACType dcACTypeInfo = null;
             Global.ControlModes dcRightControlMode = Global.ControlModes.Hidden;
 
+            // A binding whose target is not a DependencyObject (DataTrigger.Binding,
+            // Setter.Value, MultiBinding.Bindings) is stored as a SHARED value inside a
+            // compiled DataTemplate: it is resolved once at template-compile time and
+            // reused - frozen to the ACComponent that was current then - for every
+            // instantiation. Such designs must not be cached (see GetOrCompileTemplate).
+            var pvtService = provider?.GetService(typeof(IProvideValueTarget)) as IProvideValueTarget;
+            if (pvtService?.TargetObject != null && !(pvtService.TargetObject is DependencyObject))
+                Layoutgenerator.TemplateHasSharedBindings = true;
+
             // Resolve against the static layout context (like VBBinding does) - NOT against
             // the target's DataContext: during DataTemplate.LoadContent() controls may already
             // have set their own DataContext in their constructor, which would resolve the
@@ -419,6 +471,7 @@ namespace gip.core.layoutengine
                 string dcPath = "";
                 if (dataContext.ACUrlBinding(vbContent, ref dcACTypeInfo, ref dcSource, ref dcPath, ref dcRightControlMode))
                 {
+                    VBBindingDbg.Log($"  Resolve OK vbContent={vbContent} -> source={(dcSource?.GetType().FullName ?? "<null>")} path={dcPath} mode={dcRightControlMode}");
                     targetBinding.Source = dcSource;
                     targetBinding.Path = new PropertyPath(dcPath);
                     targetBinding.NotifyOnSourceUpdated = true;
@@ -440,6 +493,7 @@ namespace gip.core.layoutengine
                 }
                 else
                 {
+                    VBBindingDbg.Log($"  Resolve FAILED vbContent={vbContent} dataContext={(dataContext?.GetType().FullName ?? "<null>")}");
                     if (Layoutgenerator.Root != null)
                     {
                         targetBinding.Source = Layoutgenerator.Root;
@@ -559,8 +613,12 @@ namespace gip.core.layoutengine
                 DependencyProperty dp;
                 VBBindingExt.TryGetTargetItems(provider, out target, out dp);
                 if (target == null)
+                {
+                    VBBindingExt.VBBindingDbg.Log($"Deferred.ProvideValue target still null (vbContent={_vbContent}) - returning self");
                     return this;
+                }
 
+                VBBindingExt.VBBindingDbg.Log($"Deferred.ProvideValue instantiating vbContent={_vbContent} target={target.GetType().FullName} dp={dp?.Name}");
                 return VBBindingExt.ResolveAndProvideValue(CloneBindingConfig(_config), _vbContent, _bindToBSO, provider);
             }
         }
