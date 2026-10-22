@@ -62,17 +62,17 @@ namespace gip.core.layoutengine
                     string dcPath = "";
                     if (context.ACUrlBinding(_VBContent, ref _dcACTypeInfo, ref dcSource, ref dcPath, ref _dcRightControlMode))
                     {
-                        this.Source = dcSource;
-                        this.Path = new PropertyPath(dcPath);
-                        this.NotifyOnSourceUpdated = true;
-                        this.NotifyOnTargetUpdated = true;
+                        Source = dcSource;
+                        Path = new PropertyPath(dcPath);
+                        NotifyOnSourceUpdated = true;
+                        NotifyOnTargetUpdated = true;
                         if (_dcACTypeInfo != null)
                         {
                             bool isInput = true;
                             if (_dcACTypeInfo is ACClassProperty)
                                 isInput = (_dcACTypeInfo as ACClassProperty).IsInput;
-                            if (this.Mode == BindingMode.Default)
-                                this.Mode = isInput ? BindingMode.TwoWay : BindingMode.OneWay;
+                            if (Mode == BindingMode.Default)
+                                Mode = isInput ? BindingMode.TwoWay : BindingMode.OneWay;
                         }
                         if (Layoutgenerator.CurrentBSO != null)
                             Layoutgenerator.CurrentBSO.AddWPFRef(this.GetHashCode(), dcSource as IACObject);
@@ -81,15 +81,15 @@ namespace gip.core.layoutengine
                     {
                         if (Layoutgenerator.Root != null)
                         {
-                            this.Source = Layoutgenerator.Root;
-                            this.Path = new PropertyPath(Const.ACIdentifierPrefix);
-                            this.Mode = BindingMode.OneWay;
+                            Source = Layoutgenerator.Root;
+                            Path = new PropertyPath(Const.ACIdentifierPrefix);
+                            Mode = BindingMode.OneWay;
                         }
                         else
                         {
-                            this.Source = Layoutgenerator.CurrentDataContext;
-                            this.Path = new PropertyPath(Const.ACIdentifierPrefix);
-                            this.Mode = BindingMode.OneWayToSource;
+                            Source = Layoutgenerator.CurrentDataContext;
+                            Path = new PropertyPath(Const.ACIdentifierPrefix);
+                            Mode = BindingMode.OneWayToSource;
                         }
                     }
                 }
@@ -385,74 +385,187 @@ namespace gip.core.layoutengine
             DependencyProperty dp;
             TryGetTargetItems(provider, out target, out dp);
 
-            if (!_VBInitialized && !String.IsNullOrEmpty(_VBContent) && (Layoutgenerator.CurrentDataContext != null))
+            // WPF DataTemplate probe: TemplateContent evaluates markup extensions ONCE at
+            // template-parse time with a non-DependencyObject target (internal SharedDp,
+            // Setter, DataTrigger) but a real DependencyProperty, and would store the
+            // returned Binding as a SHARED value for every instantiation - frozen to the
+            // probe-time context. In that case return a deferred MarkupExtension instead:
+            // WPF stores it per-instance and invokes ITS ProvideValue with the real element
+            // target on each instantiation (StyleHelper.ConvertInstanceValue).
+            if (target == null && dp != null)
+                return new VBBindingDeferred(CloneBindingConfig(binding), _VBContent, BindToBSO);
+
+            return ResolveAndProvideValue(CloneBindingConfig(binding), _VBContent, BindToBSO, provider);
+        }
+
+        /// <summary>
+        /// Clones the parser-configured Binding, resolves the VBContent against the static
+        /// layout context of the current instantiation and attaches it to the target
+        /// described by the service provider.
+        /// </summary>
+        internal static object ResolveAndProvideValue(Binding targetBinding, string vbContent, bool bindToBSO, IServiceProvider provider)
+        {
+            IACType dcACTypeInfo = null;
+            Global.ControlModes dcRightControlMode = Global.ControlModes.Hidden;
+
+            // Resolve against the static layout context (like VBBinding does) - NOT against
+            // the target's DataContext: during DataTemplate.LoadContent() controls may already
+            // have set their own DataContext in their constructor, which would resolve the
+            // VBContent against the wrong ACComponent.
+            IACObject dataContext = bindToBSO ? Layoutgenerator.CurrentBSO : Layoutgenerator.CurrentDataContext;
+            if (!String.IsNullOrEmpty(vbContent) && (dataContext != null))
             {
-                IACObject dataContext = Layoutgenerator.CurrentDataContext;
-                if (target != null)
-                {
-                    try
-                    {
-                        dataContext = target.GetValue(FrameworkElement.DataContextProperty) as IACObject;
-                    }
-                    catch (Exception e)
-                    {
-                        string msg = e.Message;
-                        if (e.InnerException != null && e.InnerException.Message != null)
-                            msg += " Inner:" + e.InnerException.Message;
-
-                        if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
-                            datamodel.Database.Root.Messages.LogException("VBBindingExt", "ProvideValue", msg);
-                    }
-                }
-                if (target == null)
-                    return this;
-
-
-                if (dataContext == null)
-                    dataContext = Layoutgenerator.CurrentDataContext;
-
-
                 object dcSource = null;
                 string dcPath = "";
-                if (dataContext.ACUrlBinding(_VBContent, ref _dcACTypeInfo, ref dcSource, ref dcPath, ref _dcRightControlMode))
+                if (dataContext.ACUrlBinding(vbContent, ref dcACTypeInfo, ref dcSource, ref dcPath, ref dcRightControlMode))
                 {
-                    this.Source = dcSource;
-                    this.Path = new PropertyPath(dcPath);
-                    this.NotifyOnSourceUpdated = true;
-                    this.NotifyOnTargetUpdated = true;
-                    if (_dcACTypeInfo != null)
+                    targetBinding.Source = dcSource;
+                    targetBinding.Path = new PropertyPath(dcPath);
+                    targetBinding.NotifyOnSourceUpdated = true;
+                    targetBinding.NotifyOnTargetUpdated = true;
+                    if (dcACTypeInfo != null)
                     {
                         bool isInput = true;
-                        if (_dcACTypeInfo is ACClassProperty)
-                            isInput = (_dcACTypeInfo as ACClassProperty).IsInput;
-                        if (this.Mode == BindingMode.Default)
+                        if (dcACTypeInfo is ACClassProperty)
+                            isInput = (dcACTypeInfo as ACClassProperty).IsInput;
+                        if (targetBinding.Mode == BindingMode.Default)
                         {
-                            this.Mode = isInput ? BindingMode.TwoWay : BindingMode.OneWay;
+                            targetBinding.Mode = isInput ? BindingMode.TwoWay : BindingMode.OneWay;
                         }
                     }
+                    // Register the binding for proxy subscriptions, so value updates of
+                    // proxy components are pushed to this binding (mirrors VBBinding).
+                    if (Layoutgenerator.CurrentBSO != null)
+                        Layoutgenerator.CurrentBSO.AddWPFRef(targetBinding.GetHashCode(), dcSource as IACObject);
                 }
                 else
                 {
                     if (Layoutgenerator.Root != null)
                     {
-                        this.Source = Layoutgenerator.Root;
-                        this.Path = new PropertyPath(Const.ACIdentifierPrefix);
-                        this.Mode = BindingMode.OneWay;
+                        targetBinding.Source = Layoutgenerator.Root;
+                        targetBinding.Path = new PropertyPath(Const.ACIdentifierPrefix);
+                        targetBinding.Mode = BindingMode.OneWay;
                     }
                     else
                     {
-                        this.Source = Layoutgenerator.CurrentDataContext;
-                        this.Path = new PropertyPath(Const.ACIdentifierPrefix);
-                        this.Mode = BindingMode.OneWayToSource;
+                        targetBinding.Source = Layoutgenerator.CurrentDataContext;
+                        targetBinding.Path = new PropertyPath(Const.ACIdentifierPrefix);
+                        targetBinding.Mode = BindingMode.OneWayToSource;
                     }
                 }
             }
 
-            _VBInitialized = true;
-            return binding.ProvideValue(provider);
+            return targetBinding.ProvideValue(provider);
         }
 
-        protected virtual bool TryGetTargetItems(IServiceProvider provider, out DependencyObject target, out DependencyProperty dp)
+        /// <summary>
+        /// Creates a fresh Binding carrying the configuration that was applied to the
+        /// shared instance by the XAML parser (Converter, Mode, StringFormat, ...).
+        /// The clone is a Binding subclass with a finalizer that unregisters its WPF
+        /// reference (proxy subscription) when the instantiated control tree is discarded
+        /// - mirroring the VBBinding finalizer.
+        /// </summary>
+        internal static Binding CloneBindingConfig(Binding source)
+        {
+            Binding clone;
+            if (source == null)
+                clone = new VBBindingClone();
+            else
+            {
+                clone = new VBBindingClone();
+                if (source.Path != null)
+                    clone.Path = source.Path;
+                if (source.Source != null)
+                    clone.Source = source.Source;
+                if (source.RelativeSource != null)
+                    clone.RelativeSource = source.RelativeSource;
+                if (!String.IsNullOrEmpty(source.ElementName))
+                    clone.ElementName = source.ElementName;
+                if (source.Converter != null)
+                {
+                    clone.Converter = source.Converter;
+                    clone.ConverterParameter = source.ConverterParameter;
+                    clone.ConverterCulture = source.ConverterCulture;
+                }
+                if (source.StringFormat != null)
+                    clone.StringFormat = source.StringFormat;
+                if (source.FallbackValue != null)
+                    clone.FallbackValue = source.FallbackValue;
+                if (source.TargetNullValue != null)
+                    clone.TargetNullValue = source.TargetNullValue;
+                if (source.BindingGroupName != null)
+                    clone.BindingGroupName = source.BindingGroupName;
+                if (source.AsyncState != null)
+                    clone.AsyncState = source.AsyncState;
+                if (source.XPath != null)
+                    clone.XPath = source.XPath;
+                if (source.UpdateSourceExceptionFilter != null)
+                    clone.UpdateSourceExceptionFilter = source.UpdateSourceExceptionFilter;
+                clone.Mode = source.Mode;
+                clone.IsAsync = source.IsAsync;
+                clone.BindsDirectlyToSource = source.BindsDirectlyToSource;
+                clone.NotifyOnSourceUpdated = source.NotifyOnSourceUpdated;
+                clone.NotifyOnTargetUpdated = source.NotifyOnTargetUpdated;
+                clone.NotifyOnValidationError = source.NotifyOnValidationError;
+                clone.ValidatesOnDataErrors = source.ValidatesOnDataErrors;
+                clone.ValidatesOnExceptions = source.ValidatesOnExceptions;
+                clone.UpdateSourceTrigger = source.UpdateSourceTrigger;
+                foreach (var rule in source.ValidationRules)
+                    clone.ValidationRules.Add(rule);
+            }
+            return clone;
+        }
+
+        /// <summary>
+        /// Per-instantiation Binding clone created by CloneBindingConfig. The finalizer
+        /// unregisters the WPF reference (proxy subscription) when the instantiated
+        /// control tree is garbage collected - mirroring the VBBinding finalizer.
+        /// </summary>
+        private class VBBindingClone : Binding
+        {
+            ~VBBindingClone()
+            {
+                if (Layoutgenerator.Root != null && Layoutgenerator.Root.Businessobjects != null)
+                    Layoutgenerator.Root.Businessobjects.FindAndRemoveWPFRef(this.GetHashCode());
+            }
+        }
+
+        /// <summary>
+        /// Deferred markup extension returned by VBBindingExt.ProvideValue when WPF probes
+        /// the markup extension at DataTemplate-parse time (fake target, real DependencyProperty).
+        /// WPF stores this extension as a per-instance value and invokes its ProvideValue with
+        /// the real element target on every template instantiation
+        /// (StyleHelper.ConvertInstanceValue) - only then is the VBContent resolved, against
+        /// the static layout context of the current instantiation.
+        /// While still in the probe context (non-DependencyObject target) it returns itself,
+        /// so TemplateContent stores the extension (not a frozen Binding) as the shared value.
+        /// </summary>
+        private class VBBindingDeferred : MarkupExtension
+        {
+            private readonly Binding _config;
+            private readonly string _vbContent;
+            private readonly bool _bindToBSO;
+
+            public VBBindingDeferred(Binding config, string vbContent, bool bindToBSO)
+            {
+                _config = config;
+                _vbContent = vbContent;
+                _bindToBSO = bindToBSO;
+            }
+
+            public override object ProvideValue(IServiceProvider provider)
+            {
+                DependencyObject target;
+                DependencyProperty dp;
+                VBBindingExt.TryGetTargetItems(provider, out target, out dp);
+                if (target == null)
+                    return this;
+
+                return VBBindingExt.ResolveAndProvideValue(CloneBindingConfig(_config), _vbContent, _bindToBSO, provider);
+            }
+        }
+
+        internal static bool TryGetTargetItems(IServiceProvider provider, out DependencyObject target, out DependencyProperty dp)
         {
             target = null;
             dp = null;
@@ -469,8 +582,6 @@ namespace gip.core.layoutengine
             return target != null && dp != null;
         }
 
-        private bool _VBInitialized = false;
-
         private string _VBContent;
         public string VBContent
         {
@@ -483,6 +594,17 @@ namespace gip.core.layoutengine
             {
                 _VBContent = value;
             }
+        }
+
+        /// <summary>
+        /// When true, the binding resolves against the BSO (Layoutgenerator.CurrentBSO)
+        /// instead of the current data context - mirrors VBBinding.BindToBSO.
+        /// </summary>
+        [DefaultValue(false)]
+        public bool BindToBSO
+        {
+            get;
+            set;
         }
 
         private IACType _dcACTypeInfo;

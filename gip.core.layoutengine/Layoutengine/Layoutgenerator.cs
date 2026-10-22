@@ -12,6 +12,7 @@ using System.Windows.Markup;
 using System.Xml.Schema;
 using gip.core.datamodel;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace gip.core.layoutengine
 {
@@ -317,15 +318,22 @@ namespace gip.core.layoutengine
                 }
                 _WPFAssembliesLoaded = true;
             }
-            using (MemoryStream memoryStream = GetEncodedStream(xmlLayout))
+            try
             {
-                if (memoryStream == null)
-                    return null;
-                try
+                string converted = CheckOrUpdateNamespaceInLayout(xmlLayout);
+                object result;
+                DataTemplate cachedTemplate = GetOrCompileTemplate(converted);
+                if (cachedTemplate != null)
                 {
-                    return XamlReader.Load(memoryStream);
+                    result = cachedTemplate.LoadContent();
                 }
-                catch (Exception e)
+                else
+                {
+                    result = XamlReader.Parse(converted);
+                }
+                return result;
+            }
+            catch (Exception e)
                 {
                     string errorMessage = "";
                     Exception tmpEc = e;
@@ -345,8 +353,143 @@ namespace gip.core.layoutengine
                         MessageBoxImage.Error);
                     return null;
                 }
+        }
+
+        #region XAML-Template-Cache
+
+        // Caches compiled XAML as DataTemplate factories (like DataTemplates, each
+        // LoadContent() creates a fresh control tree). Markup extensions (VBBindingExt
+        // etc.) run inside LoadContent(), so they still resolve against the static
+        // CurrentDataContext/CurrentBSO that LoadXAML sets before each build.
+        static readonly object _templateCacheLock = new object();
+        static readonly Dictionary<string, DataTemplate> _templateCache = new Dictionary<string, DataTemplate>();
+
+        // Each cached template holds compiled BAML state; cap the cache and clear it
+        // wholesale when exceeded (simple, avoids unbounded memory growth).
+        const int MaxCachedTemplates = 500;
+
+        /// <summary>
+        /// Gets a cached compiled factory for the given (already namespace-converted) XAML,
+        /// or compiles and caches one. Returns null if the XAML cannot be wrapped into a
+        /// template (caller falls back to a plain XamlReader.Parse).
+        /// </summary>
+        static DataTemplate GetOrCompileTemplate(string convertedXaml)
+        {
+            if (string.IsNullOrEmpty(convertedXaml))
+                return null;
+
+            // A/B test switch: set IPLUS_DISABLE_TEMPLATE_CACHE=1 to compare the cached
+            // path against the plain XamlReader.Parse path.
+            if (Environment.GetEnvironmentVariable("IPLUS_DISABLE_TEMPLATE_CACHE") == "1")
+                return null;
+
+            string key = HashXaml(convertedXaml);
+            lock (_templateCacheLock)
+            {
+                if (_templateCache.TryGetValue(key, out var cached))
+                    return cached;
+            }
+
+            try
+            {
+                DataTemplate template = WrapAsDataTemplate(convertedXaml);
+                if (template == null)
+                    return null;
+
+                // Verify the template actually builds before caching it, so a design
+                // that fails inside the wrapper never poisons the cache.
+                template.LoadContent();
+
+                lock (_templateCacheLock)
+                {
+                    if (_templateCache.Count >= MaxCachedTemplates)
+                        _templateCache.Clear();
+                    _templateCache[key] = template;
+                }
+                return template;
+            }
+            catch
+            {
+                // Wrapping not possible for this design (e.g. x:Class root, parser
+                // restrictions) - caller falls back to the plain load path.
+                return null;
             }
         }
+
+        static string HashXaml(string xaml)
+        {
+            using (var sha = System.Security.Cryptography.SHA256.Create())
+            {
+                byte[] hash = sha.ComputeHash(Encoding.UTF8.GetBytes(xaml));
+                return Convert.ToBase64String(hash);
+            }
+        }
+
+        /// <summary>
+        /// Wraps a design XAML root into a DataTemplate so the compiled template can be
+        /// reused for every subsequent LoadContent(). All xmlns declarations of the
+        /// design root are moved to the DataTemplate root, because WPF only allows
+        /// xmlns on the root element.
+        /// </summary>
+        static DataTemplate WrapAsDataTemplate(string convertedXaml)
+        {
+            convertedXaml = RewriteVBBindingForTemplate(convertedXaml);
+            XDocument doc = XDocument.Parse(convertedXaml);
+            XElement designRoot = doc.Root;
+            if (designRoot == null)
+                return null;
+
+            // ResourceDictionaries and similar non-control roots cannot be templated.
+            if (designRoot.Name.LocalName == "ResourceDictionary")
+                return null;
+
+            XNamespace wpfNs = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
+            XElement templateRoot = new XElement(wpfNs + "DataTemplate");
+
+            // Re-declare every namespace of the design root on the template root,
+            // preserving prefixes, then strip them from the child element.
+            var nsDeclarations = designRoot.Attributes().Where(a => a.IsNamespaceDeclaration).ToList();
+            foreach (var nsDecl in nsDeclarations)
+            {
+                string prefix = nsDecl.Name.LocalName == "xmlns" ? "" : nsDecl.Name.LocalName;
+                templateRoot.Add(new XAttribute(nsDecl.Name.Namespace == XNamespace.Xmlns && prefix != ""
+                    ? XNamespace.Xmlns + prefix : nsDecl.Name, nsDecl.Value));
+            }
+            foreach (var nsDecl in nsDeclarations)
+                nsDecl.Remove();
+
+            // x:Class has no meaning inside a template and breaks compilation.
+            designRoot.Attributes("{http://schemas.microsoft.com/winfx/2006/xaml}Class").Remove();
+
+            templateRoot.Add(designRoot);
+
+            return XamlReader.Parse(templateRoot.ToString()) as DataTemplate;
+        }
+
+        /// <summary>
+        /// A WPF Binding (VBBinding derives from Binding) is sealed once a
+        /// BindingExpression has been created from it, so the single VBBinding instance
+        /// parsed inside a cached DataTemplate cannot be re-pointed per instantiation.
+        /// Instead, rewrite vb:VBBinding to vb:VBBindingExt (a MarkupExtension that
+        /// creates a fresh, correctly resolved Binding per ProvideValue call) before
+        /// the template is parsed. The prefix bound to the iplus XAML namespace is
+        /// detected from the root element, since designs may use any prefix.
+        /// </summary>
+        static string RewriteVBBindingForTemplate(string convertedXaml)
+        {
+            Match nsMatch = Regex.Match(convertedXaml, "xmlns:([\\w.-]+)\\s*=\\s*\"http://www\\.iplus-framework\\.com/xaml\"");
+            if (!nsMatch.Success)
+                return convertedXaml;
+            string prefix = nsMatch.Groups[1].Value;
+            // Matches both "prefix:VBBinding" and "prefix:VBBindingExt" (kept as-is);
+            // the lookahead prevents rewriting longer type names like VBBindingWrapper.
+            string rewritten = Regex.Replace(convertedXaml,
+                Regex.Escape(prefix) + ":VBBinding(Ext)?(?![A-Za-z])",
+                prefix + ":VBBindingExt");
+            return rewritten;
+        }
+
+        #endregion
 
         public static object LoadBAML(ACClassDesign acClassDesign, IACObject dataContext, IACBSO bso)
         {

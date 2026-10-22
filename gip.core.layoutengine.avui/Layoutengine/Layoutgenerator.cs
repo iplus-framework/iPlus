@@ -393,7 +393,7 @@ namespace gip.core.layoutengine.avui
 
         // Each cached template holds a dynamically emitted type; cap the cache and
         // clear it wholesale when exceeded (simple, avoids unbounded leaks).
-        const int MaxCachedTemplates = 200;
+        const int MaxCachedTemplates = 500;
 
         /// <summary>
         /// Gets a cached compiled factory for the given (already namespace-converted) XAML,
