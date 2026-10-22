@@ -406,6 +406,7 @@ namespace gip.bso.iplus
                         .Where(c => c.ACClassID == SelectedCustomList.ACClassID));
 
             PostExecute("Load");
+            RefreshPointConfigList();
         }
 
         /// <summary>
@@ -419,6 +420,24 @@ namespace gip.bso.iplus
                 AccessPrimary.NavSearch(Database.ContextIPlus);
             }
             OnPropertyChanged(nameof(CustomListList));
+            RefreshPointConfigList();
+        }
+
+        /// <summary>
+        /// Requeries the config entries (value list items) of the current custom list from the database.
+        /// Needed because values can be added/changed externally (e.g. by an import) while the
+        /// config list is cached on the ACClass.
+        /// </summary>
+        private void RefreshPointConfigList()
+        {
+            if (CurrentCustomList == null)
+                return;
+
+            CurrentCustomList.ClearCacheOfConfigurationEntries();
+            if (ConfigPointACClassProperty is ACClass configPointACClass && configPointACClass != CurrentCustomList)
+                configPointACClass.ClearCacheOfConfigurationEntries();
+
+            OnPropertyChanged(nameof(PointConfigList));
         }
 
         #endregion
