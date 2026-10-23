@@ -1,9 +1,16 @@
 // Copyright (c) GIP. All rights reserved.
 #nullable enable
+using System;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
+using Dock.Avalonia.Controls;
 using Dock.Model.Controls;
 using Dock.Model.Core;
 
@@ -13,8 +20,10 @@ namespace gip.core.layoutengine.avui.Helperclasses
     /// Hover-to-preview behavior for pinned dockable buttons (ToolPinItemControl).
     /// <para>
     /// Mouse (desktop mode):
-    /// - Hovering the pinned tool button opens the dockable preview.
-    /// - Moving the mouse away collapses the preview (unless the dockable is pinned).
+    /// - Hovering the pinned tool button opens the dockable preview after a short delay.
+    /// - The preview stays open while the mouse is over the button OR over the preview
+    ///   itself (overlay panel or pinned dock window).
+    /// - It collapses only when the mouse leaves both the button and the preview.
     /// - Clicking the button pins the dockable (locks the preview open, same as the pin icon).
     /// </para>
     /// <para>
@@ -74,6 +83,24 @@ namespace gip.core.layoutengine.avui.Helperclasses
             }
         }
 
+        private const int ShowDelayMs = 300;
+        private const int PollIntervalMs = 100;
+        private const int HideGraceMs = 250;
+
+        private sealed class HoverState
+        {
+            public DispatcherTimer? ShowTimer;
+            public DispatcherTimer? PollTimer;
+            public DateTime HideGraceUntil;
+            public bool HoverOpened;
+        }
+
+        private static readonly ConditionalWeakTable<Control, HoverState> States = new();
+
+        private static HoverState GetState(Control control) => States.GetOrCreateValue(control);
+
+        private static void StopTimer(DispatcherTimer? timer) => timer?.Stop();
+
         private static IFactory? GetFactory(Control control)
         {
             if (control.DataContext is IDockable { Owner: IDock owner })
@@ -85,8 +112,8 @@ namespace gip.core.layoutengine.avui.Helperclasses
 
         private static void OnPointerEntered(object? sender, PointerEventArgs e)
         {
-            if (sender is not Control { DataContext: IDockable dockable }
-                || GetFactory((Control)sender) is not { } factory)
+            if (sender is not Control { DataContext: IDockable dockable } control
+                || GetFactory(control) is not { } factory)
             {
                 return;
             }
@@ -102,13 +129,43 @@ namespace gip.core.layoutengine.avui.Helperclasses
             // Note: an auto-hide button IS a 'pinned' dockable in Dock terms
             // (PinDockable toggles between docked and auto-hide), so there is
             // deliberately no IsDockablePinned guard here.
-            factory.PreviewPinnedDockable(dockable);
+            var state = GetState(control);
+
+            // Preview is already open (pointer returning from the preview area):
+            // keep it open, the poll timer handles hiding.
+            if (state.HoverOpened)
+            {
+                return;
+            }
+
+            StopTimer(state.ShowTimer);
+            var showTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(ShowDelayMs) };
+            showTimer.Tick += (_, _) =>
+            {
+                showTimer.Stop();
+                if (state.ShowTimer == showTimer)
+                {
+                    state.ShowTimer = null;
+                }
+
+                // Control may have been recycled with a different dockable.
+                if (!ReferenceEquals(control.DataContext, dockable))
+                {
+                    return;
+                }
+
+                factory.PreviewPinnedDockable(dockable);
+                state.HoverOpened = true;
+                StartPollTimer(control, factory, dockable, state);
+            };
+            state.ShowTimer = showTimer;
+            showTimer.Start();
         }
 
         private static void OnPointerExited(object? sender, PointerEventArgs e)
         {
-            if (sender is not Control { DataContext: IDockable dockable }
-                || GetFactory((Control)sender) is not { } factory)
+            if (sender is not Control { DataContext: IDockable dockable } control
+                || GetFactory(control) is not { } factory)
             {
                 return;
             }
@@ -118,22 +175,105 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 return;
             }
 
-            // Only touches rootDock.PinnedDock contents; if the dockable was
-            // pinned open by click it is no longer in the preview dock, so this
-            // is a no-op for it.
-            if (factory.FindRoot(dockable, _ => true) is { } rootDock)
+            var state = GetState(control);
+            StopTimer(state.ShowTimer);
+
+            if (state.HoverOpened)
             {
-                factory.HidePreviewingDockables(rootDock);
+                // Give the pointer a short grace period to travel from the
+                // button into the preview before the poll may hide it.
+                state.HideGraceUntil = DateTime.UtcNow + TimeSpan.FromMilliseconds(HideGraceMs);
+                StartPollTimer(control, factory, dockable, state);
             }
+        }
+
+        private static void StartPollTimer(Control control, IFactory factory, IDockable dockable, HoverState state)
+        {
+            if (state.PollTimer is { })
+            {
+                return;
+            }
+
+            var poll = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(PollIntervalMs) };
+            poll.Tick += (_, _) =>
+            {
+                if (!state.HoverOpened)
+                {
+                    poll.Stop();
+                    state.PollTimer = null;
+                    return;
+                }
+
+                // Keep the preview open while the pointer is over the button or
+                // the preview area (overlay panel or pinned dock window).
+                if (control.IsPointerOver
+                    || IsPointerOverPreviewArea(control)
+                    || DateTime.UtcNow < state.HideGraceUntil)
+                {
+                    return;
+                }
+
+                poll.Stop();
+                state.PollTimer = null;
+                state.HoverOpened = false;
+
+                // Only touches rootDock.PinnedDock contents; if the dockable was
+                // pinned open by click it is no longer in the preview dock, so
+                // this is a no-op for it.
+                if (factory.FindRoot(dockable, _ => true) is { } rootDock)
+                {
+                    factory.HidePreviewingDockables(rootDock);
+                }
+            };
+            state.PollTimer = poll;
+            poll.Start();
+        }
+
+        private static bool IsPointerOverPreviewArea(Control control)
+        {
+            // Overlay mode: the preview is hosted inside a PinnedDockControl in
+            // the same top-level as the button.
+            if (TopLevel.GetTopLevel(control) is { } topLevel)
+            {
+                foreach (var pinnedDock in topLevel.GetVisualDescendants().OfType<PinnedDockControl>())
+                {
+                    if (pinnedDock.IsPointerOver)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            // Window mode (DockSettings.UsePinnedDockWindow): the preview is a
+            // separate PinnedDockWindow.
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                foreach (var window in desktop.Windows)
+                {
+                    if (window is PinnedDockWindow { IsVisible: true } pinnedWindow
+                        && pinnedWindow.IsPointerOver)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private static void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
         {
-            if (sender is not Control { DataContext: IDockable dockable }
-                || GetFactory((Control)sender) is not { } factory)
+            if (sender is not Control { DataContext: IDockable dockable } control
+                || GetFactory(control) is not { } factory)
             {
                 return;
             }
+
+            var state = GetState(control);
+            StopTimer(state.ShowTimer);
+            StopTimer(state.PollTimer);
+            state.PollTimer = null;
+            state.HoverOpened = false;
 
             if (e.Pointer.Type == PointerType.Mouse && !ControlManager.TouchScreenMode)
             {
