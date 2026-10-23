@@ -75,7 +75,7 @@
     <ControlTemplate x:Key="TemplateCheckBoxStyleAero" TargetType="{x:Type local:VBCheckBox}">
         <Grid Background="Transparent" Margin="{TemplateBinding Margin}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition MaxWidth="20"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition x:Name="ColCaptionSpace" Width="5"></ColumnDefinition>
                 <ColumnDefinition x:Name="ColCaption" Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
@@ -88,17 +88,15 @@
 									Background="{TemplateBinding Background}" 
 									CornerRadius="2"
                                     Width="{TemplateBinding Height}"
-                                    MaxHeight="20"
-                                    MaxWidth="20"
                                     HorizontalAlignment="Left">
                 <Grid>
                     <Viewbox x:Name="ViewboxCheck" Margin="1,1,1,2" Stretch="Uniform" Visibility="Hidden">
                         <Canvas x:Name="CanvasCheck" Width="16" Height="16" Canvas.Left="0" Canvas.Top="0">
                             <Path x:Name="CheckPath"
-											          Width="17" 
+											          Width="16" 
 												      Height="15" 
-												      Canvas.Left="-0.5" 
-												      Canvas.Top="1.5" 
+												      Canvas.Left="0" 
+												      Canvas.Top="0" 
 												      Stretch="Fill" 
 												      StrokeStartLineCap="Round" 
 												      StrokeEndLineCap="Round" 
