@@ -184,6 +184,10 @@ namespace gip.core.datamodel
             // Convert DataGridTextColumn.ElementStyle to supported VBDataGridTextColumn attributes.
             avaloniaXAML = ConvertDataGridTextColumnElementStyle(avaloniaXAML);
 
+            // Rename WPF DataGrid column *.EditingElementStyle property elements so they
+            // resolve on the VBDataGridTextColumn type instead of the WPF owner type.
+            avaloniaXAML = ConvertDataGridColumnEditingElementStyle(avaloniaXAML);
+
             // Remove WPF DataGrid virtualization attributes not used by Avalonia.
             avaloniaXAML = RemoveUnsupportedVirtualizationAttributes(avaloniaXAML);
 
@@ -205,9 +209,18 @@ namespace gip.core.datamodel
             // Xaml.Behaviors-based triggers and copy default Setter values to owner attributes.
             avaloniaXAML = ConvertControlThemeTriggersToBehaviors(avaloniaXAML);
 
+            // Convert WPF ControlTemplate.Triggers blocks into Avalonia nested styles
+            // (ControlTemplate has no Triggers property in Avalonia).
+            avaloniaXAML = ConvertControlTemplateTriggers(avaloniaXAML);
+
             // Convert WPF InputScope / InputMethod.InputScope attributes to Avalonia's
             // TextInputOptions.ContentType attached property (on-screen keyboard layout).
             avaloniaXAML = ConvertInputScopeToTextInputOptions(avaloniaXAML);
+
+            // Convert WPF Panel.ZIndex to Avalonia ZIndex. In Avalonia ZIndex is a direct
+            // property on Visual (not an attached property on Panel), so Panel.ZIndex fails
+            // XAML compilation while plain ZIndex works on any control.
+            avaloniaXAML = ConvertPanelZIndexToZIndex(avaloniaXAML);
 
             // Remove WPF IsItemsHost attributes from panels. Avalonia's Panel.IsItemsHost is
             // internal and the runtime XAML compiler emits a call to its setter, which fails
@@ -665,6 +678,36 @@ namespace gip.core.datamodel
                                 continue;
 
                             propertyName = NormalizeTriggerPropertyName(propertyName);
+
+                            // Complex setter values (<Setter.Value> element, e.g. a
+                            // LinearGradientBrush) cannot be written as an attribute - move
+                            // them to the owner as a dotted property element instead, otherwise
+                            // the property would be set to an empty string.
+                            var setterValueElement = setter
+                                .ChildNodes
+                                .OfType<XmlElement>()
+                                .FirstOrDefault(e => string.Equals(e.LocalName, "Setter.Value", StringComparison.OrdinalIgnoreCase) ||
+                                                      string.Equals(e.LocalName, "ControlTheme.Value", StringComparison.OrdinalIgnoreCase));
+                            var complexValue = setterValueElement?
+                                .ChildNodes
+                                .OfType<XmlElement>()
+                                .FirstOrDefault();
+
+                            if (complexValue != null)
+                            {
+                                var propertyElement = ownerElement.OwnerDocument.CreateElement(
+                                    ownerElement.Prefix, ownerElement.LocalName + "." + propertyName, ownerElement.NamespaceURI);
+                                propertyElement.AppendChild(complexValue);
+                                ownerElement.AppendChild(propertyElement);
+
+                                setter.ParentNode?.RemoveChild(setter);
+                                movedDefaultSetterCount++;
+                                continue;
+                            }
+
+                            if (string.IsNullOrWhiteSpace(propertyValue))
+                                continue;
+
                             propertyValue = NormalizeTriggerPropertyValue(propertyName, propertyValue);
 
                             if (!ownerElement.HasAttribute(propertyName))
@@ -1020,6 +1063,192 @@ namespace gip.core.datamodel
                 // Keep conversion resilient: if this pass fails, return the original text.
                 return xaml;
             }
+        }
+
+        /// <summary>
+        /// Converts WPF ControlTemplate.Triggers blocks into Avalonia nested styles.
+        /// Avalonia's ControlTemplate has no Triggers property; conditional setters are
+        /// expressed as nested styles using pseudo-class selectors, e.g.
+        /// <code>
+        /// &lt;Trigger Property="IsChecked" Value="True"&gt;
+        ///   &lt;Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/&gt;
+        /// &lt;/Trigger&gt;
+        /// </code>
+        /// becomes
+        /// <code>
+        /// &lt;Style Selector="^:checked /template/ #CheckMark"&gt;
+        ///   &lt;Setter Property="IsVisible" Value="True"/&gt;
+        /// &lt;/Style&gt;
+        /// </code>
+        /// Triggers whose condition cannot be mapped to an Avalonia pseudo-class are dropped.
+        /// </summary>
+        private static string ConvertControlTemplateTriggers(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml) || !xaml.Contains("ControlTemplate", StringComparison.OrdinalIgnoreCase))
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                if (doc.DocumentElement == null)
+                    return xaml;
+
+                string xamlNs = GetDefaultXamlNamespace(doc);
+                if (string.IsNullOrEmpty(xamlNs))
+                    return xaml;
+
+                var templates = doc.SelectNodes("//*[local-name()='ControlTemplate']");
+                if (templates == null)
+                    return xaml;
+
+                foreach (var template in templates.OfType<XmlElement>())
+                {
+                    var triggersElement = template
+                        .ChildNodes
+                        .OfType<XmlElement>()
+                        .FirstOrDefault(e => string.Equals(e.LocalName, "ControlTemplate.Triggers", StringComparison.OrdinalIgnoreCase) ||
+                                              string.Equals(e.LocalName, "Template.Triggers", StringComparison.OrdinalIgnoreCase));
+
+                    if (triggersElement == null)
+                        continue;
+
+                    foreach (var trigger in triggersElement
+                        .ChildNodes
+                        .OfType<XmlElement>()
+                        .Where(e => string.Equals(e.LocalName, "Trigger", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        var triggerProperty = trigger.GetAttribute("Property");
+                        var triggerValue = trigger.GetAttribute("Value");
+                        if (string.IsNullOrWhiteSpace(triggerProperty))
+                            continue;
+
+                        string pseudoClass = MapTriggerPropertyToPseudoClass(triggerProperty, triggerValue);
+                        if (pseudoClass == null)
+                            continue;
+
+                        string selector = "^" + pseudoClass;
+
+                        // SourceName redirects the trigger condition to a named element
+                        // within the template instead of the templated parent.
+                        var sourceName = trigger.GetAttribute("SourceName");
+                        if (!string.IsNullOrWhiteSpace(sourceName))
+                            selector = "^ #" + sourceName + pseudoClass;
+
+                        var style = doc.CreateElement("Style", xamlNs);
+
+                        var setters = trigger
+                            .ChildNodes
+                            .OfType<XmlElement>()
+                            .Where(e => string.Equals(e.LocalName, "Setter", StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+
+                        foreach (var setter in setters)
+                        {
+                            var propertyName = setter.GetAttribute("Property");
+                            if (string.IsNullOrWhiteSpace(propertyName))
+                                continue;
+
+                            propertyName = NormalizeTriggerPropertyName(propertyName);
+                            var propertyValue = NormalizeTriggerPropertyValue(propertyName, setter.GetAttribute("Value"));
+
+                            var styleSetter = doc.CreateElement("Setter", xamlNs);
+                            styleSetter.SetAttribute("Property", propertyName);
+                            styleSetter.SetAttribute("Value", propertyValue);
+                            style.AppendChild(styleSetter);
+
+                            var targetName = setter.GetAttribute("TargetName");
+                            if (!string.IsNullOrWhiteSpace(targetName) && !selector.Contains("/template/"))
+                            {
+                                // Avalonia selectors require an element type: "/template/ Rectangle#Name".
+                                var namedElement = template.SelectSingleNode(
+                                    $"//*[@*[local-name()='Name']='{targetName}']");
+                                string elementType = (namedElement as XmlElement)?.LocalName;
+                                selector += " /template/ " +
+                                            (string.IsNullOrEmpty(elementType) ? "" : elementType + "#") + targetName;
+                            }
+                        }
+
+                        if (style.ChildNodes.Count == 0)
+                            continue;
+
+                        style.SetAttribute("Selector", selector);
+                        InsertControlTemplateTriggerStyle(template, style);
+                    }
+
+                    template.RemoveChild(triggersElement);
+                }
+
+                return doc.OuterXml;
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
+        }
+
+        /// <summary>
+        /// Inserts a converted trigger style into the ControlTheme that owns the given
+        /// ControlTemplate (as sibling of the Template setter), matching the Avalonia
+        /// theme pattern. Falls back to nesting the style inside the template's root
+        /// element when no owning ControlTheme exists.
+        /// </summary>
+        private static void InsertControlTemplateTriggerStyle(XmlElement template, XmlElement style)
+        {
+            // ControlTemplate -> Setter.Value -> Setter -> ControlTheme
+            var setterValue = template.ParentNode as XmlElement;
+            var setter = setterValue?.LocalName == "Setter.Value" ? setterValue.ParentNode as XmlElement : null;
+            var controlTheme = setter?.LocalName == "Setter" ? setter.ParentNode as XmlElement : null;
+
+            if (controlTheme != null &&
+                string.Equals(controlTheme.LocalName, "ControlTheme", StringComparison.OrdinalIgnoreCase))
+            {
+                controlTheme.AppendChild(style);
+                return;
+            }
+
+            var rootVisual = template
+                .ChildNodes
+                .OfType<XmlElement>()
+                .FirstOrDefault(e => !e.LocalName.Contains('.'));
+            rootVisual?.AppendChild(style);
+        }
+
+        /// <summary>
+        /// Maps a WPF trigger property/value pair to an Avalonia pseudo-class selector
+        /// fragment (including the leading ':'), or null when no equivalent exists.
+        /// </summary>
+        private static string MapTriggerPropertyToPseudoClass(string propertyName, string propertyValue)
+        {
+            bool isTrue = IsTrueLiteral(propertyValue);
+
+            if (string.Equals(propertyName, "IsChecked", StringComparison.OrdinalIgnoreCase))
+                return isTrue ? ":checked" : ":unchecked";
+
+            if (string.Equals(propertyName, "IsEnabled", StringComparison.OrdinalIgnoreCase))
+                return isTrue ? ":enabled" : ":disabled";
+
+            if (!isTrue)
+                return null;
+
+            if (string.Equals(propertyName, "IsMouseOver", StringComparison.OrdinalIgnoreCase))
+                return ":pointerover";
+
+            if (string.Equals(propertyName, "IsPressed", StringComparison.OrdinalIgnoreCase))
+                return ":pressed";
+
+            if (string.Equals(propertyName, "IsFocused", StringComparison.OrdinalIgnoreCase))
+                return ":focus";
+
+            if (string.Equals(propertyName, "IsKeyboardFocusWithin", StringComparison.OrdinalIgnoreCase))
+                return ":focus-within";
+
+            return null;
         }
 
         /// <summary>
@@ -2101,6 +2330,189 @@ namespace gip.core.datamodel
             }
         }
 
+        /// <summary>
+        /// Extracts DataTriggers that set ControlMode from a column's EditingElementStyle
+        /// ControlTheme into ConditionalControlMode* attributes on the column element.
+        /// Handles both the WPF form (Style.Triggers/ControlTheme.Triggers with DataTrigger)
+        /// and the already-converted behaviors form (Interaction.Behaviors with
+        /// DataTriggerBehavior/ChangePropertyAction). The trigger elements are removed.
+        /// </summary>
+        private static bool ExtractConditionalControlModeFromColumnTheme(XmlElement controlTheme, XmlElement ownerElement)
+        {
+            bool extracted = false;
+
+            // WPF form: <Style.Triggers>/<ControlTheme.Triggers> with <DataTrigger>.
+            var triggersElement = controlTheme
+                .ChildNodes
+                .OfType<XmlElement>()
+                .FirstOrDefault(e => string.Equals(e.LocalName, "Style.Triggers", StringComparison.OrdinalIgnoreCase) ||
+                                      string.Equals(e.LocalName, "ControlTheme.Triggers", StringComparison.OrdinalIgnoreCase));
+
+            if (triggersElement != null)
+            {
+                foreach (var dataTrigger in triggersElement
+                    .ChildNodes
+                    .OfType<XmlElement>()
+                    .Where(e => string.Equals(e.LocalName, "DataTrigger", StringComparison.OrdinalIgnoreCase)))
+                {
+                    extracted |= ExtractConditionalControlMode(
+                        ownerElement,
+                        ExtractBindingPathFromMarkup(dataTrigger.GetAttribute("Binding")),
+                        dataTrigger.GetAttribute("Value"),
+                        dataTrigger
+                            .ChildNodes
+                            .OfType<XmlElement>()
+                            .FirstOrDefault(e => string.Equals(e.LocalName, "Setter", StringComparison.OrdinalIgnoreCase) &&
+                                                  string.Equals(e.GetAttribute("Property"), "ControlMode", StringComparison.OrdinalIgnoreCase))
+                            ?.GetAttribute("Value"));
+                }
+
+                controlTheme.RemoveChild(triggersElement);
+            }
+
+            // Already-converted behaviors form: <Interaction.Behaviors> with DataTriggerBehavior.
+            var behaviorsElement = controlTheme
+                .ChildNodes
+                .OfType<XmlElement>()
+                .FirstOrDefault(e => string.Equals(e.LocalName, "Interaction.Behaviors", StringComparison.OrdinalIgnoreCase));
+
+            if (behaviorsElement != null)
+            {
+                foreach (var behavior in behaviorsElement
+                    .ChildNodes
+                    .OfType<XmlElement>()
+                    .Where(e => string.Equals(e.LocalName, "DataTriggerBehavior", StringComparison.OrdinalIgnoreCase)))
+                {
+                    extracted |= ExtractConditionalControlMode(
+                        ownerElement,
+                        ExtractBindingPathFromMarkup(behavior.GetAttribute("Binding")),
+                        behavior.GetAttribute("Value"),
+                        behavior
+                            .ChildNodes
+                            .OfType<XmlElement>()
+                            .FirstOrDefault(e => string.Equals(e.LocalName, "ChangePropertyAction", StringComparison.OrdinalIgnoreCase) &&
+                                                  string.Equals(e.GetAttribute("PropertyName"), "ControlMode", StringComparison.OrdinalIgnoreCase))
+                            ?.GetAttribute("Value"));
+                }
+
+                controlTheme.RemoveChild(behaviorsElement);
+            }
+
+            return extracted;
+        }
+
+        /// <summary>
+        /// Writes one conditional ControlMode mapping (path == conditionValue ? mode : other)
+        /// into ConditionalControlMode* attributes on the column element. First trigger wins.
+        /// </summary>
+        private static bool ExtractConditionalControlMode(XmlElement ownerElement, string path, string conditionValue, string mode)
+        {
+            if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(mode))
+                return false;
+
+            bool conditionTrue = string.IsNullOrWhiteSpace(conditionValue) || IsTrueLiteral(conditionValue);
+
+            if (!ownerElement.HasAttribute("ConditionalControlModePath"))
+                ownerElement.SetAttribute("ConditionalControlModePath", path);
+
+            if (!ownerElement.HasAttribute("ConditionalControlModeTrueMode"))
+                ownerElement.SetAttribute("ConditionalControlModeTrueMode", conditionTrue ? mode : "Enabled");
+
+            if (!ownerElement.HasAttribute("ConditionalControlModeFalseMode"))
+                ownerElement.SetAttribute("ConditionalControlModeFalseMode", conditionTrue ? "Enabled" : mode);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Renames WPF DataGrid column *.EditingElementStyle property elements (e.g.
+        /// &lt;DataGridTextColumn.EditingElementStyle&gt;) to plain EditingElementStyle
+        /// property elements in the owner's namespace. The WPF owner-type prefix must not
+        /// be kept: Avalonia's own DataGridTextColumn has no EditingElementStyle property,
+        /// so XamlX would fail with "Unable to resolve suitable regular or attached
+        /// property EditingElementStyle". VBDataGridTextColumn supports EditingElementStyle
+        /// as a ControlTheme property which is applied to the generated editing VBTextBox.
+        /// On column types without an EditingElementStyle equivalent the element is removed.
+        /// </summary>
+        private static string ConvertDataGridColumnEditingElementStyle(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml) || !xaml.Contains("EditingElementStyle", StringComparison.OrdinalIgnoreCase))
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                var styleNodes = doc.SelectNodes("//*[contains(local-name(), '.EditingElementStyle')]");
+                if (styleNodes == null || styleNodes.Count == 0)
+                    return xaml;
+
+                foreach (var styleElement in styleNodes.OfType<XmlNode>().OfType<XmlElement>().ToList())
+                {
+                    var ownerElement = styleElement.ParentNode as XmlElement;
+                    if (ownerElement == null)
+                        continue;
+
+                    bool isTextColumn = string.Equals(ownerElement.LocalName, "VBDataGridTextColumn", StringComparison.OrdinalIgnoreCase) ||
+                                        string.Equals(ownerElement.LocalName, "DataGridTextColumn", StringComparison.OrdinalIgnoreCase);
+
+                    if (isTextColumn)
+                    {
+                        // Extract ControlMode DataTriggers into column attributes: behaviors
+                        // inside a ControlTheme never activate (a ControlTheme is not part of
+                        // the visual tree), so the trigger is applied as a binding on the
+                        // generated editing element instead (see ApplyConditionalControlModeBinding).
+                        var controlTheme = styleElement
+                            .ChildNodes
+                            .OfType<XmlElement>()
+                            .FirstOrDefault(e => string.Equals(e.LocalName, "ControlTheme", StringComparison.OrdinalIgnoreCase) ||
+                                                  string.Equals(e.LocalName, "Style", StringComparison.OrdinalIgnoreCase));
+
+                        bool extractedControlMode = controlTheme != null &&
+                            ExtractConditionalControlModeFromColumnTheme(controlTheme, ownerElement);
+
+                        // XamlX resolves the owner type of a dotted property element by name,
+                        // so the WPF owner prefix must be replaced with the actual column type
+                        // name: <DataGridTextColumn.EditingElementStyle> resolves an attached
+                        // property on Avalonia's DataGridTextColumn (which has none), while
+                        // <VBDataGridTextColumn.EditingElementStyle> resolves the regular
+                        // EditingElementStyle property of the VB column.
+                        // If the ControlTheme is empty after trigger extraction, the whole
+                        // property element is removed.
+                        bool controlThemeIsEmpty = controlTheme != null &&
+                            !controlTheme.ChildNodes.OfType<XmlElement>().Any();
+
+                        if (controlThemeIsEmpty)
+                            ownerElement.RemoveChild(styleElement);
+                        else
+                        {
+                            var renamed = doc.CreateElement(ownerElement.Prefix,
+                                ownerElement.LocalName + ".EditingElementStyle", ownerElement.NamespaceURI);
+                            while (styleElement.HasChildNodes)
+                                renamed.AppendChild(styleElement.FirstChild);
+                            ownerElement.ReplaceChild(renamed, styleElement);
+                        }
+                    }
+                    else if (ownerElement.LocalName.EndsWith("Column", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // No EditingElementStyle equivalent on this column type.
+                        ownerElement.RemoveChild(styleElement);
+                    }
+                }
+
+                return doc.OuterXml;
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
+        }
+
         private static string ConvertDataGridTextColumnElementStyle(string xaml)
         {
             if (string.IsNullOrWhiteSpace(xaml))
@@ -3126,6 +3538,77 @@ namespace gip.core.datamodel
         /// Avalonia: &lt;vb:VBTextBox TextInputOptions.ContentType="Number"
         ///           xmlns:tio="using:Avalonia.Input.TextInput" /&gt;
         ///
+        /// Converts WPF Panel.ZIndex to Avalonia ZIndex. In Avalonia, ZIndex is a direct
+        /// property on Visual (not an attached property on Panel), so the attribute
+        /// Panel.ZIndex="1" fails XAML compilation with "Unable to find suitable setter or
+        /// adder for property ZIndex of type Avalonia.Visual", while plain ZIndex="1" works
+        /// on any control. Handles both the attribute form and the property element form.
+        /// </summary>
+        private static string ConvertPanelZIndexToZIndex(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml) || xaml.IndexOf("ZIndex", StringComparison.OrdinalIgnoreCase) < 0)
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                if (doc.DocumentElement == null)
+                    return xaml;
+
+                bool modified = false;
+
+                // Attribute form: Panel.ZIndex="1" -> ZIndex="1".
+                // Note: when the Panel prefix is not declared via xmlns, .NET keeps the
+                // whole "Panel.ZIndex" as the attribute's local name, so both shapes exist.
+                foreach (var element in doc.SelectNodes("//*[@*[local-name()='ZIndex' or local-name()='Panel.ZIndex']]").OfType<XmlElement>().ToList())
+                {
+                    var zIndexAttr = element.Attributes.OfType<XmlAttribute>()
+                        .FirstOrDefault(a => (string.Equals(a.LocalName, "ZIndex", StringComparison.OrdinalIgnoreCase) &&
+                                              string.Equals(a.Prefix, "Panel", StringComparison.OrdinalIgnoreCase)) ||
+                                             string.Equals(a.Name, "Panel.ZIndex", StringComparison.OrdinalIgnoreCase));
+                    if (zIndexAttr == null)
+                        continue;
+
+                    if (!element.HasAttribute("ZIndex"))
+                        element.SetAttribute("ZIndex", zIndexAttr.Value);
+                    element.Attributes.Remove(zIndexAttr);
+                    modified = true;
+                }
+
+                // Property element form: <Panel.ZIndex>1</Panel.ZIndex> -> <Visual.ZIndex>1</Visual.ZIndex>
+                // (ZIndex is a direct property on Visual in Avalonia; the dotted owner prefix
+                // must name the type that declares the property).
+                foreach (var element in doc.SelectNodes("//*[local-name()='Panel.ZIndex']").OfType<XmlElement>().ToList())
+                {
+                    var parent = element.ParentNode as XmlElement;
+                    if (parent == null)
+                        continue;
+
+                    string defaultNs = parent.GetNamespaceOfPrefix("");
+                    // Empty prefix + dotted local name serializes as <Visual.ZIndex> and
+                    // reuses the root's default xmlns (XamlX rejects xmlns on non-root elements).
+                    var renamed = doc.CreateElement("", "Visual.ZIndex", defaultNs);
+                    while (element.HasChildNodes)
+                        renamed.AppendChild(element.FirstChild);
+                    parent.ReplaceChild(renamed, element);
+                    modified = true;
+                }
+
+                return modified ? doc.OuterXml : xaml;
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
+        }
+
+        /// <summary>
         /// Avalonia has no direct equivalent of WPF's fine-grained InputScopeName values
         /// (CurrencyAmountAndSymbol etc.) - the closest mapping is TextInputContentType:
         /// Number (numeric keypad incl. decimal separator and sign), Digits, Pin, Email,

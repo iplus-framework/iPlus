@@ -246,6 +246,8 @@ namespace gip.core.layoutengine.avui
         private string _itemsSourceNotifyPropertyName;
         private int _itemsSourceChangedVersion;
         private int _itemsSourcePropertyChangedHandledVersion;
+        // BindingList<T> is not INotifyCollectionChanged, so Avalonia does not see Add/Remove on it.
+        private IBindingList _observedBindingList;
         #endregion
 
         #region IDataField Members
@@ -824,6 +826,7 @@ namespace gip.core.layoutengine.avui
             AvaloniaProperty.Register<VBDataGrid, bool>(nameof(IsEnabledMoveRows), false);
 
         private object _DraggedItem = null;
+        private Point _DragStartPoint;
         #endregion
 
         #region Sum

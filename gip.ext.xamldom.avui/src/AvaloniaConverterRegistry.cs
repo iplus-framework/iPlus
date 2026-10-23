@@ -47,6 +47,19 @@ namespace gip.ext.xamldom.avui
                 // IList<Point> / List<Point> / Avalonia.Points (AvaloniaList<Point>) → "x1,y1 x2,y2 ..."
                 (t => typeof(IList<Point>).IsAssignableFrom(t),
                     PointsListBidirectionalConverter.Instance),
+
+                // Avalonia value types parsed via static Parse(string). Avalonia does not expose
+                // System.ComponentModel TypeConverters for these, so TypeDescriptor.GetConverter
+                // returns the base TypeConverter and ConvertFromString fails with
+                // NotSupportedException (e.g. Setter Property="Margin" Value="5,0,0,0").
+                (t => t == typeof(Thickness), new ParseStringConverter<Thickness>(Thickness.Parse)),
+                (t => t == typeof(CornerRadius), new ParseStringConverter<CornerRadius>(CornerRadius.Parse)),
+                (t => t == typeof(Point), new ParseStringConverter<Point>(Point.Parse)),
+                (t => t == typeof(Vector), new ParseStringConverter<Vector>(Vector.Parse)),
+                (t => t == typeof(Size), new ParseStringConverter<Size>(Size.Parse)),
+                (t => t == typeof(Rect), new ParseStringConverter<Rect>(Rect.Parse)),
+                (t => t == typeof(Avalonia.Controls.GridLength),
+                    new ParseStringConverter<Avalonia.Controls.GridLength>(Avalonia.Controls.GridLength.Parse)),
             };
         }
 
@@ -206,6 +219,49 @@ namespace gip.ext.xamldom.avui
                     }
                     return sb.ToString();
                 }
+                return base.ConvertTo(context, culture, value, destinationType);
+            }
+        }
+
+        /// <summary>
+        /// Generic bidirectional converter for Avalonia value types that expose a static
+        /// Parse(string) method (Thickness, CornerRadius, Point, Vector, Size, Rect,
+        /// GridLength, ...). Avalonia does not decorate these with System.ComponentModel
+        /// TypeConverterAttributes, so the base TypeConverter would be used otherwise.
+        /// </summary>
+        private sealed class ParseStringConverter<T> : TypeConverter
+            where T : struct
+        {
+            private readonly Func<string, T> _parse;
+
+            public ParseStringConverter(Func<string, T> parse)
+            {
+                _parse = parse ?? throw new ArgumentNullException(nameof(parse));
+            }
+
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+                => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+
+            public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+                => destinationType == typeof(string) || base.CanConvertTo(context, destinationType);
+
+            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+            {
+                if (value is string s)
+                    return _parse(s);
+
+                return base.ConvertFrom(context, culture, value);
+            }
+
+            public override object ConvertTo(
+                ITypeDescriptorContext context,
+                CultureInfo culture,
+                object value,
+                Type destinationType)
+            {
+                if (destinationType == typeof(string) && value is T typed)
+                    return typed.ToString();
+
                 return base.ConvertTo(context, culture, value, destinationType);
             }
         }

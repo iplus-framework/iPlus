@@ -208,6 +208,52 @@ namespace gip.core.layoutengine.avui
             set { SetValue(ConditionalBackgroundFalseColorProperty, value); }
         }
 
+        /// <summary>
+        /// Binding path on the row item whose boolean value switches the ControlMode of the
+        /// generated editing element (WPF EditingElementStyle DataTrigger replacement).
+        /// </summary>
+        public static readonly StyledProperty<string> ConditionalControlModePathProperty =
+            AvaloniaProperty.Register<VBDataGridTextColumn, string>(nameof(ConditionalControlModePath));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalControlModePath
+        {
+            get { return GetValue(ConditionalControlModePathProperty); }
+            set { SetValue(ConditionalControlModePathProperty, value); }
+        }
+
+        /// <summary>
+        /// ControlMode applied to the editing element when the condition path evaluates to true.
+        /// </summary>
+        public static readonly StyledProperty<string> ConditionalControlModeTrueModeProperty =
+            AvaloniaProperty.Register<VBDataGridTextColumn, string>(nameof(ConditionalControlModeTrueMode));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalControlModeTrueMode
+        {
+            get { return GetValue(ConditionalControlModeTrueModeProperty); }
+            set { SetValue(ConditionalControlModeTrueModeProperty, value); }
+        }
+
+        /// <summary>
+        /// ControlMode applied to the editing element when the condition path evaluates to false.
+        /// </summary>
+        public static readonly StyledProperty<string> ConditionalControlModeFalseModeProperty =
+            AvaloniaProperty.Register<VBDataGridTextColumn, string>(nameof(ConditionalControlModeFalseMode));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalControlModeFalseMode
+        {
+            get { return GetValue(ConditionalControlModeFalseModeProperty); }
+            set { SetValue(ConditionalControlModeFalseModeProperty, value); }
+        }
+
 
         /// <summary>
         /// Gets or sets the right control mode.
@@ -501,6 +547,7 @@ namespace gip.core.layoutengine.avui
             textBox.ShowCaption = false;
             SyncProperties(textBox);
             ApplyBinding(Binding, textBox, TextBox.TextProperty);
+            ApplyConditionalControlModeBinding(textBox);
             if (this.BindingTooltip != null)
                 ApplyBinding(BindingTooltip, textBox, ToolTip.TipProperty);
             return textBox;
@@ -618,6 +665,32 @@ namespace gip.core.layoutengine.avui
             };
 
             target.Bind(property, binding);
+        }
+
+        /// <summary>
+        /// Binds the ControlMode of the generated editing element to a boolean condition
+        /// path on the row item (replacement for WPF EditingElementStyle DataTriggers,
+        /// which cannot be expressed as behaviors on a ControlTheme).
+        /// </summary>
+        private void ApplyConditionalControlModeBinding(AvaloniaObject target)
+        {
+            if (target == null || string.IsNullOrWhiteSpace(ConditionalControlModePath) || string.IsNullOrWhiteSpace(ConditionalControlModeTrueMode))
+                return;
+
+            var converter = new ConverterBoolControlMode
+            {
+                TrueMode = ConditionalControlModeTrueMode,
+                FalseMode = ConditionalControlModeFalseMode
+            };
+
+            var binding = new Binding
+            {
+                Path = ConditionalControlModePath,
+                Mode = BindingMode.OneWay,
+                Converter = converter
+            };
+
+            target.Bind(VBTextBox.ControlModeProperty, binding);
         }
 
         private void ApplyConditionalBackgroundBinding(AvaloniaObject target, AvaloniaProperty property)

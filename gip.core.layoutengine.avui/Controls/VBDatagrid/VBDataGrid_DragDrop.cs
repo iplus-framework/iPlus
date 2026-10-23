@@ -5,6 +5,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.VisualTree;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.ext.design.avui;
@@ -37,6 +38,7 @@ namespace gip.core.layoutengine.avui
             {
                 var row = this.InputHitTest(e.GetPosition(this)) as DataGridRow;
                 _DraggedItem = row?.DataContext;
+                _DragStartPoint = e.GetPosition(this);
             }
         }
 
@@ -354,37 +356,52 @@ namespace gip.core.layoutengine.avui
             base.OnPointerMoved(e);
         }
 
+        private const double DragMoveThreshold = 4;
+
         protected void OnPreviewMouseLeftButtonUp(PointerReleasedEventArgs e)
         {
-            // Onnly preview events:
-            if (e.Route != RoutingStrategies.Tunnel)
+            if (_DraggedItem == null)
                 return;
 
-            if (_DraggedItem == null) 
-                return;
-            ExchangeItems(SelectedItem);
-            //select the dropped item
-            SelectedItem = _DraggedItem;
-            //reset
-            _DraggedItem = null;
-
-            if (!string.IsNullOrEmpty(_VBOnDrag) && (ContextACObject != null))
+            try
             {
-                string[] vbDragData = _VBOnDrag.Split(',');
-                Dictionary<int, string> newOrderInfo = new Dictionary<int, string>();
-                int nr = 0;
-                foreach (var item in this.DataConnection.CollectionView)
+                Point releasePoint = e.GetPosition(this);
+                // A click without pointer movement must not reorder rows
+                if (Math.Abs(releasePoint.X - _DragStartPoint.X) < DragMoveThreshold
+                    && Math.Abs(releasePoint.Y - _DragStartPoint.Y) < DragMoveThreshold)
+                    return;
+
+                DataGridRow targetRow = (this.InputHitTest(releasePoint) as Visual)?.FindAncestorOfType<DataGridRow>(true);
+                object targetItem = targetRow?.DataContext;
+                if (targetItem == null || ReferenceEquals(targetItem, _DraggedItem))
+                    return;
+
+                ExchangeItems(targetItem);
+                //select the dropped item
+                SelectedItem = _DraggedItem;
+
+                if (!string.IsNullOrEmpty(_VBOnDrag) && (ContextACObject != null))
                 {
-                    nr++;
-                    object itemObject = item.GetValue(vbDragData[1]);
-                    if (itemObject == null)
+                    string[] vbDragData = _VBOnDrag.Split(',');
+                    Dictionary<int, string> newOrderInfo = new Dictionary<int, string>();
+                    int nr = 0;
+                    foreach (var item in this.DataConnection.CollectionView)
                     {
-                        itemObject = item.GetType().GetProperty(vbDragData[1]).GetValue(item);
+                        nr++;
+                        object itemObject = item.GetValue(vbDragData[1]);
+                        if (itemObject == null)
+                        {
+                            itemObject = item.GetType().GetProperty(vbDragData[1]).GetValue(item);
+                        }
+                        string itemValue = itemObject.ToString();
+                        newOrderInfo.Add(nr, itemValue);
                     }
-                    string itemValue = itemObject.ToString();
-                    newOrderInfo.Add(nr, itemValue);
+                    ContextACObject.ACUrlCommand(vbDragData[0], new object[] { newOrderInfo });
                 }
-                ContextACObject.ACUrlCommand(vbDragData[0], new object[] { newOrderInfo });
+            }
+            finally
+            {
+                _DraggedItem = null;
             }
         }
 

@@ -389,6 +389,14 @@ namespace gip.core.layoutengine.avui
             }
         }
 
+        // DateTime values must be converted like the property log path does, otherwise Convert.ToDouble throws.
+        private static double ToPlotValue(object value)
+        {
+            if (value is DateTime dateTime)
+                return OxyPlot.Axes.DateTimeAxis.ToDouble(dateTime);
+            return Convert.ToDouble(value);
+        }
+
         private void InitLine(VBChartItem chartItem)
         {
             //_CountAutoExtents = 0;
@@ -473,9 +481,9 @@ namespace gip.core.layoutengine.avui
             {
                 line.ItemsSource = chartSeries;
                 if (chartItem.DisplayMode == VBChartItemDisplayMode.MapTupleValue1ToX)
-                    line.Mapping = item => new DataPoint(Convert.ToDouble(((IVBChartTuple)item).Value1), Convert.ToDouble(((IVBChartTuple)item).Value2));
+                    line.Mapping = item => new DataPoint(ToPlotValue(((IVBChartTuple)item).Value1), ToPlotValue(((IVBChartTuple)item).Value2));
                 else
-                    line.Mapping = item => new DataPoint(Convert.ToDouble(((IVBChartTuple)item).Value2), Convert.ToDouble(((IVBChartTuple)item).Value1));
+                    line.Mapping = item => new DataPoint(ToPlotValue(((IVBChartTuple)item).Value2), ToPlotValue(((IVBChartTuple)item).Value1));
 
                 Binding binding = new Binding();
                 binding.Source = chartItem;

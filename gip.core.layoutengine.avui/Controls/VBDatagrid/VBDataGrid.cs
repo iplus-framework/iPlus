@@ -338,6 +338,29 @@ namespace gip.core.layoutengine.avui
             }
         }
 
+        private void AttachBindingListRefresh(IBindingList list)
+        {
+            if (ReferenceEquals(list, _observedBindingList))
+                return;
+            if (_observedBindingList != null)
+                _observedBindingList.ListChanged -= OnObservedBindingListChanged;
+            _observedBindingList = list;
+            if (_observedBindingList != null)
+                _observedBindingList.ListChanged += OnObservedBindingListChanged;
+        }
+
+        private void OnObservedBindingListChanged(object sender, ListChangedEventArgs e)
+        {
+            if (e.ListChangedType != ListChangedType.ItemAdded
+                && e.ListChangedType != ListChangedType.ItemDeleted
+                && e.ListChangedType != ListChangedType.Reset)
+                return;
+            // Setting ItemsSource re-enters the change handler, which detaches and re-attaches the listener.
+            var current = ItemsSource;
+            ItemsSource = null;
+            ItemsSource = current;
+        }
+
         private void OnItemsSourceListPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName != _itemsSourceNotifyPropertyName)
@@ -397,6 +420,8 @@ namespace gip.core.layoutengine.avui
                     // Clear bindings for column if needed
                 }
             }
+
+            AttachBindingListRefresh(null);
 
             if (_itemsSourceChangeNotifier != null)
             {
@@ -618,6 +643,7 @@ namespace gip.core.layoutengine.avui
             else if (IsEnabledMoveRows)
             {
                 _DraggedItem = e.Row?.DataContext;
+                _DragStartPoint = e.PointerPressedEventArgs.GetPosition(this);
             }
         }
 
@@ -849,6 +875,7 @@ namespace gip.core.layoutengine.avui
             else if (change.Property == ItemsSourceProperty)
             {
                 _itemsSourceChangedVersion++;
+                AttachBindingListRefresh(change.NewValue as IBindingList);
                 VBDataGrid_TargetUpdated(this, change);
                 // Re-apply grouping when a new ItemsSource (and therefore a new CollectionView) is bound
                 if (!string.IsNullOrEmpty(VBGroupColumns) && _Initialized)
