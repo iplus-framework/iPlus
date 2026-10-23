@@ -2129,8 +2129,12 @@ namespace gip.core.datamodel
                 ACConfigListCache.Remove(acConfig);
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
-                this.ACClassMethodConfig_ACClassMethod.Remove(acConfig);
+                // Mark as Deleted BEFORE severing the association. Removing the entry from the
+                // collection triggers EF's fixup which nulls the FK of the removed dependent;
+                // ACClassMethodID is non-nullable, so this throws unless the entry is already
+                // marked as Deleted (HandleNullForeignKey skips deleted entries).
                 acConfig.DeleteACObject(this.Database, false);
+                this.ACClassMethodConfig_ACClassMethod.Remove(acConfig);
             }
         }
 
