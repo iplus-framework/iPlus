@@ -52,6 +52,28 @@ namespace gip.core.layoutengine
         static VBCheckBox()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(VBCheckBox), new FrameworkPropertyMetadata(typeof(VBCheckBox)));
+            MaxHeightProperty.OverrideMetadata(typeof(VBCheckBox), new FrameworkPropertyMetadata(50.0));
+        }
+
+        /// <summary>
+        /// Computes the box size from the available height of the parent layout, capped by MaxHeight and scaled by BoxSizeFactor.
+        /// </summary>
+        /// <param name="availableSize">The size available from the parent layout.</param>
+        /// <returns>The desired size of the control.</returns>
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            Size desiredSize = base.MeasureOverride(availableSize);
+            double availableHeight = availableSize.Height;
+            double baseHeight = double.IsInfinity(availableHeight) ? desiredSize.Height : Math.Min(availableHeight, MaxHeight);
+            double boxSize = baseHeight * BoxSizeFactor;
+            if (Math.Abs(boxSize - BoxSize) > 0.1)
+            {
+                SetCurrentValue(BoxSizeProperty, boxSize);
+                desiredSize = base.MeasureOverride(availableSize);
+            }
+            if (boxSize > desiredSize.Height)
+                desiredSize.Height = boxSize;
+            return desiredSize;
         }
 
         bool _themeApplied = false;
@@ -612,6 +634,44 @@ namespace gip.core.layoutengine
         {
             get { return (bool)GetValue(ShowCaptionProperty); }
             set { SetValue(ShowCaptionProperty, value); }
+        }
+
+        /// <summary>
+        /// Represents the dependency property for the computed box size (set during measure).
+        /// </summary>
+        public static readonly DependencyProperty BoxSizeProperty
+            = DependencyProperty.Register("BoxSize", typeof(double), typeof(VBCheckBox), new FrameworkPropertyMetadata(0.0));
+
+        /// <summary>
+        /// Computed size of the check box square. Set during measure from the available height, MaxHeight and BoxSizeFactor.
+        /// </summary>
+        /// <summary xml:lang="de">
+        /// Berechnete Größe des Kästchens. Wird beim Messen aus verfügbarer Höhe, MaxHeight und BoxSizeFactor ermittelt.
+        /// </summary>
+        [Category("VBControl")]
+        public double BoxSize
+        {
+            get { return (double)GetValue(BoxSizeProperty); }
+            set { SetValue(BoxSizeProperty, value); }
+        }
+
+        /// <summary>
+        /// Represents the dependency property for BoxSizeFactor.
+        /// </summary>
+        public static readonly DependencyProperty BoxSizeFactorProperty
+            = DependencyProperty.Register("BoxSizeFactor", typeof(double), typeof(VBCheckBox), new FrameworkPropertyMetadata(0.8, FrameworkPropertyMetadataOptions.AffectsMeasure));
+
+        /// <summary>
+        /// Scale factor of the check box square relative to the control height.
+        /// </summary>
+        /// <summary xml:lang="de">
+        /// Skalierungsfaktor des Kästchens relativ zur Steuerhöhe.
+        /// </summary>
+        [Category("VBControl")]
+        public double BoxSizeFactor
+        {
+            get { return (double)GetValue(BoxSizeFactorProperty); }
+            set { SetValue(BoxSizeFactorProperty, value); }
         }
         #endregion
 

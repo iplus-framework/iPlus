@@ -12,6 +12,7 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Controls.Primitives;
+using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
 using gip.ext.designer.avui;
@@ -28,6 +29,14 @@ namespace gip.core.layoutengine.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBCheckBox'}de{'VBCheckBox'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBCheckBox : CheckBox, IVBContent, IACMenuBuilderWPFTree, IACObject, IVBDynamicIcon
     {
+        static VBCheckBox()
+        {
+            MaxHeightProperty.OverrideDefaultValue<VBCheckBox>(50.0);
+            AffectsMeasure<VBCheckBox>(BoxSizeFactorProperty);
+        }
+
+        private Border _boxBorder;
+
         private IACBSO _LastKnownBSOACComponent = null;
         private INotifyPropertyChanged _contextPropertyChangedSource;
         private string _rootBindingSegment;
@@ -165,6 +174,8 @@ namespace gip.core.layoutengine.avui
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
             base.OnApplyTemplate(e);
+            _boxBorder = e.NameScope.Find<Border>("PART_Border");
+            Console.WriteLine($"VBCheckBox.OnApplyTemplate: PART_Border found={_boxBorder != null}");
             InitVBControl();
         }
 
@@ -668,6 +679,78 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public static readonly StyledProperty<bool> ShowCaptionProperty =
             AvaloniaProperty.Register<VBCheckBox, bool>(nameof(ShowCaption), true);
+
+        /// <summary>
+        /// Represents the styled property for the computed box size (set during measure).
+        /// </summary>
+        public static readonly StyledProperty<double> BoxSizeProperty =
+            AvaloniaProperty.Register<VBCheckBox, double>(nameof(BoxSize), 0.0);
+
+        /// <summary>
+        /// Computed size of the check box square. Set during measure from the available height, MaxHeight and BoxSizeFactor.
+        /// </summary>
+        /// <summary xml:lang="de">
+        /// Berechnete Größe des Kästchens. Wird beim Messen aus verfügbarer Höhe, MaxHeight und BoxSizeFactor ermittelt.
+        /// </summary>
+        [Category("VBControl")]
+        public double BoxSize
+        {
+            get { return GetValue(BoxSizeProperty); }
+            set { SetValue(BoxSizeProperty, value); }
+        }
+
+        /// <summary>
+        /// Represents the styled property for BoxSizeFactor.
+        /// </summary>
+        public static readonly StyledProperty<double> BoxSizeFactorProperty =
+            AvaloniaProperty.Register<VBCheckBox, double>(nameof(BoxSizeFactor), 0.8);
+
+        /// <summary>
+        /// Scale factor of the check box square relative to the control height.
+        /// </summary>
+        /// <summary xml:lang="de">
+        /// Skalierungsfaktor des Kästchens relativ zur Steuerhöhe.
+        /// </summary>
+        [Category("VBControl")]
+        public double BoxSizeFactor
+        {
+            get { return GetValue(BoxSizeFactorProperty); }
+            set { SetValue(BoxSizeFactorProperty, value); }
+        }
+
+        /// <summary>
+        /// Computes the box size from the available height of the parent layout, capped by MaxHeight and scaled by BoxSizeFactor.
+        /// </summary>
+        /// <param name="availableSize">The size available from the parent layout.</param>
+        /// <returns>The desired size of the control.</returns>
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            Size desiredSize = base.MeasureOverride(availableSize);
+            double availableHeight = availableSize.Height;
+            double baseHeight = double.IsInfinity(availableHeight) ? desiredSize.Height : Math.Min(availableHeight, MaxHeight);
+            // A square box must also fit the available width (e.g. fixed-width tree column).
+            if (!double.IsInfinity(availableSize.Width) && availableSize.Width < baseHeight)
+                baseHeight = availableSize.Width;
+            double boxSize = baseHeight * BoxSizeFactor;
+            if (Math.Abs(boxSize - BoxSize) > 0.1)
+            {
+                Console.WriteLine($"VBCheckBox.Measure: avail={availableSize} desired={desiredSize} boxSize={boxSize} borderNull={_boxBorder == null}");
+                SetCurrentValue(BoxSizeProperty, boxSize);
+                if (_boxBorder != null)
+                {
+                    _boxBorder.Width = boxSize;
+                    _boxBorder.Height = boxSize;
+                }
+                // Avalonia does not propagate measure invalidation to parents, so the
+                // template root must be invalidated explicitly to re-measure with the new box size.
+                if (VisualChildren.Count > 0 && VisualChildren[0] is Layoutable templateRoot)
+                    templateRoot.InvalidateMeasure();
+                desiredSize = base.MeasureOverride(availableSize);
+            }
+            if (boxSize > desiredSize.Height || boxSize > desiredSize.Width)
+                desiredSize = new Size(Math.Max(desiredSize.Width, boxSize), Math.Max(desiredSize.Height, boxSize));
+            return desiredSize;
+        }
 
         /// <summary>
         /// Determines is control caption shown or not.
