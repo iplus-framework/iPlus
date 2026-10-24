@@ -79,6 +79,8 @@
     <Setter Property="VerticalAlignment" Value="Top" />
     <Setter Property="Focusable" Value="False" />
     <Setter Property="IsHitTestVisible" Value="False" />
+    <Setter Property="Margin" Value="2" />
+    <Setter Property="BoxSizeFactor" Value="0.4" />
   </ControlTheme>
 
   <ControlTheme x:Key="DataGridCheckBoxEditTheme"
@@ -86,6 +88,8 @@
           TargetType="local:VBCheckBox">
     <Setter Property="HorizontalAlignment" Value="Center" />
     <Setter Property="VerticalAlignment" Value="Top" />
+    <Setter Property="Margin" Value="2" />
+    <Setter Property="BoxSizeFactor" Value="0.4" />
   </ControlTheme>
 
   <ControlTheme x:Key="DataGridCellACValueTheme"

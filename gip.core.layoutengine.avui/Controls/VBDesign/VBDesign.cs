@@ -1133,7 +1133,7 @@ namespace gip.core.layoutengine.avui
 
             if (_DesignManager == null)
             {
-                if (typeof(IACComponentDesignManager).IsAssignableFrom(ContentACObject.GetType()))
+                if (ContentACObject != null && typeof(IACComponentDesignManager).IsAssignableFrom(ContentACObject.GetType()))
                 {
                     _DesignManager = ContentACObject as IACComponentDesignManager;
                 }

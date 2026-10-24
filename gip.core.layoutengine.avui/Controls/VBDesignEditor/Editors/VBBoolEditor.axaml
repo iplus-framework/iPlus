@@ -6,6 +6,6 @@
     IsChecked="{Binding Value}"
     ShowCaption="False"
     HorizontalAlignment="Left"
-    
-    >	
+    Margin="0,2,0,2"
+    MaxHeight="24">
 </local:VBCheckBox>

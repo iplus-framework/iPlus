@@ -1,6 +1,7 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 ﻿using gip.core.datamodel;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,17 +31,21 @@ namespace gip.core.media
                 MediaRootFolder = mediaRootFolder;
             else
             {
-                MediaRootFolder = @"C:\VarioData\Media";
+                string configName = GetMediaRootConfigName();
                 using(Database database = new Database())
                 {
                     ACClass bsoMedia = database.ACClass.FirstOrDefault(c => c.ACIdentifier == @"BSOMedia");
-                    ACClassConfig configItem = bsoMedia.ACClassConfig_ACClass.FirstOrDefault(c => c.ACIdentifier == @"ACClassConfig(MediaRootFolder)");
+                    ACClassConfig configItem = bsoMedia?.ACClassConfig_ACClass.FirstOrDefault(c => c.ACIdentifier == $"ACClassConfig({configName})");
                     if (configItem != null && configItem.Value != null)
                     {
                         object configValue = configItem.Value.ToString();
                         if (configValue != null)
                             MediaRootFolder = configValue.ToString();
                     }
+                }
+                if (string.IsNullOrEmpty(MediaRootFolder))
+                {
+                    MediaRootConfigName = configName;
                 }
             }
 
@@ -51,6 +56,34 @@ namespace gip.core.media
             }
         }
         
+        #endregion
+
+        #region Places
+        /// <summary>
+        /// Name of the BSOMedia config value that holds the media root folder for the current operating system.
+        /// Windows uses a UNC path, Linux uses the mount point of the same share.
+        /// </summary>
+        public static string GetMediaRootConfigName()
+        {
+            return OperatingSystem.IsWindows() ? "MediaRootFolderWindows" : "MediaRootFolderLinux";
+        }
+
+        /// <summary>
+        /// Name of the config value that has to be set when <see cref="IsMediaRootConfigured"/> is false.
+        /// </summary>
+        public string MediaRootConfigName { get; private set; }
+
+        /// <summary>
+        /// False when no media root folder is configured for this operating system.
+        /// Media features must stay disabled in that case.
+        /// </summary>
+        public bool IsMediaRootConfigured
+        {
+            get
+            {
+                return !string.IsNullOrEmpty(MediaRootFolder);
+            }
+        }
         #endregion
 
         #region Definitions

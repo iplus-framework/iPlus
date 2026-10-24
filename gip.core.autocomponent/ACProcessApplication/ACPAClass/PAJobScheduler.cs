@@ -27,7 +27,7 @@ namespace gip.core.autocomponent
     /// <summary>
     /// Exporter for Property-Logs (Root-Node)
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'Job sceduler'}de{'Aufgabenplaner'}", Global.ACKinds.TPABGModule, Global.ACStorableTypes.Required, false, false)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Job scheduler'}de{'Aufgabenplaner'}", Global.ACKinds.TPABGModule, Global.ACStorableTypes.Required, false, false)]
     public class PAJobScheduler : PABase
     {
 

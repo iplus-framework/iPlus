@@ -184,7 +184,7 @@ namespace gip.core.communication
                     // e.G. there are two SPSItems which points to the same byte. (ItemA: Bit00, ItemB: Bit01)
                     // if ItemB is changed and another thread changes the ValueT of ItemA an calls OnValueUpdatedOnReceival()
                     // When this thread is faster, then OnSetValueFromPLC will be called for ItemA because Bit01 is changed an from the same byte
-                    // this.OnSetValueFromPLC changes the ValueT-Value. When the sceduler now switches back to the method OnValueUpdatedOnReceival() which calls this.OnSendValueToPLC()
+                    // this.OnSetValueFromPLC changes the ValueT-Value. When the scheduler now switches back to the method OnValueUpdatedOnReceival() which calls this.OnSendValueToPLC()
                     // then the old read-Value from PLC will be send instead of new value of ItemA
                     if (ItemVarType == VarType.Bit && dataBlock.RAMinPLC != null)
                     {

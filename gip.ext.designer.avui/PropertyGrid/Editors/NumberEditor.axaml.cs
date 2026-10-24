@@ -149,7 +149,7 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
                 {
                     if (val >= Minimum && val <= Maximum || double.IsNaN(val))
                     {
-                        textBox.Foreground = Brushes.Black;
+                        textBox.ClearValue(TemplatedControl.ForegroundProperty);
                         ToolTip.SetTip(textBox, textBox.Text);
                     }
                     else

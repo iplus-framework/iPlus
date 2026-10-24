@@ -11,8 +11,8 @@ namespace gip.core.media
     public class MediaSet
     {
         public MediaItemTypeEnum MediaType { get; set; }
-        public ACMediaController MediaController { get; private set; }
-        public MediaSettings MediaSettings { get; private set; }
+        public ACMediaController MediaController { get; set; }
+        public MediaSettings MediaSettings { get; set; }
 
         public MediaTypeSettingsItem MediaTypeSettings { get; set; }
 
