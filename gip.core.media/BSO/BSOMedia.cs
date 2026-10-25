@@ -53,15 +53,11 @@ namespace gip.core.media
 
 
         /// <summary>
-        /// Client-side UI bridge. Only used for file dialogs, because they must run on the client.
+        /// Shared media logic. It talks to the ACMediaService (proxy or real instance, always via ExecuteMethod)
+        /// and falls back to direct file access when the service is not reachable but the media root folder is.
+        /// BSOMedia never calls the service directly.
         /// </summary>
         public ACMediaController MediaController { get; private set; }
-
-        /// <summary>
-        /// Server-side media service. All file system access is delegated to it, so that the
-        /// component also works when the client runs as browser or mobile application.
-        /// </summary>
-        public ACMediaService MediaService { get; private set; }
 
         #endregion
 
@@ -92,7 +88,6 @@ namespace gip.core.media
 
             _ = MediaRootFolder;
             MediaController = ACMediaController.GetServiceInstance(this);
-            MediaService = ACMediaService.GetServiceInstance(this);
 
             if (!IsMediaRootConfigured)
             {
@@ -113,7 +108,7 @@ namespace gip.core.media
         {
             get
             {
-                return MediaService != null && MediaService.IsMediaRootConfigured;
+                return MediaController != null && MediaController.IsMediaRootConfigured;
             }
         }
 
@@ -648,9 +643,8 @@ namespace gip.core.media
             if (mediaSet == null || CurrentACObject == null)
                 return null;
 
-            MediaItemListResult result = MediaService.GetFiles(
-                CurrentACObject.ACType.GetACUrl(),
-                CurrentACObject.GetACUrl(),
+            MediaItemListResult result = MediaController.GetMediaFiles(
+                CurrentACObject,
                 mediaSet.MediaType,
                 1,
                 null,
@@ -697,7 +691,11 @@ namespace gip.core.media
             else if (mediaType == MediaItemTypeEnum.Image)
                 item.TempThumbPath = item.TempFilePath;
             else
-                item.TempThumbPath = CreateTempFileFromService(MediaService.GetIconFilePath(Path.GetExtension(info.FilePath)), id + "_temp");
+            {
+                MediaContentResult icon = MediaController.GetIconContent(Path.GetExtension(info.FilePath));
+                if (icon != null && icon.Success && icon.Content != null)
+                    item.TempThumbPath = WriteTempFile(icon.Content, icon.Extension, id + "_temp");
+            }
 
             return item;
         }
@@ -707,7 +705,7 @@ namespace gip.core.media
             if (string.IsNullOrEmpty(filePath))
                 return null;
 
-            MediaContentResult content = MediaService.GetFileContent(filePath);
+            MediaContentResult content = MediaController.GetFileContent(filePath);
             if (content == null || !content.Success || content.Content == null)
                 return null;
 
@@ -794,9 +792,8 @@ namespace gip.core.media
                 if (!string.IsNullOrEmpty(item.EditThumbPath) && File.Exists(item.EditThumbPath))
                     thumbContent = File.ReadAllBytes(item.EditThumbPath);
 
-                MediaContentResult result = MediaService.UploadFile(
-                    CurrentACObject.ACType.GetACUrl(),
-                    CurrentACObject.GetACUrl(),
+                MediaContentResult result = MediaController.UploadMediaFile(
+                    CurrentACObject,
                     mediaSet.MediaType,
                     Path.GetFileName(item.EditFilePath),
                     content,
@@ -820,11 +817,10 @@ namespace gip.core.media
                 Guid id = Guid.NewGuid();
                 item.TempFilePath = WriteTempFile(result.Content, result.Extension, id.ToString());
 
-                MediaContentResult thumbResult = MediaService.GetThumbContent(item.FilePath, mediaSet.MediaType);
+                MediaContentResult thumbResult = MediaController.GetThumbContent(item.FilePath, mediaSet.MediaType);
                 if (thumbResult != null && thumbResult.Success && thumbResult.Content != null)
                 {
-                    string thumbPath = MediaService.GetThumbPath(item.FilePath);
-                    item.ThumbPath = string.IsNullOrEmpty(thumbPath) ? item.FilePath : MediaService.GetRelativePath(thumbPath);
+                    item.ThumbPath = string.IsNullOrEmpty(thumbResult.FilePath) ? item.FilePath : thumbResult.FilePath;
                     item.TempThumbPath = WriteTempFile(thumbResult.Content, thumbResult.Extension, id + "_temp");
                 }
 
@@ -1004,7 +1000,7 @@ namespace gip.core.media
             MediaItemPresentationList = MediaItemPresentationList.ToList();
             SelectedMediaItemPresentation = MediaItemPresentationList.FirstOrDefault();
 
-            if (!string.IsNullOrEmpty(item.FilePath) && item.FilePath != MediaService.GetRelativePath(MediaService.GetEmptyImagePath()))
+            if (!string.IsNullOrEmpty(item.FilePath) && item.FilePath != ACMediaController.RelativeEmptyImagePath)
             {
                 BGModel bGModel = new BGModel();
                 bGModel.Command = BGWorkerMehtod_DeleteFile;
@@ -1031,7 +1027,7 @@ namespace gip.core.media
         {
             if (aCObject == null || !IsMediaRootConfigured)
                 return;
-            MediaService.CleanUpFolder(aCObject.ACType.GetACUrl(), aCObject.GetACUrl(), true);
+            MediaController.CleanUpMediaFolder(aCObject, true);
         }
 
         private bool ThumbExistAndIsNotGeneric(MediaItemPresentation item)
@@ -1080,12 +1076,12 @@ namespace gip.core.media
 
         private void LoadMediaPresentationDefaults(MediaItemPresentation item, bool isImage)
         {
-            string emptyThumbPath = MediaService.GetRelativePath(MediaService.GetEmptyThumbImagePath());
+            string emptyThumbPath = ACMediaController.RelativeEmptyThumbImagePath;
             item.ThumbPath = emptyThumbPath;
             item.TempThumbPath = CreateTempFileFromService(emptyThumbPath, Guid.NewGuid() + "_temp");
             if (isImage)
             {
-                string emptyImagePath = MediaService.GetRelativePath(MediaService.GetEmptyImagePath());
+                string emptyImagePath = ACMediaController.RelativeEmptyImagePath;
                 item.FilePath = emptyImagePath;
                 item.TempFilePath = CreateTempFileFromService(emptyImagePath, Guid.NewGuid().ToString());
             }
@@ -1268,11 +1264,11 @@ namespace gip.core.media
                         return new Tuple<string, bool, bool>(BGWorkerMehtod_DeleteFile, false, bGModel.IsDefault);
                     }
 
-                    bool isDeleted = MediaService.DeleteFile(file);
+                    bool isDeleted = MediaController.DeleteMediaFile(file);
                     success = success && isDeleted;
                 }
 
-                MediaService.CleanUpFolder(bGModel.ACObject.ACType.GetACUrl(), bGModel.ACObject.GetACUrl(), false);
+                MediaController.CleanUpMediaFolder(bGModel.ACObject, false);
             }
             catch (Exception ex)
             {

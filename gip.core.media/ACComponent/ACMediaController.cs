@@ -56,6 +56,11 @@ namespace gip.core.media
 
         public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
+            if (_MediaService != null)
+            {
+                _MediaService.Detach();
+                _MediaService = null;
+            }
             if (_VBMediaController != null)
             {
                 Root?.WPFServices?.VBMediaControllerService?.RemoveMediaControllerProxy(this);
@@ -99,6 +104,197 @@ namespace gip.core.media
 
             mediaController.MediaSettings = new MediaSettings(mediaRootFolder);
             return mediaController;
+        }
+
+        #endregion
+
+        #region Media service access
+
+        // Responsibilities:
+        // - Remote: the service is resolved as ACComponent (ACComponentProxy or real instance) and is only called
+        //   via ExecuteMethod (static ACMediaService.Invoke... wrappers). Never call its C# methods directly.
+        // - Local fallback: without a reachable service, a desktop client that can access the media root folder
+        //   (same network, SMB share or Linux mount) works directly on the files with MediaFileOperations.
+        // - Neither: the result reports that no access is possible (browser / Android without service).
+
+        public const string RelativeEmptyImagePath = MediaFileOperations.Const_DefImage;
+        public const string RelativeEmptyThumbImagePath = MediaFileOperations.Const_DefThumbImage;
+
+        private ACRef<ACComponent> _MediaService;
+        protected ACComponent MediaService
+        {
+            get
+            {
+                if (_MediaService == null)
+                    _MediaService = ACMediaService.ACRefToServiceInstance(this);
+                return _MediaService?.ValueT;
+            }
+        }
+
+        /// <summary>
+        /// True if the media service (proxy or real instance) is resolved and connected.
+        /// </summary>
+        public bool IsMediaServiceAvailable
+        {
+            get
+            {
+                ACComponent service = MediaService;
+                return service != null && service.ConnectionState != ACObjectConnectionState.DisConnected;
+            }
+        }
+
+        private MediaFileOperations _LocalOperations;
+        private MediaSettings _LocalOperationsSettings;
+        private MediaFileOperations LocalOperations
+        {
+            get
+            {
+                MediaSettings settings = MediaSettings ?? new MediaSettings(null);
+                if (_LocalOperations == null || !ReferenceEquals(_LocalOperationsSettings, settings))
+                {
+                    _LocalOperationsSettings = settings;
+                    _LocalOperations = new MediaFileOperations(settings, (method, ec) => Messages.LogException(this.GetACUrl(), method, ec));
+                }
+                return _LocalOperations;
+            }
+        }
+
+        /// <summary>
+        /// True if this is a desktop client that can reach the media root folder directly.
+        /// Browser, Android and iOS clients can never access the files directly.
+        /// </summary>
+        public bool IsLocalAccessAvailable
+        {
+            get
+            {
+                if (OperatingSystem.IsBrowser() || OperatingSystem.IsAndroid() || OperatingSystem.IsIOS())
+                    return false;
+                return LocalOperations.IsMediaRootAccessible;
+            }
+        }
+
+        /// <summary>
+        /// True if a media root folder is configured, either on the media service or locally.
+        /// </summary>
+        public bool IsMediaRootConfigured
+        {
+            get
+            {
+                if (IsMediaServiceAvailable)
+                {
+                    try
+                    {
+                        return !string.IsNullOrEmpty(ACMediaService.InvokeGetMediaRootFolder(MediaService));
+                    }
+                    catch (Exception ec)
+                    {
+                        Messages.LogException(this.GetACUrl(), nameof(IsMediaRootConfigured), ec);
+                    }
+                }
+                return LocalOperations.IsMediaRootConfigured;
+            }
+        }
+
+        private TResult CallMediaService<TResult>(string method, Func<IACComponent, TResult> remote, Func<MediaFileOperations, TResult> local, Func<string, TResult> failed)
+        {
+            if (IsMediaServiceAvailable)
+            {
+                try
+                {
+                    return remote(MediaService);
+                }
+                catch (Exception ec)
+                {
+                    Messages.LogException(this.GetACUrl(), method, ec);
+                }
+            }
+
+            if (IsLocalAccessAvailable)
+                return local(LocalOperations);
+
+            return failed("The media service is not available and the media root folder cannot be accessed from this client.");
+        }
+
+        private static MediaContentResult FailedContent(string message)
+        {
+            return MediaContentResult.Failed(message);
+        }
+
+        public MediaContentResult GetFileContent(string filePath)
+        {
+            return CallMediaService(nameof(GetFileContent),
+                s => ACMediaService.InvokeGetFileContent(s, filePath),
+                l => l.GetFileContent(filePath), FailedContent);
+        }
+
+        public MediaContentResult GetThumbContent(string filePath, MediaItemTypeEnum mediaType)
+        {
+            return CallMediaService(nameof(GetThumbContent),
+                s => ACMediaService.InvokeGetThumbContent(s, filePath, mediaType),
+                l => l.GetThumbContent(filePath, mediaType), FailedContent);
+        }
+
+        public MediaContentResult GetEmptyImageContent()
+        {
+            return CallMediaService(nameof(GetEmptyImageContent),
+                s => ACMediaService.InvokeGetEmptyImageContent(s),
+                l => l.GetEmptyImageContent(), FailedContent);
+        }
+
+        public MediaContentResult GetEmptyThumbImageContent()
+        {
+            return CallMediaService(nameof(GetEmptyThumbImageContent),
+                s => ACMediaService.InvokeGetEmptyThumbImageContent(s),
+                l => l.GetEmptyThumbImageContent(), FailedContent);
+        }
+
+        public MediaContentResult GetIconContent(string extension)
+        {
+            return CallMediaService(nameof(GetIconContent),
+                s => ACMediaService.InvokeGetIconContent(s, extension),
+                l => l.GetIconContent(extension), FailedContent);
+        }
+
+        public MediaItemListResult GetMediaFiles(IACObject acObject, MediaItemTypeEnum mediaType, int pageIndex, string filterName, string order, bool ascending)
+        {
+            string typeACUrl = acObject.ACType.GetACUrl();
+            string itemACUrl = acObject.GetACUrl();
+            return CallMediaService(nameof(GetMediaFiles),
+                s => ACMediaService.InvokeGetFiles(s, typeACUrl, itemACUrl, mediaType, pageIndex, filterName, order, ascending),
+                l => l.GetFiles(typeACUrl, itemACUrl, mediaType, pageIndex, filterName, order, ascending),
+                msg => new MediaItemListResult { Items = new List<MediaItemInfo>(), Message = new Msg { MessageLevel = eMsgLevel.Error, Message = msg } });
+        }
+
+        public MediaContentResult UploadMediaFile(IACObject acObject, MediaItemTypeEnum mediaType, string fileName, byte[] content, bool isDefault, bool generateThumb, byte[] thumbContent)
+        {
+            string typeACUrl = acObject.ACType.GetACUrl();
+            string itemACUrl = acObject.GetACUrl();
+            return CallMediaService(nameof(UploadMediaFile),
+                s => ACMediaService.InvokeUploadFile(s, typeACUrl, itemACUrl, mediaType, fileName, content, isDefault, generateThumb, thumbContent),
+                l => l.UploadFile(typeACUrl, itemACUrl, mediaType, fileName, content, isDefault, generateThumb, thumbContent), FailedContent);
+        }
+
+        public bool DeleteMediaFile(string filePath)
+        {
+            return CallMediaService(nameof(DeleteMediaFile),
+                s => ACMediaService.InvokeDeleteFile(s, filePath),
+                l => l.DeleteFile(filePath), msg => false);
+        }
+
+        public bool CleanUpMediaFolder(IACObject acObject, bool forceDelete)
+        {
+            string typeACUrl = acObject.ACType.GetACUrl();
+            string itemACUrl = acObject.GetACUrl();
+            return CallMediaService(nameof(CleanUpMediaFolder),
+                s => ACMediaService.InvokeCleanUpFolder(s, typeACUrl, itemACUrl, forceDelete),
+                l => l.CleanUpFolder(typeACUrl, itemACUrl, forceDelete), msg => false);
+        }
+
+        public MediaContentResult ResizeImageContent(byte[] content, int maxWidth, int maxHeight)
+        {
+            return CallMediaService(nameof(ResizeImageContent),
+                s => ACMediaService.InvokeResizeImage(s, content, maxWidth, maxHeight),
+                l => l.ResizeImage(content, maxWidth, maxHeight), FailedContent);
         }
 
         #endregion
