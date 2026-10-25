@@ -337,6 +337,35 @@ namespace gip.bso.iplus
             }
         }
 
+        /// <summary>
+        /// Human readable summary of the installed license: edition, licensed
+        /// company and the number of concurrent users granted by the framework
+        /// runtime license.
+        /// </summary>
+        [ACPropertyInfo(416, "", "en{'License status'}de{'Lizenzstatus'}")]
+        public string LicenseStatusText
+        {
+            get
+            {
+                gip.core.datamodel.Licensing.License license = Root.Environment.License;
+                if (license == null)
+                    return "";
+
+                if (license.IsOpenEdition)
+                    return ComponentClass.GetText("OpenEditionText")?.ACCaption ?? "Open edition (GPL-3) — no runtime license installed";
+
+                int maxUsers = license.LicensedMaxUsers;
+                string users = maxUsers > 0
+                    ? string.Format(ComponentClass.GetText("MaxUsersText")?.ACCaption ?? "{0} concurrent users", maxUsers)
+                    : ComponentClass.GetText("UnlimitedUsersText")?.ACCaption ?? "unlimited users";
+
+                string licensedTo = license.LicensedTo;
+                if (string.IsNullOrEmpty(licensedTo))
+                    return users;
+                return string.Format("{0} — {1}", licensedTo, users);
+            }
+        }
+
         #endregion
 
         #endregion
@@ -392,15 +421,30 @@ namespace gip.bso.iplus
         /// <summary>
         /// This method try activate the application.
         /// </summary>
+        /// <remarks>
+        /// V5 path: signed <c>*.gip</c> license files are validated offline and
+        /// stored in the database (<see cref="License.ActivateLicenseFile"/>).
+        /// The legacy V4 XML license is still accepted as a fallback so that
+        /// existing installations can be migrated.
+        /// </remarks>
         [ACMethodInfo("", "en{'Activate'}de{'Freischalten'}", 404, true)]
         public void ActivateProduct()
         {
             bool result = false;
             try
             {
-                using (Database db = new core.datamodel.Database())
+                string licenseText = File.ReadAllText(LicenceFilePath);
+                string error;
+
+                // V5: signed license file (framework runtime, product or developer license).
+                result = Root.Environment.License.ActivateLicenseFile(licenseText, out error);
+                if (!result)
                 {
-                    result = Root.Environment.License.ActivateLicense(File.ReadAllText(LicenceFilePath), CompanyName, db);
+                    // V4 fallback: legacy XML license.
+                    using (Database db = new core.datamodel.Database())
+                    {
+                        result = Root.Environment.License.ActivateLicense(licenseText, CompanyName, db);
+                    }
                 }
             }
             catch (Exception e)
@@ -419,11 +463,12 @@ namespace gip.bso.iplus
                 IsProductActivatedVisible = true;
                 IsActivationDataVisible = false;
                 IsInfoDataVisible = false;
+                OnPropertyChanged("LicensedToText");
+                OnPropertyChanged("LicenseStatusText");
                 if (Root.Environment.License.NeedRestart)
                 {
                     RestartText = null;
                     RestartText = ComponentClass.GetText("RestartText").ACCaption;
-                    OnPropertyChanged("LicensedToText");
                 }
                 Messages.InfoAsync(this, "Info50027");
             }

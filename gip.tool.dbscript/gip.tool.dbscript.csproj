@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <RootNamespace>gip.tool.dbscript</RootNamespace>
+    <AssemblyName>gip.tool.dbscript</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <RollForward>Major</RollForward>
+    <!-- Cross-platform CLI (Windows/Linux/macOS). Schema extraction is delegated
+         to the official 'sqlpackage' CLI so that this tool does not have to
+         reference DacFx (which pins Microsoft.Data.SqlClient and would conflict
+         with the iPlus SqlClient fork). -->
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET10</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
+    <DefineConstants>TRACE;NET10</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
+    <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Title>iplus-framework initial install script generator</Title>
+    <Description>Generates an idempotent initial-install.sql (schema + seed data) from a reference database</Description>
+    <PackageLicenseExpression>GPL-3.0-or-later OR LicenseRef-Commercial</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <PackageTags>iplus-framework;database;tool</PackageTags>
+    <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\GIP-SNKey.snk">
+      <Link>GIP-SNKey.snk</Link>
+    </None>
+    <None Update="readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="seed-tables.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" />
+    <!-- Same SqlClient assembly identity as the official package, so it is safe
+         to reference directly (see Directory.Build.targets). -->
+    <PackageReference Include="iPlus.Microsoft.Data.SqlClient" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\gip.core.licensing\gip.core.licensing.csproj" />
+  </ItemGroup>
+</Project>

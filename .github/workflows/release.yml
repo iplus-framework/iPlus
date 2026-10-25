@@ -1,0 +1,194 @@
+name: Release
+
+# Builds the ready-to-run binaries for every platform and attaches them to a
+# GitHub Release. This is the *binary* channel; NuGet packages are published
+# separately (see build/pack-local.sh).
+#
+# Trigger:
+#   - pushing a tag like v5.0.0
+#   - manual dispatch (optionally without creating a release, for smoke tests)
+#
+# Optional repository secrets for code signing (see docs/release-process.md):
+#   WINDOWS_CERTIFICATE_BASE64, WINDOWS_CERTIFICATE_PASSWORD
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Suite version (default: derived from the tag or build/iPlus.Package.props)'
+        required: false
+        type: string
+      platforms:
+        description: 'Comma separated platforms'
+        required: false
+        default: 'desktop-win,desktop-linux,browser,service'
+        type: string
+      create_release:
+        description: 'Create a GitHub Release and upload the artifacts'
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  DOTNET_NOLOGO: 'true'
+  DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 'true'
+  # CI has no Avalonia fork checkout, so consume the iPlus.* packages from nuget.org.
+  IPLUS_USE_AVALONIA_FORK: 'false'
+  # gip.core.autocomponent adds an -android TFM on Linux, which breaks the
+  # non-Android publishes. The android job enables it explicitly.
+  IPLUS_BUILD_ANDROID_TFM: 'false'
+
+jobs:
+  resolve-version:
+    name: Resolve version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${{ inputs.version }}" ]; then
+            version="${{ inputs.version }}"
+          elif [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            version="${GITHUB_REF#refs/tags/v}"
+          else
+            version="$(sed -n 's/.*<IPlusPackageVersion Condition=.*>\([^<]*\)<\/IPlusPackageVersion>.*/\1/p' build/iPlus.Package.props | head -1)"
+            version="${version:-5.0.0}"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $version"
+
+  build:
+    name: Build ${{ matrix.platform }}
+    needs: resolve-version
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: desktop-win
+            os: windows-latest
+          - platform: desktop-linux
+            os: ubuntu-latest
+          - platform: browser
+            os: ubuntu-latest
+          - platform: service
+            os: ubuntu-latest
+          - platform: android
+            os: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install workloads
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ matrix.platform }}" in
+            browser) dotnet workload install wasm-tools ;;
+            android) dotnet workload install android wasm-tools ;;
+          esac
+
+      - name: Publish ${{ matrix.platform }}
+        shell: bash
+        env:
+          IPLUS_BUILD_ANDROID_TFM: ${{ matrix.platform == 'android' && 'true' || 'false' }}
+        run: |
+          set -euo pipefail
+          ./build/publish-release.sh \
+            --version "${{ needs.resolve-version.outputs.version }}" \
+            --platform "${{ matrix.platform }}" \
+            --output ./artifacts/release
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: iplus-${{ matrix.platform }}
+          path: |
+            artifacts/release/*.zip
+            artifacts/release/*.apk
+          if-no-files-found: error
+
+  database-script:
+    name: Generate initial-install.sql
+    needs: resolve-version
+    runs-on: ubuntu-latest
+    # Only runs when a reference database is configured (repository variable).
+    # The script is attached to the same release as the binaries.
+    if: ${{ vars.IPLUS_REFERENCE_DB_CONNECTION != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install sqlpackage
+        run: dotnet tool install -g microsoft.sqlpackage
+
+      - name: Generate initial install script
+        env:
+          IPLUS_REFERENCE_DB_CONNECTION: ${{ vars.IPLUS_REFERENCE_DB_CONNECTION }}
+        run: |
+          set -euo pipefail
+          dotnet run --project gip.tool.dbscript/gip.tool.dbscript.csproj -c Release -- \
+            generate \
+            --connection-string "$IPLUS_REFERENCE_DB_CONNECTION" \
+            --output ./artifacts/release/initial-install.sql \
+            --suite-version "${{ needs.resolve-version.outputs.version }}"
+
+      - name: Upload database script
+        uses: actions/upload-artifact@v4
+        with:
+          name: iplus-database-script
+          path: artifacts/release/initial-install.sql
+          if-no-files-found: error
+
+  release:
+    name: Create GitHub Release
+    needs: [resolve-version, build]
+    if: ${{ github.event_name == 'push' || inputs.create_release }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Merge checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd artifacts
+          find . -maxdepth 1 -type f \( -name '*.zip' -o -name '*.apk' -o -name '*.sql' \) -printf '%f\n' \
+            | sort | xargs -r sha256sum > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.resolve-version.outputs.version }}
+          name: iPlus ${{ needs.resolve-version.outputs.version }}
+          draft: true
+          prerelease: ${{ contains(needs.resolve-version.outputs.version, '-') }}
+          generate_release_notes: true
+          files: |
+            artifacts/*.zip
+            artifacts/*.apk
+            artifacts/*.sql
+            artifacts/SHA256SUMS

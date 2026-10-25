@@ -38,8 +38,11 @@
 		<Version>$(IPlusSuitePackageVersion)</Version>
 		<Authors Condition="'$(Authors)' == ''">iplus-framework</Authors>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<!-- Fallback license for projects that don't declare one themselves -->
-		<PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == '' and '$(PackageLicenseFile)' == '' and '$(PackageLicenseUrl)' == ''">GPL-3.0-or-later</PackageLicenseExpression>
+		<!-- Fallback license for projects that don't declare one themselves.
+		     gip holds the copyright on its own packages, so they are dual-licensed:
+		     usable under the open (GPL-3) edition and under a commercial runtime
+		     license. See docs/HANDOVER-dual-licensing-distribution.md, section 7. -->
+		<PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == '' and '$(PackageLicenseFile)' == '' and '$(PackageLicenseUrl)' == ''">GPL-3.0-or-later OR LicenseRef-Commercial</PackageLicenseExpression>
 		<RepositoryType>git</RepositoryType>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -149,4 +152,62 @@
         <ItemGroup Condition="'$(UseSqlClientForkProjectReference)' != 'True'">
                 <PackageReference Update="Microsoft.Data.SqlClient" ExcludeAssets="all" />
         </ItemGroup>
+
+        <!--
+                ============================================================================
+                Package license metadata (GPL vs. commercial)
+                ============================================================================
+
+                Every assembly carries its license expression as
+                [assembly: AssemblyMetadata("iPlusLicense", "<SPDX expression>")].
+                The runtime reads it in ACClassManager.RegisterAssemblyTypes and uses it
+                to prevent mixing GPL-3 packages with a commercially licensed runtime
+                (see docs/HANDOVER-dual-licensing-distribution.md, section 7).
+
+                WHY A GENERATED .g.cs FILE AND NOT <AssemblyAttribute>:
+                All projects in this repo set <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+                (they ship hand-written Properties/AssemblyInfo.cs). The SDK's
+                GetAssemblyAttributes target is gated on GenerateAssemblyInfo == true, so
+                the <AssemblyAttribute> item is silently ignored here. Writing a small
+                generated source file and adding it to Compile works regardless.
+
+                WHY AssemblyMetadataAttribute AND NOT A CUSTOM ATTRIBUTE:
+                AssemblyMetadataAttribute is a BCL type, so gip.core.licensing (which is
+                deliberately dependency-free) can read it without referencing anything.
+                A custom attribute would force every package to reference a shared
+                assembly.
+
+                WHY .targets AND NOT .props:
+                PackageLicenseExpression is set inside the csproj, so it is only final
+                after the project body has been evaluated.
+
+                OVERRIDE FOR COMMERCIAL PACKAGES:
+                  <PropertyGroup>
+                    <IPlusLicenseExpression>Commercial</IPlusLicenseExpression>
+                  </PropertyGroup>
+        -->
+        <PropertyGroup>
+                <!-- Derive from the NuGet license expression so that no csproj needs editing.
+                     gip.ext.opctoolbox declares MIT and therefore stays MIT. -->
+                <IPlusLicenseExpression Condition="'$(IPlusLicenseExpression)' == '' and '$(PackageLicenseExpression)' != ''">$(PackageLicenseExpression)</IPlusLicenseExpression>
+                <IPlusLicenseExpression Condition="'$(IPlusLicenseExpression)' == ''">GPL-3.0-or-later</IPlusLicenseExpression>
+        </PropertyGroup>
+
+        <!-- Runs per target framework (inner build), so multi-targeted projects each get
+             their own generated file in their own IntermediateOutputPath. -->
+        <Target Name="GenerateIPlusLicenseAttribute"
+                BeforeTargets="BeforeCompile;CoreCompile"
+                Condition="'$(IPlusLicenseExpression)' != ''">
+                <PropertyGroup>
+                        <_IPlusLicenseFile>$(IntermediateOutputPath)iPlusLicenseInfo.g.cs</_IPlusLicenseFile>
+                </PropertyGroup>
+                <WriteLinesToFile File="$(_IPlusLicenseFile)"
+                                  Overwrite="true"
+                                  WriteOnlyWhenDifferent="true"
+                                  Lines="// &lt;auto-generated/&gt;%0A[assembly: System.Reflection.AssemblyMetadata(&quot;iPlusLicense&quot;, &quot;$(IPlusLicenseExpression)&quot;)]" />
+                <ItemGroup>
+                        <Compile Include="$(_IPlusLicenseFile)" />
+                        <FileWrites Include="$(_IPlusLicenseFile)" />
+                </ItemGroup>
+        </Target>
 </Project>

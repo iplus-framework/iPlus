@@ -626,6 +626,18 @@ namespace gip.core.autocomponent
             }
         }
 
+        /// <summary>
+        /// Applies the concurrent-user limit granted by the framework runtime
+        /// license. Called once at startup after the <see cref="License"/> was
+        /// created. A value of <c>0</c> means unlimited and leaves the configured
+        /// value untouched.
+        /// </summary>
+        internal void ApplyLicensedMaxUsers(int licensedUsers)
+        {
+            if (licensedUsers > 0)
+                MaxLicensedWinSessions = licensedUsers;
+        }
+
 
         /// <summary>
         /// Returns true if MaxLicensedWinSessions are exceeded

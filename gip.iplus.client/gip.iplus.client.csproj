@@ -122,18 +122,13 @@
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework WPF App</Title>
     <Description>WPF Program to start iplus-framework</Description>
-    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-3.0-or-later OR LicenseRef-Commercial</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageTags>iplus-framework</PackageTags>
     <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
     <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
-  <Target Name="AfterBuild">
-    <Copy SourceFiles="..\..\packages\Matrix\MATRIX32.DLL" DestinationFolder="$(ProjectDir)$(OutDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
-    <Copy SourceFiles="..\..\packages\Matrix\MATRIX64.DLL" DestinationFolder="$(ProjectDir)$(OutDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
-    <Copy SourceFiles="..\..\packages\Matrix\matrix.ini" DestinationFolder="$(ProjectDir)$(OutDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
-  </Target>
     <Target Name="CopyToNet7Windows" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
       <ItemGroup>
         <_CopyToUiFiles Include="$(SolutionDir)bin\$(Configuration)\$(DefaultNetCoreTargetFramework)\**\*.*"

@@ -2,6 +2,8 @@
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 using gip.core.autocomponent;
 using gip.core.datamodel;
+using gip.core.datamodel.Licensing;
+using gip.core.licensing;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.Serialization;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -41,7 +44,7 @@ namespace gip.bso.iplus
             if (this.Root.Environment.License.CurrentLicenseType != core.datamodel.Licensing.LicenseType.Developer_Issuer
                 && this.Root.Environment.License.CurrentLicenseType != core.datamodel.Licensing.LicenseType.Developer_EndUser)
             {
-                throw new Exception("Licensemanager can only use developers with have a dongle");
+                throw new Exception("Licensemanager can only be used by developers that have a DeveloperIssuer license installed");
             }            
 #endif
             var result = base.ACInit(startChildMode);
@@ -320,6 +323,31 @@ namespace gip.bso.iplus
             }
         }
 
+        private string _DeveloperPrivateKeyPath;
+        /// <summary>
+        /// Gets or sets the path of the developer's private key (PEM) that is used
+        /// to sign product licenses for the developer's own packages.
+        /// </summary>
+        /// <remarks>
+        /// In V5 there is no developer dongle any more. The developer keeps the
+        /// private key locally; the matching public key is embedded in the
+        /// <c>DeveloperIssuer</c> license that gip signed for the developer, so end
+        /// customers can verify the product license offline.
+        /// </remarks>
+        [ACPropertyInfo(514, "", "en{'Developer private key (*.pem)'}de{'Privater Schlüssel des Entwicklers (*.pem)'}")]
+        public string DeveloperPrivateKeyPath
+        {
+            get
+            {
+                return _DeveloperPrivateKeyPath;
+            }
+            set
+            {
+                _DeveloperPrivateKeyPath = value;
+                OnPropertyChanged("DeveloperPrivateKeyPath");
+            }
+        }
+
         #endregion
 
         #endregion
@@ -593,6 +621,12 @@ namespace gip.bso.iplus
         /// <summary>
         /// Generates the license file and saves a changes.
         /// </summary>
+        /// <remarks>
+        /// V5 path: the product license is issued as a signed <c>*.gip</c> file with
+        /// the developer's own private key (<see cref="DeveloperPrivateKeyPath"/>).
+        /// The legacy V4 XML generation is kept as a fallback for installations that
+        /// still work with the old format.
+        /// </remarks>
         [ACMethodInfo("", "en{'Generate license file'}de{'Lizenzdatei erzeugen'}", 508,true)]
         public void GenerateLicenseFile()
         {
@@ -604,6 +638,30 @@ namespace gip.bso.iplus
 
             var system = CurrentVBLicense;
 
+            // V5: sign locally with the developer's private key.
+            if (!string.IsNullOrEmpty(DeveloperPrivateKeyPath) && File.Exists(DeveloperPrivateKeyPath))
+            {
+                string outputPath = Path.Combine(LicenseFileDirPath, CurrentVBLicense.CustomerName + "-license" + LicenseFormat.FileExtension);
+                string error;
+                if (Root.Environment.License.IssueProductLicenseFile(
+                        File.ReadAllText(DeveloperPrivateKeyPath),
+                        CurrentVBLicense.CustomerName,
+                        CurrentVBLicense.ProjectNo,
+                        packages,
+                        outputPath,
+                        out error))
+                {
+                    CurrentVBLicense = system;
+                    ACSaveChanges();
+                    Messages.InfoAsync(this, "Info50025");
+                    _IsNewLicense = true;
+                    return;
+                }
+
+                Messages.LogException("BSOiPlusLicenseManager", "GenerateLicenseFile", error);
+            }
+
+            // V4 fallback.
             if (Root.Environment.License.GenerateLicenseFile(LicenseFileDirPath, UniqueCustomerCode, ref system))
             {
                 CurrentVBLicense = system;
@@ -619,7 +677,7 @@ namespace gip.bso.iplus
 
         public bool IsEnabledGenerateLicenseFile()
         {
-            if (CurrentVBLicense == null || string.IsNullOrEmpty(CurrentVBLicense.CustomerName) || string.IsNullOrEmpty(UniqueCustomerCode) || string.IsNullOrEmpty(LicenseFileDirPath))
+            if (CurrentVBLicense == null || string.IsNullOrEmpty(CurrentVBLicense.CustomerName) || string.IsNullOrEmpty(LicenseFileDirPath))
                 return false;
             return Root.Environment.License.IsEnabledGenerateLicenseFile();
         }
@@ -687,6 +745,8 @@ namespace gip.bso.iplus
         {
             if (string.IsNullOrEmpty(LicenseFilePath))
                 return false;
+            if (string.IsNullOrEmpty(DeveloperPrivateKeyPath) || !File.Exists(DeveloperPrivateKeyPath))
+                return false;
             return true;
         }
 
@@ -699,14 +759,15 @@ namespace gip.bso.iplus
                 BackgroundWorker.ProgressInfo.ReportProgress("", 0, "");
                 Thread.Sleep(500);
 
-                string data = CurrentSignLicense.GetChecksumSigned().ToByteStringKey();
-                string result = SignLicense(data).Result;
-                if (string.IsNullOrEmpty(result))
+                // V5: sign locally with the developer's private key instead of
+                // sending the checksum to iplus-framework.com.
+                string signature = SignLicenseLocally(CurrentSignLicense.GetChecksumSigned());
+                if (string.IsNullOrEmpty(signature))
                 {
                     Messages.WarningAsync(this, "Warning50028");
                     return;
                 }
-                CurrentSignLicense.SystemCommon1 = ByteExtension.FromByteStringKey(result);
+                CurrentSignLicense.SystemCommon1 = ByteExtension.FromByteStringKey(signature);
                 DataContractSerializer serializer = new DataContractSerializer(typeof(VBSystem));
                 using (FileStream fs = new FileStream(LicenseFilePath, FileMode.Create))
                 {
@@ -718,16 +779,22 @@ namespace gip.bso.iplus
             }
         }
 
-        private async Task<string> SignLicense(string data)
+        /// <summary>
+        /// Signs the given data with the developer's private key
+        /// (<see cref="DeveloperPrivateKeyPath"/>) and returns the signature as a
+        /// byte-string key. Returns <c>null</c> when no key is configured.
+        /// </summary>
+        private string SignLicenseLocally(byte[] data)
         {
-            string url = string.Format("http://iplus-framework.com/en/VarioBatchDeploy/SignLicenseFile?input={0}", data);
-            string responseString;
+            if (string.IsNullOrEmpty(DeveloperPrivateKeyPath) || !File.Exists(DeveloperPrivateKeyPath))
+                return null;
+
             try
             {
-                using (var client = new HttpClient())
+                using (RSA key = LicenseKeys.LoadKeyFromFile(DeveloperPrivateKeyPath, privateKey: true))
                 {
-                    var responseGetUserStatus = await client.PostAsync(url, null);
-                    responseString = await responseGetUserStatus.Content.ReadAsStringAsync();
+                    byte[] signature = key.SignData(data, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+                    return signature.ToByteStringKey();
                 }
             }
             catch (Exception e)
@@ -736,14 +803,14 @@ namespace gip.bso.iplus
                 if (e.InnerException != null && e.InnerException.Message != null)
                     msg += " Inner:" + e.InnerException.Message;
 
-                Messages.LogException("BSOiPlusLicenseManager", "SignLicense", msg);
-                responseString = "";
+                Messages.LogException("BSOiPlusLicenseManager", "SignLicenseLocally", msg);
+                return null;
             }
-            return responseString;
         }
 
         /// <summary>
-        /// Opens the dialog to select the license file for signing with gip private key.
+        /// Opens the dialog to select the license file for signing with the
+        /// developer's private key.
         /// </summary>
         [ACMethodInfo("", "en{'...'}de{'...'}", 511)]
         public async Task BrowseLicenseFile()
@@ -751,6 +818,22 @@ namespace gip.bso.iplus
             string initialDir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
             ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
             LicenseFilePath = await mediaController.OpenFileDialog(false, initialDir, true) ?? LicenseFilePath;
+        }
+
+        /// <summary>
+        /// Opens the dialog to select the developer's private key file (PEM).
+        /// </summary>
+        [ACMethodInfo("", "en{'...'}de{'...'}", 515)]
+        public async Task BrowseDeveloperPrivateKey()
+        {
+            string initialDir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+            ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
+            DeveloperPrivateKeyPath = await mediaController.OpenFileDialog(false, initialDir, true) ?? DeveloperPrivateKeyPath;
+        }
+
+        public bool IsEnabledBrowseDeveloperPrivateKey()
+        {
+            return true;
         }
 
         #endregion
@@ -924,6 +1007,12 @@ namespace gip.bso.iplus
                 case nameof(BrowseLicenseFile):
                     result = BrowseLicenseFile();
                     return true;
+                case nameof(BrowseDeveloperPrivateKey):
+                    result = BrowseDeveloperPrivateKey();
+                    return true;
+                case nameof(IsEnabledBrowseDeveloperPrivateKey):
+                    result = IsEnabledBrowseDeveloperPrivateKey();
+                    return true;
                 case nameof(GenerateRemoteUserKey):
                     GenerateRemoteUserKey();
                     return true;
@@ -954,9 +1043,9 @@ namespace gip.bso.iplus
                 case nameof(IsEnabledRemoveSelectedPackage):
                     return new string[] { nameof(SelectedAssignedPackage) };
                 case nameof(IsEnabledGenerateLicenseFile):
-                    return new string[] { nameof(CurrentVBLicense), nameof(UniqueCustomerCode), nameof(LicenseFileDirPath) };
+                    return new string[] { nameof(CurrentVBLicense), nameof(LicenseFileDirPath), nameof(DeveloperPrivateKeyPath) };
                 case nameof(IsEnabledSignLicenseFile):
-                    return new string[] { nameof(LicenseFilePath) };
+                    return new string[] { nameof(LicenseFilePath), nameof(DeveloperPrivateKeyPath) };
                 case nameof(IsEnabledGenerateRemoteUserKey):
                     return new string[] { nameof(RemoteUserCode), nameof(CurrentVBLicense) };
                 default:

@@ -15,7 +15,7 @@
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework wpfservices</Title>
     <Description>Mediator for seperation of WPF and manager components</Description>
-    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-3.0-or-later OR LicenseRef-Commercial</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageTags>iplus-framework</PackageTags>
     <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>

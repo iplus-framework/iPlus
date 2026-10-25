@@ -1,4 +1,4 @@
-<Solution>
+﻿<Solution>
   <Folder Name="/1. Clientlayer/">
     <Project Path="gip.iplus.client/gip.iplus.client.csproj" />
     <Project Path="gip.iplus.console/gip.iplus.console.csproj" />
@@ -13,6 +13,7 @@
     <Project Path="gip.core.datamodel.shared/gip.core.datamodel.shared.shproj" />
     <Project Path="gip.core.datamodel/gip.core.datamodel.csproj" />
     <Project Path="gip.core.dbsyncer/gip.core.dbsyncer.csproj" />
+    <Project Path="gip.core.licensing/gip.core.licensing.csproj" />
   </Folder>
   <Folder Name="/Extension/">
     <Project Path="gip.ext.chart/gip.ext.chart.csproj" />

@@ -1,4 +1,4 @@
-<Solution>
+﻿<Solution>
   <Folder Name="/1. Clientlayer/">
     <Project Path="gip.iplus.client.avui.Android/gip.iplus.client.avui.Android.csproj">
       <Deploy Solution="Debug|*" />
@@ -19,6 +19,7 @@
     <Project Path="gip.core.datamodel.shared/gip.core.datamodel.shared.shproj" />
     <Project Path="gip.core.datamodel/gip.core.datamodel.csproj" />
     <Project Path="gip.core.dbsyncer/gip.core.dbsyncer.csproj" />
+    <Project Path="gip.core.licensing/gip.core.licensing.csproj" />
   </Folder>
   <Folder Name="/Extension/">
     <Project Path="gip.ext.design.avui/gip.ext.design.avui.csproj" />

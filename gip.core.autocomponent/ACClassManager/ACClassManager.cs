@@ -517,6 +517,59 @@ namespace gip.core.autocomponent
             {
                 RegisterSingleType(classType, classAssembly);
             }
+
+            RegisterPackageLicense(classAssembly, classTypeList);
+        }
+
+        /// <summary>
+        /// Reads the <c>iPlusLicense</c> assembly metadata (the SPDX license
+        /// expression that the build stamped into the assembly) and registers it
+        /// for every package the assembly contributes types to.
+        /// </summary>
+        /// <remarks>
+        /// This is the single place where package license metadata enters the
+        /// runtime. <see cref="gip.core.datamodel.Licensing.PackageLicenseRegistry"/>
+        /// is consulted by <c>License.IsPackageLicensed</c> to enforce the
+        /// GPL/commercial mixing rule. Registration is fail-open: an assembly
+        /// without metadata simply contributes nothing.
+        /// </remarks>
+        private void RegisterPackageLicense(Assembly classAssembly, Type[] classTypeList)
+        {
+            if (classAssembly == null || classTypeList == null || classTypeList.Length == 0)
+                return;
+
+            string expression = gip.core.datamodel.Licensing.PackageLicenseRegistry.ReadExpression(classAssembly);
+            if (string.IsNullOrEmpty(expression))
+                return;
+
+            HashSet<string> packageNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (Type classType in classTypeList)
+            {
+                try
+                {
+                    object[] attributes = classType.GetCustomAttributes(typeof(ACClassInfo), false);
+                    if (attributes.Length == 0)
+                        continue;
+                    ACClassInfo acClassInfo = attributes[0] as ACClassInfo;
+                    if (acClassInfo != null && !string.IsNullOrEmpty(acClassInfo.ACPackageName))
+                        packageNames.Add(acClassInfo.ACPackageName);
+                }
+                catch (Exception)
+                {
+                    // Partially loadable types must not break registration.
+                }
+            }
+
+            if (packageNames.Count == 0)
+                return;
+
+            gip.core.datamodel.Licensing.PackageLicenseRegistry.RegisterFromAssembly(classAssembly, packageNames);
+
+            if (Database.Root != null && Database.Root.Messages != null)
+            {
+                Database.Root.Messages.LogDebug("ACClassManager", "RegisterPackageLicense",
+                    $"{classAssembly.GetName().Name}: iPlusLicense = {expression} ({string.Join(", ", packageNames)})");
+            }
         }
 
         private void RegisterSingleType(Type classType, Assembly classAssembly)

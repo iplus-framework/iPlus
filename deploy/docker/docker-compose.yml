@@ -1,0 +1,107 @@
+# iPlus V5 evaluation bundle — SQL Server + iPlus service + browser client.
+#
+# One command to a running system, no local SQL Server install:
+#
+#   cp deploy/docker/.env.example deploy/docker/.env   # then edit the passwords
+#   ./build/publish-release.sh --platform browser,service --keep-intermediate
+#   docker compose -f deploy/docker/docker-compose.yml --env-file deploy/docker/.env up -d
+#
+# Then open http://localhost:8080 and log in with the superuser account that
+# the initial-install.sql script created (default: superuser / superuser).
+#
+# This bundle is for EVALUATION and development. For production use a managed
+# SQL Server, a reverse proxy with TLS in front of the browser client, and a
+# signed license file (see docs/release-process.md).
+
+name: iplus-eval
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: iplus-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD in deploy/docker/.env}"
+      MSSQL_PID: "${MSSQL_PID:-Developer}"
+    ports:
+      - "${MSSQL_PORT:-1433}:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+      # The initial install script is applied once, on first start, by the
+      # mssql-init sidecar below (not by SQL Server itself).
+      - ./../../artifacts/release:/scripts:ro
+    healthcheck:
+      # sqlcmd ships with the image; -C accepts the self-signed certificate.
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' -b -o /dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    restart: unless-stopped
+
+  # Applies initial-install.sql exactly once (fresh database only) and then
+  # exits. Existing installations skip this step and rely on the incremental
+  # DbScripts updates that the service applies on startup.
+  mssql-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: iplus-mssql-init
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD in deploy/docker/.env}"
+      IPLUS_DB_NAME: "${IPLUS_DB_NAME:-iPlusV5}"
+    volumes:
+      - ./../../artifacts/release:/scripts:ro
+      - ./:/docker:ro
+      - mssql-init-state:/state
+    entrypoint: ["/bin/bash", "/docker/docker-init-db.sh"]
+    restart: "no"
+
+  iplus-service:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.service
+      args:
+        IPLUS_VERSION: "${IPLUS_VERSION:-5.0.0}"
+    image: iplus-service:${IPLUS_VERSION:-5.0.0}
+    container_name: iplus-service
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      mssql-init:
+        condition: service_completed_successfully
+    environment:
+      IPLUS_DB_SERVER: "sqlserver"
+      IPLUS_DB_NAME: "${IPLUS_DB_NAME:-iPlusV5}"
+      IPLUS_DB_USER: "sa"
+      IPLUS_DB_PASSWORD: "${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD in deploy/docker/.env}"
+      IPLUS_LICENSE_DIR: "/app/licenses"
+      # The service logs to stdout; keep the container's timezone explicit.
+      TZ: "${TZ:-UTC}"
+    volumes:
+      - ./licenses:/app/licenses:ro
+      - iplus-logs:/app/logs
+    ports:
+      # SQL Tunnel host (PASqlTunnelHost) — used by browser/Android clients.
+      - "${IPLUS_TUNNEL_PORT:-8751}:8751"
+    restart: unless-stopped
+
+  iplus-browser:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.browser
+      args:
+        IPLUS_VERSION: "${IPLUS_VERSION:-5.0.0}"
+    image: iplus-browser:${IPLUS_VERSION:-5.0.0}
+    container_name: iplus-browser
+    depends_on:
+      - iplus-service
+    ports:
+      - "${IPLUS_HTTP_PORT:-8080}:80"
+    restart: unless-stopped
+
+volumes:
+  mssql-data:
+  mssql-init-state:
+  iplus-logs:

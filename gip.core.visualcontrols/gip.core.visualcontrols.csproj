@@ -31,7 +31,7 @@
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework UI Controls automation</Title>
     <Description>Library with base UI Controls for industrial automation</Description>
-    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-3.0-or-later OR LicenseRef-Commercial</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageTags>iplus-framework</PackageTags>
     <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>

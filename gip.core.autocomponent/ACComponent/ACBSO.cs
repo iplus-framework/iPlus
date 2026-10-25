@@ -130,7 +130,6 @@ namespace gip.core.autocomponent
             }
             _TempParentACComponent = null;
             _CurrentProgressInfo = null;
-            _TrialExpiredLock = null;
             return result;
         }
 
@@ -166,24 +165,49 @@ namespace gip.core.autocomponent
             }
         }
 
-        private object _TrialExpiredLock = new object();
-        private static bool _TrialExpired = false;
+        private static readonly object _LicenseWarningLock = new object();
+        private static bool _LicenseWarningShown = false;
         private static DateTime? _MaxWinSessionChecked;
 
+        /// <summary>
+        /// Two-stage license enforcement (V4 parity):
+        /// <list type="number">
+        /// <item>After 30 minutes without a valid license the client shows a
+        ///       warning message once. The system stays fully usable.</item>
+        /// <item>After 1–2 days the server blocks <c>ACUrlCommand</c> (see
+        ///       <c>License.IsComponentLicensed</c>), so the program stops
+        ///       working. This gives the end user time to resolve the issue.</item>
+        /// </list>
+        /// </summary>
         private void VerifyLicense()
         {
-            if (ParentACComponent != null
-                && ParentACComponent.Root != null
-                && ParentACComponent.Root.RootPageWPF != null
-                && Root.Environment.License.IsTrial && Root.Environment.License.IsTrialTimeExpired)
+            if (ParentACComponent == null
+                || ParentACComponent.Root == null
+                || ParentACComponent.Root.RootPageWPF == null)
+                return;
+
+            gip.core.datamodel.Licensing.License license = Root.Environment.License;
+            if (license == null)
+                return;
+
+            // Stage 1: warn once after the warning grace period has elapsed.
+            if (license.IsLicenseWarningDue)
             {
-                if (!_TrialExpired)
+                if (!_LicenseWarningShown)
                 {
                     Messages.WarningAsync(this, "Warning50025");
-                    lock (_TrialExpiredLock)
-                        _TrialExpired = true;
+                    lock (_LicenseWarningLock)
+                        _LicenseWarningShown = true;
                 }
-                throw new Exception("Trial expired");
+                return;
+            }
+
+            // No license problem (or still inside the warning grace period): re-arm
+            // the warning so that a future problem is reported again.
+            if (!license.LicenseGraceStartUtc.HasValue && _LicenseWarningShown)
+            {
+                lock (_LicenseWarningLock)
+                    _LicenseWarningShown = false;
             }
         }
         private void VerifyMaxSessions()

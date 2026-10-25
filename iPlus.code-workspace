@@ -2,9 +2,19 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../iPlusMES"
+		},
+		{
+			"path": "../Avalonia"
+		},
+		{
+			"path": "../Xaml.Behaviors"
 		}
 	],
 	"settings": {
-		"chat.tools.terminal.enableAutoApprove": false
+		"chat.tools.terminal.enableAutoApprove": false,
+		"dotnet.defaultSolution": "iPlusMES/iPlusMESAvaloniaUI.slnx"
 	}
 }

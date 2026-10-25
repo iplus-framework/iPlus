@@ -36,7 +36,7 @@
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework datamodel core</Title>
     <Description>Datamodel, Abstration layer for the runtime</Description>
-    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-3.0-or-later OR LicenseRef-Commercial</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageTags>iplus-framework</PackageTags>
     <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
@@ -48,7 +48,6 @@
     <None Include="..\GIP-SNKey.snk">
       <Link>GIP-SNKey.snk</Link>
     </None>
-    <None Include="ACHelperclasses\ACLicense\matrix.ini" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -181,6 +180,11 @@
   <ItemGroup>
     <Compile Remove="ACHelperclasses\EntityFramework\NoConfigurationManager.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Software licensing (offline signed license files). BCL-only, so it is
+         safe for every target of the datamodel (desktop, browser, android). -->
+    <ProjectReference Include="..\gip.core.licensing\gip.core.licensing.csproj" />
+  </ItemGroup>
   <ItemGroup Condition="'$(EnableEFDesignTime)' != 'True'">
     <Compile Remove="ACHelperclasses\T4TemplatePluralizer\MyPluralizer.cs" />
     <Compile Remove="ACHelperclasses\T4TemplatePluralizer\MyDesignTimeServices.cs" />
@@ -190,8 +194,5 @@
   </ItemGroup>
   <PropertyGroup />
   <PropertyGroup />
-  <Import Project="..\gip.core.datamodel.shared\gip.core.datamodel.shared.projitems" Label="Shared" />
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <!--<Exec Command="copy /Y $(ProjectDir)..\..\..\packages\Matrix\matrix.ini  $(TargetDir)&#xD;&#xA;copy /Y $(ProjectDir)..\..\..\packages\Matrix\MATRIX32.DLL  $(TargetDir)&#xD;&#xA;copy /Y $(ProjectDir)..\..\..\packages\Matrix\MATRIX64.DLL  $(TargetDir)" />-->
-  </Target>
+  <Import Project="../gip.core.datamodel.shared/gip.core.datamodel.shared.projitems" Label="Shared" />
 </Project>

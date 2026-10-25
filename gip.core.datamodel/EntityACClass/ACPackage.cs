@@ -17,6 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using gip.core.licensing;
+using gip.core.datamodel.Licensing;
 
 namespace gip.core.datamodel
 {
@@ -181,6 +183,38 @@ namespace gip.core.datamodel
                 if (Database.Root == null || !Database.Root.Initialized)
                     return true;
                 return Database.Root.Environment.License.IsPackageLicensed(this);
+            }
+        }
+
+        /// <summary>
+        /// The SPDX license expression that the package's assembly declares as
+        /// <c>[assembly: AssemblyMetadata("iPlusLicense", "...")]</c>, or
+        /// <c>null</c> when the package did not register one.
+        /// </summary>
+        /// <remarks>
+        /// Populated by <c>ACClassManager.RegisterAssemblyTypes</c> through
+        /// <see cref="PackageLicenseRegistry"/>. Not persisted — no EF schema
+        /// change is required.
+        /// </remarks>
+        [NotMapped]
+        public string LicenseExpression
+        {
+            get
+            {
+                return PackageLicenseRegistry.GetExpression(ACPackageName);
+            }
+        }
+
+        /// <summary>
+        /// Classification of <see cref="LicenseExpression"/> for the
+        /// GPL/commercial mixing rule.
+        /// </summary>
+        [NotMapped]
+        public LicenseCompatibility LicenseCompatibility
+        {
+            get
+            {
+                return PackageLicenseRegistry.GetCompatibility(ACPackageName);
             }
         }
 

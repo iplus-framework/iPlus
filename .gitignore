@@ -88,6 +88,9 @@ StyleCopReport.xml
 *.svclog
 *.scc
 
+# Runtime log output of the console/service hosts
+Logs/
+
 # Chutzpah Test files
 _Chutzpah*
 

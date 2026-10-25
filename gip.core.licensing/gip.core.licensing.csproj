@@ -1,0 +1,74 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <OutputType>Library</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <RootNamespace>gip.core.licensing</RootNamespace>
+    <AssemblyName>gip.core.licensing</AssemblyName>
+    <LangVersion>latest</LangVersion>
+    <!-- Deliberately dependency-free (BCL only) so that it can be consumed by
+         gip.core.datamodel, the license issuer CLI and third-party commercial
+         modules without dragging in EF Core / Avalonia / SqlClient. -->
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET10</DefineConstants>
+    <NoWarn>CS1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
+    <DefineConstants>TRACE;NET10</DefineConstants>
+    <NoWarn>CS1591</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
+    <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Title>iplus-framework software licensing</Title>
+    <Description>Offline, signed license files for iPlus (replaces USB dongle validation)</Description>
+    <PackageLicenseExpression>GPL-3.0-or-later OR LicenseRef-Commercial</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <PackageTags>iplus-framework;licensing</PackageTags>
+    <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\GIP-SNKey.snk">
+      <Link>GIP-SNKey.snk</Link>
+    </None>
+    <None Update="readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="icon.png" Condition="Exists('icon.png')">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      The framework PUBLIC key is embedded so that every consumer of the
+      package can validate gip-issued licenses without shipping a key file.
+      The matching PRIVATE key is never committed (see docs/HANDOVER-dual-
+      licensing-distribution.md, "Key management").
+    -->
+    <EmbeddedResource Include="FrameworkPublicKey.pem">
+      <LogicalName>gip.core.licensing.FrameworkPublicKey.pem</LogicalName>
+    </EmbeddedResource>
+    <!-- Also ship the key as package content so that non-.NET tooling and
+         commercial modules can verify licenses without loading the assembly. -->
+    <None Include="FrameworkPublicKey.pem">
+      <Pack>true</Pack>
+      <PackagePath>content/</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

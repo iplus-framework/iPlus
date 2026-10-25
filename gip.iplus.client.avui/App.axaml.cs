@@ -522,7 +522,7 @@ public partial class App : Application
 
     private void License_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (e != null && e.PropertyName == "IsTrial")
+        if (e != null && (e.PropertyName == "IsTrial" || e.PropertyName == "IsOpenEdition"))
         {
             IClassicDesktopStyleApplicationLifetime desktop = ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
             if (desktop != null)
@@ -543,8 +543,8 @@ public partial class App : Application
 #if DEBUG
         info = "DEBUG";
 #else
-                if (ACRoot.SRoot.Environment.License.IsTrial)
-                    info = "Trial";
+                if (ACRoot.SRoot.Environment.License.IsOpenEdition)
+                    info = "Open Edition";
                 else if (ACRoot.SRoot.Environment.License.IsDeveloper)
                     info = "Development";
                 else if (ACRoot.SRoot.Environment.License.IsRemoteDeveloper)

@@ -118,6 +118,26 @@ external contributors without V4 server access.
 .\pullinit-community.ps1
 ```
 
+### 6. `publish-release.sh` - Release Bundle Builder (Linux/macOS/WSL)
+Publishes the binary release channels (`desktop-win`, `desktop-linux`, `browser`,
+`service`, `android`) into `artifacts/release/` and writes a `SHA256SUMS` file.
+The version is read from `iPlus.Package.props` unless `--version` is given.
+
+**Usage:**
+```bash
+# Single channel
+./publish-release.sh --platform desktop-linux
+
+# All channels that can be built on this machine
+./publish-release.sh --platform all
+
+# Keep the intermediate publish folders (needed by deploy/docker/)
+./publish-release.sh --platform service --keep-intermediate
+```
+
+See [../docs/release-process.md](../docs/release-process.md) for the full release
+process, the CI workflow and the docker evaluation bundle.
+
 ## Expected Project Structure
 
 The scripts expect the following directory structure relative to the build directory:

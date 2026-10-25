@@ -1,0 +1,62 @@
+# syntax=docker/dockerfile:1
+
+# Runtime image for the iPlus service (gip.iplus.service).
+#
+# The image does NOT build iPlus. It consumes the published output of
+# build/publish-release.sh (platform "service"), so the container and the
+# GitHub Release artifact are byte-identical. Build the artifact first:
+#
+#   ./build/publish-release.sh --platform service --keep-intermediate
+#
+# then build the image from the repository root:
+#
+#   docker build -f deploy/docker/Dockerfile.service \
+#     --build-arg IPLUS_VERSION=5.0.0 \
+#     -t iplus-service:5.0.0 .
+#
+# The publish output is expected in artifacts/release/.work/iplus-<version>-service-linux-x64.
+
+FROM mcr.microsoft.com/dotnet/runtime:10.0 AS runtime
+
+ARG IPLUS_VERSION=5.0.0
+ARG IPLUS_UID=1654
+ARG IPLUS_GID=1654
+
+# ICU is required for globalization; tzdata for correct local timestamps.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      ca-certificates \
+      libicu-dev \
+      tzdata \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# The published service output (self-contained or framework-dependent).
+COPY artifacts/release/.work/iplus-${IPLUS_VERSION}-service-linux-x64/ /app/
+
+# Renders ConnectionStrings.config from environment variables at start-up, so
+# the database password is never baked into the image.
+COPY deploy/docker/entrypoint-service.sh /usr/local/bin/entrypoint-service.sh
+RUN chmod +x /usr/local/bin/entrypoint-service.sh
+
+# Configuration is mounted, never baked into the image:
+#   /app/appsettings.json          -> logging
+#   /app/DbScripts, /app/VBControlScripts -> schema/design updates
+#   /app/licenses                  -> *.gip license files
+RUN mkdir -p /app/licenses /app/DbScripts /app/VBControlScripts /app/logs \
+ && chown -R ${IPLUS_UID}:${IPLUS_GID} /app
+
+ENV DOTNET_RUNNING_IN_CONTAINER=true \
+    DOTNET_NOLOGO=1 \
+    DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+    IPLUS_LICENSE_DIR=/app/licenses
+
+USER ${IPLUS_UID}:${IPLUS_GID}
+
+# The service logs to stdout/stderr; no port is exposed by the service itself.
+# The SQL Tunnel host (PASqlTunnelHost) listens on 8751 when enabled in the database.
+EXPOSE 8751
+
+ENTRYPOINT ["/usr/local/bin/entrypoint-service.sh"]
+CMD ["/U00", "/P00"]

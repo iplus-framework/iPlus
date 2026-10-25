@@ -1,34 +1,35 @@
-// Copyright (c) 2024, gipSoft d.o.o.
+﻿// Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 using System.Runtime.CompilerServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MXAPI;
 using System.Security.Cryptography;
 using System.IO;
-using System.Timers;
 using System.ComponentModel;
 using System.Runtime.Serialization;
-using System.Data;
-using System.CodeDom;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
 using System.Collections;
 using System.Reflection;
+using gip.core.licensing;
 
 namespace gip.core.datamodel.Licensing
 {
     /// <summary>
-    /// --- Vorgehensweise bei Installation beim Kunden: ---
-    /// Matrix32.dll, Matrix64.dll ins Installationsverzeichnis kopieren (auch wenn kein Dongle verwendet wird)
-    /// --- Falls Dongle vorort verwendet wird: ---
-    /// matrix.ini konfigurieren, falls Dongle eingesteckt werden soll vorort
-    /// USB-Treiber für Dongle installieren (inf_inst.exe)
+    /// License engine of the iPlus runtime.
     /// </summary>
+    /// <remarks>
+    /// V5 is purely software based: licenses are offline signed <c>*.gip</c> files
+    /// that are validated with asymmetric cryptography (see
+    /// <see cref="License.FileLicensing"/>). The V4 USB dongle support
+    /// (TDi Matrix32/Matrix64) has been removed — it required a native Windows
+    /// driver that does not exist on Linux/macOS and aborted startup with a
+    /// <c>DllNotFoundException</c>.
+    /// </remarks>
 
-    public sealed class License : INotifyPropertyChanged
+    public sealed partial class License : INotifyPropertyChanged
     {
         #region c'tors
         public License(VBUser vbUser, Database database)
@@ -45,13 +46,9 @@ namespace gip.core.datamodel.Licensing
         private void Initialize(Database db)
         {
             NeedRestart = false;
-//#if DEBUG
-            return;
-//#else
-//            _StartDT = DateTime.Now;
-//            VerifyAndReadAllPackages(db);
-//            ReadLicenseTypeFromDongle();
-//#endif
+            // Load signed license files (folder + activated database rows) and
+            // derive the license type from them.
+            ReloadFileLicenses();
         }
         #endregion
 
@@ -75,20 +72,6 @@ namespace gip.core.datamodel.Licensing
 
 //        private DateTime _StartDT;
 //#endif
-
-        private const int _UserCode = 4228216;
-        private const short _Port = 85;
-        private int[] _DongleData;
-        private bool? _DongleConnected;
-        private object _DongleReadLock = new object();
-        /// <summary>
-        /// Determines if the connected Dongle 
-        /// is a Developer-Dongle who can issue product licenses (_DongleData is not empty) 
-        /// or is it a EndUser-Dongle that enables the user to use the Development-Environment
-        /// </summary>
-        private LicenseType _DongleType = LicenseType.Trial;
-
-
 
         /// <summary>
         /// Key which indentifies the Development-License in the VBSystem-Table (Its for companies which develop their own packages an can issue licesnse for it)
@@ -143,7 +126,7 @@ namespace gip.core.datamodel.Licensing
         {
             get
             {
-                if (!SystemID.HasValue)
+                if (!_SystemID.HasValue)
                 {
 
                     using (ACMonitor.Lock(_Database.QueryLock_1X000))
@@ -189,16 +172,16 @@ namespace gip.core.datamodel.Licensing
         {
             get
             {
-                //if (_DongleType == LicenseType.Developer_Issuer || _DongleType == LicenseType.Developer_EndUser)
-                //    return _DongleType;
-                //else if (_IsRemoteLoginActive)
-                //    return LicenseType.RemoteDeveloper;
-                //lock (_LPLock)
-                //{
-                //    if (_LicensedPackages != null && _LicensedPackages.Any())
-                //        return LicenseType.User;
-                //}
-                //return LicenseType.Trial;
+                // Signed license files are the only source of the license type in V5.
+                if (IsDeveloperWithIssuingRightsByFile)
+                    return LicenseType.Developer_Issuer;
+                if (IsDeveloperByFile)
+                    return LicenseType.Developer_EndUser;
+                if (_IsRemoteLoginActive)
+                    return LicenseType.RemoteDeveloper;
+
+                // V5 has no trial: without a license the installation runs the open
+                // (GPL-3) edition, which is fully usable and not time limited.
                 return LicenseType.User;
             }
         }
@@ -211,6 +194,19 @@ namespace gip.core.datamodel.Licensing
             get
             {
                 return CurrentLicenseType == LicenseType.Trial;
+            }
+        }
+
+        /// <summary>
+        /// <c>true</c> when the installation runs under the open (GPL-3) edition,
+        /// i.e. no framework runtime license is present. The system is fully usable;
+        /// only commercial-only packages are blocked.
+        /// </summary>
+        public bool IsOpenEdition
+        {
+            get
+            {
+                return !HasFrameworkRuntimeLicense;
             }
         }
 
@@ -237,14 +233,14 @@ namespace gip.core.datamodel.Licensing
         }
 
         /// <summary>
-        /// Reads the Dongle an determines if Developer has issuing rights
+        /// Determines if the installation has the right to issue product licenses
+        /// for its own packages (DeveloperIssuer license file).
         /// </summary>
         public bool IsDeveloperWithIssuingRights
         {
             get
             {
-                ReadLicenseTypeFromDongle();
-                return CurrentLicenseType == LicenseType.Developer_Issuer;
+                return IsDeveloperWithIssuingRightsByFile;
             }
         }
 
@@ -252,11 +248,9 @@ namespace gip.core.datamodel.Licensing
         {
             get
             {
-//#if DEBUG
-                return false;
-//#else
-//                return _TrialTime < DateTime.Now - _StartDT;
-//#endif
+                // V5 has no trial. Kept for API compatibility: the "trial" is over
+                // once the block grace period has elapsed without a valid license.
+                return IsLicenseBlockDue;
             }
         }
 
@@ -264,11 +258,9 @@ namespace gip.core.datamodel.Licensing
         {
             get
             {
-//#if DEBUG
-                return false;
-//#else
-//                return _PackageRemainingTime < DateTime.Now - _StartDT;
-//#endif
+                // Package usage is blocked when the grace period has elapsed and at
+                // least one package is not covered by a license.
+                return IsLicenseBlockDue;
             }
         }
 
@@ -279,26 +271,27 @@ namespace gip.core.datamodel.Licensing
         {
             get
             {
-//#if DEBUG
+                // In V5 there is no developer dongle any more: everybody may develop
+                // and sell solutions. Only issuing rights (creating product licenses
+                // for customers) require a DeveloperIssuer license file.
                 return true;
-//#else
-//                ReadLicenseTypeFromDongleCyclic();
-//                return CurrentLicenseType != LicenseType.User;
-//#endif
             }
         }
 
+        /// <summary>
+        /// <c>true</c> when a license is installed for this installation: a
+        /// framework runtime license or a developer license file.
+        /// </summary>
+        /// <remarks>
+        /// The open (GPL-3) edition is fully usable but has no license installed, so
+        /// this returns <c>false</c> and the activation BSO offers the
+        /// runtime-license installation.
+        /// </remarks>
         public bool IsLicenseValid
         {
             get
             {
-                bool hasVBSystemEntries = false;
-
-                using (ACMonitor.Lock(_Database.QueryLock_1X000))
-                {
-                    hasVBSystemEntries = _Database.VBSystem.Any();
-                }
-                return CurrentLicenseType > LicenseType.Trial && hasVBSystemEntries;
+                return HasFrameworkRuntimeLicense || IsDeveloperByFile;
             }
         }
 
@@ -306,6 +299,11 @@ namespace gip.core.datamodel.Licensing
         {
             get
             {
+                // Prefer the signed developer license file (V5 path).
+                LicensePayload issuer = FileLicenses.FirstOrDefault(p => p.Kind == LicenseKind.DeveloperIssuer);
+                if (issuer != null && !string.IsNullOrEmpty(issuer.CustomerName))
+                    return issuer.CustomerName;
+
                 string temp = "";
                 VBSystem sys = null;
                 using (ACMonitor.Lock(_Database.QueryLock_1X000))
@@ -357,46 +355,109 @@ namespace gip.core.datamodel.Licensing
 
 
 #region Has package license checks
+
+        /// <summary>
+        /// Returns <c>true</c> when the given package may run in the current
+        /// installation.
+        /// </summary>
+        /// <remarks>
+        /// Three situations exist:
+        /// <list type="bullet">
+        /// <item><b>Developer installation</b> (a <c>DeveloperIssuer</c> or
+        ///       <c>DeveloperEndUser</c> license file): everything may run, so the
+        ///       developer can build and test both GPL and commercial packages.</item>
+        /// <item><b>Open edition</b> (no framework runtime license): every package
+        ///       may run except commercial-only ones. A product license alone is
+        ///       <b>not</b> effective — the end customer must also hold a framework
+        ///       runtime license.</item>
+        /// <item><b>Commercial edition</b> (framework runtime license present): the
+        ///       runtime license covers all dual-licensed and permissive packages;
+        ///       commercial-only packages additionally need a product license; pure
+        ///       copyleft (GPL-3) packages are blocked, because a third party cannot
+        ///       relicense GPL code and mixing it with commercially licensed iPlus
+        ///       would violate the GPL.</item>
+        /// </list>
+        /// Blocked packages do not fail immediately: the grace period gives the end
+        /// user time to resolve the license issue (30 min warning, then
+        /// <c>ACUrlCommand</c> blocked after 1–2 days — V4 parity).
+        /// </remarks>
         public bool IsPackageLicensed(ACPackage acPackage)
         {
-//#if DEBUG
-            return true;
-//#else
-//            if (acPackage.ACPackageName == Const.PackName_VarioLicense || acPackage.ACPackageName == Const.PackName_System || acPackage.ACPackageName == Const.PackName_VarioSystem)
-//                return true;
+            if (acPackage == null)
+                return false;
 
-//            lock (_LPLock)
-//            {
-//                if (_LicensedPackages == null || acPackage.ACPackageName == Const.PackName_VarioDevelopment)
-//                    return false;
+            if (acPackage.ACPackageName == Const.PackName_VarioLicense
+                || acPackage.ACPackageName == Const.PackName_System
+                || acPackage.ACPackageName == Const.PackName_VarioSystem)
+                return true;
 
-//                if (_LicensedPackages.Any(c => c.ACPackageName == acPackage.ACPackageName))
-//                    return true;
-//            }
-//            return false;
-//#endif
+            bool allowed = IsPackageAllowedByLicenseExpression(acPackage);
+
+            if (allowed)
+                return true;
+
+            StartLicenseGracePeriod();
+            return !IsLicenseBlockDue;
         }
 
+        /// <summary>
+        /// Returns the license state of a component's package.
+        /// <see cref="ComponentLicense.False"/> makes
+        /// <c>ACComponent.ACUrlCommand</c> return <c>null</c>, so the component
+        /// stops working — this is the server-side block after the grace period.
+        /// </summary>
         public ComponentLicense IsComponentLicensed(Guid packageID)
         {
-//#if DEBUG
-            return ComponentLicense.True;
-//#else
-//            if ((VarioSystemID.HasValue && VarioSystemID == packageID) || (_SystemID.HasValue && _SystemID == packageID))
-//                return ComponentLicense.True;
+            if ((VarioSystemID.HasValue && VarioSystemID == packageID)
+                || (SystemID.HasValue && SystemID == packageID))
+                return ComponentLicense.True;
 
-//            lock (_LPLock)
-//            {
-//                if (_LicensedPackages != null && _LicensedPackages.Any(c => c.ACPackageID == packageID))
-//                    return ComponentLicense.True;
-//            }
+            bool cached;
+            lock (_LPLock)
+            {
+                if (_ComponentLicenseCache.TryGetValue(packageID, out cached))
+                    return cached ? ComponentLicense.True : ComponentLicense.False;
+            }
 
-//            if (!IsPackageTimeExpired)
-//                return ComponentLicense.TimeCheck;
+            ACPackage acPackage;
+            using (ACMonitor.Lock(_Database.QueryLock_1X000))
+            {
+                acPackage = _Database.ACPackage.FirstOrDefault(c => c.ACPackageID == packageID);
+            }
 
-//            return ComponentLicense.False;
-//#endif
+            if (acPackage == null)
+                return ComponentLicense.TimeCheck;
+
+            bool licensed = IsPackageLicensed(acPackage);
+
+            // Do not cache a "licensed" result while the grace period is running:
+            // the package is only temporarily allowed and must flip to False once
+            // the block grace period has elapsed.
+            if (licensed && LicenseGraceStartUtc.HasValue)
+                return ComponentLicense.True;
+
+            lock (_LPLock)
+            {
+                _ComponentLicenseCache[packageID] = licensed;
+            }
+
+            return licensed ? ComponentLicense.True : ComponentLicense.False;
         }
+
+        private readonly Dictionary<Guid, bool> _ComponentLicenseCache = new Dictionary<Guid, bool>();
+
+        /// <summary>
+        /// Clears the per-package license cache. Called when license files are
+        /// reloaded or activated.
+        /// </summary>
+        internal void InvalidateComponentLicenseCache()
+        {
+            lock (_LPLock)
+            {
+                _ComponentLicenseCache.Clear();
+            }
+        }
+
 #endregion
 
 
@@ -637,12 +698,6 @@ namespace gip.core.datamodel.Licensing
             db.VBSystem.Add(sysNew);
             db.ACSaveChanges();
 
-            if (sysNew.SystemName == License.SN_PackIssuer)
-            {
-                ReadLicenseTypeFromDongle();
-                //_CurrentLicenseType = LicenseType.Developer_Issuer;
-            }
-
             return true;
         }
 
@@ -650,12 +705,10 @@ namespace gip.core.datamodel.Licensing
         {
             if (sys.SystemName == License.SN_PackIssuer)
             {
-                if (db.VBSystem.Any() && db.VBSystem.FirstOrDefault().CustomerName == sys.CustomerName)
-                    return DoesDongleContainIssuingLicense(sys);
-
-                else if (sys.CustomerName == customerName)
-                    return DoesDongleContainIssuingLicense(sys);
-
+                // V4 developer licenses were bound to a TDi Matrix dongle. The dongle
+                // support has been removed in V5, so such licenses can no longer be
+                // validated. Developers use a signed DeveloperIssuer *.gip file instead
+                // (see ActivateLicenseFile).
                 return false;
             }
             else if (sys.SystemName == License.SN_PackLicense)
@@ -730,21 +783,16 @@ namespace gip.core.datamodel.Licensing
 
         public bool IsEnabledGenerateLicenseFile()
         {
-//#if DEBUG
-            return true;
-//#else
-//            return CurrentLicenseType == LicenseType.Developer_Issuer;
-//#endif
+            return IsDeveloperWithIssuingRights;
         }
 
 
         public IEnumerable<string> GetAvailablePackages()
         {
-            ReadLicenseTypeFromDongle();
-            if (_DongleType != LicenseType.Developer_Issuer)
+            if (!IsDeveloperWithIssuingRights)
                 return null;
 
-            if (CurrentLicenseType != LicenseType.Developer_Issuer || string.IsNullOrEmpty(LicensedTo))
+            if (string.IsNullOrEmpty(LicensedTo))
                 return null;
 
             using (ACMonitor.Lock(_Database.QueryLock_1X000))
@@ -800,7 +848,7 @@ namespace gip.core.datamodel.Licensing
         /// <summary>
         /// PROVIDER-Method
         /// Creates a temporary activation key to enable the user to have development rights during one iPlus-Session
-        /// This method could only be used if a Dongle is connected
+        /// Requires a DeveloperIssuer license file (see <see cref="IsDeveloperWithIssuingRights"/>).
         /// </summary>
         /// <param name="userCode"></param>
         /// <param name="vbSys"></param>
@@ -847,209 +895,6 @@ namespace gip.core.datamodel.Licensing
 #endregion
 
 
-#region Dongle-Operations
-
-        /// <summary>
-        /// Method reads the dongle one time and writes the content to the _DongleData (Cache)
-        /// </summary>
-        /// <param name="forceRead">Resets the _DongleData-Field (cache) and reads again.</param>
-        /// <returns>true if dongle connected via usb</returns>
-        private bool HasConnectedDongleAndRead(bool forceRead = false)
-        {
-            lock (_DongleReadLock)
-            {
-                if (forceRead)
-                    ResetDongleData();
-                if (_DongleConnected.HasValue)
-                    return _DongleConnected.Value;
-                ReadDongleData();
-                if (!_DongleConnected.HasValue)
-                    return false;
-                return _DongleConnected.Value;
-            }
-        }
-
-        /// <summary>
-        /// Evaluates the _DongleData. If cached _DongleData is not set, then it reads the dongle one time
-        /// If the dongle contains encrypted data it veryfies if contains a valid license for a developer
-        /// (Customers can create his own licenses for their own packages)
-        /// </summary>
-        /// <param name="sys"></param>
-        /// <param name="forceRead">Resets the _DongleData-Field (cache) and reads again. Otherwise it uses the cached _DongleData-Field</param>
-        /// <returns>true, if the dongle contains a valid developer license</returns>
-        private bool DoesDongleContainIssuingLicense(VBSystem sys = null, bool forceRead = false)
-        {
-            int[] dongleData = _DongleData;
-            lock (_DongleReadLock)
-            {
-                if (forceRead)
-                    ResetDongleData();
-                if (_DongleConnected.HasValue && _DongleData != null)
-                    dongleData = _DongleData;
-                else
-                    ReadDongleData();
-                if (!_DongleConnected.HasValue || !_DongleConnected.Value)
-                    return false;
-            }
-
-            if (!EvaluateIssuingLicenseFromDongleData(dongleData, sys))
-                return false;
-
-            return true;
-        }
-
-        /// <summary>
-        /// Reads the dongle, Reevaluates the Dongle-Data and updates the _DongleType-Field.
-        /// </summary>
-        private void ReadLicenseTypeFromDongle()
-        {
-            ResetDongleData();
-            LicenseType dongleType = _DongleType;
-            _DongleType = LicenseType.Trial;
-            if (HasConnectedDongleAndRead())
-            {
-                _DongleType = LicenseType.Developer_EndUser;
-                if (DoesDongleContainIssuingLicense())
-                    _DongleType = LicenseType.Developer_Issuer;
-            }
-            if (dongleType != _DongleType)
-                ReportLicenseTypeChanged();
-        }
-
-        private void ReadLicenseTypeFromDongleCyclic()
-        {
-//#if DEBUG
-            return;
-//#else
-//            if (!_NextCyclicDongleRead.HasValue || DateTime.Now > _NextCyclicDongleRead.Value)
-//            {
-//                ReadLicenseTypeFromDongle();
-//                _NextCyclicDongleRead = DateTime.Now + _CyclicDongleReadInterval;
-//            }
-//#endif
-        }
-
-        private void ReadDongleData()
-        {
-            lock (_DongleReadLock)
-            {
-                if (_DongleConnected.HasValue)
-                    return;
-                _DongleData = null;
-                if (Environment.Is64BitProcess)
-                    _DongleConnected = ReadDongleData64(out _DongleData);
-                else
-                    _DongleConnected = ReadDongleData32(out _DongleData);
-            }
-        }
-
-        private void ResetDongleData()
-        {
-            lock (_DongleReadLock)
-            {
-                _DongleData = null;
-                _DongleConnected = null;
-            }
-        }
-
-        private bool ReadDongleData32(out int[] dataOut)
-        {
-            dataOut = new int[15];
-            if (Matrix.Dongle_Count(_Port) != 1)
-                return false;
-            short dng_Nummer = Matrix.Dongle_Count(_Port);
-            if (Matrix.Dongle_ReadData(_UserCode, ref dataOut[0], 15, dng_Nummer, _Port) < 0)
-                return false;
-            return true;
-        }
-
-        private bool ReadDongleData64(out int[] dataOut)
-        {
-            dataOut = new int[15];
-            if (Matrix.Dongle_Count64(_Port) != 1)
-                return false;
-            short dng_Nummer = Matrix.Dongle_Count64(_Port);
-            if (Matrix.Dongle_ReadData64(_UserCode, ref dataOut[0], 15, dng_Nummer, _Port) < 0)
-                return false;
-            return true;
-        }
-#endregion
-
-
-#region Encryption and decoding Dongle data
-        private bool EvaluateIssuingLicenseFromDongleData(int[] dongleData, VBSystem sys = null)
-        {
-            if (sys == null)
-            {
-                using (ACMonitor.Lock(_Database.QueryLock_1X000))
-                {
-                    sys = _Database.VBSystem.FirstOrDefault(c => c.SystemName == License.SN_PackIssuer);
-                }
-            }
-
-            if (sys == null)
-                return false;
-
-            if (!CSP.Verify(sys.GetChecksum(), sys.SystemCommon, _SystemComm))
-                return false;
-
-            byte[] code;
-            using (SHA256 sha = SHA256.Create())
-            {
-                code = sha.ComputeHash(Encoding.UTF8.GetBytes(UnpackLicense(dongleData).ToByteStringKey()));
-            }
-
-            if (sys.CustomerName != DecryptString(Encoding.UTF8.GetString(sys.SystemInternal), code))
-                return false;
-            return true;
-        }
-
-        private byte[] UnpackLicense(int[] license)
-        {
-            byte[] result = new byte[60];
-            for (int i = 0; i < 15; i++)
-            {
-                Array.Copy(BitConverter.GetBytes(license[i]), 0, result, i * 4, 4);
-            }
-            return result;
-        }
-
-        private static string DecryptString(string cipherText, byte[] pass)
-        {
-            Aes aesCipher = Aes.Create();
-            aesCipher.Padding = PaddingMode.PKCS7;
-            aesCipher.Key = pass;
-            aesCipher.IV = pass.Take(aesCipher.BlockSize / 8).ToArray();
-
-            MemoryStream memoryStream = new MemoryStream();
-            ICryptoTransform aesDecryptor = aesCipher.CreateDecryptor();
-            string plainText = String.Empty;
-            using (VBCryptoStream cryptoStream = new VBCryptoStream(memoryStream, aesDecryptor, CryptoStreamMode.Write))
-            {
-                byte[] cipherBytes = Convert.FromBase64String(cipherText);
-                cryptoStream.Write(cipherBytes, 0, cipherBytes.Length);
-                try
-                {
-                    cryptoStream.FlushFinalBlock();
-                }
-                catch (Exception e)
-                {
-                    string msg = e.Message;
-                    if (e.InnerException != null && e.InnerException.Message != null)
-                        msg += " Inner:" + e.InnerException.Message;
-
-                    if (Database.Root != null && Database.Root.Messages != null)
-                        Database.Root.Messages.LogException("License", "DecryptString", msg);
-                }
-                byte[] plainBytes = memoryStream.ToArray();
-                plainText = Encoding.UTF8.GetString(plainBytes, 0, plainBytes.Length);
-                memoryStream.Close();
-            }
-            return plainText;
-        }
-#endregion
-
-
 #endregion
 
 
@@ -1067,6 +912,7 @@ namespace gip.core.datamodel.Licensing
         {
             OnPropertyChanged("CurrentLicenseType");
             OnPropertyChanged("IsTrial");
+            OnPropertyChanged("IsOpenEdition");
             OnPropertyChanged("IsDeveloper");
             OnPropertyChanged("IsRemoteDeveloper");
             OnPropertyChanged("MayUserDevelop");

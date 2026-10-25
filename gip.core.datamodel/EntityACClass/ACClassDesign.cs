@@ -641,8 +641,7 @@ namespace gip.core.datamodel
                                     {
                                         if (acClass.IsLicensed
                                             || (Database.Root != null
-                                                && (Database.Root.Environment.License.MayUserDevelop
-                                                    || (Database.Root.Environment.License.IsTrial && !Database.Root.Environment.License.IsTrialTimeExpired))))
+                                                && Database.Root.Environment.License.MayUserDevelop))
                                         {
                                             dcRightControlMode = acClass.GetRight(acClass);
                                         }

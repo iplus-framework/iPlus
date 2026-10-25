@@ -26,6 +26,6 @@
 
 		<!-- Tooling / executables / tests that must NOT be packed.
 		     Trailing ';' is required for exact-name matching (see Directory.Build.targets). -->
-		<IPlusPackExclude Condition="'$(IPlusPackExclude)' == ''">gip.iplus.client;gip.iplus.console;gip.iplus.service;gip.iplus.startup;gip.iplus.client.avui.Android;gip.iplus.client.avui.Browser;gip.iplus.client.avui.Desktop;gip.core.tcAgent;gip.tool.generator;gip.tool.entitywizzard;gip.tool.installerAndUpdater;gip.tool.publish;gip.tool.diagnose;gip.tool.devLicense;gip.tool.devLicenseProvider;DBSyncerUpdate.unit.test;</IPlusPackExclude>
+		<IPlusPackExclude Condition="'$(IPlusPackExclude)' == ''">gip.iplus.client;gip.iplus.console;gip.iplus.service;gip.iplus.startup;gip.iplus.client.avui.Android;gip.iplus.client.avui.Browser;gip.iplus.client.avui.Desktop;gip.core.tcAgent;gip.tool.generator;gip.tool.entitywizzard;gip.tool.installerAndUpdater;gip.tool.publish;gip.tool.diagnose;gip.tool.dbscript;gip.tool.licenseIssuer;DBSyncerUpdate.unit.test;gip.core.licensing.unit.test;</IPlusPackExclude>
 	</PropertyGroup>
 </Project>

@@ -93,6 +93,11 @@ namespace gip.core.autocomponent
                 try
                 {
                     Environment._Licence = new License(user, Database);
+                    // The framework runtime license grants a number of concurrent
+                    // sessions. 0 means unlimited (no runtime license present).
+                    int licensedUsers = Environment._Licence.LicensedMaxUsers;
+                    if (licensedUsers > 0 && Database.Root != null && Database.Root.Environment != null)
+                        (Database.Root.Environment as Environment)?.ApplyLicensedMaxUsers(licensedUsers);
                 }
                 catch (Exception e)
                 {

@@ -2216,6 +2216,21 @@ namespace gip.core.autocomponent
                 if (_HasLicense == datamodel.Licensing.ComponentLicense.False)
                     return null;
             }
+            else if (_HasLicense == datamodel.Licensing.ComponentLicense.True
+                     && acUrl != "Environment"
+                     && ACType != null
+                     && Root != null
+                     && Root.Environment != null
+                     && Root.Environment.License != null
+                     && Root.Environment.License.LicenseGraceStartUtc.HasValue)
+            {
+                // A license problem was detected after this component was already
+                // marked as licensed. Re-evaluate so that the block grace period
+                // actually takes effect without a restart.
+                _HasLicense = Root.Environment.License.IsComponentLicensed(((ACClass)ACType).ACPackageID);
+                if (_HasLicense == datamodel.Licensing.ComponentLicense.False)
+                    return null;
+            }
 
             if (string.IsNullOrEmpty(acUrl))
                 return this;

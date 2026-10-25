@@ -231,7 +231,7 @@ namespace gip.iplus.client
 
         private void License_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e != null && e.PropertyName == "IsTrial")
+            if (e != null && (e.PropertyName == "IsTrial" || e.PropertyName == "IsOpenEdition"))
             {
                 UiJtf.RunAsync(async delegate
                 {
@@ -247,8 +247,8 @@ namespace gip.iplus.client
 #if DEBUG
             info = "DEBUG";
 #else
-            if (ACRoot.SRoot.Environment.License.IsTrial)
-                info = "Trial";
+            if (ACRoot.SRoot.Environment.License.IsOpenEdition)
+                info = "Open Edition";
             else if (ACRoot.SRoot.Environment.License.IsDeveloper)
                 info = "Development";
             else if (ACRoot.SRoot.Environment.License.IsRemoteDeveloper)

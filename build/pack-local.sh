@@ -17,8 +17,8 @@ mkdir -p "$OUT"
 # Must match IPlusPackExclude in build/iPlus.Package.props
 EXCLUDE="gip.iplus.client gip.iplus.client.avui.Android gip.iplus.client.avui.Browser gip.iplus.client.avui.Desktop gip.iplus.console gip.iplus.service gip.iplus.startup
 gip.core.tcAgent gip.core.tcClient gip.core.tcShared gip.bso.tcstudio gip.tool.generator gip.tool.entitywizzard gip.tool.installerAndUpdater
-gip.tool.publish gip.tool.diagnose gip.tool.devLicense gip.tool.devLicenseProvider
-DBSyncerUpdate.unit.test gip.core.scichart.avui gip.ext.opctoolbox gip.core.sql gip.ext.fluent.avui"
+gip.tool.publish gip.tool.diagnose gip.tool.dbscript gip.tool.licenseIssuer
+DBSyncerUpdate.unit.test gip.core.licensing.unit.test gip.core.scichart.avui gip.ext.opctoolbox gip.core.sql gip.ext.fluent.avui"
 
 FAILED=0
 cd "$ROOT"

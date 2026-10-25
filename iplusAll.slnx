@@ -1,4 +1,4 @@
-<Solution>
+﻿<Solution>
   <Folder Name="/1. Clientlayer/">
     <Project Path="gip.iplus.client/gip.iplus.client.csproj" />
     <Project Path="gip.iplus.console/gip.iplus.console.csproj" />
@@ -13,6 +13,7 @@
     <Project Path="gip.core.datamodel.shared/gip.core.datamodel.shared.shproj" />
     <Project Path="gip.core.datamodel/gip.core.datamodel.csproj" />
     <Project Path="gip.core.dbsyncer/gip.core.dbsyncer.csproj" />
+    <Project Path="gip.core.licensing/gip.core.licensing.csproj" />
     <Project Path="gip.core.sql/gip.core.sql.sqlproj" Id="746e71a0-cc5a-4a1f-be03-76afcf9fab12">
       <Build />
       <Deploy />
@@ -48,11 +49,12 @@
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="DBSyncerUpdate.unit.test/DBSyncerUpdate.unit.test.csproj" />
-    <Project Path="gip.tool.devLicense/gip.tool.devLicense.csproj" />
-    <Project Path="gip.tool.devLicenseProvider/gip.tool.devLicenseProvider.csproj" />
     <Project Path="gip.tool.entitywizzard/gip.tool.entitywizzard.csproj" />
     <Project Path="gip.tool.installerAndUpdater/gip.tool.installerAndUpdater.csproj" />
     <Project Path="gip.tool.publish/gip.tool.publish.csproj" />
+    <Project Path="gip.tool.dbscript/gip.tool.dbscript.csproj" />
+    <Project Path="gip.tool.licenseIssuer/gip.tool.licenseIssuer.csproj" />
+    <Project Path="gip.core.licensing.unit.test/gip.core.licensing.unit.test.csproj" />
   </Folder>
   <Folder Name="/TwinCAT/">
     <Project Path="gip.bso.tcStudio/gip.bso.tcStudio.csproj">
