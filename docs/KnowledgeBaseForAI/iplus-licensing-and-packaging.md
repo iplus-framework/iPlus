@@ -48,6 +48,26 @@ and [gip.core.licensing/](../../gip.core.licensing/readme.md).
     <LicenseFolder>/.licensegrace so a restart does not reset the clock.
 11. Pack: build/pack-local.sh -> ./local-packages (PackageId = iPlus.<ProjectName>).
     Publish: build/publish-release.sh -> ./artifacts/release (binaries, not packages).
+    Platforms: desktop-win, desktop-linux, wpf-win, browser, android, service, console,
+    setup, all. "all" also produces iplus-<ver>-all.zip (one folder per platform at the
+    archive root).
+12. Installer: gip.tool.installerAndUpdater (Avalonia, net10.0, Windows/Linux/macOS).
+    Installs from a GitHub Release, a zip or a folder; writes ConnectionStrings.config,
+    creates the DB, applies initial-install-*.sql, creates a shortcut. NO auto-update.
+13. Code signing: SIGNING_MODE=none|self-signed|azure (CI) or build/sign-release.sh
+    (local). Authenticode is the ONLY proof of who built a binary — GIP-SNKey.snk is
+    public and the iPlusLicense metadata is a plain string.
+14. Publisher verification: AuthenticodeVerifier + TrustedPublisherStore, called from
+    ACClassManager.RegisterAssemblyTypes. Modes off/warn/enforce, default off, and
+    FAIL-OPEN (empty list, non-Windows, or an error all allow the assembly).
+15. Commercial module conventions (no new framework code needed):
+    private repo, PackageId iPlus.Commercial.<Module>,
+    PackageLicenseExpression LicenseRef-Commercial, ACPackageName gip.Commercial.<Module>,
+    assembly gip.commercial.<module>.dll (matched by *.commercial.*.dll).
+16. Android: sideloading needs NO keystore (debug key is auto-generated). Updates DO need
+    a stable keystore (ANDROID_KEYSTORE_BASE64), otherwise every CI build has a different
+    signature and Android refuses to install over the previous version. iOS is blocked by
+    macOS + Xcode + Apple provisioning, not by an SDK install.
 ```
 
 ---
@@ -413,8 +433,39 @@ A commercial integrator only writes:
 
 ```xml
 <PropertyGroup>
-  <IPlusLicenseExpression>Commercial</IPlusLicenseExpression>
+  <PackageLicenseExpression>LicenseRef-Commercial</PackageLicenseExpression>
 </PropertyGroup>
+```
+
+### 6.3.1 Commercial module conventions
+
+A commercial module needs **no new framework code**. Six conventions are enough:
+
+| # | Convention | Value |
+|---|---|---|
+| 1 | Source location | Separate **private** repository (public repo ⇒ GPL) |
+| 2 | `PackageId` | `iPlus.Commercial.<Module>` |
+| 3 | `PackageLicenseExpression` | `LicenseRef-Commercial` |
+| 4 | `ACPackageName` | `gip.Commercial.<Module>` |
+| 5 | Assembly name | `gip.commercial.<module>.dll` |
+| 6 | Delivery | NuGet reference (bundled) or module-pack zip in the app base dir |
+
+Convention 5 is what makes discovery work: `ACClassManager.AssemblyNameSearchPattern`
+contains `*.commercial.*.dll`. Convention 3 flows automatically into the assembly
+metadata via `GenerateIPlusLicenseAttribute`, and convention 4 is the key that
+`PackageLicenseRegistry` uses to look the expression up.
+
+**Classification gotcha (fixed):** `PackageLicenseExpression.Classify` used to return
+`Both` for a pure `LicenseRef-Commercial` expression, because the
+`commercial || permissive` branch ran before the commercial-only check. That made the
+`CommercialOnly` branch in `License.IsPackageAllowedByLicenseExpression` unreachable, so
+a commercial module would have run **without** a product license. The order is now:
+
+```csharp
+if (commercial && !copyleft && !permissive) return LicenseCompatibility.CommercialOnly;
+if (commercial || permissive)               return LicenseCompatibility.Both;
+if (copyleft)                               return LicenseCompatibility.OpenOnly;
+return LicenseCompatibility.Unknown;
 ```
 
 ### 6.4 Runtime read path
@@ -583,6 +634,94 @@ drops it from the publish list:
 
 Verified result: browser publish produces 1503 files with **zero** `BuildHost` leakage.
 
+### 8.3 Platforms and the combined bundle
+
+`--platform` accepts `desktop-win`, `desktop-linux`, `wpf-win`, `browser`, `android`,
+`service`, `console`, `setup` and `all`. `all` builds every platform and then produces
+`iplus-<ver>-all.zip`.
+
+**Bundle layout matters.** The combined archive must have **one folder per platform at
+its root** — no extra `iplus-<ver>-all/` wrapper:
+
+```text
+iplus-5.0.0-all.zip
+├── iplus-5.0.0-desktop-linux-x64/…
+├── iplus-5.0.0-desktop-win-x64/…
+└── iplus-5.0.0-setup-win-x64/…
+```
+
+The correct way to produce that is to zip the *contents* of the staging folder:
+
+```bash
+(cd "$stage" && zip -qr "$target" .)
+```
+
+Moving each platform folder's contents up one level instead collides on shared
+subdirectories such as `BuildHost-net472/`.
+
+Platform folder names carry the version prefix, so the installer matches them by
+**suffix** (`-<arch>`), never by exact name.
+
+### 8.4 The installer (`gip.tool.installerAndUpdater`)
+
+Rewritten from the V4 WPF `net6.0-windows` app into a cross-platform Avalonia `net10.0`
+application. It installs or updates from a GitHub Release, a local zip, or an extracted
+folder, writes `ConnectionStrings.config`, optionally creates the database and applies
+`initial-install-*.sql`, creates a shortcut and starts the app. There is **no
+auto-update** — enterprises want to control when an update is applied.
+
+**Build quirk:** the Avalonia fork's XAML compilation is gated on the project name
+containing `.avui` ([build/AvaloniaBaseCompileInclude.props](../../build/AvaloniaBaseCompileInclude.props)).
+`gip.tool.installerAndUpdater` does not match, so it needs a **project-local
+`Directory.Build.props`** that sets `IsAvaloniaUIProject=true` *before* importing the root
+props. Setting it in the `.csproj` body is too late — the root props are already
+evaluated. Re-importing `AvaloniaBaseCompileInclude.props` triggers `MSB4011` and is
+ignored.
+
+Fork projects also need the **managed** `SkiaSharp` and `HarfBuzzSharp` packages, not
+just the native-asset packages.
+
+### 8.4.1 Android APK signing
+
+Android does **not** use Authenticode. Two facts:
+
+- **Sideloading needs no keystore.** `dotnet workload install android` is the only
+  prerequisite; the build auto-signs with the per-machine debug key
+  (`META-INF/ANDROIDD.RSA`).
+- **Updates need a stable keystore.** The debug key is generated per machine, so every CI
+  run yields a different signature and Android refuses to install the new APK over the old
+  one ("App not installed").
+
+`publish-release.sh` reads `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
+`ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD` and passes
+`-p:AndroidKeyStore=true -p:AndroidSigningKeyStore=… -p:AndroidSigningKeyAlias=…`.
+Verified: with a keystore the APK contains `META-INF/IPLUS.RSA` (subject
+`CN=iPlus Test, O=gipSoft`) instead of `META-INF/ANDROIDD.RSA`.
+
+**iOS** is blocked by macOS + Xcode + Apple provisioning, not by an SDK install. Deferred.
+
+### 8.5 Code signing and publisher verification
+
+Signing is driven by `SIGNING_MODE=none|self-signed|azure` in the workflow, and by
+[build/sign-release.sh](../../build/sign-release.sh) locally.
+
+**Why Authenticode and not strong names:** `GIP-SNKey.snk` is committed to the public
+repository, so anyone can produce a valid strong name. The `iPlusLicense` assembly
+metadata is a plain string and equally forgeable. Authenticode is the only mechanism that
+proves *who built* a binary.
+
+The runtime verifies the signer of every assembly it registers:
+
+| Type | Role |
+|---|---|
+| [`AuthenticodeVerifier`](../../gip.core.licensing/AuthenticodeVerifier.cs) | `WinVerifyTrust` P/Invoke, extracts the signer thumbprint. No-op on Linux/macOS |
+| [`TrustedPublisherStore`](../../gip.core.licensing/TrustedPublisherStore.cs) | Reads `Licenses/TrustedPublishers.txt` (thumbprints + `mode=`); `IPLUS_PUBLISHER_VERIFICATION` overrides |
+| [`ACClassManager.RegisterAssemblyTypes`](../../gip.core.autocomponent/ACClassManager/ACClassManager.cs) | Calls `IsPublisherAllowed` before registering any type |
+
+Modes: `off` (default), `warn`, `enforce`. The check is **fail-open** — an empty
+thumbprint list, a non-Windows host, or a verification error all allow the assembly. A
+misconfigured trust store must never lock a customer out of their own runtime.
+
 ---
 
 ## 9. Pitfalls checklist
@@ -598,6 +737,14 @@ Verified result: browser publish produces 1503 files with **zero** `BuildHost` l
 - [ ] **`IPLUS_USE_AVALONIA_FORK=true` in CI** → packages bind to fork assemblies that do not exist on nuget.org.
 - [ ] **`BuildHost-*` not removed for browser** → WASM build aborts on duplicate `Microsoft.Build.Locator`.
 - [ ] **`ActivateLicenseFile` dedupe on `CustomerName`** → two developers licensing the same customer overwrite each other. Key on `LicenseId` (`SystemInternal2`). *Fixed.*
+- [ ] **Combined bundle built by moving folder contents up a level** → collides on `BuildHost-net472/`. Zip the staging folder's *contents* instead.
+- [ ] **Platform folder matched by exact name** → folder names carry the version prefix. Match by suffix (`-<arch>`).
+- [ ] **`IsAvaloniaUIProject` set in the `.csproj`** → too late, the root props are already evaluated. Use a project-local `Directory.Build.props`.
+- [ ] **Only `SkiaSharp.NativeAssets.*` referenced** → `DllNotFoundException` for the managed `SkiaSharp`/`HarfBuzzSharp` assemblies. Add the managed packages too.
+- [ ] **Publisher verification defaulting to `enforce`** → locks every customer out on first start. Default must be `off`, and the check must be fail-open.
+- [ ] **Android APK built in CI without a keystore** → each run gets a different debug signature, so updates cannot install over the previous version. Configure `ANDROID_KEYSTORE_BASE64`.
+- [ ] **`Classify` checking `commercial || permissive` before commercial-only** → `LicenseRef-Commercial` classifies as `Both`, the `CommercialOnly` branch becomes unreachable, and commercial modules run without a product license. *Fixed.*
+- [ ] **Commercial module assembly not named `gip.commercial.*.dll`** → `ACClassManager` never discovers it. The pattern is in `AssemblyNameSearchPattern`.
 - [ ] **`FrameworkLicenseKeys.CreateVerifier()` used for developer-signed licenses** → always uses gip's key, so `Product` licenses fail with `InvalidSignature`. Use `CreateVerifierWithIssuerChain()` / `CreateVerifier(resolver)`. *Fixed.*
 - [ ] **`MaxUsers` never read** → `Environment.MaxLicensedWinSessions` stays `0` (= unlimited), so the per-user runtime license is unenforceable. *Fixed* in `ACStartUpRoot.LoginUser`.
 - [ ] **`LicenseFormat.FrameworkPublicKeyResourceName`** → must match the csproj `LogicalName` (`gip.core.licensing.FrameworkPublicKey.pem`). *Fixed.*

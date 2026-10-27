@@ -1,0 +1,86 @@
+{
+  // Seed / master data configuration for the iPlus-MES initial-install script.
+  //
+  // Reference database: iPlusMESV5 (empty MES database — the starting point for
+  // developers building their own project from scratch).
+  //
+  // This configuration is a superset of seed-tables.json: a MES database also
+  // contains the framework tables, so both sets are exported. Everything else
+  // (materials, facilities, companies, orders, postings, logs, runtime state)
+  // is customer data and is deliberately left out.
+  //
+  // A trailing '*' in "name" is a prefix wildcard. "filter" is appended as a
+  // WHERE clause (without the keyword). "insertOnlyWhenEmpty" (default true)
+  // wraps the INSERTs in an IF NOT EXISTS guard so the script is idempotent.
+  //
+  // Review this file whenever the EF model gains a new master-data table.
+
+  "defaultSchema": "dbo",
+
+  "tables": [
+    // ---------------------------------------------------------------- iPlus
+    // Framework model: classes, properties, methods, workflows, designs.
+    { "name": "ACProject" },
+    { "name": "ACPackage" },
+    { "name": "ACClass" },
+    { "name": "ACClassProperty" },
+    { "name": "ACClassPropertyRelation" },
+    { "name": "ACClassMethod" },
+    { "name": "ACClassMethodConfig" },
+    { "name": "ACClassConfig" },
+    { "name": "ACClassText" },
+    { "name": "ACClassMessage" },
+    { "name": "ACClassDesign" },
+    { "name": "ACClassWF" },
+    { "name": "ACClassWFEdge" },
+    { "name": "ACAssembly" },
+
+    // Framework configuration and security.
+    { "name": "VBConfig" },
+    { "name": "VBGroup" },
+    { "name": "VBGroupRight" },
+    { "name": "VBLanguage" },
+    { "name": "VBNoConfiguration" },
+    { "name": "VBSystem" },
+    { "name": "VBUserGroup" },
+    { "name": "VBUserACProject" },
+    { "name": "VBUserACClassDesign" },
+
+    // Only superusers are exported; customer users must not leak into the
+    // distribution. The installer creates the initial admin account.
+    { "name": "VBUser", "filter": "IsSuperuser = 1" },
+
+    // Schema-sync bookkeeping (needed so dbsyncer knows what is already applied).
+    { "name": "DbSyncerInfoContext" },
+    { "name": "DbSyncerInfo" },
+    { "name": "DBSyncerVersion" },
+    { "name": "ControlScriptSyncInfo" },
+
+    // ------------------------------------------------------------- iPlusMES
+    // All MD* tables are master data by definition (units, material groups,
+    // facility types, process types, ...). Customer data (Material, Facility,
+    // Company, orders, postings) is intentionally NOT exported.
+    { "name": "MD*" }
+  ],
+
+  "excludeTables": [
+    // Runtime / log tables that must never be part of a fresh install.
+    "dbo.ACChangeLog",
+    "dbo.ACProgram",
+    "dbo.ACProgramConfig",
+    "dbo.ACProgramLog",
+    "dbo.ACProgramLogPropertyLog",
+    "dbo.ACProgramLogTask",
+    "dbo.ACPropertyLog",
+    "dbo.ACPropertyLogRule",
+    "dbo.ACClassTask",
+    "dbo.ACClassTaskValue",
+    "dbo.ACClassTaskValuePos",
+    "dbo.ACClassRouteUsage",
+    "dbo.ACClassRouteUsageGroup",
+    "dbo.ACClassRouteUsagePos",
+    "dbo.MsgAlarmLog",
+    "dbo.VBUserInstance",
+    "dbo.VBLicense"
+  ]
+}

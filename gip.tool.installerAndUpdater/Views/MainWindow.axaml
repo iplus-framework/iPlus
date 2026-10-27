@@ -1,0 +1,207 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:gip.tool.installerAndUpdater.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="760"
+        x:Class="gip.tool.installerAndUpdater.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="iPlus Setup"
+        Width="900" Height="760"
+        MinWidth="760" MinHeight="620"
+        WindowStartupLocation="CenterScreen">
+
+  <Window.Styles>
+    <Style Selector="TextBlock.header">
+      <Setter Property="FontSize" Value="20" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Margin" Value="0,0,0,4" />
+    </Style>
+    <Style Selector="TextBlock.subheader">
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="Opacity" Value="0.7" />
+      <Setter Property="Margin" Value="0,0,0,12" />
+    </Style>
+    <Style Selector="TextBlock.label">
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Margin" Value="0,8,0,2" />
+    </Style>
+    <Style Selector="Border.card">
+      <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Padding" Value="14" />
+      <Setter Property="Margin" Value="0,0,0,12" />
+    </Style>
+  </Window.Styles>
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="16">
+
+    <!-- Header -->
+    <StackPanel Grid.Row="0" Margin="0,0,0,12">
+      <TextBlock Classes="header" Text="iPlus Setup" />
+      <TextBlock Classes="subheader" TextWrapping="Wrap"
+                 Text="Installs or updates iPlus / iPlus-MES from a GitHub release, a zip file or a folder. No registry entries, no environment variables, no administrator rights." />
+    </StackPanel>
+
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+      <StackPanel>
+
+        <!-- Product & operation -->
+        <Border Classes="card">
+          <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+            <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,0">
+              <TextBlock Classes="label" Text="Product" />
+              <ComboBox ItemsSource="{Binding Products}" SelectedItem="{Binding Product}" />
+            </StackPanel>
+            <StackPanel Grid.Row="0" Grid.Column="1">
+              <TextBlock Classes="label" Text="Operation" />
+              <ComboBox ItemsSource="{Binding Operations}" SelectedItem="{Binding Operation}" />
+            </StackPanel>
+            <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,8,12,0">
+              <TextBlock Classes="label" Text="Installation folder" />
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBox Grid.Column="0" Text="{Binding TargetPath}" />
+                <Button Grid.Column="1" Content="Browse…" Margin="8,0,0,0"
+                        Command="{Binding BrowseTargetCommand}" />
+              </Grid>
+            </StackPanel>
+            <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,8,0,0">
+              <TextBlock Classes="label" Text="Platform folder inside the bundle" />
+              <TextBox Text="{Binding PlatformFolder}" />
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <!-- Source -->
+        <Border Classes="card">
+          <StackPanel>
+            <TextBlock Classes="label" Text="Source" />
+            <ComboBox ItemsSource="{Binding Sources}" SelectedItem="{Binding Source}" />
+
+            <!-- GitHub -->
+            <StackPanel IsVisible="{Binding IsGitHubSource}" Margin="0,8,0,0">
+              <TextBlock Classes="label" Text="Repository" />
+              <TextBox Text="{Binding GitHubRepository}" IsReadOnly="True" />
+
+              <TextBlock Classes="label" Text="Release" />
+              <Grid ColumnDefinitions="*,Auto">
+                <ComboBox Grid.Column="0" ItemsSource="{Binding Releases}"
+                          SelectedItem="{Binding SelectedRelease}">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding TagName}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button Grid.Column="1" Content="Load releases" Margin="8,0,0,0"
+                        Command="{Binding LoadReleasesCommand}" />
+              </Grid>
+            </StackPanel>
+
+            <!-- Local -->
+            <StackPanel IsVisible="{Binding IsLocalSource}" Margin="0,8,0,0">
+              <TextBlock Classes="label" Text="Path" />
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBox Grid.Column="0" Text="{Binding SourcePath}" />
+                <Button Grid.Column="1" Content="Browse…" Margin="8,0,0,0"
+                        Command="{Binding BrowseSourceCommand}" />
+              </Grid>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- Database -->
+        <Border Classes="card">
+          <StackPanel>
+            <TextBlock Classes="label" Text="SQL Server" />
+
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto">
+              <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,0">
+                <TextBlock Classes="label" Text="Server" />
+                <ComboBox IsEditable="True" ItemsSource="{Binding SuggestedServers}"
+                          Text="{Binding ServerName}" />
+              </StackPanel>
+              <StackPanel Grid.Row="0" Grid.Column="1">
+                <TextBlock Classes="label" Text="Authentication" />
+                <ComboBox ItemsSource="{Binding AuthModes}" SelectedItem="{Binding AuthMode}" />
+              </StackPanel>
+
+              <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,8,12,0"
+                          IsVisible="{Binding IsSqlAuthentication}">
+                <TextBlock Classes="label" Text="User" />
+                <TextBox Text="{Binding UserName}" />
+              </StackPanel>
+              <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,8,0,0"
+                          IsVisible="{Binding IsSqlAuthentication}">
+                <TextBlock Classes="label" Text="Password" />
+                <TextBox Text="{Binding Password}" PasswordChar="•" />
+              </StackPanel>
+
+              <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,8,12,0">
+                <TextBlock Classes="label" Text="Database" />
+                <TextBox Text="{Binding DatabaseName}" />
+              </StackPanel>
+              <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,8,0,0" VerticalAlignment="Bottom">
+                <Button Content="Test connection" Command="{Binding TestConnectionCommand}" />
+              </StackPanel>
+
+              <TextBlock Grid.Row="3" Grid.ColumnSpan="2" Margin="0,8,0,0"
+                         Text="{Binding ConnectionStatus}" TextWrapping="Wrap" />
+            </Grid>
+
+            <CheckBox Margin="0,12,0,0" IsChecked="{Binding ApplyInitialInstallScript}"
+                      Content="Create the database and apply the initial-install script" />
+
+            <StackPanel IsVisible="{Binding ApplyInitialInstallScript}" Margin="0,8,0,0">
+              <TextBlock Classes="label" Text="Initial-install script (optional — auto-detected when empty)" />
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBox Grid.Column="0" Text="{Binding InitialInstallScriptPath}" />
+                <Button Grid.Column="1" Content="Browse…" Margin="8,0,0,0"
+                        Command="{Binding BrowseScriptCommand}" />
+              </Grid>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- Post-install -->
+        <Border Classes="card">
+          <StackPanel>
+            <TextBlock Classes="label" Text="After installation" />
+            <CheckBox IsChecked="{Binding CreateDesktopShortcut}" Content="Create a desktop shortcut" />
+            <CheckBox IsChecked="{Binding StartAfterInstall}" Content="Start the application" />
+          </StackPanel>
+        </Border>
+
+        <!-- Progress -->
+        <Border Classes="card">
+          <StackPanel>
+            <TextBlock Classes="label" Text="Progress" />
+            <ProgressBar Height="18" Minimum="0" Maximum="1"
+                         Value="{Binding ProgressFraction}"
+                         IsIndeterminate="{Binding IsProgressIndeterminate}" />
+            <TextBlock Margin="0,8,0,0" Text="{Binding StatusMessage}" TextWrapping="Wrap" />
+
+            <Border IsVisible="{Binding HasResult}" Margin="0,12,0,0" Padding="10" CornerRadius="4">
+              <Border.Background>
+                <SolidColorBrush Color="#22C55E" Opacity="0.15" />
+              </Border.Background>
+              <TextBlock Text="{Binding ResultMessage}" TextWrapping="Wrap" />
+            </Border>
+
+            <Expander Header="Log" Margin="0,12,0,0" IsExpanded="False">
+              <ListBox ItemsSource="{Binding Log}" Height="160" />
+            </Expander>
+          </StackPanel>
+        </Border>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- Actions -->
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+      <Button Content="Cancel" Command="{Binding CancelCommand}" Margin="0,0,8,0" />
+      <Button Content="Install / Update" Command="{Binding RunCommand}" Classes="accent" />
+    </StackPanel>
+
+  </Grid>
+</Window>

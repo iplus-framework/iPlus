@@ -7,7 +7,7 @@
 #   docker compose -f deploy/docker/docker-compose.yml --env-file deploy/docker/.env up -d
 #
 # Then open http://localhost:8080 and log in with the superuser account that
-# the initial-install.sql script created (default: superuser / superuser).
+# the initial-install-iplus.sql script created (default: superuser / superuser).
 #
 # This bundle is for EVALUATION and development. For production use a managed
 # SQL Server, a reverse proxy with TLS in front of the browser client, and a
@@ -17,7 +17,7 @@ name: iplus-eval
 
 services:
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/mssql/server:2019-latest
     container_name: iplus-sqlserver
     environment:
       ACCEPT_EULA: "Y"
@@ -39,11 +39,11 @@ services:
       start_period: 30s
     restart: unless-stopped
 
-  # Applies initial-install.sql exactly once (fresh database only) and then
+  # Applies initial-install-iplus.sql exactly once (fresh database only) and then
   # exits. Existing installations skip this step and rely on the incremental
   # DbScripts updates that the service applies on startup.
   mssql-init:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/mssql/server:2019-latest
     container_name: iplus-mssql-init
     depends_on:
       sqlserver:

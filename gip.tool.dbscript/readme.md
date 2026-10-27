@@ -1,10 +1,20 @@
 # gip.tool.dbscript
 
 Cross-platform command line tool that generates the **initial install script**
-(`initial-install.sql`) for a fresh iPlus database from a reference database.
+for a fresh iPlus database from a reference database.
 
 The script contains the complete schema plus the seed/master data, so a new
 installation can be created without restoring a backup or shipping `.mdf` files.
+
+Two scripts are produced for the two products:
+
+| Script | Reference database | Seed configuration |
+|---|---|---|
+| `initial-install-iplus.sql` | **iPlusV5** (framework only) | `seed-tables.json` |
+| `initial-install-mes.sql` | **iPlusMESV5** (framework + MES) | `seed-tables-mes.json` |
+
+`IPCDrivesV5` is a demo/example project for playing, experimenting and
+demonstration — it is never used to generate a distribution script.
 
 ## Why
 
@@ -20,12 +30,12 @@ reference database ──► sqlpackage /Action:Extract ──► reference.dacp
                    └─► SELECT from seed tables    ──► seed INSERTs
                                                         │
                                                         ▼
-                                              initial-install.sql
+                                              initial-install-*.sql
 ```
 
 The installer / first-run flow then applies:
 
-1. `initial-install.sql` — **fresh installs only**
+1. `initial-install-iplus.sql` / `initial-install-mes.sql` — **fresh installs only**
 2. `DbScripts` incremental updates (`gip.core.dbsyncer` / Ctrl-login model sync)
 3. `VBControlScripts` design imports
 
@@ -41,10 +51,18 @@ Existing installations skip step 1 and only run the incremental parts.
 ## Usage
 
 ```bash
-# Full script (schema + seed data)
+# Framework script (schema + seed data) from iPlusV5
 gip.tool.dbscript generate \
-  -c "data source=localhost;Initial catalog=iPlusMESV5;Trusted_Connection=False;Encrypt=False;user id=sa;password=***;" \
-  -o ./out/initial-install.sql \
+  -c "data source=localhost;Initial catalog=iPlusV5;Trusted_Connection=False;Encrypt=False;user id=sa;******;" \
+  -o ./out/initial-install-iplus.sql \
+  --seed-config ./seed-tables.json \
+  --suite-version 5.0.0
+
+# MES script (framework + MES schema and master data) from iPlusMESV5
+gip.tool.dbscript generate \
+  -c "data source=localhost;Initial catalog=iPlusMESV5;Trusted_Connection=False;Encrypt=False;user id=sa;******;" \
+  -o ./out/initial-install-mes.sql \
+  --seed-config ./seed-tables-mes.json \
   --suite-version 5.0.0
 
 # Seed data only (schema is applied by dbsyncer)
@@ -68,8 +86,13 @@ gip.tool.dbscript fingerprint -c "<cs>"
 
 ## Seed configuration
 
-`seed-tables.json` decides **which** tables are exported. Only master data is
-listed; customer data (orders, postings, logs, runtime state) is never exported.
+The seed configuration decides **which** tables are exported. Only master data
+is listed; customer data (orders, postings, logs, runtime state) is never
+exported.
+
+- `seed-tables.json` — framework tables (`AC*`, `VB*`, dbsyncer bookkeeping).
+- `seed-tables-mes.json` — the same framework tables **plus** all `MD*` MES
+  master-data tables. Use this one for a MES database.
 
 ```jsonc
 {
@@ -94,7 +117,7 @@ Per table:
 | `excludeColumns` | none | Columns that must not be exported |
 | `insertOnlyWhenEmpty` | `true` | Wrap the INSERTs in `IF NOT EXISTS (...)` |
 
-**Review `seed-tables.json` whenever the EF model gains a new master-data
+**Review both configurations whenever the EF model gains a new master-data
 table.** A table that is missing here is silently absent from the distribution.
 
 ## Output guarantees
@@ -114,3 +137,5 @@ table.** A table that is missing here is silently absent from the distribution.
   SqlClient fork (same assembly identity, different version).
 - The generated script is **not** a backup. It contains no customer data and no
   file-stream / BLOB content beyond what the seed tables hold.
+- The DACPAC is scripted with `/TargetServerVersion:Sql150`, i.e. the generated
+  schema targets **SQL Server 2019** (the supported baseline).

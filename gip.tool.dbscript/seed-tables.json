@@ -1,5 +1,7 @@
 {
-  // Seed / master data configuration for the initial-install script generator.
+  // Seed / master data configuration for the iPlus-framework initial-install script.
+  //
+  // Reference database: iPlusV5 (framework only — no MES tables).
   //
   // Only tables listed here are exported. Everything else (production orders,
   // postings, logs, runtime state, customer master data) is deliberately left
@@ -50,12 +52,7 @@
     { "name": "DbSyncerInfoContext" },
     { "name": "DbSyncerInfo" },
     { "name": "DBSyncerVersion" },
-    { "name": "ControlScriptSyncInfo" },
-
-    // ------------------------------------------------------------- iPlusMES
-    // All MD* tables are master data by definition. Customer data (Material,
-    // Facility, Company, orders, postings, ...) is intentionally NOT exported.
-    { "name": "MD*" }
+    { "name": "ControlScriptSyncInfo" }
   ],
 
   "excludeTables": [

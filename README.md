@@ -297,14 +297,46 @@ Prebuilt binaries are published as GitHub Releases. The release channels, artifa
 layout, local build commands and the CI pipeline are documented in
 [docs/release-process.md](docs/release-process.md).
 
+Every release ships per-platform archives **and** a combined
+`iplus-<version>-all.zip` that contains one folder per platform, so a single download
+serves every target:
+
+| Archive | Contents |
+|---|---|
+| `…-desktop-win-x64.zip` / `…-desktop-linux-x64.zip` | Avalonia desktop client |
+| `…-wpf-win-x64.zip` | WPF desktop client (Windows-only, legacy deployments) |
+| `…-browser.zip` | WebAssembly client — static files, no installation |
+| `…-android.apk` | Android client |
+| `…-service-linux-x64.zip` / `…-console-linux-x64.zip` | Server service and console host |
+| `…-setup-win-x64.zip` / `…-setup-linux-x64.zip` | Cross-platform installer/updater |
+| `…-all.zip` | All of the above in one archive |
+
+### Installing
+
+[gip.tool.installerAndUpdater](gip.tool.installerAndUpdater/readme.md) is a cross-platform
+desktop application (Windows, Linux, macOS) that installs or updates a product from a
+GitHub Release, a local zip, or an already-extracted folder. It writes
+`ConnectionStrings.config`, optionally creates the SQL Server database and applies the
+initial-install script, creates a desktop shortcut and starts the application. There is
+deliberately **no automatic update mechanism** — you decide when an update is applied.
+
+Each release also ships an **initial install script** generated from the reference
+database — `initial-install-iplus.sql` for the framework and `initial-install-mes.sql`
+for iPlus-MES — so a fresh installation needs no database backup. See
+[gip.tool.dbscript](gip.tool.dbscript/readme.md).
+
+An evaluation bundle with SQL Server 2019, the iPlus service and the browser client is
+available in [deploy/docker/](deploy/docker/README.md).
+
 To produce a release bundle locally:
 
 ```bash
-./build/publish-release.sh --platform desktop-linux
+./build/publish-release.sh --platform all
 ```
 
-An evaluation bundle with SQL Server, the iPlus service and the browser client is
-available in [deploy/docker/](deploy/docker/README.md).
+Windows binaries can be Authenticode-signed with `./build/sign-release.sh` (or
+`SIGNING_MODE` in CI) so that SmartScreen and the runtime's publisher verification can
+tell who built them. See [docs/release-process.md](docs/release-process.md#code-signing).
 
 ## License
 

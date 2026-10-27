@@ -15,8 +15,11 @@
 #                           (default: IPlusPackageVersion from build/iPlus.Package.props)
 #   -o, --output <dir>      Output directory (default: ./artifacts/release)
 #   -p, --platform <list>   Comma separated platforms to build:
-#                           desktop-win,desktop-linux,browser,android,service
+#                           desktop-win,desktop-linux,wpf-win,browser,android,
+#                           service,console,setup,all
 #                           (default: desktop-win,desktop-linux,browser,service)
+#                           'all' builds every platform and additionally produces
+#                           one combined iplus-<ver>-all.zip
 #   -c, --configuration     Build configuration (default: Release)
 #       --self-contained    Publish self-contained (default)
 #       --no-self-contained Publish framework-dependent
@@ -32,6 +35,16 @@
 #                             gip.core.autocomponent adds an -android TFM on Linux; that
 #                             breaks non-Android publishes, so it is disabled here.
 #                             The android platform enables it automatically.
+#   ANDROID_KEYSTORE_BASE64   Base64 encoded .jks/.keystore. When set, the APK is signed
+#                             with that key instead of the per-machine debug key.
+#   ANDROID_KEYSTORE_PASSWORD Password of the keystore.
+#   ANDROID_KEY_ALIAS         Key alias inside the keystore.
+#   ANDROID_KEY_PASSWORD      Password of the key (defaults to the keystore password).
+#
+# Why a stable keystore matters: the debug key is generated per machine, so every CI
+# build produces a different signature and Android refuses to install an update over
+# the previous version ("App not installed"). A stable keystore fixes that. It is NOT
+# required for sideloading a single build.
 #
 # Requirements:
 #   - .NET 10 SDK
@@ -44,6 +57,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONFIG="Release"
 OUT="$ROOT/artifacts/release"
 PLATFORMS="desktop-win,desktop-linux,browser,service"
+ALL_PLATFORMS="desktop-win,desktop-linux,wpf-win,browser,android,service,console,setup"
 SELF_CONTAINED="true"
 SKIP_CHECKSUMS="false"
 KEEP_INTERMEDIATE="false"
@@ -124,6 +138,18 @@ publish_desktop() {
 	archive "$dir" "$name"
 }
 
+publish_wpf() {
+	local rid="$1"
+	local name="iplus-$VERSION-wpf-$rid"
+	local dir="$WORK/$name"
+	log "Publishing WPF desktop ($rid)"
+	# Legacy Windows-only client. EnableWindowsTargeting is set in
+	# Directory.Build.props, so this also builds on the Linux CI runner.
+	publish "gip.iplus.client/gip.iplus.client.csproj" "$dir" \
+		-r "$rid" --self-contained "$SELF_CONTAINED" -p:PublishSingleFile=false
+	archive "$dir" "$name"
+}
+
 publish_browser() {
 	local name="iplus-$VERSION-browser"
 	local dir="$WORK/$name"
@@ -136,10 +162,29 @@ publish_android() {
 	local name="iplus-$VERSION-android"
 	local dir="$WORK/$name"
 	log "Publishing android (apk)"
+
+	# Optional stable signing. Without it the build uses the per-machine debug key,
+	# which is fine for sideloading but changes on every CI run.
+	local signing_args=()
+	if [ -n "${ANDROID_KEYSTORE_BASE64:-}" ]; then
+		local keystore="$WORK/android-signing.keystore"
+		echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$keystore"
+		signing_args=(
+			-p:AndroidKeyStore=true
+			-p:AndroidSigningKeyStore="$keystore"
+			-p:AndroidSigningStorePass="${ANDROID_KEYSTORE_PASSWORD:-}"
+			-p:AndroidSigningKeyAlias="${ANDROID_KEY_ALIAS:-}"
+			-p:AndroidSigningKeyPass="${ANDROID_KEY_PASSWORD:-${ANDROID_KEYSTORE_PASSWORD:-}}"
+		)
+		log "Signing APK with the configured keystore (alias: ${ANDROID_KEY_ALIAS:-<unset>})"
+	else
+		log "No ANDROID_KEYSTORE_BASE64 set — using the debug key (fine for sideloading)"
+	fi
+
 	# The Android client needs the -android TFM of gip.core.autocomponent.
 	BUILD_ANDROID_TFM="true" publish \
 		"gip.iplus.client.avui.Android/gip.iplus.client.avui.Android.csproj" "$dir" \
-		-p:AndroidPackageFormats=apk
+		-p:AndroidPackageFormats=apk "${signing_args[@]}"
 	# The APK is the only artifact end users need.
 	local apk
 	apk="$(find "$dir" -name '*.apk' -type f | head -1)"
@@ -163,17 +208,93 @@ publish_service() {
 	archive "$dir" "$name"
 }
 
+publish_console() {
+	local rid="$1"
+	local name="iplus-$VERSION-console-$rid"
+	local dir="$WORK/$name"
+	log "Publishing console ($rid)"
+	publish "gip.iplus.console/gip.iplus.console.csproj" "$dir" \
+		-r "$rid" --self-contained "$SELF_CONTAINED"
+	archive "$dir" "$name"
+}
+
+# Publishes the cross-platform installer/updater. It is shipped as a separate
+# artifact because it is the tool a customer runs *before* anything is installed.
+publish_setup() {
+	local rid="$1"
+	local name="iplus-$VERSION-setup-$rid"
+	local dir="$WORK/$name"
+	log "Publishing setup tool ($rid)"
+	publish "gip.tool.installerAndUpdater/gip.tool.installerAndUpdater.csproj" "$dir" \
+		-r "$rid" --self-contained "$SELF_CONTAINED" -p:PublishSingleFile=false
+	archive "$dir" "$name"
+}
+
+# Unpacks every per-platform archive into one folder and zips it again, so a
+# customer can download a single file instead of picking the right platform.
+#
+# The resulting zip has one folder per platform at its root (no extra wrapper
+# folder), which is what gip.tool.installerAndUpdater expects:
+#   iplus-<ver>-all.zip
+#     desktop-linux-x64/...
+#     desktop-win-x64/...
+#     wpf-win-x64/...
+publish_all() {
+	local name="iplus-$VERSION-all"
+	local stage="$WORK/$name"
+	log "Assembling combined bundle ($name)"
+	rm -rf "$stage"
+	mkdir -p "$stage"
+	local found=0
+	for zip in "$OUT"/iplus-"$VERSION"-*.zip; do
+		[ -e "$zip" ] || continue
+		# Strip the leading "iplus-<ver>-<platform>-<rid>/" wrapper so that the
+		# platform folders end up directly under the staging root.
+		unzip -q "$zip" -d "$stage"
+		found=1
+	done
+	if [ "$found" -eq 0 ]; then
+		echo "ERROR: no per-platform archives to combine" >&2
+		return 1
+	fi
+	# Zip the *contents* of the staging folder, so the archive has one folder
+	# per platform at its root instead of an extra "iplus-<ver>-all/" wrapper.
+	local target="$OUT/$name.zip"
+	rm -f "$target"
+	(cd "$stage" && zip -qr "$target" .)
+	if [ "$KEEP_INTERMEDIATE" != "true" ]; then
+		rm -rf "$stage"
+	fi
+}
+
 IFS=',' read -r -a REQUESTED <<<"$PLATFORMS"
+WANT_ALL="false"
+for platform in "${REQUESTED[@]}"; do
+	[ "$platform" = "all" ] && WANT_ALL="true"
+done
+if [ "$WANT_ALL" = "true" ]; then
+	PLATFORMS="$ALL_PLATFORMS"
+	IFS=',' read -r -a REQUESTED <<<"$PLATFORMS"
+fi
+
 for platform in "${REQUESTED[@]}"; do
 	case "$platform" in
 		desktop-win) publish_desktop win-x64 ;;
 		desktop-linux) publish_desktop linux-x64 ;;
+		wpf-win) publish_wpf win-x64 ;;
 		browser) publish_browser ;;
 		android) publish_android ;;
-		service) publish_service linux-x64 ;;
+		service) publish_service linux-x64; publish_service win-x64 ;;
+		console) publish_console linux-x64; publish_console win-x64 ;;
+		setup) publish_setup linux-x64; publish_setup win-x64 ;;
+		all) ;; # handled below
 		*) echo "Unknown platform: $platform" >&2; exit 1 ;;
 	esac
 done
+
+if [ "$WANT_ALL" = "true" ]; then
+	publish_all
+fi
 
 if [ "$SKIP_CHECKSUMS" != "true" ]; then
 	log "Writing SHA256SUMS"

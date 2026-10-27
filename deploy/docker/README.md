@@ -1,6 +1,6 @@
 # iPlus V5 — Docker evaluation bundle
 
-One command to a running iPlus system: SQL Server 2022 + the iPlus service + the
+One command to a running iPlus system: SQL Server 2019 + the iPlus service + the
 browser client. No local SQL Server install, no `.mdf` files.
 
 ## Quick start
@@ -15,7 +15,7 @@ cp deploy/docker/.env.example deploy/docker/.env
 # 3. Generate the initial install script (needs sqlpackage + a reference DB)
 dotnet run --project gip.tool.dbscript -c Release -- \
   generate -c "<reference-db-connection-string>" \
-  -o ./artifacts/release/initial-install.sql --suite-version 5.0.0
+  -o ./artifacts/release/initial-install-iplus.sql --suite-version 5.0.0
 
 # 4. Start
 docker compose -f deploy/docker/docker-compose.yml --env-file deploy/docker/.env up -d
@@ -27,8 +27,8 @@ docker compose -f deploy/docker/docker-compose.yml --env-file deploy/docker/.env
 
 | Service | Image | Purpose |
 |---|---|---|
-| `sqlserver` | `mcr.microsoft.com/mssql/server:2022-latest` | Database |
-| `mssql-init` | same | Applies `initial-install.sql` once, then exits |
+| `sqlserver` | `mcr.microsoft.com/mssql/server:2019-latest` | Database |
+| `mssql-init` | same | Applies `initial-install-iplus.sql` once, then exits |
 | `iplus-service` | built from `Dockerfile.service` | iPlus server (WCF + SQL Tunnel) |
 | `iplus-browser` | built from `Dockerfile.browser` | nginx serving the WASM client |
 
@@ -48,7 +48,7 @@ require the Avalonia fork checkout and produce a second, divergent build.
 1. waits for SQL Server to accept connections,
 2. skips everything when the database already exists (existing installations only
    run the incremental `DbScripts` updates),
-3. otherwise creates the database and applies `initial-install.sql`,
+3. otherwise creates the database and applies `initial-install-iplus.sql`,
 4. writes a marker file into the `mssql-init-state` volume so the script is never
    applied twice.
 

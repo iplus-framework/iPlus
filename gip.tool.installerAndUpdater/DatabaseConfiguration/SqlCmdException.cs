@@ -16,7 +16,6 @@
  using System;
 using System.Collections.Generic;
 using System.Text;
-using gip.tool.installerAndUpdater.Properties;
 
 namespace gip.tool.installerAndUpdater
 {
@@ -37,7 +36,7 @@ namespace gip.tool.installerAndUpdater
 
         public SqlCmdConnectSyntaxException(
             string commandLine)
-           : base (TextResources.TextResource.CONNECTSYNTAXEXCEPTIONFORMAT, commandLine)
+           : base ("Connect syntax error: {0}", commandLine)
         {
             Command = commandLine;
         }
@@ -50,7 +49,7 @@ namespace gip.tool.installerAndUpdater
 
         public SqlCmdSetVarSyntaxException(
             string commandLine)
-            : base(TextResources.TextResource.SETVARSYNTAXEXCEPTIONFORMAT, commandLine)
+            : base("Setvar syntax error: {0}", commandLine)
         {
             Command = commandLine;
         }
@@ -62,7 +61,7 @@ namespace gip.tool.installerAndUpdater
 
         public SqlCmdShellSyntaxException(
             string commandLine)
-            : base(TextResources.TextResource.SHELLSYNTAXEXCEPTIONFORMAT, commandLine)
+            : base("Shell syntax error: {0}", commandLine)
         {
             Command = commandLine;
         }

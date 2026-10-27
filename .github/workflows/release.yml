@@ -8,8 +8,20 @@ name: Release
 #   - pushing a tag like v5.0.0
 #   - manual dispatch (optionally without creating a release, for smoke tests)
 #
-# Optional repository secrets for code signing (see docs/release-process.md):
-#   WINDOWS_CERTIFICATE_BASE64, WINDOWS_CERTIFICATE_PASSWORD
+# Code signing (see docs/release-process.md, "Code signing"):
+#   SIGNING_MODE=none        (default) unsigned artifacts
+#   SIGNING_MODE=self-signed sign with a self-signed certificate from the secrets
+#                            WINDOWS_CERTIFICATE_BASE64 / WINDOWS_CERTIFICATE_PASSWORD
+#   SIGNING_MODE=azure       sign with Azure Artifact Signing (formerly Trusted
+#                            Signing); needs AZURE_TENANT_ID, AZURE_CLIENT_ID,
+#                            AZURE_CLIENT_SECRET, AZURE_SIGNING_ENDPOINT,
+#                            AZURE_SIGNING_ACCOUNT, AZURE_SIGNING_PROFILE
+#
+# Android APK signing (optional, recommended):
+#   ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS,
+#   ANDROID_KEY_PASSWORD
+#   Without them the APK is signed with the per-machine debug key, which changes on
+#   every CI run — Android then refuses to install an update over the previous build.
 
 on:
   push:
@@ -22,9 +34,9 @@ on:
         required: false
         type: string
       platforms:
-        description: 'Comma separated platforms'
+        description: 'Comma separated platforms (desktop-win,desktop-linux,wpf-win,browser,android,service,console,setup,all)'
         required: false
-        default: 'desktop-win,desktop-linux,browser,service'
+        default: 'desktop-win,desktop-linux,wpf-win,browser,service,console,setup'
         type: string
       create_release:
         description: 'Create a GitHub Release and upload the artifacts'
@@ -45,6 +57,8 @@ env:
   # gip.core.autocomponent adds an -android TFM on Linux, which breaks the
   # non-Android publishes. The android job enables it explicitly.
   IPLUS_BUILD_ANDROID_TFM: 'false'
+  # none | self-signed | azure — see docs/release-process.md
+  SIGNING_MODE: 'none'
 
 jobs:
   resolve-version:
@@ -81,9 +95,15 @@ jobs:
             os: windows-latest
           - platform: desktop-linux
             os: ubuntu-latest
+          - platform: wpf-win
+            os: windows-latest
           - platform: browser
             os: ubuntu-latest
           - platform: service
+            os: ubuntu-latest
+          - platform: console
+            os: ubuntu-latest
+          - platform: setup
             os: ubuntu-latest
           - platform: android
             os: ubuntu-latest
@@ -107,12 +127,52 @@ jobs:
         shell: bash
         env:
           IPLUS_BUILD_ANDROID_TFM: ${{ matrix.platform == 'android' && 'true' || 'false' }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           set -euo pipefail
           ./build/publish-release.sh \
             --version "${{ needs.resolve-version.outputs.version }}" \
             --platform "${{ matrix.platform }}" \
             --output ./artifacts/release
+
+      - name: Sign binaries (self-signed)
+        if: ${{ env.SIGNING_MODE == 'self-signed' && runner.os == 'Windows' }}
+        shell: pwsh
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+        run: |
+          if (-not $env:CERTIFICATE_BASE64) {
+            Write-Host "::warning::SIGNING_MODE=self-signed but WINDOWS_CERTIFICATE_BASE64 is not set; skipping."
+            exit 0
+          }
+          $pfx = Join-Path $env:RUNNER_TEMP 'signing.pfx'
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:CERTIFICATE_BASE64))
+          $files = Get-ChildItem -Path ./artifacts/release -Recurse -Include *.exe,*.dll -File
+          foreach ($f in $files) {
+            & signtool.exe sign /f $pfx /p $env:CERTIFICATE_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 $f.FullName
+            if ($LASTEXITCODE -ne 0) { throw "signtool failed for $($f.FullName)" }
+          }
+          Write-Host "Signed $($files.Count) file(s)."
+
+      - name: Sign binaries (Azure Artifact Signing)
+        if: ${{ env.SIGNING_MODE == 'azure' && runner.os == 'Windows' }}
+        uses: azure/trusted-signing-action@v0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: ${{ secrets.AZURE_SIGNING_ENDPOINT }}
+          trusted-signing-account-name: ${{ secrets.AZURE_SIGNING_ACCOUNT }}
+          certificate-profile-name: ${{ secrets.AZURE_SIGNING_PROFILE }}
+          files-folder: ./artifacts/release
+          files-folder-filter: exe,dll
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -124,11 +184,14 @@ jobs:
           if-no-files-found: error
 
   database-script:
-    name: Generate initial-install.sql
+    name: Generate initial-install scripts
     needs: resolve-version
     runs-on: ubuntu-latest
-    # Only runs when a reference database is configured (repository variable).
-    # The script is attached to the same release as the binaries.
+    # Only runs when the reference databases are configured (repository variables).
+    # Two scripts are produced:
+    #   initial-install-iplus.sql    <- iPlusV5    (framework only)
+    #   initial-install-mes.sql      <- iPlusMESV5 (framework + MES master data)
+    # IPCDrivesV5 is a demo/example project and is NOT used for distribution.
     if: ${{ vars.IPLUS_REFERENCE_DB_CONNECTION != '' }}
     steps:
       - uses: actions/checkout@v4
@@ -140,7 +203,7 @@ jobs:
       - name: Install sqlpackage
         run: dotnet tool install -g microsoft.sqlpackage
 
-      - name: Generate initial install script
+      - name: Generate iPlus framework initial install script
         env:
           IPLUS_REFERENCE_DB_CONNECTION: ${{ vars.IPLUS_REFERENCE_DB_CONNECTION }}
         run: |
@@ -148,20 +211,40 @@ jobs:
           dotnet run --project gip.tool.dbscript/gip.tool.dbscript.csproj -c Release -- \
             generate \
             --connection-string "$IPLUS_REFERENCE_DB_CONNECTION" \
-            --output ./artifacts/release/initial-install.sql \
+            --output ./artifacts/release/initial-install-iplus.sql \
+            --seed-config ./gip.tool.dbscript/seed-tables.json \
             --suite-version "${{ needs.resolve-version.outputs.version }}"
 
-      - name: Upload database script
+      - name: Generate iPlus-MES initial install script
+        if: ${{ vars.IPLUSMES_REFERENCE_DB_CONNECTION != '' }}
+        env:
+          IPLUSMES_REFERENCE_DB_CONNECTION: ${{ vars.IPLUSMES_REFERENCE_DB_CONNECTION }}
+        run: |
+          set -euo pipefail
+          dotnet run --project gip.tool.dbscript/gip.tool.dbscript.csproj -c Release -- \
+            generate \
+            --connection-string "$IPLUSMES_REFERENCE_DB_CONNECTION" \
+            --output ./artifacts/release/initial-install-mes.sql \
+            --seed-config ./gip.tool.dbscript/seed-tables-mes.json \
+            --suite-version "${{ needs.resolve-version.outputs.version }}"
+
+      - name: Upload database scripts
         uses: actions/upload-artifact@v4
         with:
-          name: iplus-database-script
-          path: artifacts/release/initial-install.sql
+          name: iplus-database-scripts
+          path: artifacts/release/initial-install-*.sql
           if-no-files-found: error
 
   release:
     name: Create GitHub Release
-    needs: [resolve-version, build]
-    if: ${{ github.event_name == 'push' || inputs.create_release }}
+    needs: [resolve-version, build, database-script]
+    # always() so the release still runs when database-script was skipped
+    # (no reference database configured), but never when a build failed.
+    if: >-
+      ${{ always()
+          && needs.build.result == 'success'
+          && needs.database-script.result != 'failure'
+          && (github.event_name == 'push' || inputs.create_release) }}
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
@@ -169,6 +252,33 @@ jobs:
         with:
           path: artifacts
           merge-multiple: true
+
+      - name: Assemble combined bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd artifacts
+          version="${{ needs.resolve-version.outputs.version }}"
+          stage="iplus-$version-all"
+          rm -rf "$stage"
+          mkdir -p "$stage"
+          found=0
+          for zip in iplus-"$version"-*.zip; do
+            [ -e "$zip" ] || continue
+            unzip -q "$zip" -d "$stage"
+            found=1
+          done
+          if [ "$found" -eq 0 ]; then
+            echo "ERROR: no per-platform archives to combine" >&2
+            exit 1
+          fi
+          # Zip the *contents* of the staging folder so the archive has one
+          # folder per platform at its root instead of an extra
+          # "iplus-<ver>-all/" wrapper. This is the layout
+          # gip.tool.installerAndUpdater expects.
+          (cd "$stage" && zip -qr "../$stage.zip" .)
+          rm -rf "$stage"
+          ls -lh "$stage.zip"
 
       - name: Merge checksums
         shell: bash

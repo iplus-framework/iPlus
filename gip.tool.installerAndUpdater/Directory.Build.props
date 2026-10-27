@@ -1,0 +1,14 @@
+<Project>
+  <!--
+    The Avalonia fork build targets are imported from the repository root
+    Directory.Build.props, which runs BEFORE this project file. That import only
+    enables the XAML compiler for projects whose name contains ".avui"
+    (see build/AvaloniaBaseCompileInclude.props). This tool keeps its historical
+    name, so the flag has to be set here — before the root props are evaluated.
+  -->
+  <PropertyGroup>
+    <IsAvaloniaUIProject>true</IsAvaloniaUIProject>
+  </PropertyGroup>
+
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+</Project>

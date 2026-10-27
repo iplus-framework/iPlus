@@ -95,7 +95,8 @@ namespace gip.tool.dbscript
                 "/Action:Script",
                 "/SourceFile:" + dacpacPath,
                 "/TargetFile:" + outputPath,
-                "/TargetServerVersion:Sql160",
+                // SQL Server 2019 is the supported baseline (see docs/release-process.md).
+                "/TargetServerVersion:Sql150",
                 "/p:ScriptDatabaseOptions=False",
                 "/p:ScriptDeployStateChecks=False",
                 "/p:ScriptDatabaseCompatibility=False",

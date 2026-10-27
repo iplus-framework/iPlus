@@ -472,6 +472,13 @@ namespace gip.core.autocomponent
 
         private void RegisterAssemblyTypes(Assembly classAssembly)
         {
+            // Authenticode publisher verification. This is the single choke point
+            // where an assembly's types enter the runtime, so it is also the only
+            // place where "who built this binary" can be checked. Off by default;
+            // see gip.core.licensing.TrustedPublisherStore.
+            if (!IsPublisherAllowed(classAssembly))
+                return;
+
             Type[] classTypeList;
             try
             {
@@ -519,6 +526,67 @@ namespace gip.core.autocomponent
             }
 
             RegisterPackageLicense(classAssembly, classTypeList);
+        }
+
+        /// <summary>
+        /// Checks the Authenticode signature of an assembly against the trusted
+        /// publisher list and decides whether its types may be registered.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Strong-name signing is not a trust signal: <c>GIP-SNKey.snk</c> is
+        /// committed to the public repository, so anyone can produce a valid
+        /// strong name. The <c>iPlusLicense</c> assembly metadata is a plain
+        /// string and equally forgeable. Authenticode is the only mechanism that
+        /// proves which publisher built a binary.
+        /// </para>
+        /// <para>
+        /// The check is fail-open by default: verification is off unless
+        /// <c>Licenses/TrustedPublishers.txt</c> (or the
+        /// <c>IPLUS_PUBLISHER_VERIFICATION</c> environment variable) enables it,
+        /// and it is a no-op on Linux/macOS where Authenticode does not exist.
+        /// </para>
+        /// </remarks>
+        private bool IsPublisherAllowed(Assembly classAssembly)
+        {
+            if (classAssembly == null || classAssembly.IsDynamic)
+                return true;
+
+            string location = null;
+            try
+            {
+                location = classAssembly.Location;
+            }
+            catch (Exception)
+            {
+                // Single-file / in-memory assemblies have no location.
+            }
+
+            if (string.IsNullOrEmpty(location))
+                return true;
+
+            try
+            {
+                bool allowed = gip.core.licensing.TrustedPublisherStore.IsAllowed(location, out string reason);
+
+                if (Database.Root != null && Database.Root.Messages != null)
+                {
+                    string assemblyName = classAssembly.GetName().Name;
+                    if (allowed)
+                        Database.Root.Messages.LogDebug("ACClassManager", "IsPublisherAllowed", $"{assemblyName}: {reason}");
+                    else
+                        Database.Root.Messages.LogWarning("ACClassManager", "IsPublisherAllowed", $"{assemblyName}: {reason} — types will not be registered.");
+                }
+
+                return allowed;
+            }
+            catch (Exception e)
+            {
+                // A failing verification must never prevent startup.
+                if (Database.Root != null && Database.Root.Messages != null)
+                    Database.Root.Messages.LogException("ACClassManager", "IsPublisherAllowed", e);
+                return true;
+            }
         }
 
         /// <summary>
@@ -2759,7 +2827,10 @@ namespace gip.core.autocomponent
         {
             get
             {
-                return "*.core.*.dll,*.bso.*.dll,*.solution.*.dll,*.variobatch.*.dll,*.mes.*.dll,*.package.*.dll,*.iplus.*.dll,*.iplusmes.*.dll,*Wpf.dll,*.avui.dll,gip.ext.graphics.dll,gip.ext.graphics.avui.dll,*datamodel.dll";
+                // *.commercial.*.dll is the convention for commercial modules
+                // (gip's own and those of integrators). See
+                // docs/HANDOVER-dual-licensing-distribution.md, "Commercial module packaging".
+                return "*.core.*.dll,*.bso.*.dll,*.solution.*.dll,*.variobatch.*.dll,*.mes.*.dll,*.package.*.dll,*.commercial.*.dll,*.iplus.*.dll,*.iplusmes.*.dll,*Wpf.dll,*.avui.dll,gip.ext.graphics.dll,gip.ext.graphics.avui.dll,*datamodel.dll";
             }
         }
 

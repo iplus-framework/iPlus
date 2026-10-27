@@ -158,6 +158,14 @@ namespace gip.core.licensing
             bool permissive = IsPermissive(expression);
             bool copyleft = IsCopyleft(expression);
 
+            // Pure commercial (no copyleft, no permissive alternative) is the only
+            // case that requires a product license. It must be checked BEFORE the
+            // "commercial || permissive" branch, otherwise "LicenseRef-Commercial"
+            // would classify as Both and the CommercialOnly enforcement branch in
+            // License.IsPackageAllowedByLicenseExpression would never be reached.
+            if (commercial && !copyleft && !permissive)
+                return LicenseCompatibility.CommercialOnly;
+
             if (commercial || permissive)
                 return LicenseCompatibility.Both;
 
