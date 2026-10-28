@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Media.TextFormatting;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using System;
@@ -149,6 +150,37 @@ namespace gip.core.layoutengine.avui
         protected override void OnInitialized()
         {
             base.OnInitialized();
+        }
+
+        /// <summary>
+        /// Avalonia's TextLayout drops every line that exceeds the height offered by the parent, 
+        /// so a text containing CR/LF shows only its first line if the available height is limited.
+        /// WPF measures the full text height instead. For multi-line texts the height constraint is therefore ignored.
+        /// </summary>
+        protected override TextLayout CreateTextLayout(string text)
+        {
+            if (String.IsNullOrEmpty(text)
+                || (Inlines != null && Inlines.Count > 0)
+                || LineSpacing != 0
+                || text.IndexOfAny(new char[] { '\r', '\n' }) < 0)
+                return base.CreateTextLayout(text);
+
+            return new TextLayout(
+                text,
+                new Typeface(FontFamily, FontStyle, FontWeight, FontStretch),
+                FontSize,
+                Foreground,
+                IsMeasureValid ? TextAlignment : TextAlignment.Left,
+                TextWrapping,
+                TextTrimming,
+                TextDecorations,
+                FlowDirection,
+                GetMaxSizeFromConstraint().Width,
+                double.PositiveInfinity,
+                LineHeight,
+                LetterSpacing,
+                MaxLines,
+                FontFeatures);
         }
 
         void VBTextBlock_SourceUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
