@@ -82,6 +82,7 @@ namespace gip.core.layoutengine.avui
             _Factory.DockableClosed += _Factory_DockableClosed;
             _Factory.WindowClosing += _Factory_WindowClosing;
             _Factory.WindowClosed += _Factory_WindowClosed;
+            _Factory.ActiveDockableChanged += _Factory_ActiveDockableChanged;
 
             _MainLayout = new ProportionalDock() { Orientation = Orientation.Vertical, DockGroup = DockGroupId, IsCollapsable = false };
             DocumentDock documentDock = new DocumentDock
@@ -168,6 +169,9 @@ namespace gip.core.layoutengine.avui
 
         private void _Factory_DockableClosed(object sender, Dock.Model.Core.Events.DockableClosedEventArgs e)
         {
+            if (ReferenceEquals(e.Dockable, _LastActivatedDockable))
+                _LastActivatedDockable = null;
+
             var map = DesignToolMap.Where(c => c.Dockable == e.Dockable).FirstOrDefault();
             if (map != null)
             {
@@ -175,6 +179,59 @@ namespace gip.core.layoutengine.avui
                 DesignToolMap.Remove(map);
             }
 
+        }
+
+        private IDockable _LastActivatedDockable;
+
+        /// <summary>
+        /// Fires the same ACAction as the WPF VBTabItem/VBDockingContainerTabbedDoc when the user
+        /// switches a dock tab. The Dock factory raises this event for every ActiveDockable change,
+        /// which is triggered by the TwoWay SelectedItem binding of the tab strips.
+        /// </summary>
+        private void _Factory_ActiveDockableChanged(object sender, Dock.Model.Core.Events.ActiveDockableChangedEventArgs e)
+        {
+            IDockable activated = e?.Dockable;
+            if (activated == null)
+                return;
+            if (ReferenceEquals(activated, _LastActivatedDockable))
+                return;
+
+            // InitActiveDockable is also raised for layout docks (RootDock/_MainLayout/DocumentDock).
+            // Only dockables that host a VBDesign are relevant for the tab activation feature.
+            var map = DesignToolMap.FirstOrDefault(c => c.Dockable == activated);
+            if (map?.Design == null)
+                return;
+
+            IDockable deactivated = _LastActivatedDockable;
+            _LastActivatedDockable = activated;
+
+            if (deactivated != null)
+                FireTabItemAction(deactivated, Global.ElementActionType.TabItemDeActivated);
+            FireTabItemAction(activated, Global.ElementActionType.TabItemActivated);
+        }
+
+        private void FireTabItemAction(IDockable dockable, Global.ElementActionType elementAction)
+        {
+            if (dockable == null)
+                return;
+
+            var map = DesignToolMap.FirstOrDefault(c => c.Dockable == dockable);
+            VBDesign design = map?.Design;
+            if (design == null)
+                return;
+
+            // Same guard as WPF VBTabItem.OnSelected: only tabs that carry a VBContent are
+            // relevant for the ACAction consumers (they read DropObject.VBContent).
+            if (string.IsNullOrEmpty(design.VBContent))
+                return;
+
+            IACComponent acComponent = design.ContextACObject as IACComponent
+                                    ?? ContextACObject as IACComponent
+                                    ?? BSOACComponent as IACComponent;
+            if (acComponent == null)
+                return;
+
+            acComponent.ACAction(new ACActionArgs(design, 0, 0, elementAction));
         }
 
         private void _Factory_DockableClosing(object sender, Dock.Model.Core.Events.DockableClosingEventArgs e)
@@ -191,6 +248,10 @@ namespace gip.core.layoutengine.avui
 
         protected virtual void DeInitVBControl(IACComponent bso = null)
         {
+            if (_Factory != null)
+                _Factory.ActiveDockableChanged -= _Factory_ActiveDockableChanged;
+            _LastActivatedDockable = null;
+
             if (VBDesignList != null)
             {
                 VBDesignList.Clear();
