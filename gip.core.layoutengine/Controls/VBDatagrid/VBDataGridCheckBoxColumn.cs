@@ -56,6 +56,7 @@ namespace gip.core.layoutengine
                     style.Setters.Add(new Setter(UIElement.FocusableProperty, false));
                     style.Setters.Add(new Setter(CheckBox.HorizontalAlignmentProperty, HorizontalAlignment.Center));
                     style.Setters.Add(new Setter(CheckBox.VerticalAlignmentProperty, VerticalAlignment.Top));
+                    style.Setters.Add(new Setter(VBCheckBox.BoxSizeFactorProperty, 0.4));
 
                     style.Seal();
                     _defaultElementStyle = style;
@@ -80,6 +81,7 @@ namespace gip.core.layoutengine
 
                     style.Setters.Add(new Setter(CheckBox.HorizontalAlignmentProperty, HorizontalAlignment.Center));
                     style.Setters.Add(new Setter(CheckBox.VerticalAlignmentProperty, VerticalAlignment.Top));
+                    style.Setters.Add(new Setter(VBCheckBox.BoxSizeFactorProperty, 0.4));
 
                     style.Seal();
                     _defaultEditingElementStyle = style;
