@@ -520,6 +520,8 @@ namespace gip.core.layoutengine.avui
                         Columns.Add(dataGridCheckBoxColumn);
                         dataGridCheckBoxColumn.Initialize(dataShowColumn, dsColACTypeInfo, dsColSource, dsColPath, dsColRightControlMode);
                         dataGridCheckBoxColumn.VBContent = dsColPath;
+                        if (!double.IsNaN(VBBoxSizeFactor))
+                            dataGridCheckBoxColumn.VBBoxSizeFactor = VBBoxSizeFactor;
                     }
                     else if (dsColACTypeInfo.ObjectType == typeof(DateTime))
                     {
@@ -573,6 +575,8 @@ namespace gip.core.layoutengine.avui
                 IGriColumn vbDataGridCol = col as IGriColumn;
                 if (vbDataGridCol == null)
                     continue;
+                if (col is VBDataGridCheckBoxColumn checkBoxCol && double.IsNaN(checkBoxCol.VBBoxSizeFactor) && !double.IsNaN(VBBoxSizeFactor))
+                    checkBoxCol.VBBoxSizeFactor = VBBoxSizeFactor;
                 if (String.IsNullOrEmpty(vbDataGridCol.VBContent) || (vbDataGridCol.ACColumnItem != null))
                     continue;
                 vbDataGridCol.ACColumnItem = new ACColumnItem(vbDataGridCol.VBContent);

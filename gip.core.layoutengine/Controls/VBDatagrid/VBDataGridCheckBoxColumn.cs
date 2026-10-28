@@ -129,6 +129,22 @@ namespace gip.core.layoutengine
         }
 
         /// <summary>
+        /// Represents the dependency property for VBBoxSizeFactor.
+        /// </summary>
+        public static readonly DependencyProperty VBBoxSizeFactorProperty
+            = DependencyProperty.Register("VBBoxSizeFactor", typeof(double), typeof(VBDataGridCheckBoxColumn), new PropertyMetadata(double.NaN));
+
+        /// <summary>
+        /// Overrides the scale factor of the check box square for this column. NaN means the default (0.4) is used.
+        /// </summary>
+        [Category("VBControl")]
+        public double VBBoxSizeFactor
+        {
+            get { return (double)GetValue(VBBoxSizeFactorProperty); }
+            set { SetValue(VBBoxSizeFactorProperty, value); }
+        }
+
+        /// <summary>
         /// Gets or sets the right control mode.
         /// </summary>
         /// <summary xml:lang="de">
@@ -299,6 +315,8 @@ namespace gip.core.layoutengine
 
             checkBox.IsThreeState = IsThreeState;
             ApplyStyle(isEditing, /* defaultToElementStyle = */ true, checkBox);
+            if (!double.IsNaN(VBBoxSizeFactor))
+                checkBox.BoxSizeFactor = VBBoxSizeFactor;
             ApplyBinding(checkBox, CheckBox.IsCheckedProperty);
             return checkBox;
         }

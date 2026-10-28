@@ -731,6 +731,8 @@ namespace gip.core.layoutengine
                         Columns.Add(dataGridCheckBoxColumn);
                         dataGridCheckBoxColumn.Initialize(dataShowColumn, dsColACTypeInfo, dsColSource, dsColPath, dsColRightControlMode);
                         dataGridCheckBoxColumn.VBContent = dsColPath;
+                        if (!double.IsNaN(VBBoxSizeFactor))
+                            dataGridCheckBoxColumn.VBBoxSizeFactor = VBBoxSizeFactor;
                     }
                     else if (dsColACTypeInfo.ObjectType == typeof(DateTime))
                     {
@@ -787,6 +789,8 @@ namespace gip.core.layoutengine
                 IGriColumn vbDataGridCol = col as IGriColumn;
                 if (vbDataGridCol == null)
                     continue;
+                if (col is VBDataGridCheckBoxColumn checkBoxCol && double.IsNaN(checkBoxCol.VBBoxSizeFactor) && !double.IsNaN(VBBoxSizeFactor))
+                    checkBoxCol.VBBoxSizeFactor = VBBoxSizeFactor;
                 // Falls kein VBContent gesetz oder DataGrid-Columne bereits initialisiert, dann gehe zur nächsten Spalte
                 if (String.IsNullOrEmpty(vbDataGridCol.VBContent) || (vbDataGridCol.ACColumnItem != null))
                     continue;
@@ -1851,6 +1855,25 @@ namespace gip.core.layoutengine
         {
             get { return (string)GetValue(DisabledModesProperty); }
             set { SetValue(DisabledModesProperty, value); }
+        }
+
+        /// <summary>
+        /// Represents the dependency property for VBBoxSizeFactor.
+        /// </summary>
+        public static readonly DependencyProperty VBBoxSizeFactorProperty
+            = DependencyProperty.Register("VBBoxSizeFactor", typeof(double), typeof(VBDataGrid), new PropertyMetadata(double.NaN));
+
+        /// <summary>
+        /// Scale factor of the check box square in auto-generated checkbox columns. NaN keeps the column default (0.4).
+        /// </summary>
+        /// <summary xml:lang="de">
+        /// Skalierungsfaktor des Kästchens in automatisch erzeugten Checkbox-Spalten. NaN behält den Spalten-Standardwert (0.4) bei.
+        /// </summary>
+        [Category("VBControl")]
+        public double VBBoxSizeFactor
+        {
+            get { return (double)GetValue(VBBoxSizeFactorProperty); }
+            set { SetValue(VBBoxSizeFactorProperty, value); }
         }
         #endregion
 

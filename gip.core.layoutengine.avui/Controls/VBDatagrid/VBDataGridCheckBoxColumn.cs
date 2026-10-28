@@ -63,6 +63,22 @@ namespace gip.core.layoutengine.avui
             set { SetValue(VBIsReadOnlyProperty, value); }
         }
 
+        /// <summary>
+        /// Represents the styled property for VBBoxSizeFactor.
+        /// </summary>
+        public static readonly StyledProperty<double> VBBoxSizeFactorProperty
+            = AvaloniaProperty.Register<VBDataGridCheckBoxColumn, double>(nameof(VBBoxSizeFactor), double.NaN);
+
+        /// <summary>
+        /// Overrides the scale factor of the check box square for this column. NaN means the theme default (0.4) is used.
+        /// </summary>
+        [Category("VBControl")]
+        public double VBBoxSizeFactor
+        {
+            get { return GetValue(VBBoxSizeFactorProperty); }
+            set { SetValue(VBBoxSizeFactorProperty, value); }
+        }
+
         public static readonly AttachedProperty<FontFamily> FontFamilyProperty =
             TextElement.FontFamilyProperty.AddOwner<VBDataGridCheckBoxColumn>();
 
@@ -420,6 +436,8 @@ namespace gip.core.layoutengine.avui
             //cell.Style = style;
 
             ApplyBinding(checkBox, CheckBox.IsCheckedProperty);
+            if (!double.IsNaN(VBBoxSizeFactor))
+                checkBox.BoxSizeFactor = VBBoxSizeFactor;
             return checkBox;
         }
 

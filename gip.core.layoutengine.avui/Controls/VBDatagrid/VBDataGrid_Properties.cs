@@ -766,6 +766,25 @@ namespace gip.core.layoutengine.avui
             get { return GetValue(DisabledModesProperty); }
             set { SetValue(DisabledModesProperty, value); }
         }
+
+        /// <summary>
+        /// Represents the styled property for VBBoxSizeFactor.
+        /// </summary>
+        public static readonly StyledProperty<double> VBBoxSizeFactorProperty
+            = AvaloniaProperty.Register<VBDataGrid, double>(nameof(VBBoxSizeFactor), double.NaN);
+
+        /// <summary>
+        /// Scale factor of the check box square in auto-generated checkbox columns. NaN keeps the column default (0.4).
+        /// </summary>
+        /// <summary xml:lang="de">
+        /// Skalierungsfaktor des Kästchens in automatisch erzeugten Checkbox-Spalten. NaN behält den Spalten-Standardwert (0.4) bei.
+        /// </summary>
+        [Category("VBControl")]
+        public double VBBoxSizeFactor
+        {
+            get { return GetValue(VBBoxSizeFactorProperty); }
+            set { SetValue(VBBoxSizeFactorProperty, value); }
+        }
         #endregion
 
         #region Single view app Members
