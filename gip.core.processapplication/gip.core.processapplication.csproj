@@ -56,6 +56,9 @@
     <None Include="VBControlScripts/2026-10-06 17-18_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="VBControlScripts/2026-10-28 11-11_dlisak.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'False'">
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
@@ -87,5 +90,5 @@
     <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
-  <Import Project="..\gip.core.processapplication.shared\gip.core.processapplication.shared.projitems" Label="Shared" />
+  <Import Project="../gip.core.processapplication.shared/gip.core.processapplication.shared.projitems" Label="Shared" />
 </Project>

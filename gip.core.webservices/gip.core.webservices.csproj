@@ -64,5 +64,10 @@
     <None Include="_doc\Localhost HTTPS Certificate Cookbook %28Windows%29.md" />
     <None Include="_doc\remove-certificate.ps1" />
   </ItemGroup>
-  <Import Project="..\gip.core.webservices.shared\gip.core.webservices.shared.projitems" Label="Shared" />
+  <ItemGroup>
+    <None Include="VBControlScripts/2026-10-28 10-58_dlisak.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <Import Project="../gip.core.webservices.shared/gip.core.webservices.shared.projitems" Label="Shared" />
 </Project>

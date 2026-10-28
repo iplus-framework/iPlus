@@ -13,13 +13,19 @@
     <NoWarn>1591;CA1416</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <None Update="VBControlScripts\2023-09-12 15-29_aagincic.zip">
+    <None Update="VBControlScripts/2023-09-12 15-29_aagincic.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="VBControlScripts\2023-09-14 12-06_aagincic.zip">
+    <None Update="VBControlScripts/2023-09-14 12-06_aagincic.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="VBControlScripts/2026-10-03 09-56_dlisak.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="VBControlScripts/2026-10-28 10-35_dlisak.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="VBControlScripts/2026-10-28 10-57_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

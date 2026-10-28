@@ -15,6 +15,9 @@ Reference implementation used throughout this document:
 local fallback), [MediaFileOperations.cs](../../gip.core.media/ACComponent/MediaFileOperations.cs) (file logic
 shared by service and controller) and [BSOMedia.cs](../../gip.core.media/BSO/BSOMedia.cs) (UI business object).
 
+UI side (designs, VBContent binding, DataGrid lists, WPF/Avalonia XAML in the DB):
+[iplus-designs-and-bso-binding.md](./iplus-designs-and-bso-binding.md).
+
 ---
 
 ## 0. Cheat sheet (TL;DR)
