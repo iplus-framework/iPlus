@@ -179,31 +179,23 @@ namespace gip.core.media
                 if (_SelectedImage != value)
                 {
                     _SelectedImage = value;
+                    if (_ActiveTab == MediaItemTypeEnum.Image)
+                        _SelectedMediaItem = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(SelectedMediaItemPresentation));
                     OnPropertyChanged($"{nameof(SelectedImage)}\\{nameof(SelectedImage.TempFilePath)}");
                 }
             }
         }
 
-        private List<MediaItemPresentation> _ImageList;
         /// <summary>
-        /// List property for string
+        /// Items of this media type. The items of all types are held in <see cref="MediaItemPresentationList"/>.
         /// </summary>
-        /// <value>The Image list</value>
         [ACPropertyList(9999, "Image")]
         public List<MediaItemPresentation> ImageList
         {
-            get
-            {
-                if (_ImageList == null)
-                    _ImageList = new List<MediaItemPresentation>();
-                return _ImageList;
-            }
-            set
-            {
-                _ImageList = value;
-                OnPropertyChanged();
-            }
+            get { return GetItemsOfType(MediaItemTypeEnum.Image); }
+            set { SetItemsOfType(MediaItemTypeEnum.Image, value); }
         }
 
         #endregion
@@ -227,31 +219,23 @@ namespace gip.core.media
                 if (_SelectedDocument != value)
                 {
                     _SelectedDocument = value;
+                    if (_ActiveTab == MediaItemTypeEnum.Document)
+                        _SelectedMediaItem = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(SelectedMediaItemPresentation));
                     OnPropertyChanged($"{nameof(SelectedDocument)}\\{nameof(SelectedDocument.TempFilePath)}");
                 }
             }
         }
 
-        private List<MediaItemPresentation> _DocumentList;
         /// <summary>
-        /// List property for string
+        /// Items of this media type. The items of all types are held in <see cref="MediaItemPresentationList"/>.
         /// </summary>
-        /// <value>The Document list</value>
         [ACPropertyList(9999, "Document")]
         public List<MediaItemPresentation> DocumentList
         {
-            get
-            {
-                if (_DocumentList == null)
-                    _DocumentList = new List<MediaItemPresentation>();
-                return _DocumentList;
-            }
-            set
-            {
-                _DocumentList = value;
-                OnPropertyChanged();
-            }
+            get { return GetItemsOfType(MediaItemTypeEnum.Document); }
+            set { SetItemsOfType(MediaItemTypeEnum.Document, value); }
         }
 
         #endregion
@@ -275,31 +259,23 @@ namespace gip.core.media
                 if (_SelectedAudio != value)
                 {
                     _SelectedAudio = value;
+                    if (_ActiveTab == MediaItemTypeEnum.Audio)
+                        _SelectedMediaItem = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(SelectedMediaItemPresentation));
                 }
             }
         }
 
 
-        private List<MediaItemPresentation> _AudioList;
         /// <summary>
-        /// List property for string
+        /// Items of this media type. The items of all types are held in <see cref="MediaItemPresentationList"/>.
         /// </summary>
-        /// <value>The Audio list</value>
         [ACPropertyList(9999, "Audio")]
         public List<MediaItemPresentation> AudioList
         {
-            get
-            {
-                if (_AudioList == null)
-                    _AudioList = new List<MediaItemPresentation>();
-                return _AudioList;
-            }
-            set
-            {
-                _AudioList = value;
-                OnPropertyChanged();
-            }
+            get { return GetItemsOfType(MediaItemTypeEnum.Audio); }
+            set { SetItemsOfType(MediaItemTypeEnum.Audio, value); }
         }
 
         #endregion
@@ -323,31 +299,23 @@ namespace gip.core.media
                 if (_SelectedVideo != value)
                 {
                     _SelectedVideo = value;
+                    if (_ActiveTab == MediaItemTypeEnum.Video)
+                        _SelectedMediaItem = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(SelectedMediaItemPresentation));
                 }
             }
         }
 
 
-        private List<MediaItemPresentation> _VideoList;
         /// <summary>
-        /// List property for string
+        /// Items of this media type. The items of all types are held in <see cref="MediaItemPresentationList"/>.
         /// </summary>
-        /// <value>The Video list</value>
         [ACPropertyList(9999, "Video")]
         public List<MediaItemPresentation> VideoList
         {
-            get
-            {
-                if (_VideoList == null)
-                    _VideoList = new List<MediaItemPresentation>();
-                return _VideoList;
-            }
-            set
-            {
-                _VideoList = value;
-                OnPropertyChanged();
-            }
+            get { return GetItemsOfType(MediaItemTypeEnum.Video); }
+            set { SetItemsOfType(MediaItemTypeEnum.Video, value); }
         }
 
         #endregion
@@ -356,6 +324,11 @@ namespace gip.core.media
 
 
         private MediaItemTypeEnum _ActiveTab = MediaItemTypeEnum.Image;
+        /// <summary>
+        /// Media type of the selected item and type for new items. The views show the items of all media types
+        /// in one list and use this property to switch the details (image or document preview).
+        /// Designs with one tab per media type (WPF) set it via the tab items.
+        /// </summary>
         [ACPropertyInfo(80, "ActiveTab", "en{'ActiveTab'}de{'ActiveTab'}")]
         public MediaItemTypeEnum ActiveTab
         {
@@ -368,54 +341,87 @@ namespace gip.core.media
                 if (_ActiveTab != value)
                 {
                     _ActiveTab = value;
+                    _SelectedMediaItem = GetSelectionOfType(value);
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(SelectedMediaItemPresentation));
                 }
             }
         }
 
+        private MediaItemPresentation _SelectedMediaItem;
         [ACPropertyInfo(81, "SelectedMediaItemPresentation", "en{'SelectedMediaItemPresentation'}de{'SelectedMediaItemPresentation'}")]
         public MediaItemPresentation SelectedMediaItemPresentation
         {
             get
             {
-                MediaItemPresentation item = null;
-                switch (ActiveTab)
-                {
-                    case MediaItemTypeEnum.Image:
-                        item = SelectedImage;
-                        break;
-                    case MediaItemTypeEnum.Document:
-                        item = SelectedDocument;
-                        break;
-                    case MediaItemTypeEnum.Audio:
-                        item = SelectedAudio;
-                        break;
-                    case MediaItemTypeEnum.Video:
-                        item = SelectedVideo;
-                        break;
-                }
-                return item;
+                return _SelectedMediaItem;
             }
             set
             {
-                switch (ActiveTab)
+                _SelectedMediaItem = value;
+                if (value != null)
                 {
-                    case MediaItemTypeEnum.Image:
-                        SelectedImage = value;
-                        break;
-                    case MediaItemTypeEnum.Document:
-                        SelectedDocument = value;
-                        break;
-                    case MediaItemTypeEnum.Audio:
-                        SelectedAudio = value;
-                        break;
-                    case MediaItemTypeEnum.Video:
-                        SelectedVideo = value;
-                        break;
+                    SetActiveTabFromItem(value);
+                    switch (value.MediaType)
+                    {
+                        case MediaItemTypeEnum.Image:
+                            SelectedImage = value;
+                            break;
+                        case MediaItemTypeEnum.Document:
+                            SelectedDocument = value;
+                            break;
+                        case MediaItemTypeEnum.Audio:
+                            SelectedAudio = value;
+                            break;
+                        case MediaItemTypeEnum.Video:
+                            SelectedVideo = value;
+                            break;
+                    }
+                }
+                else
+                {
+                    switch (ActiveTab)
+                    {
+                        case MediaItemTypeEnum.Image:
+                            SelectedImage = null;
+                            break;
+                        case MediaItemTypeEnum.Document:
+                            SelectedDocument = null;
+                            break;
+                        case MediaItemTypeEnum.Audio:
+                            SelectedAudio = null;
+                            break;
+                        case MediaItemTypeEnum.Video:
+                            SelectedVideo = null;
+                            break;
+                    }
                 }
                 OnPropertyChanged();
-                SelectedMediaItemPresentation_OnPropertyChanged();
+            }
+        }
+
+        private MediaItemPresentation GetSelectionOfType(MediaItemTypeEnum mediaType)
+        {
+            switch (mediaType)
+            {
+                case MediaItemTypeEnum.Image:
+                    return SelectedImage;
+                case MediaItemTypeEnum.Document:
+                    return SelectedDocument;
+                case MediaItemTypeEnum.Audio:
+                    return SelectedAudio;
+                case MediaItemTypeEnum.Video:
+                    return SelectedVideo;
+            }
+            return null;
+        }
+
+        private void SetActiveTabFromItem(MediaItemPresentation item)
+        {
+            if (_ActiveTab != item.MediaType)
+            {
+                _ActiveTab = item.MediaType;
+                OnPropertyChanged(nameof(ActiveTab));
             }
         }
 
@@ -436,70 +442,50 @@ namespace gip.core.media
                     OnPropertyChanged(nameof(SelectedVideo));
                     break;
             }
+            OnPropertyChanged(nameof(SelectedMediaItemPresentation));
         }
 
+        private List<MediaItemPresentation> _MediaItemList;
+        /// <summary>
+        /// The items of all media types. A new list instance must be assigned for changes,
+        /// because the Avalonia DataGrid does not re-read the same List instance.
+        /// </summary>
         [ACPropertyInfo(82, "MediaItemPresentationList", "en{'MediaItemPresentationList'}de{'MediaItemPresentationList'}")]
         public List<MediaItemPresentation> MediaItemPresentationList
         {
             get
             {
-                List<MediaItemPresentation> list = null;
-                switch (ActiveTab)
-                {
-                    case MediaItemTypeEnum.Image:
-                        list = ImageList;
-                        break;
-                    case MediaItemTypeEnum.Document:
-                        list = DocumentList;
-                        break;
-                    case MediaItemTypeEnum.Audio:
-                        list = AudioList;
-                        break;
-                    case MediaItemTypeEnum.Video:
-                        list = VideoList;
-                        break;
-                }
-                return list;
+                if (_MediaItemList == null)
+                    _MediaItemList = new List<MediaItemPresentation>();
+                return _MediaItemList;
             }
             set
             {
-                switch (ActiveTab)
-                {
-                    case MediaItemTypeEnum.Image:
-                        _ImageList = value;
-                        break;
-                    case MediaItemTypeEnum.Document:
-                        _DocumentList = value;
-                        break;
-                    case MediaItemTypeEnum.Audio:
-                        _AudioList = value;
-                        break;
-                    case MediaItemTypeEnum.Video:
-                        _VideoList = value;
-                        break;
-                }
+                _MediaItemList = value;
                 MediaItemPresentationList_OnPropertyChanged();
             }
         }
 
         public void MediaItemPresentationList_OnPropertyChanged()
         {
-            switch (ActiveTab)
-            {
-                case MediaItemTypeEnum.Image:
-                    OnPropertyChanged(nameof(ImageList));
-                    break;
-                case MediaItemTypeEnum.Document:
-                    OnPropertyChanged(nameof(DocumentList));
-                    break;
-                case MediaItemTypeEnum.Audio:
-                    OnPropertyChanged(nameof(AudioList));
-                    break;
-                case MediaItemTypeEnum.Video:
-                    OnPropertyChanged(nameof(VideoList));
-                    break;
-            }
+            OnPropertyChanged(nameof(ImageList));
+            OnPropertyChanged(nameof(DocumentList));
+            OnPropertyChanged(nameof(AudioList));
+            OnPropertyChanged(nameof(VideoList));
             OnPropertyChanged(nameof(MediaItemPresentationList));
+        }
+
+        private List<MediaItemPresentation> GetItemsOfType(MediaItemTypeEnum mediaType)
+        {
+            return MediaItemPresentationList.Where(c => c.MediaType == mediaType).ToList();
+        }
+
+        private void SetItemsOfType(MediaItemTypeEnum mediaType, List<MediaItemPresentation> items)
+        {
+            List<MediaItemPresentation> newList = MediaItemPresentationList.Where(c => c.MediaType != mediaType).ToList();
+            if (items != null)
+                newList.AddRange(items);
+            MediaItemPresentationList = newList;
         }
 
         #endregion
@@ -529,7 +515,7 @@ namespace gip.core.media
 
         private static readonly string[] MediaItemSelectionProps = new string[]
         {
-            nameof(ActiveTab), nameof(SelectedImage), nameof(SelectedDocument), nameof(SelectedAudio), nameof(SelectedVideo)
+            nameof(ActiveTab), nameof(SelectedMediaItemPresentation), nameof(SelectedImage), nameof(SelectedDocument), nameof(SelectedAudio), nameof(SelectedVideo)
         };
 
         public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
@@ -561,15 +547,14 @@ namespace gip.core.media
         public void Clean()
         {
             CurrentACObject = null;
-            ImageList = null;
-            DocumentList = null;
-            AudioList = null;
-            VideoList = null;
+            _MediaItemList = null;
+            _SelectedMediaItem = null;
 
             SelectedImage = null;
             SelectedDocument = null;
             SelectedAudio = null;
             SelectedVideo = null;
+            NotifyMediaChanged();
         }
 
         public void LoadMedia(IACObject aCObject)
@@ -584,26 +569,35 @@ namespace gip.core.media
             AudioMediaSet = GetMediaSet(aCObject, MediaItemTypeEnum.Audio);
             VideoMediaSet = GetMediaSet(aCObject, MediaItemTypeEnum.Video);
 
-            _ImageList = LoadItems(ImageMediaSet);
-            if (_ImageList != null && _ImageList.Any())
-                SelectedImage = _ImageList.FirstOrDefault();
+            List<MediaItemPresentation> images = LoadItems(ImageMediaSet) ?? new List<MediaItemPresentation>();
+            List<MediaItemPresentation> documents = LoadItems(DocumentMediaSet) ?? new List<MediaItemPresentation>();
+            List<MediaItemPresentation> audios = LoadItems(AudioMediaSet) ?? new List<MediaItemPresentation>();
+            List<MediaItemPresentation> videos = LoadItems(VideoMediaSet) ?? new List<MediaItemPresentation>();
 
-            _DocumentList = LoadItems(DocumentMediaSet);
-            if (_DocumentList != null && _DocumentList.Any())
-                SelectedDocument = _DocumentList.FirstOrDefault();
+            // The selection must be reset even if the new list is empty, otherwise the details keep showing the previous object
+            _MediaItemList = images.Concat(documents).Concat(audios).Concat(videos).ToList();
+            SelectedImage = images.FirstOrDefault();
+            SelectedDocument = documents.FirstOrDefault();
+            SelectedAudio = audios.FirstOrDefault();
+            SelectedVideo = videos.FirstOrDefault();
+            SelectedMediaItemPresentation = _MediaItemList.FirstOrDefault();
 
-            _AudioList = LoadItems(AudioMediaSet);
-            if (_AudioList != null && _AudioList.Any())
-                SelectedAudio = _AudioList.FirstOrDefault();
+            NotifyMediaChanged();
+        }
 
-            _VideoList = LoadItems(VideoMediaSet);
-            if (_VideoList != null && _VideoList.Any())
-                SelectedVideo = _VideoList.FirstOrDefault();
-
-            OnPropertyChanged(nameof(ImageList));
-            OnPropertyChanged(nameof(DocumentList));
-            OnPropertyChanged(nameof(AudioList));
-            OnPropertyChanged(nameof(VideoList));
+        /// <summary>
+        /// The views are bound to the generic properties (MediaItemPresentationList / SelectedMediaItemPresentation),
+        /// so changes of the type specific lists and selections must be signaled for them as well.
+        /// </summary>
+        private void NotifyMediaChanged()
+        {
+            MediaItemPresentationList_OnPropertyChanged();
+            OnPropertyChanged(nameof(SelectedImage));
+            OnPropertyChanged(nameof(SelectedDocument));
+            OnPropertyChanged(nameof(SelectedAudio));
+            OnPropertyChanged(nameof(SelectedVideo));
+            OnPropertyChanged(nameof(ActiveTab));
+            OnPropertyChanged(nameof(SelectedMediaItemPresentation));
         }
 
         private MediaSet GetMediaSet(IACObject aCObject, MediaItemTypeEnum mediaType)
@@ -671,8 +665,9 @@ namespace gip.core.media
         }
 
         /// <summary>
-        /// Creates the client-side presentation item and materializes the content that the
-        /// server returned into local temp files, so that the UI can display it.
+        /// Creates the client-side presentation item. Images and thumbnails are kept as byte arrays
+        /// (the client may be Browser/Android without access to the media folder or a file system).
+        /// Only documents are materialized into a local temp file, because the document viewer needs a path.
         /// </summary>
         private MediaItemPresentation CreatePresentationItem(MediaItemInfo info, MediaItemTypeEnum mediaType)
         {
@@ -684,20 +679,46 @@ namespace gip.core.media
             item.IsDefault = info.IsDefault;
             item.IsNew = false;
 
-            Guid id = Guid.NewGuid();
-            item.TempFilePath = CreateTempFileFromService(info.FilePath, id.ToString());
+            MediaContentResult content = MediaController.GetFileContent(info.FilePath);
+            ApplyContent(item, content);
+
+            MediaContentResult thumb = null;
             if (!string.IsNullOrEmpty(info.ThumbPath))
-                item.TempThumbPath = CreateTempFileFromService(info.ThumbPath, id + "_temp");
-            else if (mediaType == MediaItemTypeEnum.Image)
-                item.TempThumbPath = item.TempFilePath;
-            else
-            {
-                MediaContentResult icon = MediaController.GetIconContent(Path.GetExtension(info.FilePath));
-                if (icon != null && icon.Success && icon.Content != null)
-                    item.TempThumbPath = WriteTempFile(icon.Content, icon.Extension, id + "_temp");
-            }
+                thumb = MediaController.GetFileContent(info.ThumbPath);
+            else if (mediaType != MediaItemTypeEnum.Image)
+                thumb = MediaController.GetIconContent(Path.GetExtension(info.FilePath));
+            ApplyThumbContent(item, thumb);
 
             return item;
+        }
+
+        private static bool HasContent(MediaContentResult content)
+        {
+            return content != null && content.Success && content.Content != null;
+        }
+
+        /// <summary>
+        /// Takes over the main content: images as byte array, other types as local temp file.
+        /// </summary>
+        private void ApplyContent(MediaItemPresentation item, MediaContentResult content)
+        {
+            if (!HasContent(content))
+                return;
+
+            if (item.MediaType == MediaItemTypeEnum.Image)
+            {
+                item.ImageContent = content.Content;
+                if (item.ThumbContent == null)
+                    item.ThumbContent = content.Content;
+            }
+            else
+                item.TempFilePath = TryWriteTempFile(content.Content, content.Extension, Guid.NewGuid().ToString());
+        }
+
+        private void ApplyThumbContent(MediaItemPresentation item, MediaContentResult thumb)
+        {
+            if (HasContent(thumb))
+                item.ThumbContent = thumb.Content;
         }
 
         private string CreateTempFileFromService(string filePath, string tempFileName)
@@ -706,10 +727,26 @@ namespace gip.core.media
                 return null;
 
             MediaContentResult content = MediaController.GetFileContent(filePath);
-            if (content == null || !content.Success || content.Content == null)
+            if (!HasContent(content))
                 return null;
 
-            return WriteTempFile(content.Content, content.Extension, tempFileName);
+            return TryWriteTempFile(content.Content, content.Extension, tempFileName);
+        }
+
+        /// <summary>
+        /// Writes a local temp file. Returns null if the client has no usable file system.
+        /// </summary>
+        private string TryWriteTempFile(byte[] content, string extension, string tempFileName)
+        {
+            try
+            {
+                return WriteTempFile(content, extension, tempFileName);
+            }
+            catch (Exception ec)
+            {
+                Messages.LogException(this.GetACUrl(), nameof(TryWriteTempFile), ec);
+                return null;
+            }
         }
 
         private string WriteTempFile(byte[] content, string extension, string tempFileName)
@@ -737,6 +774,9 @@ namespace gip.core.media
             if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
             {
                 SelectedMediaItemPresentation.EditFilePath = filePath;
+                MediaItemTypeEnum? fileType = GetUpladedFileType(Path.GetExtension(filePath));
+                if (fileType.HasValue)
+                    ChangeMediaType(SelectedMediaItemPresentation, fileType.Value);
                 SelectedMediaItemPresentation_OnPropertyChanged();
             }
         }
@@ -778,14 +818,16 @@ namespace gip.core.media
                 return;
             try
             {
-                MediaSet mediaSet = GetMediaSet(ActiveTab);
                 MediaItemPresentation item = SelectedMediaItemPresentation;
                 string extension = Path.GetExtension(item.EditFilePath);
-                if (!mediaSet.ExtensionQuery.Contains(extension))
+                MediaItemTypeEnum? fileType = GetUpladedFileType(extension);
+                if (!fileType.HasValue)
                 {
-                    Messages.WarningAsync(this, "Warning50068", false, extension, mediaSet.ExtensionQuery);
+                    Messages.WarningAsync(this, "Warning50068", false, extension, GetAllExtensionQuery());
                     return;
                 }
+                ChangeMediaType(item, fileType.Value);
+                MediaSet mediaSet = GetMediaSet(fileType.Value);
 
                 byte[] content = File.ReadAllBytes(item.EditFilePath);
                 byte[] thumbContent = null;
@@ -814,14 +856,15 @@ namespace gip.core.media
                 item.EditFilePath = null;
                 item.EditThumbPath = null;
 
-                Guid id = Guid.NewGuid();
-                item.TempFilePath = WriteTempFile(result.Content, result.Extension, id.ToString());
+                item.ImageContent = null;
+                item.ThumbContent = null;
+                ApplyContent(item, result);
 
                 MediaContentResult thumbResult = MediaController.GetThumbContent(item.FilePath, mediaSet.MediaType);
                 if (thumbResult != null && thumbResult.Success && thumbResult.Content != null)
                 {
                     item.ThumbPath = string.IsNullOrEmpty(thumbResult.FilePath) ? item.FilePath : thumbResult.FilePath;
-                    item.TempThumbPath = WriteTempFile(thumbResult.Content, thumbResult.Extension, id + "_temp");
+                    ApplyThumbContent(item, thumbResult);
                 }
 
                 SelectedMediaItemPresentation_OnPropertyChanged();
@@ -973,9 +1016,12 @@ namespace gip.core.media
                 return;
             MediaItemPresentation item = new MediaItemPresentation();
             item.MediaType = ActiveTab;
+            item.IsNew = true;
             LoadMediaPresentationDefaults(item, ActiveTab == MediaItemTypeEnum.Image);
-            MediaItemPresentationList.Add(item);
-            MediaItemPresentationList_OnPropertyChanged();
+            // A new list instance is required: raising PropertyChanged for the same List instance
+            // does not make the Avalonia DataGrid re-read the items (same pattern as in Delete()).
+            List<MediaItemPresentation> newList = new List<MediaItemPresentation>(MediaItemPresentationList) { item };
+            MediaItemPresentationList = newList;
             SelectedMediaItemPresentation = item;
         }
 
@@ -996,9 +1042,11 @@ namespace gip.core.media
             MediaItemPresentation item = SelectedMediaItemPresentation;
             SelectedMediaItemPresentation = null;
 
-            MediaItemPresentationList.Remove(item);
-            MediaItemPresentationList = MediaItemPresentationList.ToList();
-            SelectedMediaItemPresentation = MediaItemPresentationList.FirstOrDefault();
+            MediaItemPresentationList = MediaItemPresentationList.Where(c => c != item).ToList();
+            SelectedMediaItemPresentation = MediaItemPresentationList.FirstOrDefault(c => c.MediaType == item.MediaType)
+                                            ?? MediaItemPresentationList.FirstOrDefault();
+            if (SelectedMediaItemPresentation == null)
+                NotifyMediaChanged();
 
             if (!string.IsNullOrEmpty(item.FilePath) && item.FilePath != ACMediaController.RelativeEmptyImagePath)
             {
@@ -1041,25 +1089,73 @@ namespace gip.core.media
         #region Helper methods
         private MediaItemTypeEnum? GetUpladedFileType(string extension)
         {
-            KeyValuePair<MediaItemTypeEnum, MediaSet>? searchItem = null;
+            if (string.IsNullOrEmpty(extension))
+                return null;
 
-            Dictionary<MediaItemTypeEnum, MediaSet> items = new Dictionary<MediaItemTypeEnum, MediaSet>
+            foreach (MediaSet mediaSet in new MediaSet[] { ImageMediaSet, DocumentMediaSet, AudioMediaSet, VideoMediaSet })
             {
-                { MediaItemTypeEnum.Image, ImageMediaSet },
-                { MediaItemTypeEnum.Document, DocumentMediaSet },
-                { MediaItemTypeEnum.Audio, AudioMediaSet },
-                { MediaItemTypeEnum.Video, VideoMediaSet }
-            };
-
-            foreach (var tmp in items)
-            {
-                if (tmp.Value.MediaTypeSettings.Extensions.Contains(extension))
-                    searchItem = tmp;
+                if (mediaSet?.MediaTypeSettings?.Extensions != null
+                    && mediaSet.MediaTypeSettings.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
+                    return mediaSet.MediaType;
             }
-            if (searchItem != null)
-                return searchItem.Value.Key;
             return null;
         }
+
+        private string GetAllExtensionQuery()
+        {
+            return string.Join(";", new MediaSet[] { ImageMediaSet, DocumentMediaSet, AudioMediaSet, VideoMediaSet }
+                .Where(c => c != null)
+                .Select(c => c.ExtensionQuery));
+        }
+
+        /// <summary>
+        /// The media type is derived from the file. All types share one list, so only the item and the selections need to follow.
+        /// </summary>
+        private void ChangeMediaType(MediaItemPresentation item, MediaItemTypeEnum mediaType)
+        {
+            if (item == null || item.MediaType == mediaType)
+                return;
+
+            MediaItemTypeEnum oldType = item.MediaType;
+            if (GetSelectionOfType(oldType) == item)
+                SetSelectionOfType(oldType, null);
+
+            item.MediaType = mediaType;
+            if (item.IsNew)
+            {
+                item.ImageContent = null;
+                item.TempFilePath = null;
+                item.FilePath = null;
+                LoadMediaPresentationDefaults(item, mediaType == MediaItemTypeEnum.Image);
+            }
+
+            SetSelectionOfType(mediaType, item);
+            _SelectedMediaItem = item;
+            _ActiveTab = mediaType;
+            MediaItemPresentationList = MediaItemPresentationList.ToList();
+            OnPropertyChanged(nameof(ActiveTab));
+            OnPropertyChanged(nameof(SelectedMediaItemPresentation));
+        }
+
+        private void SetSelectionOfType(MediaItemTypeEnum mediaType, MediaItemPresentation item)
+        {
+            switch (mediaType)
+            {
+                case MediaItemTypeEnum.Image:
+                    _SelectedImage = item;
+                    break;
+                case MediaItemTypeEnum.Document:
+                    _SelectedDocument = item;
+                    break;
+                case MediaItemTypeEnum.Audio:
+                    _SelectedAudio = item;
+                    break;
+                case MediaItemTypeEnum.Video:
+                    _SelectedVideo = item;
+                    break;
+            }
+        }
+
         private async Task DownloadFile(string filePath)
         {
             string localPath = GetLocalFilePath(SelectedMediaItemPresentation);
@@ -1078,12 +1174,15 @@ namespace gip.core.media
         {
             string emptyThumbPath = ACMediaController.RelativeEmptyThumbImagePath;
             item.ThumbPath = emptyThumbPath;
-            item.TempThumbPath = CreateTempFileFromService(emptyThumbPath, Guid.NewGuid() + "_temp");
+            ApplyThumbContent(item, MediaController.GetFileContent(emptyThumbPath));
             if (isImage)
             {
                 string emptyImagePath = ACMediaController.RelativeEmptyImagePath;
                 item.FilePath = emptyImagePath;
-                item.TempFilePath = CreateTempFileFromService(emptyImagePath, Guid.NewGuid().ToString());
+                item.ImageContent = null;
+                MediaContentResult emptyImage = MediaController.GetFileContent(emptyImagePath);
+                if (HasContent(emptyImage))
+                    item.ImageContent = emptyImage.Content;
             }
         }
 

@@ -18,7 +18,7 @@ namespace gip.core.media
         #region File Path
 
         private string _ThumbPath;
-        [ACPropertyInfo(1, "ThumbPath", "en{'Thumb Image path'}de{'Standard-Daumenbildpfad'}")]
+        [ACPropertyInfo(1, "ThumbPath", "en{'Stored thumbnail'}de{'Gespeichertes Daumenbild'}")]
         public string ThumbPath
         {
             get { return _ThumbPath; }
@@ -33,7 +33,7 @@ namespace gip.core.media
         }
 
         private string _FilePath;
-        [ACPropertyInfo(2, "FilePath", "en{'File path'}de{'Dateipfad'}")]
+        [ACPropertyInfo(2, "FilePath", "en{'Stored file'}de{'Gespeicherte Datei'}")]
         public string FilePath
         {
             get { return _FilePath; }
@@ -52,7 +52,7 @@ namespace gip.core.media
         #region Edit File Path
 
         private string _EditThumbPath;
-        [ACPropertyInfo(3, "ThumbPath", "en{'Thumb Image path'}de{'Standard-Daumenbildpfad'}")]
+        [ACPropertyInfo(3, "ThumbPath", "en{'Thumbnail to upload'}de{'Hochzuladendes Daumenbild'}")]
         public string EditThumbPath
         {
             get { return _EditThumbPath; }
@@ -67,7 +67,7 @@ namespace gip.core.media
         }
 
         private string _EditFilePath;
-        [ACPropertyInfo(4, "FilePath", "en{'File path'}de{'Dateipfad'}")]
+        [ACPropertyInfo(4, "FilePath", "en{'File to upload'}de{'Hochzuladende Datei'}")]
         public string EditFilePath
         {
             get { return _EditFilePath; }
@@ -109,18 +109,53 @@ namespace gip.core.media
                 {
                     _TempFilePath = value;
                     OnPropertyChanged();
-                    OnPropertyChanged(nameof(Image));
                 }
             }
         }
 
+        private byte[] _ImageContent;
         /// <summary>
-        /// Path of the locally materialized image. The UI binds this to the Source of an
-        /// Image control; both WPF and Avalonia convert the path to an image source.
+        /// Image data as received from the media service. The client may be a browser or mobile app
+        /// without access to the media folder, so images are transported as bytes and not as paths.
+        /// Avalonia: Source="{Binding SelectedImage.Image, Converter={x:Static vb:ConverterImagePath.Current}}"
         /// </summary>
-        public string Image
+        public byte[] ImageContent
         {
-            get { return _TempFilePath; }
+            get { return _ImageContent; }
+            set
+            {
+                _ImageContent = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Image));
+            }
+        }
+
+        private byte[] _ThumbContent;
+        public byte[] ThumbContent
+        {
+            get { return _ThumbContent; }
+            set
+            {
+                _ThumbContent = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ImageThumb));
+            }
+        }
+
+        /// <summary>
+        /// Image bytes for an Image control (needs a converter in Avalonia).
+        /// </summary>
+        public byte[] Image
+        {
+            get { return _ImageContent; }
+        }
+
+        /// <summary>
+        /// Thumbnail bytes for an Image control (needs a converter in Avalonia).
+        /// </summary>
+        public byte[] ImageThumb
+        {
+            get { return _ThumbContent; }
         }
 
         #endregion

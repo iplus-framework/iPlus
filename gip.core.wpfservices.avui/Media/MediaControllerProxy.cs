@@ -229,9 +229,12 @@ namespace gip.core.wpfservices.avui
                 if (files.Count > 0)
                 {
                     var file = files.First();
-                    bool exists = File.Exists(file.Path.ToString());
-                    if (!useExisting || exists)
-                        return file.Path.ToString();
+                    // Path is a URI (file:///...); File.Exists needs the local path.
+                    string localPath = file.TryGetLocalPath();
+                    if (localPath == null)
+                        return useExisting ? null : file.Path.ToString();
+                    if (!useExisting || File.Exists(localPath))
+                        return localPath;
                 }
             }
 
