@@ -20,6 +20,8 @@ using Avalonia.LogicalTree;
 using Avalonia;
 using Avalonia.Input;
 using Avalonia.Controls;
+using Avalonia.Platform.Storage;
+using System.Threading.Tasks;
 using System.Diagnostics;
 
 namespace gip.core.layoutengine.avui.Helperclasses
@@ -531,10 +533,109 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return false;
         }
 
+        private static readonly Dictionary<string, string> PickFileMimeTypes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { ".jpg", "image/jpeg" }, { ".jpeg", "image/jpeg" }, { ".png", "image/png" }, { ".gif", "image/gif" },
+            { ".bmp", "image/bmp" }, { ".webp", "image/webp" }, { ".pdf", "application/pdf" }, { ".txt", "text/plain" },
+            { ".mp3", "audio/mpeg" }, { ".wav", "audio/wav" }, { ".mp4", "video/mp4" }
+        };
+
+        private static List<FilePickerFileType>? CreateFilePickerTypes(string? filter)
+        {
+            if (string.IsNullOrWhiteSpace(filter))
+                return null;
+            string[] patterns = filter.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            // Android filters by mime type, the other platforms by pattern
+            string[] mimeTypes = patterns
+                .Select(p => PickFileMimeTypes.TryGetValue(System.IO.Path.GetExtension(p), out string? mime) ? mime : null)
+                .Where(m => m != null)
+                .Distinct()
+                .ToArray()!;
+            return new List<FilePickerFileType>
+            {
+                new FilePickerFileType(string.Join(", ", patterns)) { Patterns = patterns, MimeTypes = mimeTypes.Length > 0 ? mimeTypes : null }
+            };
+        }
+
+        /// <summary>
+        /// Lets the user pick a file on the device and calls the server method with the file name and the file content.
+        /// </summary>
+        private static async Task PickFileAndExecuteAsync(VBButton button, string methodName, IACComponent propertyOwner)
+        {
+            try
+            {
+                IStorageProvider? provider = TopLevel.GetTopLevel(button)?.StorageProvider;
+                if (provider == null || !provider.CanOpen)
+                    return;
+
+                IReadOnlyList<IStorageFile> files = await provider.OpenFilePickerAsync(new FilePickerOpenOptions
+                {
+                    AllowMultiple = false,
+                    FileTypeFilter = CreateFilePickerTypes(button.PickFileFilter)
+                });
+                if (files.Count == 0)
+                    return;
+
+                IStorageFile file = files[0];
+                byte[] content;
+                using (System.IO.Stream stream = await file.OpenReadAsync())
+                using (System.IO.MemoryStream memoryStream = new System.IO.MemoryStream())
+                {
+                    await stream.CopyToAsync(memoryStream);
+                    content = memoryStream.ToArray();
+                }
+
+                string methodCmd = methodName.StartsWith(ACUrlHelper.Delimiter_InvokeMethod) ? methodName : ACUrlHelper.Delimiter_InvokeMethod + methodName;
+                // Stays on the UI thread: the method changes bound properties (e.g. the list), and their change notifications must not be raised on a background thread
+                System.Diagnostics.Debug.WriteLine($"PickFileAndExecuteAsync: send {file.Name} ({content.Length} bytes) to {methodCmd}");
+                propertyOwner.ACUrlCommand(methodCmd, file.Name, content);
+                System.Diagnostics.Debug.WriteLine($"PickFileAndExecuteAsync: {methodCmd} returned");
+            }
+            catch (Exception ex)
+            {
+                Database.Root.Messages.LogException(nameof(ACCommandHelper), nameof(PickFileAndExecuteAsync), ex);
+                System.Diagnostics.Debug.WriteLine($"PickFileAndExecuteAsync failed: {ex}");
+                await Database.Root.Messages.ErrorAsync(propertyOwner, ex.Message, true);
+            }
+        }
+
+        /// <summary>
+        /// Calls the server method that returns the file and opens the result with the viewer of the device.
+        /// </summary>
+        private static async Task ExecuteAndOpenFileAsync(VBButton button, string methodName, IACComponent propertyOwner)
+        {
+            try
+            {
+                string methodCmd = methodName.StartsWith(ACUrlHelper.Delimiter_InvokeMethod) ? methodName : ACUrlHelper.Delimiter_InvokeMethod + methodName;
+                // The remote call is synchronous and must not block the UI thread
+                IVBFileContent? file = await Task.Run(() => propertyOwner.ACUrlCommand(methodCmd)) as IVBFileContent;
+                if (file == null)
+                    return;
+                bool opened = await Dispatcher.UIThread.InvokeAsync(() => VBFileOpener.OpenAsync(button, file));
+                if (!opened)
+                    await Database.Root.Messages.WarningAsync(propertyOwner, "The file cannot be opened on this device.", true);
+            }
+            catch (Exception ex)
+            {
+                Database.Root.Messages.LogException(nameof(ACCommandHelper), nameof(ExecuteAndOpenFileAsync), ex);
+            }
+        }
+
         private static void ReactiveExecuteCommand(IACCommandControl control, string methodName, IACComponent propertyOwner)
         {
             try
             {
+                if (control is VBButton pickFileButton && pickFileButton.PickFileOnClick)
+                {
+                    _ = PickFileAndExecuteAsync(pickFileButton, methodName, propertyOwner);
+                    return;
+                }
+                if (control is VBButton openFileButton && openFileButton.OpenFileOnClick)
+                {
+                    _ = ExecuteAndOpenFileAsync(openFileButton, methodName, propertyOwner);
+                    return;
+                }
+
                 if (Const.IsAvaloniaHotKeyManagerBugPresent && AppCommands.IsBuiltInAppCommand(methodName) && control is Visual visual)
                 {
                     TopLevel? topLevel = TopLevel.GetTopLevel(visual);

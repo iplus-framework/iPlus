@@ -288,6 +288,38 @@ Exceptions in the handler are swallowed. A BSO can use that to keep an "active t
 but a design **without** tabs never fires it: do not derive state from tab events if the design
 may be shown without them. Derive state from data (e.g. media type from the selected item).
 
+### Mobile navigation (`OpenDesignOnClick`)
+
+* `VBButton` / `VBDataGrid` with `OpenDesignOnClick="X"` call `VBDesignController.ShowDesign("X")`.
+  `X` is always resolved on the BSO of the **main design** (`MainDesign.BSOACComponent`), never on a hosted child.
+  To show a child BSO design on mobile, create a host design in the parent BSO (`VBDesign` + `VBInstanceInfo`) and
+  navigate to that host. Several host pages can share one child instance via the same `Key`.
+* `ShowDesign` / `CloseDesign` call `BSO.ACAction(TabItemActivated)` with `DropObject` = the design that is now visible
+  (`DropObject.VBContent == "*<DesignName>"`), so a parent BSO can load child context exactly like for tabs.
+  Remember that the event also fires when returning from a deeper page (do not reload then, otherwise the selection is lost)
+  and that `_IsOpen`-style flags must be reset for other designs.
+* Example: `BSOMaintOrder` -> `MaintOrderMobileDetail` -> `MaintOrderImagesMobile` (hosts `BSOMedia.MediaMobileList`)
+  -> `MaintOrderImageDetailMobile` (hosts `BSOMedia.MediaMobileForm`). Script: `scripts/sql-scripts/BSOMedia_MobileDesigns.sql`.
+* `DisabledModes="Disabled"` makes `GetControlModes` return `Disabled`. `VBListBox.UpdateControlMode` then sets `IsEnabled=false`,
+  so the list ignores all taps (a `VBDataGrid` only treats it as "not editable" and still selects). Do **not** set it on a `VBListBox` that must be selectable.
+* A touch tap selects the `ListBoxItem` on pointer **release** and marks the event handled, so a control-level `OnPointerReleased` override is not
+  called; use `AddHandler(PointerReleasedEvent, ..., handledEventsToo: true)` (see `VBListBox.OpenDesignOnItemTap`).
+* **Files on mobile / browser:** the BSO (e.g. `BSOMedia`) runs **in the client process** (the call stack of a button click ends in `HandleExecuteACMethod` of the BSO on the device) and talks to the server only through services (`ACMediaService`).
+  Paths of the device file system are not usable by the service, so file content travels as `byte[]` and the client does the device part. Two `VBButton` properties do this:
+  * `PickFileOnClick="True"` (+ optional `PickFileFilter="*.jpg;*.pdf"`): opens the platform file picker (`StorageProvider`, works on
+    Android and Browser), then calls the method of `VBContent` as `Method(string fileName, byte[] content)`. Example: `BSOMedia.UploadFileContent`.
+  * `PickFileOnClick` calls the BSO method **on the UI thread** (not `Task.Run`): the method changes bound properties and a background thread would raise the change notifications there, so the `VBListBox` does not refresh.
+  * `OpenFileOnClick="True"`: calls a server method that returns an `IVBFileContent` (e.g. `MediaContentResult`) and opens it through
+    `VBFileOpener`. Default: temp file + `TopLevel.Launcher` (desktop). Platform heads set `VBFileOpener.PlatformHandler`; Android uses
+    `OpenFileProvider` (ContentProvider, content:// URI + read grant, because file:// URIs of the app cache are not allowed).
+    Browser/WASM cannot open files this way (the user gets a message). Example: `BSOMedia.GetItemContent`.
+  * `CloseDesignOnClick="True"`: after the command of the button ran, `VBDesignController.CloseDesign()` navigates back (e.g. `!Delete` on the detail page).
+  * Page reload rule (`BSOMaintOrder.ACAction`): the list page reloads when it is entered from any design except the detail page; remembered via `_LastActivatedDesign`.
+  Both methods need `IsEnabled<Method>` and a `case` in `HandleExecuteACMethod` like any other ACMethod; new ACMethods must be registered in the DB
+  by starting the server once with class registration.
+* Mobile conventions (usage `DUMainMobile` 4400 for the explorer, `DULayout` 4210 for pages, no `!New/!Delete/!Save` buttons,
+  list pages with 3-5 columns, or a `VBListBox` with `ItemTemplate` and `OpenDesignOnClick` for card lists) are described in `iplus-mobile-design-template.prompt.md` (iPlusUsageDocs/AIPrompts).
+
 ---
 
 ## 8. Change notification checklist for a BSO
@@ -363,8 +395,8 @@ Layout: `Media` = `*MediaList` | `GridSplitter` | `*MediaForm`, optionally wrapp
 
 ## 12. Open points (not verified)
 
-* WPF `MediaList` (generic `SelectedMediaItemPresentation` + `VBSource`) showed no rows in a first test:
-  the WPF `VBDataGrid` path (ItemsSource resolution, refresh for plain `List<T>`) was not yet
-  analysed. Compare with the Avalonia implementation in `VBDataGrid.InitVBControl` before relying on
-  section 5 for WPF.
+* WPF `MediaList` showed no rows in a first test only because the Windows media folder was not configured
+  (the WPF client reads the files directly). With the folder set it works like Avalonia.
+* Mobile upload: `ACMediaController.OpenFileDialog` (`MediaControllerProxy` in `gip.core.wpfservices.avui`) only finds a
+  `TopLevel` for desktop lifetimes, and `BSOMedia.UploadFile` reads a local path. Picking a file on Android/Browser needs an own implementation.
 * Document preview (`VBWebBrowser`) for Browser/Android is not solved.

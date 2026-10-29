@@ -536,9 +536,13 @@ namespace gip.core.media
                 case nameof(IsEnabledShowInFolder):
                 case nameof(Delete):
                 case nameof(IsEnabledDelete):
+                case nameof(GetItemContent):
+                case nameof(IsEnabledGetItemContent):
                     return MediaItemSelectionProps;
                 case nameof(Add):
                 case nameof(IsEnabledAdd):
+                case nameof(UploadFileContent):
+                case nameof(IsEnabledUploadFileContent):
                     return new string[] { nameof(CurrentACObject) };
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName);
@@ -557,9 +561,11 @@ namespace gip.core.media
             NotifyMediaChanged();
         }
 
-        public void LoadMedia(IACObject aCObject)
+        /// <param name="aCObject">Object whose media should be shown</param>
+        /// <param name="forceReload">Reads the items again from the media service although the object didn't change (media may have been changed elsewhere).</param>
+        public void LoadMedia(IACObject aCObject, bool forceReload = false)
         {
-            if (CurrentACObject == aCObject || !IsMediaRootConfigured)
+            if ((CurrentACObject == aCObject && !forceReload) || !IsMediaRootConfigured)
                 return;
 
             CurrentACObject = aCObject;
@@ -827,47 +833,13 @@ namespace gip.core.media
                     return;
                 }
                 ChangeMediaType(item, fileType.Value);
-                MediaSet mediaSet = GetMediaSet(fileType.Value);
 
                 byte[] content = File.ReadAllBytes(item.EditFilePath);
                 byte[] thumbContent = null;
                 if (!string.IsNullOrEmpty(item.EditThumbPath) && File.Exists(item.EditThumbPath))
                     thumbContent = File.ReadAllBytes(item.EditThumbPath);
 
-                MediaContentResult result = MediaController.UploadMediaFile(
-                    CurrentACObject,
-                    mediaSet.MediaType,
-                    Path.GetFileName(item.EditFilePath),
-                    content,
-                    item.IsDefault,
-                    item.IsGenerateThumb,
-                    thumbContent);
-
-                if (result == null || !result.Success)
-                {
-                    SendMessage(result?.Message ?? new Msg { MessageLevel = eMsgLevel.Error, Message = "Upload failed." });
-                    return;
-                }
-
-                item.FilePath = result.FilePath ?? Path.Combine(mediaSet.ItemRootFolder, result.FileName);
-                item.Name = result.FileName;
-                item.IsNew = false;
-                item.IsGenerateThumb = false;
-                item.EditFilePath = null;
-                item.EditThumbPath = null;
-
-                item.ImageContent = null;
-                item.ThumbContent = null;
-                ApplyContent(item, result);
-
-                MediaContentResult thumbResult = MediaController.GetThumbContent(item.FilePath, mediaSet.MediaType);
-                if (thumbResult != null && thumbResult.Success && thumbResult.Content != null)
-                {
-                    item.ThumbPath = string.IsNullOrEmpty(thumbResult.FilePath) ? item.FilePath : thumbResult.FilePath;
-                    ApplyThumbContent(item, thumbResult);
-                }
-
-                SelectedMediaItemPresentation_OnPropertyChanged();
+                StoreUploadedContent(item, fileType.Value, Path.GetFileName(item.EditFilePath), content, thumbContent);
             }
             catch (Exception ec)
             {
@@ -875,6 +847,118 @@ namespace gip.core.media
                 SendMessage(msg);
             }
 
+        }
+
+        /// <summary>
+        /// Sends the content to the media service and takes over the result into the presentation item.
+        /// </summary>
+        private bool StoreUploadedContent(MediaItemPresentation item, MediaItemTypeEnum mediaType, string fileName, byte[] content, byte[] thumbContent)
+        {
+            MediaSet mediaSet = GetMediaSet(mediaType);
+            MediaContentResult result = MediaController.UploadMediaFile(
+                CurrentACObject,
+                mediaSet.MediaType,
+                fileName,
+                content,
+                item.IsDefault,
+                item.IsGenerateThumb,
+                thumbContent);
+
+            if (result == null || !result.Success)
+            {
+                SendMessage(result?.Message ?? new Msg { MessageLevel = eMsgLevel.Error, Message = "Upload failed." });
+                return false;
+            }
+
+            item.FilePath = result.FilePath ?? Path.Combine(mediaSet.ItemRootFolder, result.FileName);
+            item.Name = result.FileName;
+            item.IsNew = false;
+            item.IsGenerateThumb = false;
+            item.EditFilePath = null;
+            item.EditThumbPath = null;
+
+            item.ImageContent = null;
+            item.ThumbContent = null;
+            ApplyContent(item, result);
+
+            MediaContentResult thumbResult = MediaController.GetThumbContent(item.FilePath, mediaSet.MediaType);
+            if (thumbResult != null && thumbResult.Success && thumbResult.Content != null)
+            {
+                item.ThumbPath = string.IsNullOrEmpty(thumbResult.FilePath) ? item.FilePath : thumbResult.FilePath;
+                ApplyThumbContent(item, thumbResult);
+            }
+
+            SelectedMediaItemPresentation_OnPropertyChanged();
+            return true;
+        }
+
+        /// <summary>
+        /// Uploads a file whose content was picked on the client device (mobile app, browser).
+        /// The client has no access to the media folder and the server has no access to the client file system,
+        /// so the file name and the content are passed as parameters. A new item is created and selected.
+        /// </summary>
+        [ACMethodInfo("UploadFileContent", "en{'Upload from device'}de{'Vom Gerät hochladen'}", 9999, false, false, true)]
+        public void UploadFileContent(string fileName, byte[] content)
+        {
+            if (string.IsNullOrEmpty(fileName) || content == null || content.Length == 0)
+            {
+                Messages.LogWarning(this.GetACUrl(), nameof(UploadFileContent), "No file name or content received.");
+                return;
+            }
+            if (!IsEnabledUploadFileContent())
+            {
+                Messages.LogWarning(this.GetACUrl(), nameof(UploadFileContent),
+                    String.Format("Upload of {0} rejected: MediaRootConfigured={1}, CurrentACObject={2}", fileName, IsMediaRootConfigured, CurrentACObject));
+                return;
+            }
+            try
+            {
+                fileName = Path.GetFileName(fileName);
+                string extension = Path.GetExtension(fileName);
+                MediaItemTypeEnum? fileType = GetUpladedFileType(extension);
+                if (!fileType.HasValue)
+                {
+                    Messages.WarningAsync(this, "Warning50068", false, extension, GetAllExtensionQuery());
+                    return;
+                }
+
+                MediaItemPresentation item = new MediaItemPresentation();
+                item.MediaType = fileType.Value;
+                item.IsNew = true;
+                item.IsGenerateThumb = fileType.Value == MediaItemTypeEnum.Image;
+                if (!StoreUploadedContent(item, fileType.Value, fileName, content, null))
+                    return;
+
+                // A new list instance is required (see Add())
+                MediaItemPresentationList = new List<MediaItemPresentation>(MediaItemPresentationList) { item };
+                SelectedMediaItemPresentation = item;
+            }
+            catch (Exception ec)
+            {
+                SendMessage(new Msg() { MessageLevel = eMsgLevel.Error, Message = ec.Message });
+            }
+        }
+
+        public bool IsEnabledUploadFileContent()
+        {
+            return IsEnabledAdd();
+        }
+
+        /// <summary>
+        /// Delivers the content of the selected item to the client, which opens it with the viewer of the device
+        /// (VBButton with OpenFileOnClick). A server-side BSO cannot start a viewer on the client.
+        /// </summary>
+        [ACMethodInfo("GetItemContent", "en{'Open on device'}de{'Auf Gerät öffnen'}", 9999, false, false, true)]
+        public MediaContentResult GetItemContent()
+        {
+            if (!IsEnabledGetItemContent())
+                return null;
+            return MediaController.GetFileContent(SelectedMediaItemPresentation.FilePath);
+        }
+
+        public bool IsEnabledGetItemContent()
+        {
+            return IsEnabledOpenItem();
         }
         public bool IsEnabledUploadFile()
         {
@@ -1050,6 +1134,29 @@ namespace gip.core.media
 
             if (!string.IsNullOrEmpty(item.FilePath) && item.FilePath != ACMediaController.RelativeEmptyImagePath)
             {
+                if (OperatingSystem.IsAndroid() || OperatingSystem.IsIOS() || OperatingSystem.IsBrowser())
+                {
+                    // Mobile: no progress dialog, the files are deleted on the media service without a background worker
+                    List<string> mobileFiles = new List<string> { item.FilePath };
+                    if (ThumbExistAndIsNotGeneric(item))
+                        mobileFiles.Add(item.ThumbPath);
+                    IACObject acObject = CurrentACObject;
+                    bool isDefault = item.IsDefault;
+                    bool deleted = await Task.Run(() =>
+                    {
+                        bool success = true;
+                        foreach (string file in mobileFiles)
+                            success = MediaController.DeleteMediaFile(file) && success;
+                        MediaController.CleanUpMediaFolder(acObject, false);
+                        return success;
+                    });
+                    if (deleted && isDefault && OnDefaultImageDelete != null)
+                        OnDefaultImageDelete(this, new EventArgs());
+                    else if (!deleted)
+                        Messages.LogWarning(this.GetACUrl(), nameof(Delete), $"Not all files of {item.FilePath} could be deleted");
+                    return;
+                }
+
                 BGModel bGModel = new BGModel();
                 bGModel.Command = BGWorkerMehtod_DeleteFile;
                 bGModel.IsDefault = item.IsDefault;
@@ -1279,6 +1386,18 @@ namespace gip.core.media
                     return true;
                 case nameof(Add):
                     Add();
+                    return true;
+                case nameof(GetItemContent):
+                    result = GetItemContent();
+                    return true;
+                case nameof(IsEnabledGetItemContent):
+                    result = IsEnabledGetItemContent();
+                    return true;
+                case nameof(UploadFileContent):
+                    UploadFileContent(acParameter[0] as string, acParameter[1] as byte[]);
+                    return true;
+                case nameof(IsEnabledUploadFileContent):
+                    result = IsEnabledUploadFileContent();
                     return true;
                 case nameof(Delete):
                     result = Delete();

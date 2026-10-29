@@ -10,6 +10,7 @@ namespace gip.iplus.client.avui.Android
     {
         static Application()
         {
+            gip.core.layoutengine.avui.Helperclasses.VBFileOpener.PlatformHandler = OpenFileProvider.OpenAsync;
             // Android has no ConnectionStrings.config: register app-specific EF contexts so
             // the SQL Tunnel login derives their connection strings from the default container.
             gip.iplus.client.avui.LoginView.AdditionalConnectionContainerNames.Add(

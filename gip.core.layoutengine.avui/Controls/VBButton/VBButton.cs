@@ -561,6 +561,14 @@ namespace gip.core.layoutengine.avui
                     }
                 }
 
+                if (CloseDesignOnClick)
+                {
+                    VBDesignController controller = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBDesignController)) as VBDesignController;
+                    // Posted so that the command of the button (executed by the Click of the base class) runs before the design is closed
+                    if (controller != null)
+                        Avalonia.Threading.Dispatcher.UIThread.Post(() => controller.CloseDesign());
+                }
+
             }
             IsTouchLeave = true;
             base.OnPointerReleased(e);
@@ -1191,6 +1199,18 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the styled property for checking if the control is opened in the signle view App.
         /// </summary>
+        public static readonly StyledProperty<bool> CloseDesignOnClickProperty
+            = AvaloniaProperty.Register<VBButton, bool>(nameof(CloseDesignOnClick));
+
+        /// <summary>
+        /// If true, the current design is closed (navigates back) after the command of the button was executed.
+        /// </summary>
+        public bool CloseDesignOnClick
+        {
+            get { return GetValue(CloseDesignOnClickProperty); }
+            set { SetValue(CloseDesignOnClickProperty, value); }
+        }
+
         public static readonly StyledProperty<string> OpenDesignOnClickProperty
             = AvaloniaProperty.Register<VBButton, string>(nameof(OpenDesignOnClick));
 
@@ -1198,6 +1218,45 @@ namespace gip.core.layoutengine.avui
         {
             get { return GetValue(OpenDesignOnClickProperty); }
             set { SetValue(OpenDesignOnClickProperty, value); }
+        }
+
+        /// <summary>
+        /// If true, a click opens the file picker of the device (also Android and Browser) and calls the method of VBContent
+        /// with the parameters (string fileName, byte[] content). The file content is transported to the server,
+        /// because a server-side BSO has no access to the file system of the client.
+        /// </summary>
+        public static readonly StyledProperty<bool> PickFileOnClickProperty
+            = AvaloniaProperty.Register<VBButton, bool>(nameof(PickFileOnClick));
+
+        public bool PickFileOnClick
+        {
+            get { return GetValue(PickFileOnClickProperty); }
+            set { SetValue(PickFileOnClickProperty, value); }
+        }
+
+        /// <summary>
+        /// If true, a click calls the method of VBContent, which must return an IVBFileContent (file name and content),
+        /// and opens the file with the viewer of the device. Used if the BSO runs on the server.
+        /// </summary>
+        public static readonly StyledProperty<bool> OpenFileOnClickProperty
+            = AvaloniaProperty.Register<VBButton, bool>(nameof(OpenFileOnClick));
+
+        public bool OpenFileOnClick
+        {
+            get { return GetValue(OpenFileOnClickProperty); }
+            set { SetValue(OpenFileOnClickProperty, value); }
+        }
+
+        /// <summary>
+        /// Optional filter for the file picker, e.g. "*.jpg;*.png;*.pdf".
+        /// </summary>
+        public static readonly StyledProperty<string> PickFileFilterProperty
+            = AvaloniaProperty.Register<VBButton, string>(nameof(PickFileFilter));
+
+        public string PickFileFilter
+        {
+            get { return GetValue(PickFileFilterProperty); }
+            set { SetValue(PickFileFilterProperty, value); }
         }
 
         #endregion

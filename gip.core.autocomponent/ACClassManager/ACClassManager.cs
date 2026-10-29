@@ -182,7 +182,10 @@ namespace gip.core.autocomponent
 
                 if (isAndroidEmbedded)
                 {
-                    // For embedded assemblies in APK: use already loaded assemblies
+                    // For embedded assemblies in APK: use already loaded assemblies.
+                    // Referenced assemblies are loaded lazily by the runtime, so load them first. Otherwise their
+                    // ACSerializeableInfo types (e.g. gip.core.media.MediaItemTypeEnum) are never registered as known types.
+                    LoadReferencedAssemblies(patterns);
                     var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
 
                     foreach (var assembly in loadedAssemblies)
@@ -196,16 +199,7 @@ namespace gip.core.autocomponent
                             string assemblyName = assembly.GetName().Name ?? "";
 
                             // Check if assembly matches any of our patterns
-                            bool matchesPattern = patterns.Any(pattern =>
-                            {
-                                // Convert file pattern to regex-like matching
-                                // e.g., "*.core.*.dll" matches "gip.core.datamodel"
-                                string patternWithoutExtension = pattern.Replace("*.dll", "").Replace("*", "");
-                                string[] patternParts = patternWithoutExtension.Split('.', StringSplitOptions.RemoveEmptyEntries);
-
-                                return patternParts.All(part =>
-                                    assemblyName.Contains(part, StringComparison.OrdinalIgnoreCase));
-                            });
+                            bool matchesPattern = MatchesAssemblyPattern(assemblyName, patterns);
 
                             if (!matchesPattern)
                                 continue;
@@ -468,6 +462,65 @@ namespace gip.core.autocomponent
 
             }
             #endregion end designs update
+        }
+
+        // Converts a file pattern like "*.core.*.dll" into a name check, e.g. matches "gip.core.datamodel"
+        private static bool MatchesAssemblyPattern(string assemblyName, string[] patterns)
+        {
+            return patterns.Any(pattern =>
+            {
+                string patternWithoutExtension = pattern.Replace("*.dll", "").Replace("*", "");
+                string[] patternParts = patternWithoutExtension.Split('.', StringSplitOptions.RemoveEmptyEntries);
+                return patternParts.All(part => assemblyName.Contains(part, StringComparison.OrdinalIgnoreCase));
+            });
+        }
+
+        private static bool IsOwnAssembly(string assemblyName, string[] patterns)
+        {
+            string[] foreignPrefixes = { "System", "Microsoft", "Avalonia", "netstandard", "mscorlib", "Xamarin", "Mono.", "Java.", "Android", "ReactiveUI", "DynamicData", "CoreWCF" };
+            return !foreignPrefixes.Any(c => assemblyName.StartsWith(c, StringComparison.OrdinalIgnoreCase)) && MatchesAssemblyPattern(assemblyName, patterns);
+        }
+
+        private void LoadReferencedAssemblies(string[] patterns)
+        {
+            HashSet<string> visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            Queue<Assembly> queue = new Queue<Assembly>();
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().Where(c => !c.IsDynamic))
+            {
+                visited.Add(assembly.GetName().Name ?? "");
+                queue.Enqueue(assembly);
+            }
+
+            while (queue.Count > 0)
+            {
+                Assembly assembly = queue.Dequeue();
+                string assemblyName = assembly.GetName().Name ?? "";
+                // Only follow references of our own assemblies (the pattern alone is loose, e.g. matches Microsoft.EntityFrameworkCore)
+                if (!IsOwnAssembly(assemblyName, patterns))
+                    continue;
+                try
+                {
+                    foreach (AssemblyName referenced in assembly.GetReferencedAssemblies())
+                    {
+                        string name = referenced.Name ?? "";
+                        if (!IsOwnAssembly(name, patterns) || !visited.Add(name))
+                            continue;
+                        try
+                        {
+                            queue.Enqueue(Assembly.Load(referenced));
+                        }
+                        catch (Exception)
+                        {
+                            // Not part of the app package (e.g. trimmed or server-only assembly)
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (Database.Root != null && Database.Root.Messages != null)
+                        Database.Root.Messages.LogException("ACClassManager", "LoadReferencedAssemblies", ex.Message);
+                }
+            }
         }
 
         private void RegisterAssemblyTypes(Assembly classAssembly)
