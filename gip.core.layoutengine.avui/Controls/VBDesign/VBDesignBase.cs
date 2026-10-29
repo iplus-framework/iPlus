@@ -83,7 +83,11 @@ namespace gip.core.layoutengine.avui
 
         internal virtual void InitVBControl()
         {
-            IACComponent sourceComponent = ResolveInstanceInfoSourceComponent();
+            // Fallback to the inherited DataContext when no BSOACComponent is available:
+            // hosts that only assign DataContext (e.g. VBDesignController.ShowDesign) would
+            // otherwise skip the InstanceInfo resolution entirely and bind the embedded
+            // design to the parent BSO instead of the child BSO.
+            IACComponent sourceComponent = ResolveInstanceInfoSourceComponent() ?? (DataContext as IACBSO);
             if (!_LoadedBase && sourceComponent != null)
             {
                 foreach (VBInstanceInfo instanceInfo in InstanceInfoList)

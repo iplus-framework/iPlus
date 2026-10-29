@@ -145,6 +145,10 @@ namespace gip.core.layoutengine.avui
 
         public VBListBox()
         {
+            // A touch tap selects the item on pointer release and marks the event as handled (ListBoxItem),
+            // so the OnPointerReleased override is not called. handledEventsToo is required.
+            AddHandler(PointerReleasedEvent, OpenDesignOnItemTap, RoutingStrategies.Bubble, true);
+
             // Set up drag and drop event handlers for Avalonia
             if (DragEnabled == DragMode.Enabled)
             {
@@ -747,6 +751,19 @@ namespace gip.core.layoutengine.avui
         #endregion
 
         #region Event-Handling
+        private void OpenDesignOnItemTap(object sender, PointerReleasedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(OpenDesignOnClick) || e.InitialPressMouseButton != MouseButton.Left)
+                return;
+            // Only a tap on an item opens the design (not on empty space or the scrollbar)
+            var item = (e.Source as Visual)?.FindAncestorOfType<ListBoxItem>(true);
+            if (item == null || !item.IsSelected)
+                return;
+            VBDesignController controller = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBDesignController)) as VBDesignController;
+            if (controller != null)
+                controller.ShowDesign(OpenDesignOnClick);
+        }
+
         /// <summary>
         /// Handles the OnPointerReleased event.
         /// </summary>
@@ -1019,6 +1036,22 @@ namespace gip.core.layoutengine.avui
             {
                 Name = value;
             }
+        }
+
+        #endregion
+
+        #region Single view app Members
+
+        /// <summary>
+        /// Name of a design of the BSO that is opened in the single view app (mobile) when an item is tapped.
+        /// </summary>
+        public static readonly StyledProperty<string> OpenDesignOnClickProperty
+            = AvaloniaProperty.Register<VBListBox, string>(nameof(OpenDesignOnClick));
+
+        public string OpenDesignOnClick
+        {
+            get { return GetValue(OpenDesignOnClickProperty); }
+            set { SetValue(OpenDesignOnClickProperty, value); }
         }
 
         #endregion

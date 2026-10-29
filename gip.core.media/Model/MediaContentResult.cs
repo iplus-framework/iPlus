@@ -13,7 +13,7 @@ namespace gip.core.media
     [ACSerializeableInfo]
     [DataContract]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'MediaContentResult'}de{'MediaContentResult'}", Global.ACKinds.TACSimpleClass)]
-    public class MediaContentResult
+    public class MediaContentResult : IVBFileContent
     {
         [IgnoreDataMember]
         private byte[] _Content;

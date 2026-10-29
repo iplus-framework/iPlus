@@ -179,6 +179,11 @@ namespace gip.core.layoutengine.avui
             {
                 VBDesign vbDesign = new VBDesign();
                 vbDesign.DataContext = MainDesign.BSOACComponent;
+                // BSOACComponent must be set as well: nested VBDesigns with VBInstanceInfo
+                // resolve their child BSO from the inherited BSOACComponent. Without it the
+                // InstanceInfo loop is skipped and the embedded design binds to the wrong
+                // ContextACObject (the parent BSO instead of the child BSO).
+                vbDesign.BSOACComponent = MainDesign.BSOACComponent;
                 vbDesign.VBContent = "*" + acClassDesign.ACIdentifier;
 
                 _DesignsStack.Add(vbDesign);
@@ -187,6 +192,27 @@ namespace gip.core.layoutengine.avui
 
                 IsMainDesignActive = false;
                 UpdateCommandBarActive();
+                FireDesignActivated(vbDesign);
+            }
+        }
+
+        // Navigation between mobile designs has no tab selection. Inform the BSO like a tab activation
+        // so that it can load its context (e.g. the child BSOMedia of BSOMaintOrder).
+        private void FireDesignActivated(VBDesign design)
+        {
+            try
+            {
+                IACComponent bso = MainDesign?.BSOACComponent;
+                if (bso != null && design != null)
+                    bso.ACAction(new ACActionArgs(design, 0, 0, Global.ElementActionType.TabItemActivated));
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                if (ex.InnerException != null)
+                    msg += " Inner:" + ex.InnerException.Message;
+                if (gip.core.datamodel.Database.Root != null && gip.core.datamodel.Database.Root.Messages != null)
+                    gip.core.datamodel.Database.Root.Messages.LogException("VBDesignController", "FireDesignActivated", msg);
             }
         }
 
@@ -202,6 +228,7 @@ namespace gip.core.layoutengine.avui
                 if (Content == MainDesign)
                     IsMainDesignActive = true;
                 UpdateCommandBarActive();
+                FireDesignActivated(design);
             }
         }
 
@@ -239,6 +266,7 @@ namespace gip.core.layoutengine.avui
         {
             VBDesign vbDesign = new VBDesign();
             vbDesign.DataContext = forObject;
+            vbDesign.BSOACComponent = forObject as IACBSO;
             vbDesign.VBContent = "*" + acClassDesignName;
 
             DialogHostStyles style = null;

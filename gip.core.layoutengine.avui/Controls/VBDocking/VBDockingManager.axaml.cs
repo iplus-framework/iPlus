@@ -434,6 +434,7 @@ namespace gip.core.layoutengine.avui
         {
             VBDesign vbDesign = new VBDesign();
             vbDesign.DataContext = forObject;
+            vbDesign.BSOACComponent = forObject as IACBSO;
             vbDesign.VBContent = "*" + acClassDesignName;
             VBDockingManager.SetContainer(vbDesign, Global.VBDesignContainer.ModalDialog);
             VBDockingManager.SetRibbonBarVisibility(vbDesign, ribbonVisibility);
@@ -448,6 +449,7 @@ namespace gip.core.layoutengine.avui
         {
             VBDesign vbDesign = new VBDesign();
             vbDesign.DataContext = forObject;
+            vbDesign.BSOACComponent = forObject as IACBSO;
             vbDesign.VBContent = "*" + acClassDesignName;
             VBDockingManager.SetContainer(vbDesign, Global.VBDesignContainer.ModalDialog);
             VBDockingManager.SetRibbonBarVisibility(vbDesign, ribbonVisibility);
@@ -462,6 +464,7 @@ namespace gip.core.layoutengine.avui
         {
             VBDesign vbDesign = new VBDesign();
             vbDesign.DataContext = forObject;
+            vbDesign.BSOACComponent = forObject as IACBSO;
             vbDesign.VBContent = "*" + acClassDesignName;
             VBDockingManager.SetContainer(vbDesign, containerType);
             VBDockingManager.SetDockState(vbDesign, dockState);
@@ -481,6 +484,7 @@ namespace gip.core.layoutengine.avui
         {
             VBDesign vbDesign = new VBDesign();
             vbDesign.DataContext = forObject;
+            vbDesign.BSOACComponent = forObject as IACBSO;
             vbDesign.VBContent = "*" + acClassDesignName;
             VBDockingManager.SetContainer(vbDesign, containerType);
             VBDockingManager.SetDockState(vbDesign, dockState);
