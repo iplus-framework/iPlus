@@ -91,6 +91,71 @@ namespace gip.core.licensing.unit.test
             Assert.Equal(LicenseValidationError.InvalidSignature, result.Error);
         }
 
+        private static string IssueDeveloperLicense(RSA frameworkKey, RSA developerKey)
+        {
+            return new LicenseIssuer(frameworkKey).Issue(new LicensePayload
+            {
+                Kind = LicenseKind.DeveloperIssuer,
+                CustomerName = "ACME GmbH",
+                IssuerPublicKey = LicenseKeys.ExportPublicKeyPem(developerKey)
+            });
+        }
+
+        [Fact]
+        public void ProductLicense_WithEmbeddedIssuerLicense_IsAcceptedWithoutResolver()
+        {
+            using RSA frameworkKey = LicenseKeys.CreateKeyPair();
+            using RSA developerKey = LicenseKeys.CreateKeyPair();
+
+            string text = new LicenseIssuer(developerKey).IssueWithKeyId(new LicensePayload
+            {
+                Kind = LicenseKind.Product,
+                CustomerName = "Customer",
+                Packages = { "ACME.Mes" },
+                IssuerLicense = IssueDeveloperLicense(frameworkKey, developerKey)
+            });
+
+            LicenseValidationResult result = new LicenseVerifier(frameworkKey).Verify(text);
+
+            Assert.True(result.IsValid, result.ToString());
+        }
+
+        [Fact]
+        public void ProductLicense_EmbeddedIssuerLicenseOfOtherDeveloper_IsRejected()
+        {
+            using RSA frameworkKey = LicenseKeys.CreateKeyPair();
+            using RSA developerKey = LicenseKeys.CreateKeyPair();
+            using RSA otherDeveloperKey = LicenseKeys.CreateKeyPair();
+
+            string text = new LicenseIssuer(developerKey).IssueWithKeyId(new LicensePayload
+            {
+                Kind = LicenseKind.Product,
+                CustomerName = "Customer",
+                Packages = { "ACME.Mes" },
+                IssuerLicense = IssueDeveloperLicense(frameworkKey, otherDeveloperKey)
+            });
+
+            Assert.False(new LicenseVerifier(frameworkKey).Verify(text).IsValid);
+        }
+
+        [Fact]
+        public void ProductLicense_EmbeddedIssuerLicenseNotSignedByFramework_IsRejected()
+        {
+            using RSA frameworkKey = LicenseKeys.CreateKeyPair();
+            using RSA rogueFrameworkKey = LicenseKeys.CreateKeyPair();
+            using RSA developerKey = LicenseKeys.CreateKeyPair();
+
+            string text = new LicenseIssuer(developerKey).IssueWithKeyId(new LicensePayload
+            {
+                Kind = LicenseKind.Product,
+                CustomerName = "Customer",
+                Packages = { "ACME.Mes" },
+                IssuerLicense = IssueDeveloperLicense(rogueFrameworkKey, developerKey)
+            });
+
+            Assert.False(new LicenseVerifier(frameworkKey).Verify(text).IsValid);
+        }
+
         [Fact]
         public void ProductLicense_UnknownIssuerKeyId_IsRejected()
         {

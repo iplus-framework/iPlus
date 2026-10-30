@@ -9,14 +9,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Runtime.Serialization;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
-using System.ComponentModel;
-using System.Threading;
 using gip.core.media;
 using SkiaSharp;
 
@@ -62,7 +57,6 @@ namespace gip.bso.iplus
             _RemoteUserCode = null;
             _RemoteUserKey = null;
             _LicenseFileDirPath = null;
-            _LicenseFilePath = null;
             bool done = await base.ACDeInit(deleteACClassTask);
             if (done && _BSODatabase != null)
             {
@@ -105,7 +99,25 @@ namespace gip.bso.iplus
 
         #region Properties -> BSO
 
-        private bool _IsNewLicense = true;
+        private bool _IsLicenseIssued = true;
+        /// <summary>
+        /// <c>false</c> while a freshly added license has not been issued yet. Such a
+        /// record is incomplete (no packages, no license file) and must not be saved.
+        /// </summary>
+        public bool IsLicenseIssued
+        {
+            get
+            {
+                return _IsLicenseIssued;
+            }
+            private set
+            {
+                if (_IsLicenseIssued == value)
+                    return;
+                _IsLicenseIssued = value;
+                OnPropertyChanged();
+            }
+        }
 
         public override IAccessNav AccessNav
         {
@@ -152,6 +164,11 @@ namespace gip.bso.iplus
                 _LicenseImage = null;
                 OnPropertyChanged(nameof(LicenseImage));
                 OnPropertyChanged("UniqueCustomerCode");
+                // The fingerprint belongs to the imported activation data of the
+                // currently selected record; reset it when switching records.
+                CustomerDatabaseFingerprint = null;
+                CustomerDatabaseName = null;
+                CustomerDatabaseServerName = null;
             }
         }
 
@@ -204,6 +221,68 @@ namespace gip.bso.iplus
             {
                 _ActivationDataPath = value;
                 OnPropertyChanged("ActivationDataPath");
+            }
+        }
+
+        private string _CustomerDatabaseName;
+        /// <summary>
+        /// Gets the name of the customer's database as read from the imported
+        /// activation data file.
+        /// </summary>
+        [ACPropertyInfo(516, "", "en{'Customer database'}de{'Datenbank des Kunden'}")]
+        public string CustomerDatabaseName
+        {
+            get
+            {
+                return _CustomerDatabaseName;
+            }
+            private set
+            {
+                _CustomerDatabaseName = value;
+                OnPropertyChanged("CustomerDatabaseName");
+            }
+        }
+
+        private string _CustomerDatabaseServerName;
+        /// <summary>
+        /// Gets the SQL Server instance of the customer's database as read from the
+        /// imported activation data file.
+        /// </summary>
+        [ACPropertyInfo(517, "", "en{'Customer database server'}de{'Datenbankserver des Kunden'}")]
+        public string CustomerDatabaseServerName
+        {
+            get
+            {
+                return _CustomerDatabaseServerName;
+            }
+            private set
+            {
+                _CustomerDatabaseServerName = value;
+                OnPropertyChanged("CustomerDatabaseServerName");
+            }
+        }
+
+        private string _CustomerDatabaseFingerprint;
+        /// <summary>
+        /// Gets the fingerprint of the customer's database, derived from the
+        /// identification code in the imported activation data file.
+        /// </summary>
+        /// <remarks>
+        /// A product license is issued on the developer's installation but activated
+        /// on the customer's database, so it must be bound to the customer's
+        /// fingerprint — not to the developer's own one.
+        /// </remarks>
+        [ACPropertyInfo(518, "", "en{'Customer database fingerprint'}de{'Fingerabdruck der Kundendatenbank'}")]
+        public string CustomerDatabaseFingerprint
+        {
+            get
+            {
+                return _CustomerDatabaseFingerprint;
+            }
+            private set
+            {
+                _CustomerDatabaseFingerprint = value;
+                OnPropertyChanged("CustomerDatabaseFingerprint");
             }
         }
 
@@ -291,37 +370,7 @@ namespace gip.bso.iplus
 
         #endregion
 
-        #region Properties -> SignFile
-
-        private string CurrentSignData
-        {
-            get;
-            set;
-        }
-
-        private VBSystem CurrentSignLicense
-        {
-            get;
-            set;
-        }
-
-        private string _LicenseFilePath;
-        /// <summary>
-        /// Gets or sets the path of license file for sign with gip private key.
-        /// </summary>
-        [ACPropertyInfo(511, "", "en{'License file path (*.gip)'}de{'Pfad der Lizenzdatei (*.gip)'}")]
-        public string LicenseFilePath
-        {
-            get
-            {
-                return _LicenseFilePath;
-            }
-            set
-            {
-                _LicenseFilePath = value;
-                OnPropertyChanged("LicenseFilePath");
-            }
-        }
+        #region Properties -> Developer key
 
         private string _DeveloperPrivateKeyPath;
         /// <summary>
@@ -371,7 +420,7 @@ namespace gip.bso.iplus
         /// <returns><c>true</c> if [is enabled save]; otherwise, <c>false</c>.</returns>
         public bool IsEnabledSave()
         {
-            return _IsNewLicense ? OnIsEnabledSave() : false;
+            return IsLicenseIssued ? OnIsEnabledSave() : false;
         }
 
         /// <summary>
@@ -389,7 +438,7 @@ namespace gip.bso.iplus
         /// <returns><c>true</c> if [is enabled undo save]; otherwise, <c>false</c>.</returns>
         public bool IsEnabledUndoSave()
         {
-            return _IsNewLicense ? OnIsEnabledUndoSave() : false;
+            return OnIsEnabledUndoSave();
         }
 
         /// <summary>
@@ -403,9 +452,54 @@ namespace gip.bso.iplus
             if (AccessPrimary == null)
                 return;
             string secondaryKey = Root.NoManager.GetNewNo(Database, typeof(VBLicense), VBLicense.NoColumnName, VBLicense.FormatNewNo, this);
-            CurrentVBLicense = VBLicense.NewACObject(Db, null, secondaryKey);
+            VBLicense license = VBLicense.NewACObject(Db, null, secondaryKey);
+            // These columns are NOT NULL in the database but only carry V4 key material.
+            // Signed V5 license files don't use them, so they stay empty.
+            license.PackageSystem = Array.Empty<byte>();
+            license.PackageSystem1 = string.Empty;
+            license.SystemRemote = string.Empty;
+            license.SystemCommon = Array.Empty<byte>();
+            CurrentVBLicense = license;
             AccessPrimary.NavList.Add(CurrentVBLicense);
-            _IsNewLicense = false;
+            IsLicenseIssued = false;
+        }
+
+        /// <summary>
+        /// A license that was added but never issued is incomplete. Closing the
+        /// dialog discards it instead of asking to save it.
+        /// </summary>
+        public override async Task<bool> ACSaveOrUndoChanges()
+        {
+            if (!IsLicenseIssued)
+            {
+                DiscardUnissuedLicense();
+                return true;
+            }
+            return await base.ACSaveOrUndoChanges();
+        }
+
+        protected override bool OnUndoSave()
+        {
+            bool done = base.OnUndoSave();
+            if (done && !IsLicenseIssued)
+                DiscardUnissuedLicense();
+            return done;
+        }
+
+        private void DiscardUnissuedLicense()
+        {
+            if (Database.IsChanged)
+                ACUndoChanges();
+            IsLicenseIssued = true;
+            if (AccessPrimary != null)
+            {
+                AccessPrimary.Current = null;
+                AccessPrimary.NavSearch(Db);
+            }
+            OnPropertyChanged("CurrentVBLicense");
+            OnPropertyChanged("VBLicenseList");
+            LoadAvailableAssignedPackages();
+            DbChangeCount++;
         }
 
         /// <summary>
@@ -467,6 +561,13 @@ namespace gip.bso.iplus
             ActivationDataPath = await mediaController.OpenFileDialog(false, initialDir, true) ?? ActivationDataPath;
         }
 
+        public bool IsEnabledBrowseActivationDataFile()
+        {
+            if (CurrentVBLicense == null)
+                return false;
+            return true;
+        }
+
         /// <summary>
         /// Imports the activation data from an XML file.
         /// </summary>
@@ -486,8 +587,17 @@ namespace gip.bso.iplus
                             CurrentVBLicense.CustomerName = node.InnerText;
                             break;
 
+                        case "db":
+                            CustomerDatabaseName = node.InnerText;
+                            break;
+
+                        case "ds":
+                            CustomerDatabaseServerName = node.InnerText;
+                            break;
+
                         case "code":
                             UniqueCustomerCode = node.InnerText;
+                            CustomerDatabaseFingerprint = DatabaseFingerprint.FromLegacyChecksumCode(node.InnerText);
                             break;
                     }
                 }
@@ -498,6 +608,13 @@ namespace gip.bso.iplus
                 return;
             }
             CloseTopDialog();
+        }
+
+        public bool IsEnabledImportDataDialog()
+        {
+            if (CurrentVBLicense == null || String.IsNullOrEmpty(ActivationDataPath))
+                return false;
+            return true;
         }
 
         #endregion
@@ -591,7 +708,7 @@ namespace gip.bso.iplus
             if (CurrentVBLicense == null)
                 return;
             
-            if(CurrentVBLicense.PackageSystem == null)
+            if (string.IsNullOrEmpty(CurrentVBLicense.ReadablePackages))
             {
                 AssignedPackages = new ObservableCollection<string>();
                 var query = Root.Environment.License.GetAvailablePackages();
@@ -622,14 +739,20 @@ namespace gip.bso.iplus
         /// Generates the license file and saves a changes.
         /// </summary>
         /// <remarks>
-        /// V5 path: the product license is issued as a signed <c>*.gip</c> file with
-        /// the developer's own private key (<see cref="DeveloperPrivateKeyPath"/>).
-        /// The legacy V4 XML generation is kept as a fallback for installations that
-        /// still work with the old format.
+        /// The product license is issued as a signed <c>*.gip</c> file with the
+        /// developer's own private key (<see cref="DeveloperPrivateKeyPath"/>).
+        /// The V4 XML license format is no longer generated: the V5 verifier rejects it.
         /// </remarks>
         [ACMethodInfo("", "en{'Generate license file'}de{'Lizenzdatei erzeugen'}", 508,true)]
         public void GenerateLicenseFile()
         {
+            string keyError = ValidateDeveloperPrivateKey();
+            if (keyError != null)
+            {
+                Messages.WarningAsync(this, keyError, true);
+                return;
+            }
+
             List<string> packages = new List<string>();
             if (AssignedPackages != null && AssignedPackages.Any())
                 packages.AddRange(AssignedPackages);
@@ -638,46 +761,57 @@ namespace gip.bso.iplus
 
             var system = CurrentVBLicense;
 
-            // V5: sign locally with the developer's private key.
-            if (!string.IsNullOrEmpty(DeveloperPrivateKeyPath) && File.Exists(DeveloperPrivateKeyPath))
-            {
-                string outputPath = Path.Combine(LicenseFileDirPath, CurrentVBLicense.CustomerName + "-license" + LicenseFormat.FileExtension);
-                string error;
-                if (Root.Environment.License.IssueProductLicenseFile(
-                        File.ReadAllText(DeveloperPrivateKeyPath),
-                        CurrentVBLicense.CustomerName,
-                        CurrentVBLicense.ProjectNo,
-                        packages,
-                        outputPath,
-                        out error))
-                {
-                    CurrentVBLicense = system;
-                    ACSaveChanges();
-                    Messages.InfoAsync(this, "Info50025");
-                    _IsNewLicense = true;
-                    return;
-                }
-
-                Messages.LogException("BSOiPlusLicenseManager", "GenerateLicenseFile", error);
-            }
-
-            // V4 fallback.
-            if (Root.Environment.License.GenerateLicenseFile(LicenseFileDirPath, UniqueCustomerCode, ref system))
+            string outputPath = Path.Combine(LicenseFileDirPath, CurrentVBLicense.CustomerName + "-license" + LicenseFormat.FileExtension);
+            string error;
+            if (Root.Environment.License.IssueProductLicenseFile(
+                    File.ReadAllText(DeveloperPrivateKeyPath),
+                    CurrentVBLicense.CustomerName,
+                    CurrentVBLicense.ProjectNo,
+                    packages,
+                    outputPath,
+                    CustomerDatabaseFingerprint,
+                    out error))
             {
                 CurrentVBLicense = system;
                 ACSaveChanges();
                 Messages.InfoAsync(this, "Info50025");
-                _IsNewLicense = true;
+                IsLicenseIssued = true;
+                DbChangeCount++;
+                return;
             }
-            else
+
+            Messages.LogException("BSOiPlusLicenseManager", "GenerateLicenseFile", error);
+            Messages.WarningAsync(this, error, true);
+        }
+
+        /// <summary>
+        /// Checks that <see cref="DeveloperPrivateKeyPath"/> points to a private key
+        /// (PEM or legacy XML) and not, for example, to a license file.
+        /// </summary>
+        /// <returns>An error text, or <c>null</c> when the key file looks usable.</returns>
+        private string ValidateDeveloperPrivateKey()
+        {
+            if (string.IsNullOrEmpty(DeveloperPrivateKeyPath) || !File.Exists(DeveloperPrivateKeyPath))
+                return "The developer private key file was not found: " + DeveloperPrivateKeyPath;
+
+            string text = File.ReadAllText(DeveloperPrivateKeyPath);
+            bool isPrivateKey = text.Contains("PRIVATE KEY") || text.Contains("<RSAKeyValue");
+            if (!isPrivateKey)
             {
-                Messages.WarningAsync(this, "Warning50021");
+                return "'" + Path.GetFileName(DeveloperPrivateKeyPath) + "' is not a private key file. Select the developer's private key (e.g. 'iPlusMES-private.pem'), not a license file.";
             }
+            return null;
         }
 
         public bool IsEnabledGenerateLicenseFile()
         {
             if (CurrentVBLicense == null || string.IsNullOrEmpty(CurrentVBLicense.CustomerName) || string.IsNullOrEmpty(LicenseFileDirPath))
+                return false;
+            // The product license is signed with the developer's private key and bound
+            // to the customer's database (imported from the activation data). Without
+            // the fingerprint it would be bound to the developer's own database and
+            // could never be activated at the customer.
+            if (string.IsNullOrEmpty(DeveloperPrivateKeyPath) || string.IsNullOrEmpty(CustomerDatabaseFingerprint))
                 return false;
             return Root.Environment.License.IsEnabledGenerateLicenseFile();
         }
@@ -691,6 +825,11 @@ namespace gip.bso.iplus
             string initialDir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
             ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
             LicenseFileDirPath = await mediaController.OpenFileDialog(true, initialDir, true) ?? LicenseFileDirPath;
+        }
+
+        public bool IsEnabledBrowseLicenseDir()
+        {
+            return CurrentVBLicense != null;
         }
 
         private string CreatePackagesString(IEnumerable<string> packageItems)
@@ -712,113 +851,7 @@ namespace gip.bso.iplus
 
         #endregion
 
-        #region Methods -> SignFile
-
-        /// <summary>
-        /// Signs the license file with gip private key.
-        /// </summary>
-        [ACMethodInfo("", "en{'Sign license file'}de{'Lizenzdatei signieren'}", 510, true)]
-        public async void SignLicenseFile()
-        {
-            DataContractSerializer serializer = new DataContractSerializer(typeof(VBSystem));
-            VBSystem sys = null;
-            try
-            {
-                using (FileStream fs = new FileStream(LicenseFilePath, FileMode.Open))
-                {
-                    sys = serializer.ReadObject(fs) as VBSystem;
-                }
-                if (sys == null)
-                    return;
-
-                CurrentSignLicense = sys;
-                BackgroundWorker.RunWorkerAsync("SignLicense");
-                await ShowDialogAsync(this, DesignNameProgressBar);
-            }
-            catch
-            {
-                await Messages.WarningAsync(this, "Warning50028");
-            }
-        }
-
-        public bool IsEnabledSignLicenseFile()
-        {
-            if (string.IsNullOrEmpty(LicenseFilePath))
-                return false;
-            if (string.IsNullOrEmpty(DeveloperPrivateKeyPath) || !File.Exists(DeveloperPrivateKeyPath))
-                return false;
-            return true;
-        }
-
-        public override void BgWorkerDoWork(object sender, DoWorkEventArgs e)
-        {
-            if(e.Argument.ToString() == "SignLicense" && CurrentSignLicense != null)
-            {
-                BackgroundWorker.ProgressInfo.OnlyTotalProgress = true;
-                BackgroundWorker.ProgressInfo.TotalProgress.ProgressText = ComponentClass.GetText("infoSignLicenseStart").ACCaption;
-                BackgroundWorker.ProgressInfo.ReportProgress("", 0, "");
-                Thread.Sleep(500);
-
-                // V5: sign locally with the developer's private key instead of
-                // sending the checksum to iplus-framework.com.
-                string signature = SignLicenseLocally(CurrentSignLicense.GetChecksumSigned());
-                if (string.IsNullOrEmpty(signature))
-                {
-                    Messages.WarningAsync(this, "Warning50028");
-                    return;
-                }
-                CurrentSignLicense.SystemCommon1 = ByteExtension.FromByteStringKey(signature);
-                DataContractSerializer serializer = new DataContractSerializer(typeof(VBSystem));
-                using (FileStream fs = new FileStream(LicenseFilePath, FileMode.Create))
-                {
-                    serializer.WriteObject(fs, CurrentSignLicense);
-                }
-                BackgroundWorker.ProgressInfo.TotalProgress.ProgressText = ComponentClass.GetText("infoSignLicenseComplete").ACCaption;
-                BackgroundWorker.ProgressInfo.ReportProgress("", 100, "");
-                Thread.Sleep(500);
-            }
-        }
-
-        /// <summary>
-        /// Signs the given data with the developer's private key
-        /// (<see cref="DeveloperPrivateKeyPath"/>) and returns the signature as a
-        /// byte-string key. Returns <c>null</c> when no key is configured.
-        /// </summary>
-        private string SignLicenseLocally(byte[] data)
-        {
-            if (string.IsNullOrEmpty(DeveloperPrivateKeyPath) || !File.Exists(DeveloperPrivateKeyPath))
-                return null;
-
-            try
-            {
-                using (RSA key = LicenseKeys.LoadKeyFromFile(DeveloperPrivateKeyPath, privateKey: true))
-                {
-                    byte[] signature = key.SignData(data, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-                    return signature.ToByteStringKey();
-                }
-            }
-            catch (Exception e)
-            {
-                string msg = e.Message;
-                if (e.InnerException != null && e.InnerException.Message != null)
-                    msg += " Inner:" + e.InnerException.Message;
-
-                Messages.LogException("BSOiPlusLicenseManager", "SignLicenseLocally", msg);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Opens the dialog to select the license file for signing with the
-        /// developer's private key.
-        /// </summary>
-        [ACMethodInfo("", "en{'...'}de{'...'}", 511)]
-        public async Task BrowseLicenseFile()
-        {
-            string initialDir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
-            ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
-            LicenseFilePath = await mediaController.OpenFileDialog(false, initialDir, true) ?? LicenseFilePath;
-        }
+        #region Methods -> Developer key
 
         /// <summary>
         /// Opens the dialog to select the developer's private key file (PEM).
@@ -833,7 +866,7 @@ namespace gip.bso.iplus
 
         public bool IsEnabledBrowseDeveloperPrivateKey()
         {
-            return true;
+            return CurrentVBLicense != null;
         }
 
         #endregion
@@ -959,6 +992,9 @@ namespace gip.bso.iplus
                 case nameof(IsEnabledImportActivationData):
                     result = IsEnabledImportActivationData();
                     return true;
+                case nameof(IsEnabledBrowseActivationDataFile):
+                    result = IsEnabledBrowseActivationDataFile();
+                    return true;
                 case nameof(BrowseActivationDataFile):
                     result = BrowseActivationDataFile();
                     return true;
@@ -998,14 +1034,8 @@ namespace gip.bso.iplus
                 case nameof(BrowseLicenseDir):
                     result = BrowseLicenseDir();
                     return true;
-                case nameof(SignLicenseFile):
-                    SignLicenseFile();
-                    return true;
-                case nameof(IsEnabledSignLicenseFile):
-                    result = IsEnabledSignLicenseFile();
-                    return true;
-                case nameof(BrowseLicenseFile):
-                    result = BrowseLicenseFile();
+                case nameof(IsEnabledBrowseLicenseDir):
+                    result = IsEnabledBrowseLicenseDir();
                     return true;
                 case nameof(BrowseDeveloperPrivateKey):
                     result = BrowseDeveloperPrivateKey();
@@ -1028,26 +1058,44 @@ namespace gip.bso.iplus
             switch (acMethodName)
             {
                 case nameof(IsEnabledSave):
+                case nameof(Save):
+                    return new string[] { nameof(DbChangeCount), nameof(IsLicenseIssued) };
                 case nameof(IsEnabledUndoSave):
+                case nameof(UndoSave):
                     return new string[] { nameof(DbChangeCount) };
                 case nameof(IsEnabledNew):
+                case nameof(New):
                     return new string[] { nameof(InitState) };
                 case nameof(IsEnabledImportActivationData):
+                case nameof(ImportActivationData):
                     return new string[] { nameof(CurrentVBLicense) };
                 case nameof(IsEnabledAssignAllPackages):
+                case nameof(AssignAllPackages):
                     return new string[] { nameof(AvailablePackages) };
                 case nameof(IsEnabledAssignSelectedPackage):
+                case nameof(AssignSelectedPackage):
                     return new string[] { nameof(SelectedAvailablePackage) };
                 case nameof(IsEnabledRemoveAllPackages):
+                case nameof(RemoveAllPackages):
                     return new string[] { nameof(AssignedPackages) };
                 case nameof(IsEnabledRemoveSelectedPackage):
+                case nameof(RemoveSelectedPackage):
                     return new string[] { nameof(SelectedAssignedPackage) };
                 case nameof(IsEnabledGenerateLicenseFile):
-                    return new string[] { nameof(CurrentVBLicense), nameof(LicenseFileDirPath), nameof(DeveloperPrivateKeyPath) };
-                case nameof(IsEnabledSignLicenseFile):
-                    return new string[] { nameof(LicenseFilePath), nameof(DeveloperPrivateKeyPath) };
+                case nameof(GenerateLicenseFile):
+                    return new string[] { nameof(CurrentVBLicense), nameof(LicenseFileDirPath), nameof(DeveloperPrivateKeyPath), nameof(CustomerDatabaseFingerprint) };
                 case nameof(IsEnabledGenerateRemoteUserKey):
+                case nameof(GenerateRemoteUserKey):
                     return new string[] { nameof(RemoteUserCode), nameof(CurrentVBLicense) };
+                case nameof(ImportDataDialog):
+                    return new string[] { nameof(CurrentVBLicense), nameof(ActivationDataPath) };
+                case nameof(IsEnabledBrowseActivationDataFile):
+                case nameof(BrowseActivationDataFile):
+                case nameof(IsEnabledBrowseLicenseDir):
+                case nameof(BrowseLicenseDir):
+                case nameof(IsEnabledBrowseDeveloperPrivateKey):
+                case nameof(BrowseDeveloperPrivateKey):
+                    return new string[] { nameof(CurrentVBLicense) };
                 default:
                     return base.GetPropsToObserveForIsEnabled(acMethodName);
             }

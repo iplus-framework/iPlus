@@ -376,14 +376,19 @@ Deferred until a customer asks for it.
 Licenses are **offline signed files** (`*.gip`), validated with an embedded public
 key — no USB dongle, no phone-home.
 
+The CLI lives in the shared output folder (`bin/<Configuration>/net10.0/`), which is
+**not** on `PATH`. Invoke it with an explicit path — `./gip.tool.licenseIssuer` from
+that folder, the full path from anywhere, or `dotnet gip.tool.licenseIssuer.dll`. A
+bare `gip.tool.licenseIssuer` fails with `command not found`.
+
 | Task | Tool |
 |---|---|
-| Create a key pair | `gip.tool.licenseIssuer create-keypair` |
-| Issue a developer license | `gip.tool.licenseIssuer issue-developer` |
-| Issue a framework runtime license | `gip.tool.licenseIssuer issue-runtime` |
-| Issue a product license | `gip.tool.licenseIssuer issue-product` |
-| Verify a license | `gip.tool.licenseIssuer verify` |
-| Database fingerprint | `gip.tool.dbscript fingerprint -c "<cs>"` |
+| Create a key pair | `./gip.tool.licenseIssuer create-keypair` |
+| Issue a developer license | `./gip.tool.licenseIssuer issue-developer` |
+| Issue a framework runtime license | `./gip.tool.licenseIssuer issue-runtime` |
+| Issue a product license | `./gip.tool.licenseIssuer issue-product` |
+| Verify a license | `./gip.tool.licenseIssuer verify` |
+| Database fingerprint | `./gip.tool.dbscript fingerprint -c "<cs>"` |
 
 Four license kinds exist (`LicenseKind`):
 

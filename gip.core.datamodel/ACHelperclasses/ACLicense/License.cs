@@ -484,6 +484,9 @@ namespace gip.core.datamodel.Licensing
 
             foreach (VBSystem vbSys in vbSystemList)
             {
+                // Signed V5 license files are verified by the file licensing, not by the V4 scheme.
+                if (IsFileLicenseRow(vbSys))
+                    continue;
                 VerifyAndReadSystemPackages(vbSys, db);
             }
             ReportLicenseTypeChanged();
@@ -513,6 +516,14 @@ namespace gip.core.datamodel.Licensing
             }
             OnPropertyChanged("LicensedPackages");
             return true;
+        }
+
+        private static bool IsFileLicenseRow(VBSystem vbSys)
+        {
+            byte[] content = vbSys.SystemInternal;
+            if (content == null || content.Length < LicenseFormat.Magic.Length)
+                return false;
+            return Encoding.UTF8.GetString(content, 0, LicenseFormat.Magic.Length) == LicenseFormat.Magic;
         }
 
         private bool VerifyContent(VBSystem vbSys)
@@ -792,6 +803,36 @@ namespace gip.core.datamodel.Licensing
             if (!IsDeveloperWithIssuingRights)
                 return null;
 
+            List<LicensePayload> issuerLicenses = FileLicenses
+                .Concat(ActivatedLicensePayloads)
+                .Where(p => p.Kind == LicenseKind.DeveloperIssuer)
+                .ToList();
+
+            if (issuerLicenses.Count > 0)
+            {
+                // V5: the developer license defines which package namespaces may be
+                // licensed; an empty list means all packages.
+                bool all = issuerLicenses.Any(p => p.PackageNamespaces.Count == 0);
+                HashSet<string> namespaces = new HashSet<string>(
+                    issuerLicenses.SelectMany(p => p.PackageNamespaces),
+                    StringComparer.OrdinalIgnoreCase);
+
+                using (ACMonitor.Lock(_Database.QueryLock_1X000))
+                {
+                    return _Database.ACPackage
+                        .Where(c => c.ACPackageName != Const.PackName_VarioDevelopment
+                                 && c.ACPackageName != Const.PackName_VarioLicense
+                                 && c.ACPackageName != Const.PackName_VarioSystem
+                                 && c.ACPackageName != Const.PackName_System)
+                        .Select(c => c.ACPackageName)
+                        .ToArray()
+                        .Where(n => all || namespaces.Contains(n) || namespaces.Contains(n.Split('.')[0]))
+                        .OrderBy(n => n)
+                        .ToList();
+                }
+            }
+
+            // V4: the namespace is the company name of the developer license.
             if (string.IsNullOrEmpty(LicensedTo))
                 return null;
 

@@ -48,6 +48,25 @@ namespace gip.core.licensing.unit.test
         }
 
         [Fact]
+        public void PackageNamespaces_RoundTrip_AndDefaultsToEmpty()
+        {
+            var (issuer, verifier) = CreatePair();
+
+            LicensePayload scoped = new LicensePayload
+            {
+                Kind = LicenseKind.DeveloperIssuer,
+                CustomerName = "ACME GmbH",
+                PackageNamespaces = { "acme", "partner.Special" }
+            };
+            LicenseValidationResult scopedResult = verifier.Verify(issuer.Issue(scoped));
+            Assert.True(scopedResult.IsValid, scopedResult.ToString());
+            Assert.Equal(new[] { "acme", "partner.Special" }, scopedResult.Payload!.PackageNamespaces);
+
+            LicenseValidationResult plainResult = verifier.Verify(issuer.Issue(CreateProductPayload()));
+            Assert.Empty(plainResult.Payload!.PackageNamespaces);
+        }
+
+        [Fact]
         public void Verify_WithMatchingDatabaseFingerprint_Succeeds()
         {
             var (issuer, verifier) = CreatePair();

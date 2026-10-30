@@ -180,18 +180,58 @@ namespace gip.core.licensing
             // Product licenses may be signed by a developer key instead of the
             // framework key. Only try the second level when the payload names a
             // key id and a resolver is configured.
-            if (payload.Kind != LicenseKind.Product
-                || string.IsNullOrEmpty(payload.IssuerKeyId)
-                || _issuerKeyResolver == null)
-            {
+            if (payload.Kind != LicenseKind.Product || string.IsNullOrEmpty(payload.IssuerKeyId))
                 return false;
+
+            // Preferred: the product license carries the developer's gip-signed
+            // DeveloperIssuer license, so the chain is verified without any local setup.
+            if (!string.IsNullOrWhiteSpace(payload.IssuerLicense))
+            {
+                using (RSA? embeddedKey = TryGetEmbeddedIssuerKey(payload))
+                {
+                    if (embeddedKey != null)
+                        return embeddedKey.VerifyData(payloadBytes, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+                }
             }
+
+            if (_issuerKeyResolver == null)
+                return false;
 
             RSA? issuerKey = _issuerKeyResolver(payload.IssuerKeyId);
             if (issuerKey == null)
                 return false;
 
             return issuerKey.VerifyData(payloadBytes, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        }
+
+        /// <summary>
+        /// Verifies the embedded <see cref="LicensePayload.IssuerLicense"/> against the
+        /// framework key and returns the developer public key it carries, or
+        /// <c>null</c> when the embedded license is invalid or does not match the key id.
+        /// </summary>
+        private RSA? TryGetEmbeddedIssuerKey(LicensePayload productPayload)
+        {
+            try
+            {
+                LicenseValidationResult issuerResult = new LicenseVerifier(_publicKey).Verify(productPayload.IssuerLicense!);
+                if (!issuerResult.IsValid
+                    || issuerResult.Payload == null
+                    || issuerResult.Payload.Kind != LicenseKind.DeveloperIssuer
+                    || string.IsNullOrEmpty(issuerResult.Payload.IssuerPublicKey))
+                {
+                    return null;
+                }
+
+                string keyId = LicenseKeys.ComputeKeyIdFromText(issuerResult.Payload.IssuerPublicKey);
+                if (!string.Equals(keyId, productPayload.IssuerKeyId, StringComparison.OrdinalIgnoreCase))
+                    return null;
+
+                return LicenseKeys.ImportPublicKey(issuerResult.Payload.IssuerPublicKey);
+            }
+            catch (Exception e) when (e is CryptographicException || e is ArgumentException || e is FormatException)
+            {
+                return null;
+            }
         }
     }
 

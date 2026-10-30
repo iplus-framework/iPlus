@@ -237,6 +237,57 @@ MediaItemPresentationList = MediaItemPresentationList.Where(c => c != item).ToLi
 | DataGrid columns | `<DataGrid.Columns>` / `<DataGridTemplateColumn.CellTemplate>` | `<vb:VBDataGrid.Columns>` / `<vb:VBDataGridTemplateColumn.CellTemplate>` |
 | byte[] as image | `Source="{Binding Image}"` works (WPF `ImageSourceConverter` handles byte[]) | needs `Converter={x:Static vb:ConverterImagePath.Current}` (byte[] or path) |
 | Splitter | `GridSplitter` | `GridSplitter` (needs `Width="4"`) |
+| Double-click | `MouseDoubleClick="{vb:VBDelegate ACUrlCmd=!Method}"` | `DoubleTapped="{vb:VBDelegate ACUrlCmd=!Method}"` — Avalonia has **no** `MouseDoubleClick` |
+| Style vs Theme | `Style="{vb:VBStaticResource key}"` | `Theme="{vb:VBStaticResource key}"` |
+| Image source | `Source="/gip.core.layoutengine;component/Images/x.png"` | `Source="avares://gip.core.layoutengine.avui/Images/x.png"` |
+| Attached VB props | `vb:WidthCaptionMax="140"` | `WidthCaptionMax="140"` (no prefix) |
+
+### 6.1 Do not hand-write the Avalonia variant
+
+`XAMLConversionHelper.ConvertWpfToAvaloniaXaml(wpfXaml)` is the authoritative
+WPF→Avalonia transformer. Hand-writing `XMLDesign2` is error-prone: the converter
+knows about ~100 rules (event renames, `Style`→`Theme`, `Visibility`→`IsVisible`,
+`DataGrid.Columns` prefixing, SciChart→OxyPlot, `avares://` rewriting, …) that are
+easy to miss.
+
+**Recommended workflow when changing a design:**
+
+1. Edit `XMLDesign` (WPF) only.
+2. Run the converter over it to produce `XMLDesign2`.
+3. Write both columns and set `XMLDesignUpdateDate = XMLDesign2UpdateDate` so
+   `AreDesignsSynchronized` is `true`.
+
+A tiny harness that calls the converter without booting the framework:
+
+```csharp
+var t = Type.GetType("gip.core.datamodel.XAMLConversionHelper, gip.core.datamodel");
+var m = t.GetMethod("ConvertWpfToAvaloniaXaml", BindingFlags.Public | BindingFlags.Static);
+File.WriteAllText(outPath, (string)m.Invoke(null, new object[] { File.ReadAllText(wpfPath) }));
+```
+
+Reference it against `bin/Debug/net10.0/gip.core.datamodel.dll` and add an
+`AssemblyLoadContext.Default.Resolving` handler that probes the same folder — the
+datamodel has many transitive dependencies.
+
+> **Do not** try to validate the XAML with `AvaloniaRuntimeXamlLoader` in a standalone
+> harness. XamlX snapshots `AppDomain.CurrentDomain.GetAssemblies()` and skips any
+> assembly whose `GetTypes()` throws; `gip.core.layoutengine.avui` needs OxyPlot,
+> QuickGraph and the full iPlus graph, so the harness always fails with
+> `Unable to resolve type VBDockPanel from namespace http://www.iplus-framework.com/axaml`.
+> That error is a harness artefact, not a design defect. Validate by launching the real
+> Avalonia desktop client instead.
+
+### 6.2 Verifying a design without a UI
+
+Cheap, reliable checks that catch most mistakes:
+
+| Check | How |
+|---|---|
+| XML well-formed | `xml.dom.minidom.parseString(...)` on the round-tripped column |
+| Dialect purity | grep the WPF column for Avalonia-only tokens (`Theme="{vb:VBStaticResource`, `avares://`, `IsVisible=`, `ToolTip.Tip=`, `ControlTheme`, `TreeDataTemplate`) and vice versa (`Style="{vb:VBStaticResource`, `/gip.core.layoutengine;component/`, `Visibility=`, `ToolTip="`, `HierarchicalDataTemplate`) |
+| Bindings resolve | extract `VBContent="!?(\w+)"` and check each name against the BSO's public properties/methods |
+| Captions exist | extract `ACCaption="(\w+)"` and check each against `ACClassText.ACCaptionTranslation` |
+| Converter parity | run `ConvertWpfToAvaloniaXaml` on the WPF column and diff against the stored Avalonia column — differences should be whitespace only |
 
 WPF visibility by enum, example:
 

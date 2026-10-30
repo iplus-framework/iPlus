@@ -33,6 +33,7 @@ namespace gip.tool.licenseIssuer
             root.Add(IssueProductCommand());
             root.Add(VerifyCommand());
             root.Add(ShowCommand());
+            root.Add(FingerprintCommand());
 
             return root.Parse(args).InvokeAsync();
         }
@@ -103,6 +104,12 @@ namespace gip.tool.licenseIssuer
                 Description = "Path to the developer's public key (PEM). Embedded into the license so that the framework can verify the developer's product licenses offline. Required for issuer licenses."
             };
 
+            Option<string[]> packageNamespaces = new Option<string[]>("--package-namespace")
+            {
+                Description = "Package namespace (first segment of the ACPackageName, e.g. 'acme') or full package name the developer may issue product licenses for. Repeatable. Omit for all packages.",
+                AllowMultipleArgumentsPerToken = true
+            };
+
             Command command = new Command("issue-developer", "Issues a developer license (issuer or end-user development rights).");
             command.Add(privateKey);
             command.Add(output);
@@ -114,6 +121,7 @@ namespace gip.tool.licenseIssuer
             command.Add(remarks);
             command.Add(endUser);
             command.Add(developerPublicKey);
+            command.Add(packageNamespaces);
 
             command.SetAction(parseResult =>
             {
@@ -127,6 +135,10 @@ namespace gip.tool.licenseIssuer
                     MachineFingerprint = parseResult.GetValue(machine) ?? string.Empty,
                     Remarks = parseResult.GetValue(remarks) ?? string.Empty
                 };
+
+                string[]? namespaces = parseResult.GetValue(packageNamespaces);
+                if (namespaces != null)
+                    payload.PackageNamespaces = namespaces.Where(n => !string.IsNullOrWhiteSpace(n)).Select(n => n.Trim()).ToList();
 
                 if (!TryApplyExpiry(parseResult.GetValue(expires), payload, out string error))
                     return Fail(error);
@@ -162,6 +174,7 @@ namespace gip.tool.licenseIssuer
             Option<string> issuerName = new Option<string>("--issuer-name") { Description = "Name of the issuing company.", DefaultValueFactory = _ => "gip" };
             Option<int> maxUsers = new Option<int>("--max-users") { Description = "Number of concurrent users (sessions) granted by the runtime license." };
             Option<string> database = new Option<string>("--database-fingerprint") { Description = "Database fingerprint the license is bound to." };
+            Option<string> activationFile = new Option<string>("--activation-file", "-a") { Description = "Customer's activation data file; the database fingerprint is taken from it (alternative to --database-fingerprint)." };
             Option<string> expires = new Option<string>("--expires") { Description = "Optional expiry date (yyyy-MM-dd)." };
             Option<string> remarks = new Option<string>("--remarks") { Description = "Free-form remarks." };
 
@@ -173,6 +186,7 @@ namespace gip.tool.licenseIssuer
             command.Add(issuerName);
             command.Add(maxUsers);
             command.Add(database);
+            command.Add(activationFile);
             command.Add(expires);
             command.Add(remarks);
 
@@ -182,13 +196,16 @@ namespace gip.tool.licenseIssuer
                 if (users <= 0)
                     return Fail("--max-users must be greater than 0 for a runtime license.");
 
+                if (!TryResolveFingerprint(parseResult.GetValue(database), parseResult.GetValue(activationFile), out string fingerprint, out string fingerprintError))
+                    return Fail(fingerprintError);
+
                 LicensePayload payload = new LicensePayload
                 {
                     Kind = LicenseKind.FrameworkRuntime,
                     CustomerName = parseResult.GetValue(customer)!,
                     ProjectNo = parseResult.GetValue(projectNo) ?? string.Empty,
                     IssuerName = parseResult.GetValue(issuerName)!,
-                    DatabaseFingerprint = parseResult.GetValue(database) ?? string.Empty,
+                    DatabaseFingerprint = fingerprint,
                     Remarks = parseResult.GetValue(remarks) ?? string.Empty,
                     MaxUsers = users
                 };
@@ -215,10 +232,15 @@ namespace gip.tool.licenseIssuer
                 AllowMultipleArgumentsPerToken = true
             };
             Option<string> database = new Option<string>("--database-fingerprint") { Description = "Database fingerprint the license is bound to." };
+            Option<string> activationFile = new Option<string>("--activation-file", "-a") { Description = "Customer's activation data file; the database fingerprint is taken from it (alternative to --database-fingerprint)." };
             Option<string> machine = new Option<string>("--machine-fingerprint") { Description = "Optional machine fingerprint to bind the license to." };
             Option<string> expires = new Option<string>("--expires") { Description = "Optional expiry date (yyyy-MM-dd)." };
             Option<int> maxUsers = new Option<int>("--max-users") { Description = "Optional maximum number of concurrent users." };
             Option<string> remarks = new Option<string>("--remarks") { Description = "Free-form remarks." };
+            Option<string> issuerLicense = new Option<string>("--issuer-license")
+            {
+                Description = "Path to your DeveloperIssuer license. It is embedded in the product license so that the customer needs no developer key. Strongly recommended."
+            };
 
             Command command = new Command("issue-product", "Issues a product license for a concrete database installation.");
             command.Add(privateKey);
@@ -228,10 +250,12 @@ namespace gip.tool.licenseIssuer
             command.Add(issuerName);
             command.Add(packages);
             command.Add(database);
+            command.Add(activationFile);
             command.Add(machine);
             command.Add(expires);
             command.Add(maxUsers);
             command.Add(remarks);
+            command.Add(issuerLicense);
 
             command.SetAction(parseResult =>
             {
@@ -239,13 +263,16 @@ namespace gip.tool.licenseIssuer
                 if (packageList.Length == 0)
                     return Fail("At least one --package is required for a product license.");
 
+                if (!TryResolveFingerprint(parseResult.GetValue(database), parseResult.GetValue(activationFile), out string productFingerprint, out string productFingerprintError))
+                    return Fail(productFingerprintError);
+
                 LicensePayload payload = new LicensePayload
                 {
                     Kind = LicenseKind.Product,
                     CustomerName = parseResult.GetValue(customer)!,
                     ProjectNo = parseResult.GetValue(projectNo) ?? string.Empty,
                     IssuerName = parseResult.GetValue(issuerName) ?? string.Empty,
-                    DatabaseFingerprint = parseResult.GetValue(database) ?? string.Empty,
+                    DatabaseFingerprint = productFingerprint,
                     MachineFingerprint = parseResult.GetValue(machine) ?? string.Empty,
                     Remarks = parseResult.GetValue(remarks) ?? string.Empty,
                     Packages = packageList.Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => p.Trim()).ToList()
@@ -257,6 +284,14 @@ namespace gip.tool.licenseIssuer
 
                 if (!TryApplyExpiry(parseResult.GetValue(expires), payload, out string error))
                     return Fail(error);
+
+                string? issuerLicensePath = parseResult.GetValue(issuerLicense);
+                if (!string.IsNullOrWhiteSpace(issuerLicensePath))
+                {
+                    if (!File.Exists(issuerLicensePath))
+                        return Fail("Issuer license file not found: " + issuerLicensePath);
+                    payload.IssuerLicense = File.ReadAllText(issuerLicensePath);
+                }
 
                 return IssueAndReport(parseResult.GetValue(privateKey)!, parseResult.GetValue(output)!, payload);
             });
@@ -343,6 +378,85 @@ namespace gip.tool.licenseIssuer
 
                 PrintPayload(result.Payload!);
                 Console.WriteLine("VALID");
+                return 0;
+            });
+
+            return command;
+        }
+
+        private static bool TryReadActivationFile(string path, out System.Xml.Linq.XElement? root, out string error)
+        {
+            root = null;
+            error = string.Empty;
+            if (!File.Exists(path))
+            {
+                error = "Activation file not found: " + path;
+                return false;
+            }
+
+            try
+            {
+                root = System.Xml.Linq.XDocument.Load(path).Root;
+            }
+            catch (System.Xml.XmlException e)
+            {
+                error = "The activation file is not valid: " + e.Message;
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(root?.Element("code")?.Value))
+            {
+                error = "The activation file contains no <code> element.";
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Uses the explicit fingerprint, or derives it from the customer's activation file.
+        /// Both may be omitted (the license is then not database bound).
+        /// </summary>
+        private static bool TryResolveFingerprint(string? explicitFingerprint, string? activationFilePath, out string fingerprint, out string error)
+        {
+            error = string.Empty;
+            fingerprint = explicitFingerprint ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(activationFilePath))
+                return true;
+
+            if (!string.IsNullOrWhiteSpace(explicitFingerprint))
+            {
+                error = "Use either --database-fingerprint or --activation-file, not both.";
+                return false;
+            }
+
+            if (!TryReadActivationFile(activationFilePath, out System.Xml.Linq.XElement? root, out error))
+                return false;
+
+            fingerprint = DatabaseFingerprint.FromLegacyChecksumCode(root!.Element("code")!.Value);
+            return true;
+        }
+
+        private static Command FingerprintCommand()
+        {
+            Option<string> activation = RequiredPathOption("--activation-file", "-a", "Activation data file (*.gip) that the customer exported from the license dialog.");
+
+            Command command = new Command("fingerprint", "Prints the database fingerprint contained in a customer's activation data file.");
+            command.Add(activation);
+
+            command.SetAction(parseResult =>
+            {
+                string path = parseResult.GetValue(activation)!;
+                if (!File.Exists(path))
+                    return Fail("Activation file not found: " + path);
+
+                if (!TryReadActivationFile(path, out System.Xml.Linq.XElement? root, out string error))
+                    return Fail(error);
+
+                Console.WriteLine("Customer      : " + root!.Element("companyName")?.Value);
+                Console.WriteLine("Database      : " + root.Element("db")?.Value);
+                Console.WriteLine("Server        : " + root.Element("ds")?.Value);
+                Console.WriteLine("Fingerprint   : " + DatabaseFingerprint.FromLegacyChecksumCode(root.Element("code")!.Value));
                 return 0;
             });
 
@@ -441,6 +555,8 @@ namespace gip.tool.licenseIssuer
             Console.WriteLine("  Expires     : " + (payload.ExpiresUtc.HasValue ? payload.ExpiresUtc.Value.ToString("u") : "never"));
             Console.WriteLine("  Max users   : " + (payload.MaxUsers.HasValue ? payload.MaxUsers.Value.ToString() : "unlimited"));
             Console.WriteLine("  Packages    : " + (payload.Packages.Count == 0 ? "(all)" : string.Join(", ", payload.Packages)));
+            if (payload.Kind == LicenseKind.DeveloperIssuer)
+                Console.WriteLine("  Namespaces  : " + (payload.PackageNamespaces.Count == 0 ? "(all)" : string.Join(", ", payload.PackageNamespaces)));
             Console.WriteLine("  DB binding  : " + (string.IsNullOrEmpty(payload.DatabaseFingerprint) ? "(none)" : payload.DatabaseFingerprint));
             Console.WriteLine("  Machine     : " + (string.IsNullOrEmpty(payload.MachineFingerprint) ? "(none)" : payload.MachineFingerprint));
             if (!string.IsNullOrEmpty(payload.IssuerKeyId))

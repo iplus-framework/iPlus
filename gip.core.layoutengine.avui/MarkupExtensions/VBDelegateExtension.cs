@@ -63,6 +63,22 @@ namespace gip.core.layoutengine.avui
                         interactiveForNamedEvent.AddHandler(InputElement.PointerPressedEvent, (EventHandler<PointerPressedEventArgs>)OnPointerPressedEvent, strategy, HandledEventsToo);
                         return CreateDummyDelegateForEventName(eventName);
                     }
+                    else if (eventName == "DoubleTapped")
+                    {
+                        // DoubleTappedEvent is registered as Bubble only - a Tunnel subscription would never fire.
+                        interactiveForNamedEvent.AddHandler(InputElement.DoubleTappedEvent, (EventHandler<TappedEventArgs>)OnTappedEvent, RoutingStrategies.Bubble, HandledEventsToo);
+                        return CreateDummyDelegateForEventName(eventName);
+                    }
+                    else if (eventName == "Tapped")
+                    {
+                        interactiveForNamedEvent.AddHandler(InputElement.TappedEvent, (EventHandler<TappedEventArgs>)OnTappedEvent, RoutingStrategies.Bubble, HandledEventsToo);
+                        return CreateDummyDelegateForEventName(eventName);
+                    }
+                    else if (eventName == "RightTapped")
+                    {
+                        interactiveForNamedEvent.AddHandler(InputElement.RightTappedEvent, (EventHandler<TappedEventArgs>)OnTappedEvent, RoutingStrategies.Bubble, HandledEventsToo);
+                        return CreateDummyDelegateForEventName(eventName);
+                    }
                 }
 
                 if (HandlePreviewEvents && target is Interactive interactive)
@@ -152,7 +168,10 @@ namespace gip.core.layoutengine.avui
                 || eventName == nameof(IInputElement.PointerMoved)
                 || eventName == nameof(IInputElement.KeyDown)
                 || eventName == nameof(IInputElement.KeyUp)
-                || eventName == nameof(IInputElement.PointerPressed))
+                || eventName == nameof(IInputElement.PointerPressed)
+                || eventName == "DoubleTapped"
+                || eventName == "Tapped"
+                || eventName == "RightTapped")
             {
                 return new EventHandler<RoutedEventArgs>(OnRoutedEvent);
             }
@@ -194,6 +213,11 @@ namespace gip.core.layoutengine.avui
                 return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<PointerPressedEventArgs>)OnPointerPressedEventNoOp).Method);
             }
 
+            if (typeof(EventHandler<TappedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+            {
+                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<TappedEventArgs>)OnTappedEventNoOp).Method);
+            }
+
             if (typeof(EventHandler<RoutedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
             {
                 return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<RoutedEventArgs>)OnRoutedEvent).Method);
@@ -216,6 +240,8 @@ namespace gip.core.layoutengine.avui
                 return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<PointerPressedEventArgs>)OnPointerPressedEvent).Method);
             else if (typeof(EventHandler<PointerReleasedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
                 return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<PointerReleasedEventArgs>)OnPointerReleasedEvent).Method);
+            else if (typeof(EventHandler<TappedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<TappedEventArgs>)OnTappedEvent).Method);
             else if (typeof(EventHandler<RoutedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
                 return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<RoutedEventArgs>)OnRoutedEvent).Method);
 
@@ -493,6 +519,59 @@ namespace gip.core.layoutengine.avui
         }
 
 
+        public void OnTappedEvent(object sender, TappedEventArgs e)
+        {
+            if (InvokeAtVBControl != null && sender is AvaloniaObject)
+            {
+                IACObject vbControl = gip.core.layoutengine.avui.Helperclasses.VBLogicalTreeHelper.FindObjectInLogicalTree(sender as AvaloniaObject, InvokeAtVBControl) as IACObject;
+                if (vbControl != null)
+                {
+                    vbControl.ACUrlCommand(ACUrlCmd, null);
+                    return;
+                }
+            }
+            if (ACComponent != null)
+            {
+                bool handled = false;
+                object result;
+                if (PassEventArgs)
+                {
+                    if (String.IsNullOrEmpty(Parameter))
+                        result = ACComponent.ACUrlCommand(ACUrlCmd, e);
+                    else
+                    {
+                        string[] sParams = Parameter.Split(',');
+                        object[] oParams = new object[sParams.Count() + 1];
+                        oParams[0] = e;
+                        for (int i = 0; i < sParams.Count(); i++)
+                        {
+                            oParams[i + 1] = sParams[i];
+                        }
+                        result = ACComponent.ACUrlCommand(ACUrlCmd, oParams);
+                    }
+                }
+                else
+                {
+                    if (String.IsNullOrEmpty(Parameter))
+                        result = ACComponent.ACUrlCommand(ACUrlCmd);
+                    else
+                    {
+                        string[] sParams = Parameter.Split(',');
+                        object[] oParams = new object[sParams.Count()];
+                        for (int i = 0; i < sParams.Count(); i++)
+                        {
+                            oParams[i] = sParams[i];
+                        }
+                        result = ACComponent.ACUrlCommand(ACUrlCmd, oParams);
+                    }
+                }
+
+                if (result != null)
+                    handled = (bool)result;
+                e.Handled = handled;
+            }
+        }
+
         public void OnKeyEvent(object sender, KeyEventArgs e)
         {
             if (InvokeAtVBControl != null && sender is AvaloniaObject)
@@ -562,6 +641,10 @@ namespace gip.core.layoutengine.avui
         }
 
         public void OnKeyEventNoOp(object sender, KeyEventArgs e)
+        {
+        }
+
+        public void OnTappedEventNoOp(object sender, TappedEventArgs e)
         {
         }
 

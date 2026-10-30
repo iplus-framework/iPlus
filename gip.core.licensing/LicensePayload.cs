@@ -53,6 +53,14 @@ namespace gip.core.licensing
         public string IssuerName { get; set; } = string.Empty;
 
         /// <summary>
+        /// Only for <see cref="LicenseKind.DeveloperIssuer"/>: package namespaces
+        /// (first segment of the <c>ACPackageName</c>, e.g. <c>acme</c> for
+        /// <c>acme.Orders</c>) or full package names the developer may issue
+        /// product licenses for. Empty means all packages.
+        /// </summary>
+        public List<string> PackageNamespaces { get; set; } = new List<string>();
+
+        /// <summary>
         /// UTC timestamp of issuance.
         /// </summary>
         public DateTimeOffset IssuedUtc { get; set; } = DateTimeOffset.UtcNow;
@@ -109,6 +117,16 @@ namespace gip.core.licensing
         /// the framework can pick the right issuer key without trying all of them.
         /// </summary>
         public string IssuerKeyId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Complete text of the <see cref="LicenseKind.DeveloperIssuer"/> license (signed
+        /// by gip) of the developer that issued this <see cref="LicenseKind.Product"/>
+        /// license. It makes the product license self-contained: the verifier checks the
+        /// embedded license with the framework key and takes the developer's public key
+        /// from it, so the customer does not have to install any developer key.
+        /// Omitted when not set.
+        /// </summary>
+        public string? IssuerLicense { get; set; }
 
         /// <summary>
         /// Returns <c>true</c> when the payload contains the given package name

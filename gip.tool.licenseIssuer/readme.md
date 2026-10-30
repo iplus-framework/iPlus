@@ -5,6 +5,27 @@ iPlus license files** (`*.gip`). It replaces the V4 dongle-bound license manager
 (`gip.tool.devLicense` / `gip.tool.devLicenseProvider`, both removed) for
 everything that does not need a UI.
 
+## Running the tool
+
+The tool is built into the shared output folder (`bin/Debug/net10.0/` or the
+release folder). That folder is **not** on `PATH`, so the executable must be
+invoked with an explicit path:
+
+```bash
+# from the output folder
+./gip.tool.licenseIssuer --help
+
+# from anywhere, using the full path
+~/SHARED/Devel/iPlusGit/V5/iPlus/bin/Debug/net10.0/gip.tool.licenseIssuer --help
+
+# or through the .NET host (works on every platform)
+dotnet gip.tool.licenseIssuer.dll --help
+```
+
+A bare `gip.tool.licenseIssuer ...` fails with `Befehl nicht gefunden` /
+`command not found` because the shell only searches `PATH`. All examples below
+therefore use the `./` prefix.
+
 ## Commands
 
 ### `create-keypair`
@@ -12,7 +33,7 @@ everything that does not need a UI.
 Creates an RSA key pair (PEM). The private key must be kept offline.
 
 ```
-gip.tool.licenseIssuer create-keypair -o ./keys -n gip
+./gip.tool.licenseIssuer create-keypair -o ./keys -n gip
 ```
 
 ### `issue-developer`
@@ -27,15 +48,21 @@ product licenses the developer signs with the matching private key — the
 two-level PKI chain, so no central signing service is needed.
 
 ```
-gip.tool.licenseIssuer issue-developer \
+./gip.tool.licenseIssuer issue-developer \
   --private-key ./keys/gip-private.pem \
   -o ./out/ACME-developer.gip \
   --customer "ACME GmbH" \
   --project-no P-2026-001 \
   --issuer-name gip \
   --developer-public-key ./keys/acme-public.pem \
+  --package-namespace acme \
   --expires 2027-12-31
 ```
+
+`--package-namespace` (repeatable) limits which packages the developer can pick in
+`BSOiPlusLicenseManager`: it is the first segment of the `ACPackageName` (`acme` for
+`acme.Orders`) or a full package name. Omit it to allow all packages (what gip
+itself uses). Without a matching namespace the "Available packages" list is empty.
 
 ### `issue-runtime`
 
@@ -45,7 +72,7 @@ key). Without it the installation runs under the open (GPL-3) edition and
 product licenses are ineffective.
 
 ```
-gip.tool.licenseIssuer issue-runtime \
+./gip.tool.licenseIssuer issue-runtime \
   --private-key ./keys/gip-private.pem \
   -o ./out/ACME-runtime.gip \
   --customer "ACME GmbH" \
@@ -59,10 +86,12 @@ gip.tool.licenseIssuer issue-runtime \
 
 Issues a product license bound to a database fingerprint. Signed with the
 **developer's** private key; the license stamps `IssuerKeyId` so the framework
-can resolve the matching public key from the developer's issuer license.
+can resolve the matching public key. With `--issuer-license` (the developer's
+gip-signed `DeveloperIssuer` license) that license is embedded in the product
+license, so the customer only needs to install this one file.
 
 ```
-gip.tool.licenseIssuer issue-product \
+./gip.tool.licenseIssuer issue-product \
   --private-key ./keys/acme-private.pem \
   -o ./out/ACME-license.gip \
   --customer "ACME GmbH" \
@@ -70,6 +99,7 @@ gip.tool.licenseIssuer issue-product \
   --issuer-name "ACME GmbH" \
   -p ACME.Mes -p ACME.Mes.Extension \
   --database-fingerprint <fingerprint> \
+  --issuer-license ./keys/ACME-developer.gip \
   --max-users 25
 ```
 
@@ -79,7 +109,7 @@ Verifies a license file offline. Exit code `0` = valid, `2` = invalid,
 `1` = usage/IO error.
 
 ```
-gip.tool.licenseIssuer verify -l ./out/ACME-license.gip \
+./gip.tool.licenseIssuer verify -l ./out/ACME-license.gip \
   --database-fingerprint <fingerprint> -p ACME.Mes
 ```
 
@@ -95,15 +125,16 @@ for support cases.
 
 ## Getting the database fingerprint
 
-The fingerprint is computed from SQL Server metadata:
+The customer never has to know the fingerprint. In the license dialog of the
+iPlus client they read the activation data and export a file
+(`<Customer>-activation data.gip`), which they send to you. You get the
+fingerprint from it:
 
-```sql
-SELECT d.create_date, d.service_broker_guid, r.database_guid
-FROM sys.databases d
-INNER JOIN sys.database_recovery_status r ON d.database_id = r.database_id
-WHERE d.name = '<DatabaseName>';
+```
+./gip.tool.licenseIssuer fingerprint -a "Customer-activation data.gip"
 ```
 
-Pass the three values to `DatabaseFingerprint.Compute(...)` (in
-`gip.core.licensing`) or use the value that the iPlus license manager shows in
-the UI.
+Pass the printed value as `--database-fingerprint` to `issue-runtime` /
+`issue-product`, or skip this step and pass the file directly with
+`--activation-file "Customer-activation data.gip"` (`-a`). The iPlus license manager (`BSOiPlusLicenseManager`) does the same
+when you import the activation file.

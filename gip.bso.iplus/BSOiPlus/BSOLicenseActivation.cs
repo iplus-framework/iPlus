@@ -3,10 +3,12 @@
 using gip.core.autocomponent;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using gip.core.datamodel;
+using gip.core.licensing;
 using System.IO;
 using gip.core.media;
 
@@ -28,13 +30,13 @@ namespace gip.bso.iplus
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
-            if (Root.Environment.License.IsLicenseValid)
+            if (Root.Environment.License.IsLicenseValid || HasInstalledProductLicense)
             {
                 IsInfoDataVisible = false;
                 IsActivationDataVisible = false;
                 IsGetCompanyNameVisible = false;
                 IsProductActivatedVisible = true;
-                
+                SelectedLicenseCompany = LicenseCompanyList?.LastOrDefault();
             }
             else
             {
@@ -166,6 +168,18 @@ namespace gip.bso.iplus
         }
 
         /// <summary>
+        /// <c>true</c> when at least one product license (VBP row) is installed. It is shown
+        /// even without a runtime license, so the customer sees what is installed.
+        /// </summary>
+        private bool HasInstalledProductLicense
+        {
+            get
+            {
+                return Root.Environment.License.SystemList?.Any() == true;
+            }
+        }
+
+        /// <summary>
         /// Gets the licensed to text.
         /// </summary>
         [ACPropertyInfo(407)]
@@ -207,12 +221,41 @@ namespace gip.bso.iplus
             set
             {
                 _SelectedLicenseCompany = value;
-                if (value != null)
-                    LicensedPackages = Encoding.UTF8.GetString(_SelectedLicenseCompany.SystemInternal).Split(',').ToList();
-                else
-                    LicensedPackages = null;
+                _LicensedPackages.ReplaceAll(GetLicensedPackages(value));
                 OnPropertyChanged("SelectedLicenseCompany");
             }
+        }
+
+        /// <summary>
+        /// Extracts the licensed package names from an activated license row.
+        /// </summary>
+        /// <remarks>
+        /// V5 stores the complete signed license file in <see cref="VBSystem.SystemInternal"/>,
+        /// so the payload has to be parsed. The V4 format (a comma separated list of
+        /// package names) is still understood as a fallback.
+        /// </remarks>
+        private static List<string> GetLicensedPackages(VBSystem licenseRow)
+        {
+            if (licenseRow == null || licenseRow.SystemInternal == null || licenseRow.SystemInternal.Length == 0)
+                return null;
+
+            string text = Encoding.UTF8.GetString(licenseRow.SystemInternal);
+            if (LicenseFile.TryParse(text, out _, out byte[] payloadBytes, out _))
+            {
+                try
+                {
+                    LicensePayload payload = LicenseFile.DeserializePayload(Encoding.UTF8.GetString(payloadBytes));
+                    return payload.Packages != null && payload.Packages.Count > 0
+                        ? new List<string>(payload.Packages)
+                        : new List<string>();
+                }
+                catch (LicenseFormatException)
+                {
+                    // Fall through to the legacy format.
+                }
+            }
+
+            return text.Split(',').Select(c => c.Trim()).Where(c => c.Length > 0).ToList();
         }
 
         /// <summary>
@@ -223,13 +266,21 @@ namespace gip.bso.iplus
         {
             get
             {
-                return Root.Environment.License.SystemList;
+                // License.SystemList runs a query and returns a new list on every call. A new instance
+                // on each read would reset the ListBox source while its selection is being changed.
+                if (_LicenseCompanyList == null)
+                    _LicenseCompanyList = Root.Environment.License.SystemList;
+                return _LicenseCompanyList;
             }
         }
+        private List<VBSystem> _LicenseCompanyList;
 
-        private List<string> _LicensedPackages;
+        // One instance for the lifetime of the BSO: replacing it while the ListBox is changing its
+        // selection makes Avalonia throw "Cannot change source while update is in progress".
+        // The property is registered as List<string>, so the type must stay a List<string>.
+        private readonly NotifyingStringList _LicensedPackages = new NotifyingStringList();
         /// <summary>
-        /// Gets or sets the list of a licensed packages.
+        /// Gets the list of the licensed packages of the selected license.
         /// </summary>
         [ACPropertyInfo(410)]
         public List<string> LicensedPackages
@@ -238,10 +289,18 @@ namespace gip.bso.iplus
             {
                 return _LicensedPackages;
             }
-            set
+        }
+
+        private sealed class NotifyingStringList : List<string>, INotifyCollectionChanged
+        {
+            public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+            public void ReplaceAll(IEnumerable<string> items)
             {
-                _LicensedPackages = value;
-                OnPropertyChanged("LicensedPackages");
+                Clear();
+                if (items != null)
+                    AddRange(items);
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             }
         }
 
@@ -352,7 +411,12 @@ namespace gip.bso.iplus
                     return "";
 
                 if (license.IsOpenEdition)
+                {
+                    if (HasInstalledProductLicense)
+                        return ComponentClass.GetText("ProductWithoutRuntimeText")?.ACCaption
+                            ?? "Product license installed, but no framework runtime license. The product packages stay locked until a runtime license is activated (use 'Add license').";
                     return ComponentClass.GetText("OpenEditionText")?.ACCaption ?? "Open edition (GPL-3) — no runtime license installed";
+                }
 
                 int maxUsers = license.LicensedMaxUsers;
                 string users = maxUsers > 0
@@ -418,34 +482,31 @@ namespace gip.bso.iplus
             LicenceFilePath = await mediaController.OpenFileDialog(false, LicenceFilePath, true) ?? LicenceFilePath;
         }
 
+        public bool IsEnabledBrowseLicenceFile()
+        {
+            return true;
+        }
+
         /// <summary>
         /// This method try activate the application.
         /// </summary>
         /// <remarks>
         /// V5 path: signed <c>*.gip</c> license files are validated offline and
         /// stored in the database (<see cref="License.ActivateLicenseFile"/>).
-        /// The legacy V4 XML license is still accepted as a fallback so that
-        /// existing installations can be migrated.
         /// </remarks>
         [ACMethodInfo("", "en{'Activate'}de{'Freischalten'}", 404, true)]
         public void ActivateProduct()
         {
             bool result = false;
+            string activationError = null;
             try
             {
                 string licenseText = File.ReadAllText(LicenceFilePath);
                 string error;
 
-                // V5: signed license file (framework runtime, product or developer license).
+                // Signed license file (framework runtime, product or developer license).
                 result = Root.Environment.License.ActivateLicenseFile(licenseText, out error);
-                if (!result)
-                {
-                    // V4 fallback: legacy XML license.
-                    using (Database db = new core.datamodel.Database())
-                    {
-                        result = Root.Environment.License.ActivateLicense(licenseText, CompanyName, db);
-                    }
-                }
+                activationError = error;
             }
             catch (Exception e)
             {
@@ -455,6 +516,7 @@ namespace gip.bso.iplus
 
                 Messages.LogException("BSOLicenseActivation", "ActivateProduct", msg);
 
+                activationError = msg;
                 result = false;
             }
 
@@ -465,6 +527,10 @@ namespace gip.bso.iplus
                 IsInfoDataVisible = false;
                 OnPropertyChanged("LicensedToText");
                 OnPropertyChanged("LicenseStatusText");
+                // A second or third license adds a row: refresh the list and select it.
+                _LicenseCompanyList = null;
+                OnPropertyChanged("LicenseCompanyList");
+                SelectedLicenseCompany = LicenseCompanyList?.LastOrDefault();
                 if (Root.Environment.License.NeedRestart)
                 {
                     RestartText = null;
@@ -474,7 +540,10 @@ namespace gip.bso.iplus
             }
             else
             {
-                Messages.WarningAsync(this, "Warning50020");
+                if (string.IsNullOrEmpty(activationError))
+                    Messages.WarningAsync(this, "Warning50020");
+                else
+                    Messages.WarningAsync(this, activationError, true);
             }
         }
 
@@ -491,18 +560,21 @@ namespace gip.bso.iplus
         [ACMethodInfo("", "en{'Add license'}de{'Lizenz hinzufügen'}", 405,true)]
         public void AddNewLicense()
         {
-            using (Database db = new core.datamodel.Database())
-            {
-                VBSystem sys = db.VBSystem.FirstOrDefault(c => c.CustomerName != null);
-                if (sys == null)
-                    return;
+            // Reuse the customer name of an already activated product license so that
+            // the activation data of the same installation is exported again.
+            VBSystem sys = Root.Environment.License.SystemList?.FirstOrDefault(c => !string.IsNullOrEmpty(c.CustomerName));
+            if (sys != null)
                 CompanyName = sys.CustomerName;
-            }
             GetActivationData();
             IsInfoDataVisible = false;
             IsActivationDataVisible = true;
             IsGetCompanyNameVisible = false;
             IsProductActivatedVisible = false;
+        }
+
+        public bool IsEnabledAddNewLicense()
+        {
+            return true;
         }
 
         /// <summary>
@@ -515,6 +587,56 @@ namespace gip.bso.iplus
             await StopComponent(this);
         }
 
+        public bool IsEnabledCloseDialog()
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Removes the selected license from the database.
+        /// </summary>
+        [ACMethodInfo("", "en{'Remove license'}de{'Lizenz entfernen'}", 409, true)]
+        public async Task RemoveLicense()
+        {
+            VBSystem licenseRow = SelectedLicenseCompany;
+            if (licenseRow == null)
+                return;
+
+            string question = string.Format("Remove the license of '{0}' ({1})? The change becomes effective after a restart.",
+                licenseRow.Company, licenseRow.ProjectNo);
+            if (await Messages.QuestionAsync(this, question, Global.MsgResult.No, true) != Global.MsgResult.Yes)
+                return;
+
+            if (!Root.Environment.License.RemoveActivatedLicense(licenseRow, out string error))
+            {
+                await Messages.WarningAsync(this, error, true);
+                return;
+            }
+
+            _LicenseCompanyList = null;
+            OnPropertyChanged("LicenseCompanyList");
+            SelectedLicenseCompany = LicenseCompanyList?.LastOrDefault();
+            if (!LicenseCompanyList.Any())
+            {
+                IsProductActivatedVisible = false;
+                IsActivationDataVisible = false;
+                IsInfoDataVisible = true;
+                IsGetCompanyNameVisible = true;
+            }
+            OnPropertyChanged("LicensedToText");
+            OnPropertyChanged("LicenseStatusText");
+            if (Root.Environment.License.NeedRestart)
+            {
+                RestartText = null;
+                RestartText = ComponentClass.GetText("RestartText").ACCaption;
+            }
+        }
+
+        public bool IsEnabledRemoveLicense()
+        {
+            return SelectedLicenseCompany != null;
+        }
+
         /// <summary>
         /// Opens a dialog for exporting activation data.
         /// </summary>
@@ -522,6 +644,16 @@ namespace gip.bso.iplus
         public async void ExportActivationData()
         {
             await ShowDialogAsync(this, "ExportDialog");
+        }
+
+        public bool IsEnabledExportActivationData()
+        {
+            return !string.IsNullOrEmpty(CompanyName) && !string.IsNullOrEmpty(IdentificationCode);
+        }
+
+        public bool IsEnabledExportActivationDataDialog()
+        {
+            return !string.IsNullOrEmpty(ExportDirPath);
         }
 
         /// <summary>
@@ -534,7 +666,7 @@ namespace gip.bso.iplus
                                                                                                                                  IdentificationCode);
             try
             {
-                File.WriteAllText(string.Format("{0}\\{1}-activation data.gip", ExportDirPath, CompanyName), exportData);
+                File.WriteAllText(Path.Combine(ExportDirPath, string.Format("{0}-activation data.gip", CompanyName)), exportData);
                 await Messages.InfoAsync(this, "Info50026");
                 CloseTopDialog();
             }
@@ -553,6 +685,11 @@ namespace gip.bso.iplus
             string intialPaht = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
             ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
             ExportDirPath = await mediaController.OpenFileDialog(true, intialPaht, true) ?? ExportDirPath;
+        }
+
+        public bool IsEnabledBrowseExportActivationDataDir()
+        {
+            return true;
         }
 
         /// <summary>Called inside the GetControlModes-Method to get the Global.ControlModes from derivations.
@@ -619,6 +756,9 @@ namespace gip.bso.iplus
                 case nameof(BrowseLicenceFile):
                     result = BrowseLicenceFile();
                     return true;
+                case nameof(IsEnabledBrowseLicenceFile):
+                    result = IsEnabledBrowseLicenceFile();
+                    return true;
                 case nameof(ActivateProduct):
                     ActivateProduct();
                     return true;
@@ -628,17 +768,38 @@ namespace gip.bso.iplus
                 case nameof(AddNewLicense):
                     AddNewLicense();
                     return true;
+                case nameof(IsEnabledAddNewLicense):
+                    result = IsEnabledAddNewLicense();
+                    return true;
+                case nameof(RemoveLicense):
+                    result = RemoveLicense();
+                    return true;
+                case nameof(IsEnabledRemoveLicense):
+                    result = IsEnabledRemoveLicense();
+                    return true;
                 case nameof(CloseDialog):
                     result = CloseDialog();
+                    return true;
+                case nameof(IsEnabledCloseDialog):
+                    result = IsEnabledCloseDialog();
                     return true;
                 case nameof(ExportActivationData):
                     ExportActivationData();
                     return true;
+                case nameof(IsEnabledExportActivationData):
+                    result = IsEnabledExportActivationData();
+                    return true;
                 case nameof(ExportActivationDataDialog):
                     ExportActivationDataDialog();
                     return true;
+                case nameof(IsEnabledExportActivationDataDialog):
+                    result = IsEnabledExportActivationDataDialog();
+                    return true;
                 case nameof(BrowseExportActivationDataDir):
                     result = BrowseExportActivationDataDir();
+                    return true;
+                case nameof(IsEnabledBrowseExportActivationDataDir):
+                    result = IsEnabledBrowseExportActivationDataDir();
                     return true;
             }
                 return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
@@ -649,9 +810,27 @@ namespace gip.bso.iplus
             switch (acMethodName)
             {
                 case nameof(IsEnabledGetActivationData):
+                case nameof(GetActivationData):
+                case nameof(BrowseLicenceFile):
+                case nameof(BrowseExportActivationDataDir):
                     return new string[] { nameof(CompanyName) };
                 case nameof(IsEnabledActivateProduct):
+                case nameof(ActivateProduct):
                     return new string[] { nameof(LicenceFilePath) };
+                case nameof(IsEnabledExportActivationData):
+                case nameof(ExportActivationData):
+                    return new string[] { nameof(CompanyName), nameof(IdentificationCode) };
+                case nameof(IsEnabledExportActivationDataDialog):
+                case nameof(ExportActivationDataDialog):
+                    return new string[] { nameof(ExportDirPath) };
+                case nameof(IsEnabledRemoveLicense):
+                case nameof(RemoveLicense):
+                    return new string[] { nameof(SelectedLicenseCompany) };
+                case nameof(IsEnabledAddNewLicense):
+                case nameof(AddNewLicense):
+                case nameof(IsEnabledCloseDialog):
+                case nameof(CloseDialog):
+                    return new string[] { nameof(IsProductActivatedVisible) };
                 default:
                     return base.GetPropsToObserveForIsEnabled(acMethodName);
             }

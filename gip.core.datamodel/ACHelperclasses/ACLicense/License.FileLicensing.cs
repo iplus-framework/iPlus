@@ -422,7 +422,9 @@ namespace gip.core.datamodel.Licensing
                 // without trusting the database row.
                 SystemInternal = Encoding.UTF8.GetBytes(licenseText),
                 SystemInternal2 = payload.LicenseId.ToString(),
-                SystemCommonPublic = payload.DatabaseFingerprint
+                SystemCommonPublic = payload.DatabaseFingerprint ?? string.Empty,
+                // NOT NULL in the database; only the V4 signature scheme used it.
+                SystemCommon = Array.Empty<byte>()
             };
 
             try
@@ -454,6 +456,41 @@ namespace gip.core.datamodel.Licensing
             // A freshly activated license may resolve the problem: restart the
             // grace clock so the user gets the full grace period again if it does not.
             ClearLicenseGracePeriod();
+            ReloadFileLicenses();
+            return true;
+        }
+
+        /// <summary>
+        /// Removes an activated license (a <c>VBSystem</c> row). The license takes effect until the
+        /// next restart; removing the framework runtime license turns the installation back into
+        /// an open edition.
+        /// </summary>
+        public bool RemoveActivatedLicense(VBSystem licenseRow, out string error)
+        {
+            error = string.Empty;
+            if (licenseRow == null)
+            {
+                error = "No license selected.";
+                return false;
+            }
+
+            try
+            {
+                using (ACMonitor.Lock(_Database.QueryLock_1X000))
+                {
+                    _Database.Remove(licenseRow);
+                }
+                _Database.ACSaveChanges();
+            }
+            catch (Exception e)
+            {
+                error = "Could not remove the license from the database: " + e.Message;
+                if (Database.Root != null && Database.Root.Messages != null)
+                    Database.Root.Messages.LogException("License", "RemoveActivatedLicense", e.Message);
+                return false;
+            }
+
+            NeedRestart = true;
             ReloadFileLicenses();
             return true;
         }
@@ -930,6 +967,41 @@ namespace gip.core.datamodel.Licensing
             string outputPath,
             out string error)
         {
+            return IssueProductLicenseFile(
+                privateKeyText, customerName, projectNo, packages, outputPath, null, out error);
+        }
+
+        /// <summary>
+        /// Issues a product license file for the given packages, bound to the
+        /// <b>customer's</b> database. Requires a developer license with issuing rights.
+        /// </summary>
+        /// <remarks>
+        /// A product license is issued on the developer's installation but activated
+        /// on the customer's database. The fingerprint therefore must describe the
+        /// customer's database, not the developer's own one. The customer's
+        /// fingerprint is derived from the identification code that
+        /// <c>BSOLicenseActivation</c> exports in the activation data file
+        /// (see <see cref="DatabaseFingerprint.FromLegacyChecksumCode"/>).
+        /// </remarks>
+        /// <param name="privateKeyText">The developer's private key (PEM or legacy XML).</param>
+        /// <param name="customerName">Customer the license is issued to.</param>
+        /// <param name="projectNo">Project/order number.</param>
+        /// <param name="packages">Package names covered by the license.</param>
+        /// <param name="outputPath">Path of the <c>*.gip</c> file to write.</param>
+        /// <param name="databaseFingerprint">
+        /// Fingerprint of the customer's database. When empty, the fingerprint of the
+        /// current (developer's) database is used.
+        /// </param>
+        /// <param name="error">Failure description when the method returns <c>false</c>.</param>
+        public bool IssueProductLicenseFile(
+            string privateKeyText,
+            string customerName,
+            string projectNo,
+            IEnumerable<string> packages,
+            string outputPath,
+            string databaseFingerprint,
+            out string error)
+        {
             error = string.Empty;
 
             if (!IsDeveloperWithIssuingRightsByFile)
@@ -957,6 +1029,13 @@ namespace gip.core.datamodel.Licensing
 
             try
             {
+                // Bind the license to the customer's database. When no fingerprint was
+                // supplied (e.g. the developer issues a license for their own
+                // installation), fall back to the local database.
+                string fingerprint = databaseFingerprint;
+                if (string.IsNullOrWhiteSpace(fingerprint))
+                    fingerprint = CreateBindingContext().DatabaseFingerprint;
+
                 LicensePayload payload = new LicensePayload
                 {
                     Kind = LicenseKind.Product,
@@ -964,10 +1043,22 @@ namespace gip.core.datamodel.Licensing
                     ProjectNo = projectNo ?? string.Empty,
                     IssuerName = LicensedTo,
                     Packages = packageList,
-                    DatabaseFingerprint = CreateBindingContext().DatabaseFingerprint
+                    DatabaseFingerprint = fingerprint
                 };
 
                 LicenseIssuer issuer = LicenseIssuer.FromPrivateKeyText(privateKeyText);
+
+                // Embed the developer's gip-signed DeveloperIssuer license, so the
+                // customer can verify the chain without installing any developer key.
+                payload.IssuerLicense = FindIssuerLicenseText(issuer.GetKeyId());
+                if (payload.IssuerLicense == null)
+                {
+                    error = "No DeveloperIssuer license matching this private key (key id "
+                        + issuer.GetKeyId() + ") was found in the license folder or database. "
+                        + "Select the private key that belongs to your developer license.";
+                    return false;
+                }
+
                 // Stamp the issuer key id so that the verifier can resolve the
                 // developer's public key through the two-level PKI chain.
                 string text = issuer.IssueWithKeyId(payload);
@@ -984,6 +1075,61 @@ namespace gip.core.datamodel.Licensing
                     Database.Root.Messages.LogException("License", "IssueProductLicenseFile", e.Message);
                 return false;
             }
+        }
+
+
+        /// <summary>
+        /// Returns the text of the valid <see cref="LicenseKind.DeveloperIssuer"/> license
+        /// whose embedded public key has the given key id, or <c>null</c>.
+        /// </summary>
+        private string FindIssuerLicenseText(string keyId)
+        {
+            LicenseVerifier frameworkOnly = FrameworkLicenseKeys.CreateVerifier();
+            List<string> candidates = new List<string>();
+
+            string folder = LicenseFolder;
+            if (!string.IsNullOrWhiteSpace(folder) && Directory.Exists(folder))
+            {
+                foreach (string file in Directory.EnumerateFiles(folder, "*" + LicenseFormat.FileExtension, SearchOption.TopDirectoryOnly))
+                {
+                    try
+                    {
+                        candidates.Add(LicenseFile.Read(file));
+                    }
+                    catch (Exception)
+                    {
+                        // Unreadable files are reported by the regular license loading.
+                    }
+                }
+            }
+
+            using (ACMonitor.Lock(_Database.QueryLock_1X000))
+            {
+                candidates.AddRange(_Database.VBSystem
+                    .Where(c => c.SystemName == SN_PackIssuer)
+                    .AsEnumerable()
+                    .Where(c => c.SystemInternal != null && c.SystemInternal.Length > 0)
+                    .Select(c => Encoding.UTF8.GetString(c.SystemInternal)));
+            }
+
+            foreach (string text in candidates)
+            {
+                LicenseValidationResult result = frameworkOnly.Verify(text);
+                if (!result.IsValid
+                    || result.Payload.Kind != LicenseKind.DeveloperIssuer
+                    || string.IsNullOrEmpty(result.Payload.IssuerPublicKey))
+                    continue;
+
+                try
+                {
+                    if (string.Equals(LicenseKeys.ComputeKeyIdFromText(result.Payload.IssuerPublicKey), keyId, StringComparison.OrdinalIgnoreCase))
+                        return text;
+                }
+                catch (CryptographicException)
+                {
+                }
+            }
+            return null;
         }
 
         #endregion

@@ -213,6 +213,16 @@ namespace gip.core.datamodel
             // (ControlTemplate has no Triggers property in Avalonia).
             avaloniaXAML = ConvertControlTemplateTriggers(avaloniaXAML);
 
+            // Convert WPF element-level event triggers with storyboards
+            // (<Border.Triggers><EventTrigger RoutedEvent="Border.Loaded"><BeginStoryboard>...)
+            // into Xaml.Behaviors EventTriggerBehavior + BeginAnimationAction. Avalonia elements
+            // have no Triggers property and no BeginStoryboard/Storyboard infrastructure.
+            avaloniaXAML = ConvertElementEventTriggerStoryboards(avaloniaXAML);
+
+            // WPF RenderTransformOrigin is always relative (0..1); Avalonia interprets plain
+            // numbers as absolute pixels, so the value must be written with '%' units.
+            avaloniaXAML = ConvertRenderTransformOrigin(avaloniaXAML);
+
             // Convert WPF InputScope / InputMethod.InputScope attributes to Avalonia's
             // TextInputOptions.ContentType attached property (on-screen keyboard layout).
             avaloniaXAML = ConvertInputScopeToTextInputOptions(avaloniaXAML);
@@ -1617,6 +1627,293 @@ namespace gip.core.datamodel
                 return "True";
 
             return null;
+        }
+
+        /// <summary>
+        /// Converts WPF element-level event triggers with storyboards into Xaml.Behaviors.
+        /// WPF: &lt;Border.Triggers&gt;&lt;EventTrigger RoutedEvent="Border.Loaded"&gt;&lt;BeginStoryboard&gt;
+        /// &lt;Storyboard&gt;...&lt;/Storyboard&gt;&lt;/BeginStoryboard&gt;&lt;/EventTrigger&gt;&lt;/Border.Triggers&gt;
+        /// Avalonia: &lt;Interaction.Behaviors&gt;&lt;EventTriggerBehavior EventName="Loaded"&gt;
+        /// &lt;BeginAnimationAction&gt;&lt;BeginAnimationAction.Animation&gt;&lt;Animation&gt;...
+        /// Avalonia elements have no Triggers property and no BeginStoryboard/Storyboard
+        /// infrastructure; EventTriggerBehavior + BeginAnimationAction (resolved from the
+        /// default Avalonia xmlns) are the equivalent.
+        /// </summary>
+        private static string ConvertElementEventTriggerStoryboards(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml) || !xaml.Contains("Triggers", StringComparison.OrdinalIgnoreCase))
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                if (doc.DocumentElement == null)
+                    return xaml;
+
+                string xamlNs = GetDefaultXamlNamespace(doc);
+                if (string.IsNullOrEmpty(xamlNs))
+                    return xaml;
+
+                bool changed = false;
+                // NOTE: an undeclared owner prefix (e.g. <Border.Triggers> without xmlns:Border)
+                // keeps the whole name as LocalName, so local-name() can be either "Triggers"
+                // or "Owner.Triggers" - match with contains().
+                var triggersElements = doc.SelectNodes("//*[contains(local-name(),'Triggers')]")?
+                    .OfType<XmlElement>()
+                    .ToList();
+                if (triggersElements == null)
+                    return xaml;
+
+                foreach (var triggersElement in triggersElements)
+                {
+                    // Only the property-element form (Owner.Triggers). Style/ControlTheme/
+                    // ControlTemplate trigger blocks are handled by their own passes.
+                    if (!triggersElement.LocalName.EndsWith(".Triggers", StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    if (string.Equals(triggersElement.LocalName, "Style.Triggers", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(triggersElement.LocalName, "ControlTheme.Triggers", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(triggersElement.LocalName, "ControlTemplate.Triggers", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(triggersElement.LocalName, "Template.Triggers", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    var ownerElement = triggersElement.ParentNode as XmlElement;
+                    if (ownerElement == null)
+                        continue;
+
+                    var eventTriggers = triggersElement
+                        .ChildNodes
+                        .OfType<XmlElement>()
+                        .Where(e => string.Equals(e.LocalName, "EventTrigger", StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+
+                    foreach (var eventTrigger in eventTriggers)
+                    {
+                        string eventName = MapWpfRoutedEventToAvaloniaEventName(eventTrigger.GetAttribute("RoutedEvent"));
+                        if (string.IsNullOrEmpty(eventName))
+                            continue;
+
+                        var behavior = doc.CreateElement("EventTriggerBehavior", xamlNs);
+                        behavior.SetAttribute("EventName", eventName);
+
+                        int actionCount = 0;
+                        foreach (var storyboard in EnumerateEventTriggerStoryboards(eventTrigger))
+                        {
+                            foreach (var animation in storyboard
+                                .ChildNodes
+                                .OfType<XmlElement>()
+                                .Where(e => string.Equals(e.LocalName, "DoubleAnimation", StringComparison.OrdinalIgnoreCase) ||
+                                            string.Equals(e.LocalName, "ColorAnimation", StringComparison.OrdinalIgnoreCase)))
+                            {
+                                var action = BuildBeginAnimationAction(doc, xamlNs, ownerElement, animation);
+                                if (action == null)
+                                    continue;
+                                behavior.AppendChild(action);
+                                actionCount++;
+                            }
+                        }
+
+                        if (actionCount > 0)
+                        {
+                            var behaviorsElement = ownerElement
+                                .ChildNodes
+                                .OfType<XmlElement>()
+                                .FirstOrDefault(e => string.Equals(e.LocalName, "Interaction.Behaviors", StringComparison.OrdinalIgnoreCase));
+                            if (behaviorsElement == null)
+                            {
+                                behaviorsElement = doc.CreateElement("Interaction.Behaviors", xamlNs);
+                                ownerElement.AppendChild(behaviorsElement);
+                            }
+                            behaviorsElement.AppendChild(behavior);
+                            triggersElement.RemoveChild(eventTrigger);
+                            changed = true;
+                        }
+                    }
+
+                    // Remove the Triggers element when no element children remain
+                    // (whitespace-only text nodes don't count).
+                    if (triggersElement.ChildNodes.OfType<XmlElement>().Count() == 0)
+                        ownerElement.RemoveChild(triggersElement);
+                }
+
+                return changed ? doc.OuterXml : xaml;
+            }
+            catch (Exception)
+            {
+                return xaml;
+            }
+        }
+
+        /// <summary>
+        /// Maps a WPF RoutedEvent attribute value ("Border.Loaded", "MouseEnter", ...) to the
+        /// corresponding Avalonia event name. Unknown events are passed through with the
+        /// owner-type prefix stripped.
+        /// </summary>
+        private static string MapWpfRoutedEventToAvaloniaEventName(string routedEvent)
+        {
+            if (string.IsNullOrWhiteSpace(routedEvent))
+                return null;
+
+            string name = routedEvent.Trim();
+            int dotIndex = name.LastIndexOf('.');
+            if (dotIndex >= 0)
+                name = name.Substring(dotIndex + 1);
+
+            switch (name)
+            {
+                case "Loaded":
+                    return "Loaded";
+                case "MouseEnter":
+                    return "PointerEntered";
+                case "MouseLeave":
+                    return "PointerExited";
+                case "MouseDown":
+                case "MouseLeftButtonDown":
+                case "MouseRightButtonDown":
+                    return "PointerPressed";
+                case "MouseUp":
+                case "MouseLeftButtonUp":
+                case "MouseRightButtonUp":
+                    return "PointerReleased";
+                case "MouseMove":
+                    return "PointerMoved";
+                default:
+                    return name;
+            }
+        }
+
+        /// <summary>
+        /// Enumerates the Storyboard elements of a WPF EventTrigger, both in the implicit
+        /// form (BeginStoryboard children) and the explicit EventTrigger.Actions container form.
+        /// </summary>
+        private static IEnumerable<XmlElement> EnumerateEventTriggerStoryboards(XmlElement eventTrigger)
+        {
+            foreach (var container in new[] { eventTrigger }
+                .Concat(eventTrigger
+                    .ChildNodes
+                    .OfType<XmlElement>()
+                    .Where(e => string.Equals(e.LocalName, "Actions", StringComparison.OrdinalIgnoreCase) ||
+                                string.Equals(e.LocalName, "EventTrigger.Actions", StringComparison.OrdinalIgnoreCase) ||
+                                string.Equals(e.LocalName, "Trigger.Actions", StringComparison.OrdinalIgnoreCase))))
+            {
+                foreach (var beginStoryboard in container
+                    .ChildNodes
+                    .OfType<XmlElement>()
+                    .Where(e => string.Equals(e.LocalName, "BeginStoryboard", StringComparison.OrdinalIgnoreCase)))
+                {
+                    var storyboard = beginStoryboard
+                        .ChildNodes
+                        .OfType<XmlElement>()
+                        .FirstOrDefault(e => string.Equals(e.LocalName, "Storyboard", StringComparison.OrdinalIgnoreCase));
+                    if (storyboard != null)
+                        yield return storyboard;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Builds a BeginAnimationAction element from a WPF DoubleAnimation/ColorAnimation
+        /// element (same output shape as AppendBeginStoryboardAnimations). Returns null if
+        /// the animation cannot be converted.
+        /// </summary>
+        private static XmlElement BuildBeginAnimationAction(XmlDocument doc, string xamlNs, XmlElement ownerElement, XmlElement animationElement)
+        {
+            bool isColorAnimation = string.Equals(animationElement.LocalName, "ColorAnimation", StringComparison.OrdinalIgnoreCase);
+            string targetProperty = isColorAnimation
+                ? ConvertColorAnimationTargetProperty(animationElement.GetAttribute("Storyboard.TargetProperty"))
+                : ConvertStoryboardTargetProperty(animationElement.GetAttribute("Storyboard.TargetProperty"));
+            string from = animationElement.GetAttribute("From");
+            string to = animationElement.GetAttribute("To");
+            string duration = animationElement.GetAttribute("Duration");
+
+            if (string.IsNullOrWhiteSpace(targetProperty)
+                || string.IsNullOrWhiteSpace(to)
+                || string.IsNullOrWhiteSpace(duration))
+                return null;
+            if (!isColorAnimation && string.IsNullOrWhiteSpace(from))
+                return null;
+
+            var beginAnimationAction = doc.CreateElement("BeginAnimationAction", xamlNs);
+            var beginAnimationActionProperty = doc.CreateElement("BeginAnimationAction.Animation", xamlNs);
+            var animation = doc.CreateElement("Animation", xamlNs);
+            animation.SetAttribute("Duration", duration);
+            animation.SetAttribute("IterationCount", ConvertRepeatBehaviorToIterationCount(animationElement.GetAttribute("RepeatBehavior")));
+            animation.SetAttribute("FillMode", "Forward");
+            animation.SetAttribute("SetterTargetType", "http://schemas.microsoft.com/winfx/2006/xaml", GetOwnerSetterTargetTypeName(doc, ownerElement));
+
+            if (IsExplicitTrueLiteral(animationElement.GetAttribute("AutoReverse")))
+            {
+                animation.SetAttribute("PlaybackDirection", "Alternate");
+            }
+
+            var keyFrameStart = doc.CreateElement("KeyFrame", xamlNs);
+            keyFrameStart.SetAttribute("Cue", "0%");
+            var keyFrameStartSetter = doc.CreateElement("Setter", xamlNs);
+            keyFrameStartSetter.SetAttribute("Property", targetProperty);
+            if (!string.IsNullOrWhiteSpace(from))
+                keyFrameStartSetter.SetAttribute("Value", from);
+            keyFrameStart.AppendChild(keyFrameStartSetter);
+
+            var keyFrameEnd = doc.CreateElement("KeyFrame", xamlNs);
+            keyFrameEnd.SetAttribute("Cue", "100%");
+            var keyFrameEndSetter = doc.CreateElement("Setter", xamlNs);
+            keyFrameEndSetter.SetAttribute("Property", targetProperty);
+            keyFrameEndSetter.SetAttribute("Value", to);
+            keyFrameEnd.AppendChild(keyFrameEndSetter);
+
+            animation.AppendChild(keyFrameStart);
+            animation.AppendChild(keyFrameEnd);
+            beginAnimationActionProperty.AppendChild(animation);
+            beginAnimationAction.AppendChild(beginAnimationActionProperty);
+            return beginAnimationAction;
+        }
+
+        /// <summary>
+        /// Converts WPF RenderTransformOrigin (always relative 0..1 coordinates) to the
+        /// Avalonia RelativePoint percentage form: "0.5, 0.5" -> "50%,50%". Avalonia
+        /// interprets plain numbers as absolute pixels, so relative origins must be
+        /// written with '%' units. Values already containing '%' are kept unchanged.
+        /// </summary>
+        private static string ConvertRenderTransformOrigin(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml) || !xaml.Contains("RenderTransformOrigin=", StringComparison.OrdinalIgnoreCase))
+                return xaml;
+
+            return Regex.Replace(
+                xaml,
+                @"RenderTransformOrigin\s*=\s*""([^""]*)""",
+                match =>
+                {
+                    string value = match.Groups[1].Value;
+                    string[] parts = value.Split(',');
+                    if (parts.Length != 2)
+                        return match.Value;
+
+                    string result = "";
+                    foreach (string part in parts)
+                    {
+                        string trimmed = part.Trim();
+                        if (trimmed.Contains("%"))
+                        {
+                            result += trimmed;
+                        }
+                        else if (double.TryParse(trimmed, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double relative))
+                        {
+                            result += Math.Round(relative * 100.0, 3).ToString(System.Globalization.CultureInfo.InvariantCulture) + "%";
+                        }
+                        else
+                        {
+                            return match.Value;
+                        }
+                        result += ",";
+                    }
+                    return "RenderTransformOrigin=\"" + result.TrimEnd(',') + "\"";
+                },
+                RegexOptions.IgnoreCase);
         }
 
         private static string NormalizeTriggerPropertyValue(string normalizedPropertyName, string propertyValue)
@@ -4111,6 +4408,11 @@ namespace gip.core.datamodel
             (" vb:SumVisibility=\"Hidden\"", " vb:SumVisibility=\"False\"", false),
             (" vb:SumVisibility=\"Collapsed\"", " vb:SumVisibility=\"False\"", false),
             (" FillRule=\"Nonzero\"", " FillRule=\"NonZero\"", false),
+            // Avalonia has no MouseDoubleClick event; the equivalent gesture event is DoubleTapped
+            // (InputElement.DoubleTappedEvent, TappedEventArgs). PreviewMouseDoubleClick has no
+            // tunnelling counterpart because DoubleTappedEvent is registered as Bubble only.
+            (" PreviewMouseDoubleClick=", " DoubleTapped=", false),
+            (" MouseDoubleClick=", " DoubleTapped=", false),
             (" MouseDown=", " PointerPressed=", false),
             (" MouseLeftButtonDown=", " PointerPressed=", false),
             (" MouseRightButtonDown=", " PointerPressed=", false),

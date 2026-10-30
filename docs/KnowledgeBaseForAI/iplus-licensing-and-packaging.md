@@ -31,7 +31,11 @@ and [gip.core.licensing/](../../gip.core.licensing/readme.md).
    cannot issue a DeveloperIssuer license for itself.
 5. Runtime bridge: License.FileLicensing.cs. It scans <appbase>/Licenses/*.gip AND
    re-verifies rows activated into VBSystem (SystemName "VBP" = product/runtime,
-   "VBD" = issuer). Dedupe key is LicenseId, NOT CustomerName.
+   "VBD" = issuer). Dedupe key is LicenseId, NOT CustomerName. Any number of product
+   licenses may coexist (one per developer); only ONE FrameworkRuntime is effective.
+   <appbase> = AppContext.BaseDirectory (the folder holding the executable). The
+   Licenses folder is NOT created by the framework and NOT shipped by the installer;
+   a missing folder is silently treated as "no license files".
 6. Enforcement points: ACPackage.IsLicensed -> ACClass.IsLicensed -> ACComponent.ACUrlCommand
    (_HasLicense) and ACBSO.OnSave -> VerifyLicense/VerifyMaxSessions.
 7. Package license metadata: AssemblyMetadata("iPlusLicense", "<SPDX expression>").
@@ -239,6 +243,55 @@ preserved so existing developer tooling keeps compiling.
 Invalid files are skipped and reported through `LastLicenseErrors` — a corrupt file
 never breaks startup.
 
+#### 4.1.1 The `Licenses` folder — where it is and who creates it
+
+`LicenseFolder` is **not** a database table and **not** a config entry. It is a plain
+directory next to the binaries:
+
+```csharp
+_LicenseFolder = Path.Combine(AppContext.BaseDirectory, "Licenses");
+```
+
+`AppContext.BaseDirectory` is the folder that contains the running executable — i.e.
+`bin/Debug/net10.0/` in development, or the install directory in production. So for
+`gip.iplus.console` the folder is `bin/Debug/net10.0/Licenses/`.
+
+Layout:
+
+```text
+<appbase>/Licenses/
+├── *.gip                  signed license files (DeveloperIssuer, FrameworkRuntime, Product)
+├── Issuers/*.pem          extra trusted developer public keys (optional)
+├── TrustedPublishers.txt  Authenticode thumbprints + optional "mode=" line
+└── .licensegrace          grace-period start time (written by the runtime)
+```
+
+**The framework does not create the folder.** `LoadFileLicenses()` returns early when
+`Directory.Exists(folder)` is `false`, so a missing folder is silently treated as
+"no license files" — no crash, no error. The only place the runtime creates it is
+`WritePersistedGraceStart()`, which does `Directory.CreateDirectory(folder)` when the
+grace period starts. In practice that means the folder appears on its own only after
+a licensing problem has already been detected.
+
+Consequences:
+
+| Situation | Result |
+|---|---|
+| Folder missing, licenses activated into `VBSystem` | Works — `IsPackageLicensedByActivatedLicense` reads the DB rows |
+| Folder missing, license only dropped in as a file | File is ignored |
+| Folder missing, `TrustedPublishers.txt` expected | `TrustedPublisherStore` finds nothing → verification stays fail-open |
+
+`LicenseFolder` has a public setter, so a host can redirect it, but there is **no
+environment variable** for it (unlike `IPLUS_LICENSE_PUBLIC_KEY` and
+`IPLUS_PUBLISHER_VERIFICATION`). Neither `build/publish-release.sh` nor
+`gip.tool.installerAndUpdater` creates the folder — an administrator has to create it
+by hand when they want to pre-place a `DeveloperIssuer` or `FrameworkRuntime` file
+instead of activating it through `BSOLicenseActivation`.
+
+> **Rule:** activating a license through the UI writes to the database and needs no
+> folder. Dropping a `.gip` file into `Licenses/` is the alternative path for
+> unattended installs — and that path requires the folder to exist.
+
 ### 4.2 Activation
 
 `ActivateLicenseFile(licenseText, out error)`:
@@ -308,6 +361,187 @@ future (clock set back) is ignored. `GracePeriodFilePath` is overridable.
 requires `IsDeveloperWithIssuingRightsByFile` (i.e. an active `DeveloperIssuer`
 license), builds a `Product` payload bound to the current DB fingerprint and signs it
 with the developer's private key.
+
+#### 4.3.1 The customer-database fingerprint trap
+
+A `Product` license is **issued on the developer's installation** but **activated on
+the customer's database**. The original overload bound the payload to
+`CreateBindingContext().DatabaseFingerprint` — i.e. the *developer's own* database —
+so the customer's `ActivateLicenseFile` always failed with `DatabaseMismatch`. The
+license was structurally unusable.
+
+The fix is the overload that takes the fingerprint explicitly:
+
+```csharp
+public bool IssueProductLicenseFile(
+    string privateKeyText, string customerName, string projectNo,
+    IEnumerable<string> packages, string outputPath,
+    string databaseFingerprint, out string error)
+```
+
+The original overload delegates to it with `databaseFingerprint: null`, which falls
+back to the local database — preserving the behaviour of `gip.tool.licenseIssuer
+issue-product` (no `--database-fingerprint`) and the unit tests.
+
+**Where the customer fingerprint comes from:** `BSOLicenseActivation` exports the
+activation data file with the V4 identification code:
+
+```xml
+<xml><companyName>…</companyName><db>…</db><ds>…</ds><code>177-117-56-…</code></xml>
+```
+
+`code` is `DBInfo.GetCheckSumCode()` — the dash-separated MD5 byte list of
+`service_broker_guid + create_date + database_guid`. `BSOiPlusLicenseManager`
+converts it with `DatabaseFingerprint.FromLegacyChecksumCode(code)` and stores the
+result in `CustomerDatabaseFingerprint`. **Never** compute the fingerprint from the
+developer's own database when issuing for a customer.
+
+The CLI does the same: `issue-runtime` / `issue-product` accept `--activation-file`
+(`-a`) instead of `--database-fingerprint`, and `fingerprint -a <file>` just prints it.
+
+> `DatabaseFingerprint.Compute(...)` and `FromLegacyChecksumCode(...)` both return
+> **uppercase** SHA-256 hex. `LicenseVerifier` compares with `OrdinalIgnoreCase`, so
+> casing is not a correctness risk, but keep it consistent in logs and CLI output.
+
+#### 4.3.2 End-to-end workflow (V5)
+
+```mermaid
+sequenceDiagram
+    participant GIP as gip (framework vendor)
+    participant DEV as Developer / integrator
+    participant CUS as End customer
+
+    GIP->>GIP: ./gip.tool.licenseIssuer create-keypair --name framework
+    Note over GIP: framework-private.pem stays offline
+    DEV->>DEV: ./gip.tool.licenseIssuer create-keypair --name acme
+    DEV->>GIP: send acme-public.pem
+    GIP->>DEV: issue-developer --developer-public-key acme-public.pem<br/>→ ACME-developer.gip (DeveloperIssuer)
+    DEV->>DEV: install ACME-developer.gip into Licenses/
+    CUS->>CUS: BSOLicenseActivation → GetActivationData<br/>→ ExportActivationData → "Contoso-activation data.gip"
+    CUS->>DEV: send activation data file
+    DEV->>DEV: BSOiPlusLicenseManager → ImportActivationData<br/>(captures db, ds, code → CustomerDatabaseFingerprint)
+    DEV->>DEV: assign packages, set DeveloperPrivateKeyPath = acme-private.pem
+    DEV->>DEV: GenerateLicenseFile → ACME-license.gip (Product, bound to customer DB)
+    DEV->>CUS: send ACME-license.gip
+    CUS->>CUS: BSOLicenseActivation → ActivateProduct → restart
+```
+
+The `DeveloperIssuer` license is what makes `IsDeveloperWithIssuingRightsByFile`
+true; without it `GenerateLicenseFile` refuses to run. The developer's private key
+never leaves their machine — `gip.tool.licenseIssuer` and
+`BSOiPlusLicenseManager.GenerateLicenseFile` both sign locally, no HTTP call.
+
+#### 4.3.3 `BSOiPlusLicenseManager` V5 properties
+
+| Property | Index | Purpose |
+|---|---|---|
+| `DeveloperPrivateKeyPath` | 514 | Path to the developer's `*-private.pem`; enables the V5 signing path |
+| `CustomerDatabaseName` | 516 | Read-only, filled from the activation data `<db>` |
+| `CustomerDatabaseServerName` | 517 | Read-only, filled from the activation data `<ds>` |
+| `CustomerDatabaseFingerprint` | 518 | Derived from `<code>`; passed to `IssueProductLicenseFile` |
+
+`IsEnabledGenerateLicenseFile` returns `false` when a private key is configured but
+no customer fingerprint has been imported — this prevents issuing a license that can
+never be activated.
+
+**Removed in V5:** `SignLicenseFile` (510), `IsEnabledSignLicenseFile`,
+`BrowseLicenseFile` (511) and the `LicenseFilePath` property (511). They implemented
+the V4 flow "generate an unsigned XML license, then sign it in a second step". In V5
+signing is part of `GenerateLicenseFile`, so the whole `Methods -> SignFile` region
+became dead code and was deleted, together with `BgWorkerDoWork`,
+`SignLicenseLocally`, the `infoSignLicenseStart`/`infoSignLicenseComplete` captions
+and the `ACClassMethod`/`ACClassProperty` rows in both databases. Only
+`BrowseDeveloperPrivateKey` (515) survived, in the renamed
+`Methods -> Developer key` region.
+
+> **The framework never deletes orphaned `ACClassMethod`/`ACClassProperty` rows.**
+> `ACClassManager.InsertOrUpdateMethodParameters` only inserts and updates. Removing
+> a method from code leaves its row behind, and the design can still bind to it. When
+> you delete a method, also delete its `ACClassMethod` row (plus `VBGroupRight`,
+> `ACClassMethodConfig`, `ACClassWF`, `ACClassWFEdge` references) and its
+> `ACClassProperty` row.
+
+**Removing a license (customer dialog).** `BSOLicenseActivation.RemoveLicense` asks for
+confirmation and calls `License.RemoveActivatedLicense(VBSystem, out error)`, which deletes the
+`VBSystem` row and sets `NeedRestart`. Removing the `FrameworkRuntime` license returns the
+installation to the open edition. The button (`!RemoveLicense`) lives in the
+`LicenceActivation` design (database only) and the `ACClassMethod` row had to be inserted
+into every database by hand. `LicenseCompanyList` and `LicensedPackages` are stable
+instances on purpose: replacing a ListBox `ItemsSource` during a selection change throws
+in Avalonia (`LicensedPackages` must stay a `List<string>`, the registered property type).
+
+**Package scope of a developer (`PackageNamespaces`).** `License.GetAvailablePackages()`
+fills the "Available packages" list. In V4 it compared the first segment of every
+`ACPackageName` with the developer's *company name* — in V5 the company name
+("gipSoft d.o.o.") no longer equals the package prefix ("gip"), so the list was empty.
+V5 reads `LicensePayload.PackageNamespaces` of the `DeveloperIssuer` license instead
+(`issue-developer --package-namespace acme`); empty = all packages (minus
+`VarioDevelopment`/`VarioLicense`/`VarioSystem`/`System`). The V4 company-name rule
+remains as fallback only when no signed `DeveloperIssuer` payload exists.
+
+**No V4 fallback in `GenerateLicenseFile`.** It used to fall back to the V4 XML license
+when issuing failed, producing a file the V5 verifier rejects. It now requires the
+private key and fingerprint (`IsEnabledGenerateLicenseFile`), validates that
+`DeveloperPrivateKeyPath` is a private key (not a `.gip` license file) and shows the
+error text in a warning.
+
+**Self-contained product licenses (`LicensePayload.IssuerLicense`).** A product license is
+signed by the developer key, but the customer installation knows only gip's framework key.
+The issuing side therefore embeds the developer's gip-signed `DeveloperIssuer` license in the
+product payload (`License.IssueProductLicenseFile` finds it by key id in the license folder /
+`VBD` rows; `issue-product --issuer-license` does the same in the CLI). `LicenseVerifier`
+verifies the embedded license with the framework key, checks that its public key matches
+`IssuerKeyId`, and verifies the product signature with that key. The customer installs
+**one** `.gip` file, no `Issuers/*.pem` and no developer license. Without the embedded
+license the verifier falls back to the resolver (`Issuers/*.pem`). Issuing fails with a clear
+error when the private key does not belong to any installed `DeveloperIssuer` license.
+`BSOLicenseActivation.ActivateProduct` no longer has a V4 fallback and shows the
+`ActivateLicenseFile` error text.
+
+**Customer dialog states (`BSOLicenseActivation`).** `ACInit` shows the "activated" view when
+a runtime/developer license is active **or** at least one product license (`VBP` row) is installed.
+A product license without a `FrameworkRuntime` license is ineffective (open edition); the status text
+says so explicitly ("Product license installed, but no framework runtime license…"). Every
+`[ACMethodInfo]` button needs its own `IsEnabled<Method>` **and** a case for it in
+`HandleExecuteACMethod`; without them the button stays disabled.
+
+**Unissued records.** `BSOiPlusLicenseManager.New()` creates an incomplete record
+(`VBLicense.PackageSystem` is `NOT NULL`, so it is initialised with an empty array).
+`IsLicenseIssued` is `false` until `GenerateLicenseFile` succeeds; Save is disabled
+meanwhile, and closing the dialog discards the record (`ACSaveOrUndoChanges` override)
+instead of offering to save it.
+
+#### 4.3.4 Several developers licensing the same customer
+
+A customer routinely needs packages from more than one integrator. Nothing in the
+model limits the number of installed product licenses:
+
+| Concern | Behaviour |
+|---|---|
+| Storage | Every activation writes its own `VBSystem` row (`SystemName = "VBP"`). `ActivateLicenseFile` dedupes on `LicenseId` (`SystemInternal2`), **not** on `CustomerName`, so ACME's and Beta's licenses coexist. Re-activating the same file replaces its row. |
+| Trusted issuer keys | `CreateVerifierWithIssuerChain()` collects **all** developer public keys: every `DeveloperIssuer` payload found in the license folder **and** in activated `VBD` rows, plus every `*.pem` in `<LicenseFolder>/Issuers/`. N developers → N trusted keys. |
+| Package check | `IsPackageLicensedByFile` and `IsPackageLicensedByActivatedLicense` iterate **all** licenses; a package is licensed if **any** license covers it. |
+| UI | `BSOLicenseActivation.LicenseCompanyList` = `License.SystemList` = all `VBP` rows. `AddNewLicense` (405) re-runs `GetActivationData` and shows the activation panel again, so the customer installs the second/third `.gip` the same way as the first. |
+| Runtime license | Only **one** `FrameworkRuntime` license is effective — `FrameworkRuntimeLicense` returns the first match (folder first, then activated rows). |
+
+```mermaid
+flowchart LR
+    subgraph Customer["Customer database (IPCDrivesV5)"]
+        R1["VBP row<br/>ACME Product license"]
+        R2["VBP row<br/>Beta Product license"]
+        R3["VBP row<br/>gip FrameworkRuntime"]
+    end
+    R1 --> V["LicenseVerifier<br/>framework key + issuer chain"]
+    R2 --> V
+    R3 --> V
+    V --> P["IsPackageLicensed('ACME.Custom') → true<br/>IsPackageLicensed('Beta.Quality') → true"]
+```
+
+**Do not** parse `VBSystem.SystemInternal` as a comma-separated package list. In V5
+that column holds the complete signed `.gip` text. `BSOLicenseActivation` used to do
+exactly that (a V4 leftover) and showed garbage in the package list; it now calls
+`LicenseFile.TryParse` + `LicenseFile.DeserializePayload` and falls back to the
+comma-separated form only for legacy rows.
 
 ---
 
@@ -751,13 +985,17 @@ misconfigured trust store must never lock a customer out of their own runtime.
 - [ ] **`License.IsPackageLicensed` returning `true`** → no enforcement at all. The real bodies were commented out under `//#if DEBUG`. *Fixed.*
 - [ ] **`License.Initialize()` returning immediately** → license files were never loaded. It must call `ReloadFileLicenses()`. *Fixed.*
 - [ ] **`License.CurrentLicenseType` hardcoded to `User`** → `IsDeveloperWithIssuingRights` was always `false`, so nobody could issue licenses. Derive it from `FileLicenses`. *Fixed.*
-- [ ] **`BSOiPlusLicenseManager.SignLicense()` POSTing to `iplus-framework.com`** → a phone-home dependency that breaks offline installs. Sign locally with the developer's private key. *Fixed.*
+- [x] **`BSOiPlusLicenseManager.SignLicense()` POSTing to `iplus-framework.com`** → a phone-home dependency that breaks offline installs. *Fixed:* signing happens locally inside `GenerateLicenseFile` with the developer's private key. The obsolete two-step `SignLicenseFile`/`BrowseLicenseFile`/`LicenseFilePath` path was deleted entirely in V5.
 - [ ] **`BSOLicenseActivation.ActivateProduct()` only reading V4 XML** → cannot read `.gip`. Try `ActivateLicenseFile` first, fall back to V4. *Fixed.*
+- [x] **`BSOLicenseActivation.SelectedLicenseCompany` parsing `SystemInternal` as a comma-separated package list** → a V4 leftover. In V5 that column holds the complete signed `.gip` text, so the package list in the UI showed garbage. *Fixed:* `GetLicensedPackages` now calls `LicenseFile.TryParse` + `LicenseFile.DeserializePayload` and only falls back to the comma-separated form for legacy rows.
+- [x] **`BSOLicenseActivation` not refreshing `LicenseCompanyList` after activation** → a second/third license was stored but the list stayed stale. *Fixed:* `ActivateProduct` raises `OnPropertyChanged("LicenseCompanyList")` and selects the newly added row; `ACInit` selects the last row too.
+- [x] **`BSOLicenseActivation.AddNewLicense` opening a second `Database` connection** → it queried `VBSystem` through a fresh `new Database()` instead of the already-open one. *Fixed:* it reads `Root.Environment.License.SystemList`.
 - [x] **`LicenseGraceStartUtc` in memory only** → a restart resets the grace clock. *Fixed:* persisted to `<LicenseFolder>/.licensegrace` and restored by `License.GracePeriod`.
 - [x] **`gip.tool.devLicense` / `gip.tool.devLicenseProvider` still in the tree** → V4 dongle tooling. *Fixed:* both projects deleted, together with `Mxapi.cs`/`Mxtea.cs` and the dongle regions in `License.cs`.
 - [x] **`License.SystemID` guard reading `SystemID.HasValue` instead of `_SystemID.HasValue`** → infinite recursion (`SystemID` → `IsComponentLicensed` → `ACUrlCommand` → `PARole.GetServiceInstance` → `PAMSilo.ACInit` → `ACUrlCommand` → `IsComponentLicensed` → `SystemID`), which crashed the MES console with `Stack overflow. Repeated 22705 times`. *Fixed.* **Rule:** a lazy-cached property must test its **backing field**, never itself. This is invisible in iPlus (no `System` package → `_SystemID` stays `null`) but fatal in iPlusMES.
 - [x] **EF Core cannot translate `byte[].Length`** → `Translation of method 'Enumerable.Any' failed` at login. `VBSystem.SystemInternal` is a `byte[]`; EF rewrites `.Length > 0` to `.Any()`. *Fixed:* filter on `SystemName` server-side, then `.AsEnumerable()` before the length check. `VBSystem` holds only a handful of rows, so client evaluation is free.
 - [ ] **Stale `ConnectionStrings.config` in a shared output folder** → `gip.mes.console` failed with `SQL Server ... error: 26 - Fehler beim Suchen des angegebenen Servers` because `iPlusMES/bin/Debug/net10.0/ConnectionStrings.config` was a leftover from an older build containing the Windows placeholder `data source=.\SQLEXP16`. All MES projects share `$(SolutionDir)bin\$(Configuration)`, so whichever project copies last wins, and `CopyToOutputDirectory=Always` only refreshes when that project is actually rebuilt. *Fix:* rebuild the owning project (`dotnet build gip.mes.console`) — the copy is then logged as `Die Datei wird von ... kopiert`. When a console host fails at "Connecting to database" while another host works, compare the **output-folder** config, not the source-tree one.
+- [x] **`gip.tool.licenseIssuer: Befehl nicht gefunden`** → the tool is built into the shared output folder, which is **not** on `PATH`. A bare `gip.tool.licenseIssuer ...` therefore fails even when the file is right there. *Fix:* invoke it as `./gip.tool.licenseIssuer ...` from the output folder, with the full path from anywhere, or as `dotnet gip.tool.licenseIssuer.dll ...`. The readme examples were missing the `./` prefix and have been corrected.
 
 ---
 
@@ -771,9 +1009,9 @@ misconfigured trust store must never lock a customer out of their own runtime.
 | Signing | [LicenseIssuer.cs](../../gip.core.licensing/LicenseIssuer.cs) | `Issue`, `IssueToFile`, `GetPublicKeyPem` |
 | Framework key resolution | [FrameworkLicenseKeys.cs](../../gip.core.licensing/FrameworkLicenseKeys.cs) | env → embedded → file, cached |
 | DB fingerprint | [DatabaseFingerprint.cs](../../gip.core.licensing/DatabaseFingerprint.cs) | mirrors V4 `DBInfo.GetCheckSum()` |
-| Issuer CLI | [gip.tool.licenseIssuer/](../../gip.tool.licenseIssuer/readme.md) | `create-keypair`, `issue-developer`, `issue-runtime`, `issue-product`, `verify`, `show` |
-| End-customer activation UI | [BSOLicenseActivation.cs](../../gip.bso.iplus/BSOiPlus/BSOLicenseActivation.cs) | `ActivateProduct()` — `ActivateLicenseFile` first, V4 XML fallback |
-| Developer/integrator UI | [BSOiPlusLicenseManager.cs](../../gip.bso.iplus/BSOiPlus/BSOiPlusLicenseManager.cs) | `GenerateLicenseFile()` (local signing via `DeveloperPrivateKeyPath`), `SignLicenseFile()` (local, no HTTP) |
+| Issuer CLI | [gip.tool.licenseIssuer/](../../gip.tool.licenseIssuer/readme.md) | `create-keypair`, `issue-developer`, `issue-runtime`, `issue-product`, `verify`, `show`. Lives in the output folder, which is not on `PATH` — invoke as `./gip.tool.licenseIssuer` |
+| End-customer activation UI | [BSOLicenseActivation.cs](../../gip.bso.iplus/BSOiPlus/BSOLicenseActivation.cs) | `ActivateProduct()` — `ActivateLicenseFile` first, V4 XML fallback; `AddNewLicense()` installs a 2nd/3rd license; `GetLicensedPackages()` parses the `.gip` payload |
+| Developer/integrator UI | [BSOiPlusLicenseManager.cs](../../gip.bso.iplus/BSOiPlus/BSOiPlusLicenseManager.cs) | `GenerateLicenseFile()` (local signing via `DeveloperPrivateKeyPath`, bound to `CustomerDatabaseFingerprint`), `ImportActivationData()` (captures `db`/`ds`/`code`) |
 | SPDX classifier | [PackageLicenseExpression.cs](../../gip.core.licensing/PackageLicenseExpression.cs) | `Classify`, `IsAllowedUnderCommercialRuntime` |
 | Package → expression registry | [PackageLicenseRegistry.cs](../../gip.core.datamodel/ACHelperclasses/ACLicense/PackageLicenseRegistry.cs) | `RegisterFromAssembly`, `GetExpression`, `GetCompatibility` |
 | Assembly registration choke point | [ACClassManager.cs](../../gip.core.autocomponent/ACClassManager/ACClassManager.cs) | `RegisterAssemblyTypes` — where the license attribute is read |

@@ -2653,9 +2653,9 @@ namespace gip.core.autocomponent
         public ACClassMethod GetACClassMethod(string acMethodName, out string normalizedMethodName)
         {
             string acMethodName1;
-            int pos = acMethodName.IndexOf('!');
-            if (pos == 0)
-                acMethodName1 = acMethodName.Substring(1);
+            int pos = acMethodName.LastIndexOf(ACUrlHelper.Delimiter_InvokeMethod);
+            if (pos >= 0)
+                acMethodName1 = acMethodName.Substring(pos + 1);
             else
                 acMethodName1 = acMethodName;
 
@@ -4544,6 +4544,18 @@ namespace gip.core.autocomponent
             }
         }
 
+        // ExecuteMethodAsync works on this component only, so the URL prefix before '!' must be resolved first.
+        private async Task<object> ExecuteMethodByUrlAsync(string acUrl, params Object[] acParameter)
+        {
+            int pos = acUrl.LastIndexOf(ACUrlHelper.Delimiter_InvokeMethod);
+            if (pos <= 0)
+                return await ExecuteMethodAsync(acUrl, acParameter);
+            ACComponent target = ACUrlCommand(acUrl.Substring(0, pos)) as ACComponent;
+            if (target == null)
+                return null;
+            return await target.ExecuteMethodAsync(acUrl.Substring(pos), acParameter);
+        }
+
         /// <summary>
         /// ACActionAsync is called when one IACInteractiveObject (Source) wants to inform another IACInteractiveObject (Target) about an relevant interaction-event asynchronously.
         /// </summary>
@@ -4582,7 +4594,7 @@ namespace gip.core.autocomponent
                             if (!acCommand.ParameterList.Any())
                             {
                                 _CurrentInvokingACCommand = acCommand;
-                                object result = await ExecuteMethodAsync(acCommand.GetAsyncACUrl());
+                                object result = await ExecuteMethodByUrlAsync(acCommand.GetAsyncACUrl());
                                 if (result is Task) await (Task)result;
                                 _CurrentInvokingACCommand = null;
                                 return;
@@ -4590,7 +4602,7 @@ namespace gip.core.autocomponent
                             else
                             {
                                 _CurrentInvokingACCommand = acCommand;
-                                object result = await ExecuteMethodAsync(acCommand.GetAsyncACUrl(), acCommand.ParameterList.ToValueArray());
+                                object result = await ExecuteMethodByUrlAsync(acCommand.GetAsyncACUrl(), acCommand.ParameterList.ToValueArray());
                                 if (result is Task) await (Task)result;
                                 _CurrentInvokingACCommand = null;
                                 return;
