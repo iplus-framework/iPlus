@@ -292,8 +292,21 @@ namespace gip.core.autocomponent
                 if (_StaticExecuteHandlers.TryGetValue(typeOfProxy, out staticHandler))
                 {
                     askMethodHandled = staticHandler(out result, this, methodName2Handle, acClassMethod, acParameter);
-                    if (askMethodHandled && !(bool)result)
-                        return null;
+                    if (askMethodHandled)
+                    {
+                        bool? ok = result as bool?;
+                        if (ok == null)
+                        {
+                            Task<bool> taskResult = result as Task<bool>;
+                            if (taskResult != null)
+                            {
+                                ok = taskResult.Result;
+                            }
+                        }    
+
+                        if (ok != null && ok == false)
+                            return null;
+                    }
                 }
 
                 if (!askMethodHandled && hasStaticAskMethod)
@@ -331,7 +344,21 @@ namespace gip.core.autocomponent
                                 if (miParams == null || (miParams != null && !miParams.Any()))
                                     acParameter = null;
                             }
-                            ok = (bool)mi.Invoke(this, acParamWithThis);
+
+                            object? invokeResult = mi.Invoke(this, acParamWithThis);
+
+                            if (invokeResult != null)
+                            {
+                                ok = invokeResult as bool?;
+                                if (ok == null)
+                                {
+                                    Task<bool> taskResult = invokeResult as Task<bool>;
+                                    if (taskResult != null)
+                                    {
+                                        ok = taskResult.Result;
+                                    }
+                                }
+                            }
                         }
                     }
 
