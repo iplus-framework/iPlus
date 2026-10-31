@@ -4020,6 +4020,12 @@ namespace gip.bso.iplus
                 case nameof(IsEnabledNewConfigACClassProperty):
                     result = IsEnabledNewConfigACClassProperty();
                     return true;
+                case nameof(StartOPCUABrowser):
+                    StartOPCUABrowser();
+                    return true;
+                case nameof(IsEnabledStartOPCUABrowser):
+                    result = IsEnabledStartOPCUABrowser();
+                    return true;
                 case nameof(DeleteConfigACClassProperty):
                     DeleteConfigACClassProperty();
                     return true;
@@ -4415,6 +4421,8 @@ namespace gip.bso.iplus
                 // Config operations
                 case nameof(NewConfigACClassProperty):
                 case nameof(IsEnabledNewConfigACClassProperty):
+                case nameof(StartOPCUABrowser):
+                case nameof(IsEnabledStartOPCUABrowser):
                 case nameof(NewPointConfig):
                 case nameof(IsEnabledNewPointConfig):
                     return new string[] { nameof(CurrentACClass), nameof(CurrentConfigPointACClassProperty) };
