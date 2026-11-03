@@ -17,6 +17,7 @@ using System.Text;
 // (namespace gip.core.webservices) - alias the entity types to avoid ambiguity.
 using DBACClass = gip.core.datamodel.ACClass;
 using DBACClassProperty = gip.core.datamodel.ACClassProperty;
+using DBACClassMessage = gip.core.datamodel.ACClassMessage;
 
 namespace gip.core.webservices
 {
@@ -356,6 +357,56 @@ namespace gip.core.webservices
             if (mcpHost is PAMcpServerHost host)
                 userRights = host.ResolveUserForSession(server);
             return GetDevTools(mcpHost).dev_remove_property(mcpHost, userRights, classIdentifier, propertyName, saveChanges);
+        }
+
+        [McpServerTool(Name = "dev_add_message"), Description("(D14) Development: Adds a new translatable message (ACClassMessage) to a class, " +
+            "equivalent to 'New Message' in BSOiPlusStudio. Messages are stored in the database (ACClassMessage) so they can be translated " +
+            "to different languages via BSOiPlusStudio/BSOTranslation and resolved at runtime via IPlusEnvironment.TranslateMessage / 'new Msg(..., translID)'. " +
+            "Use this instead of hardcoding 'en{...}de{...}' strings in ShowMsg calls. " +
+            "If messageIdentifier (e.g. 'Error50410', 'Warning50001', 'Info50078') is empty, the next free number in the range " +
+            "50000-99999 (or 00001-49999 for isSystem=true) is generated with the prefix derived from level (Error/Warning/Info). " +
+            "IMPORTANT: an apostrophe inside enText/deText must not be followed by '{', because \"'{\" is the pair separator of the translation tuple.")]
+        public static string dev_add_message(
+            McpServer server,
+            RequestContext<CallToolRequestParams> context,
+            IACComponent mcpHost,
+            [Description("Language code for localized messages (e.g., 'en', 'de')")]
+            string i18nLangTag,
+            [Description("(required) ACIdentifier of the class (ACClass) to which the message is added.")]
+            string classIdentifier,
+            [Description("(optional) Full message identifier (e.g. 'Error50410'). If empty, generated from level and next free number.")]
+            string messageIdentifier,
+            [Description("(optional) Message level for auto-generated identifiers: Error, Warning or Info (default: Info).")]
+            string level,
+            [Description("(required) English message text. '{0}'-style placeholders are supported (string.Format).")]
+            string enText,
+            [Description("(optional) German message text. If empty, enText is used for both languages.")]
+            string deText,
+            [Description("(optional) If true, the message is a system message (identifier range 00001-49999) for auto-generated identifiers.")]
+            bool isSystem = false,
+            [Description("If true (default), changes are saved to the database immediately. If false, call dev_save_changes afterwards.")]
+            bool saveChanges = true)
+        {
+            VBUserRights userRights = null;
+            if (mcpHost is PAMcpServerHost host)
+                userRights = host.ResolveUserForSession(server);
+            return GetDevTools(mcpHost).dev_add_message(mcpHost, userRights, classIdentifier, messageIdentifier, level, enText, deText, isSystem, saveChanges);
+        }
+
+        [McpServerTool(Name = "dev_get_messages"), Description("(D15) Development: Lists all messages (ACClassMessage) of a class with their translation tuple.")]
+        public static string dev_get_messages(
+            McpServer server,
+            RequestContext<CallToolRequestParams> context,
+            IACComponent mcpHost,
+            [Description("Language code for localized messages (e.g., 'en', 'de')")]
+            string i18nLangTag,
+            [Description("(required) ACIdentifier of the class (ACClass).")]
+            string classIdentifier)
+        {
+            VBUserRights userRights = null;
+            if (mcpHost is PAMcpServerHost host)
+                userRights = host.ResolveUserForSession(server);
+            return GetDevTools(mcpHost).dev_get_messages(mcpHost, userRights, classIdentifier);
         }
 
         [McpServerTool(Name = "dev_save_changes"), Description("(D13) Development: Saves all pending changes made with dev_* tools that were called with saveChanges=false. " +
@@ -1241,6 +1292,103 @@ namespace gip.core.webservices
 
                     MsgWithDetails saveResult = Save(db, saveChanges);
                     return SaveResultJson(true, "dev_remove_property", new { RemovedProperty = propertyName, Class = classIdentifier }, saveResult);
+                }
+                catch (Exception ex)
+                {
+                    return CreateExceptionResponse(ex);
+                }
+            }
+        }
+
+        public string dev_add_message(IACComponent requester, VBUserRights userRights, string classIdentifier, string messageIdentifier, string level, string enText, string deText, bool isSystem, bool saveChanges)
+        {
+            using (requester.Root.UsingThread(userRights != null ? userRights.VBUser : null))
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(classIdentifier) || string.IsNullOrEmpty(enText))
+                        return Error("Parameters 'classIdentifier' and 'enText' are required.");
+                    Database db = GetDatabase(requester);
+
+                    DBACClass acClass = FindACClass(db, classIdentifier);
+                    if (acClass == null)
+                        return Error($"Class '{classIdentifier}' not found.");
+
+                    string acIdentifier;
+                    if (string.IsNullOrEmpty(messageIdentifier))
+                    {
+                        string type = (level ?? "").Trim();
+                        string prefix;
+                        switch (type.ToLowerInvariant())
+                        {
+                            case "error":
+                                prefix = "Error";
+                                break;
+                            case "warning":
+                                prefix = "Warning";
+                                break;
+                            case "info":
+                                prefix = "Info";
+                                break;
+                            default:
+                                return Error($"Unknown level '{type}'. Valid values: Error, Warning, Info (or provide messageIdentifier directly).");
+                        }
+                        acIdentifier = DBACClassMessage.GetUniqueNameIdentifier(db, prefix, isSystem);
+                    }
+                    else
+                    {
+                        acIdentifier = messageIdentifier.Trim();
+                        if (acClass.ACClassMessage_ACClass.Where(c => c.ACIdentifier == acIdentifier).Any())
+                            return Error($"A message with identifier '{acIdentifier}' already exists on class '{classIdentifier}'.");
+                    }
+
+                    if (string.IsNullOrEmpty(deText))
+                        deText = enText;
+
+                    DBACClassMessage acClassMessage = DBACClassMessage.NewACObject(db.ContextIPlus, acClass);
+                    acClassMessage.ACIdentifier = acIdentifier;
+                    // Translation tuple (quotes are mandatory). An apostrophe before '{' would break the parser (TranslationTupleHelper).
+                    acClassMessage.ACCaptionTranslation = $"en{{{enText}}}de{{{deText}}}";
+                    if (!Translator.IsTranslationTupleValid(acClassMessage.ACCaptionTranslation))
+                        return Error($"The message text contains an apostrophe before '{{' (e.g. \"to '{{0}}'.\"), which breaks the translation tuple. Please rephrase the text.");
+                    acClass.ACClassMessage_ACClass.Add(acClassMessage);
+                    db.ContextIPlus.ACClassMessage.Add(acClassMessage);
+
+                    MsgWithDetails saveResult = Save(db, saveChanges);
+                    return SaveResultJson(true, "dev_add_message", new
+                    {
+                        acClassMessage.ACClassMessageID,
+                        acClassMessage.ACIdentifier,
+                        Class = classIdentifier,
+                        ACCaptionTranslation = acClassMessage.ACCaptionTranslation
+                    }, saveResult);
+                }
+                catch (Exception ex)
+                {
+                    return CreateExceptionResponse(ex);
+                }
+            }
+        }
+
+        public string dev_get_messages(IACComponent requester, VBUserRights userRights, string classIdentifier)
+        {
+            using (requester.Root.UsingThread(userRights != null ? userRights.VBUser : null))
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(classIdentifier))
+                        return Error("Parameter 'classIdentifier' is required.");
+                    Database db = GetDatabase(requester);
+
+                    DBACClass acClass = FindACClass(db, classIdentifier);
+                    if (acClass == null)
+                        return Error($"Class '{classIdentifier}' not found.");
+
+                    var messages = acClass.ACClassMessage_ACClass
+                        .Select(m => new { m.ACIdentifier, m.ACCaptionTranslation })
+                        .OrderBy(m => m.ACIdentifier)
+                        .ToList();
+                    return Serialize(new { Success = true, Class = classIdentifier, Messages = messages });
                 }
                 catch (Exception ex)
                 {
