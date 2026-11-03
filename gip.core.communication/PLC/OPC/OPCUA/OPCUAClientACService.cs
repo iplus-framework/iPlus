@@ -29,6 +29,10 @@ namespace gip.core.communication
             if (!base.ACInit(startChildMode))
                 return false;
 
+            // Load config synchronously: child sessions (ACPostInit) need AppConfiguration,
+            // and they activate before a background thread would finish loading it.
+            InitOPCUAApp();
+
             _OPCUASyncQueque = new SyncQueueEvents();
             _OPCUAThread = new ACThread(ManageLifeOfOPCUAClient);
             _OPCUAThread.Name = "ACUrl:" + this.GetACUrl() + ";ManageLifeOfOPCUAClient();";
@@ -120,7 +124,7 @@ namespace gip.core.communication
 
         private void ManageLifeOfOPCUAClient()
         {
-            InitOPCUAApp();
+            // Config was already loaded in ACInit; the thread only keeps the app alive until exit.
             _OPCUASyncQueque.ExitThreadEvent.WaitOne();
             DeInitOPCUAApp();
             _OPCUASyncQueque.TerminateThread();

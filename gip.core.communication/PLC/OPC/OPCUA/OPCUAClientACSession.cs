@@ -291,8 +291,13 @@ namespace gip.core.communication
             if (String.IsNullOrEmpty(EndpointURL))
                 return false;
 
-            if (AppInstance == null)
+            if (AppInstance == null || AppInstance.ApplicationConfiguration == null)
+            {
+                if (_ReconnectTries <= 0)
+                    Messages.LogError(this.GetACUrl(), ClassName + ".InitSession()",
+                        "en{'OPC UA client application configuration is not loaded. Start the OPC UA client service first.'}de{'OPC-UA-Client-Anwendungskonfiguration ist nicht geladen. Zuerst den OPC-UA-Client-Dienst starten.'}");
                 return false;
+            }
 
             try
             {

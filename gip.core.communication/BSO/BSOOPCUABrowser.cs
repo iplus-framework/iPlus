@@ -63,6 +63,7 @@ namespace gip.core.communication
         public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             CloseTempSession();
+            _LocalAppInstance = null;
             return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
@@ -91,10 +92,10 @@ namespace gip.core.communication
         #endregion
 
         #region Properties => Session
-        List<OPCUAClientACSession> _SessionList;
+        List<OPCUASessionConfig> _SessionList;
         /// <summary>All OPCUAClientACSession instances that are currently running below the root.</summary>
         [ACPropertyList(502, "Session")]
-        public IEnumerable<OPCUAClientACSession> SessionList
+        public IEnumerable<OPCUASessionConfig> SessionList
         {
             get
             {
@@ -104,10 +105,10 @@ namespace gip.core.communication
             }
         }
 
-        OPCUAClientACSession _CurrentSession;
+        OPCUASessionConfig _CurrentSession;
         /// <summary>The session whose endpoint is used for browsing.</summary>
         [ACPropertyCurrent(503, "Session")]
-        public OPCUAClientACSession CurrentSession
+        public OPCUASessionConfig CurrentSession
         {
             get
             {
@@ -157,6 +158,38 @@ namespace gip.core.communication
                 OnPropertyChanged();
             }
         }
+
+        private int _TreeSelectionVersion;
+        /// <summary>
+        /// Incremented whenever the checked state of a node in the browse tree changes.
+        /// IsEnabled methods that depend on the checkboxes observe this property
+        /// (same pattern as ProdOrderBatchPlanSelectionVersion in BSOBatchPlanScheduler).
+        /// </summary>
+        [ACPropertyInfo(999, nameof(TreeSelectionVersion), "en{'Tree selection version'}de{'Baum-Auswahlversion'}")]
+        public int TreeSelectionVersion
+        {
+            get => _TreeSelectionVersion;
+            private set
+            {
+                _TreeSelectionVersion = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private void TreeItem_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e != null && e.PropertyName == ACClassInfoWithItems.IsCheckedPropName)
+                TreeSelectionVersion++;
+        }
+
+        /// <summary>Subscribes a tree item so checkbox changes bump <see cref="TreeSelectionVersion"/>.</summary>
+        private void HookTreeItem(OPCUANodeItem nodeItem)
+        {
+            if (nodeItem == null)
+                return;
+            nodeItem.PropertyChanged -= TreeItem_PropertyChanged;
+            nodeItem.PropertyChanged += TreeItem_PropertyChanged;
+        }
         #endregion
 
         #endregion
@@ -164,15 +197,14 @@ namespace gip.core.communication
         #region Methods
 
         #region Methods => Session
-        /// <summary>Searches all running OPCUAClientACSession instances and selects the one that owns the subscription.</summary>
+        /// <summary>Searches all configured OPCUAClientACSession components below the root.
+        /// Real instances (service mode) are used directly; proxies (client mode) are resolved
+        /// from their <see cref="ACClass"/> configuration entries (EndpointURL, authentication).
+        /// No method or live property of a proxy is ever accessed.</summary>
         [ACMethodInfo("Session", "en{'Refresh sessions'}de{'Sessions aktualisieren'}", 502, true)]
         public void RefreshSessionList()
         {
-            ACComponent root = Root as ACComponent;
-            if (root != null)
-                _SessionList = root.FindChildComponents<OPCUAClientACSession>();
-            else
-                _SessionList = new List<OPCUAClientACSession>();
+            _SessionList = FindConfiguredSessions();
             OnPropertyChanged(nameof(SessionList));
 
             if (_CurrentSession == null || !_SessionList.Contains(_CurrentSession))
@@ -187,30 +219,230 @@ namespace gip.core.communication
             return true;
         }
 
+        private List<OPCUASessionConfig> FindConfiguredSessions()
+        {
+            Dictionary<ACClass, OPCUASessionConfig> sessionMap = new Dictionary<ACClass, OPCUASessionConfig>();
+
+            // Search only inside the project that is currently edited in BSOiPlusStudio
+            // (acProject of the subscription class), not the whole tree below the root
+            ACClass projectRootClass = CurrentSubscriptionClass?.ACProject?.RootClass;
+            if (projectRootClass != null)
+            {
+                CollectConfiguredSessionsFromClass(projectRootClass, sessionMap, 0);
+            }
+            else
+            {
+                ACComponent root = Root as ACComponent;
+                if (root != null)
+                    CollectConfiguredSessions(root, sessionMap, 0);
+            }
+
+            // Attach real component instances if the project runs in this process (service mode)
+            if (sessionMap.Count > 0)
+            {
+                ACComponent root = Root as ACComponent;
+                if (root != null)
+                {
+                    foreach (OPCUAClientACSession realSession in root.FindChildComponents<OPCUAClientACSession>())
+                    {
+                        ACClass realConfigClass = realSession.ACType as ACClass;
+                        if (realConfigClass != null && sessionMap.TryGetValue(realConfigClass, out OPCUASessionConfig config)
+                            && config.RealSession == null)
+                        {
+                            config.RealSession = realSession;
+                        }
+                    }
+                }
+            }
+            return sessionMap.Values.ToList();
+        }
+
+        /// <summary>Metadata-only discovery: walks the ACClass tree of the project below the given
+        /// root class (children are queried by ParentACClassID). Real component instances are attached
+        /// afterwards, so this works in service mode as well as for proxies (client mode).</summary>
+        private void CollectConfiguredSessionsFromClass(ACClass acClass, Dictionary<ACClass, OPCUASessionConfig> sessionMap, int depth)
+        {
+            if (acClass == null || depth > MaxSessionSearchDepth)
+                return;
+
+            if (IsSessionClassNode(acClass) && !sessionMap.ContainsKey(acClass))
+                sessionMap[acClass] = CreateSessionConfig(acClass, null);
+
+            int childDepth = depth + 1;
+            if (childDepth > MaxSessionSearchDepth)
+                return;
+            Guid parentId = acClass.ACClassID;
+            foreach (ACClass childClass in gip.core.datamodel.Database.GlobalDatabase.ACClass
+                .Where(c => c.ParentACClassID == parentId).ToArray())
+            {
+                CollectConfiguredSessionsFromClass(childClass, sessionMap, childDepth);
+            }
+        }
+
+        /// <summary>Metadata check: is the ACClass node an OPCUAClientACSession component
+        /// (its class hierarchy contains the OPCUAClientACSession definition)?</summary>
+        private static bool IsSessionClassNode(ACClass acClass)
+        {
+            if (acClass == null || acClass.ParentACClassID == null)
+                return false;
+            IEnumerable<ACClass> hierarchy = acClass.ClassHierarchy;
+            return hierarchy != null
+                && hierarchy.Any(c => c != null && c.ACIdentifier == OPCUAClientACSession.ClassName);
+        }
+
+        private void CollectConfiguredSessions(IACComponent component, Dictionary<ACClass, OPCUASessionConfig> sessionMap, int depth)
+        {
+            if (component == null || depth > MaxSessionSearchDepth)
+                return;
+
+            ACClass configClass = ResolveSessionConfigClass(component);
+            if (configClass != null && !sessionMap.ContainsKey(configClass))
+            {
+                OPCUASessionConfig config = CreateSessionConfig(configClass,
+                    component as OPCUAClientACSession);
+                sessionMap[configClass] = config;
+            }
+
+            if (component.ACComponentChilds != null)
+            {
+                int childDepth = depth + 1;
+                foreach (IACComponent child in component.ACComponentChilds)
+                {
+                    CollectConfiguredSessions(child, sessionMap, childDepth);
+                }
+            }
+        }
+
+        /// <summary>Returns the ACClass (app-tree node) if the component is an OPCUAClientACSession
+        /// (real instance or proxy), otherwise null.</summary>
+        private static ACClass ResolveSessionConfigClass(IACComponent component)
+        {
+            ACClass configClass = null;
+            OPCUAClientACSession realSession = component as OPCUAClientACSession;
+            if (realSession != null)
+                configClass = realSession.ACType as ACClass;
+            else if (component.IsProxy)
+            {
+                ACClass acType = component.ACType as ACClass;
+                if (acType != null && acType.ClassHierarchy != null
+                    && acType.ClassHierarchy.Any(c => c != null && c.ACIdentifier == OPCUAClientACSession.ClassName))
+                    configClass = acType;
+            }
+            return configClass;
+        }
+
+        private static OPCUASessionConfig CreateSessionConfig(ACClass configClass, OPCUAClientACSession realSession)
+        {
+            OPCUASessionConfig config = new OPCUASessionConfig
+            {
+                ConfigClass = configClass,
+                RealSession = realSession,
+                EndpointURL = GetConfigValue(configClass, nameof(OPCUAClientACSession.EndpointURL), typeof(string)) as string,
+                Username = GetConfigValue(configClass, nameof(OPCUAClientACSession.Username), typeof(string)) as string,
+                Password = GetConfigValue(configClass, nameof(OPCUAClientACSession.Password), typeof(string)) as string,
+            };
+
+            object authModeValue = GetConfigValue(configClass, nameof(OPCUAClientACSession.UserAuthenticationMode), typeof(OPCUserAuthenticationMode));
+            if (authModeValue is OPCUserAuthenticationMode authMode)
+                config.AuthMode = authMode;
+            return config;
+        }
+
+        /// <summary>Reads a persisted [ACPropertyInfo] value of the session component from its
+        /// ACClassProperty.XMLValue (same storage from which ACProperty.RestoreValue restores
+        /// the property when the real instance starts). Works without a real component instance -
+        /// also on a client whose session components only exist as ACComponentProxy.</summary>
+        private static object GetConfigValue(ACClass configClass, string propertyACIdentifier, Type targetType)
+        {
+            ACClassProperty property = FindStoredProperty(configClass, propertyACIdentifier, 0);
+            if (property == null)
+                return null;
+            string xmlValue = property.XMLValue;
+            if (String.IsNullOrEmpty(xmlValue))
+                return null;
+            return DeserializeStoredValue(xmlValue, targetType);
+        }
+
+        private const int MaxSessionSearchDepth = 16;
+        private const int MaxPropertySearchDepth = 16;
+
+        private static ACClassProperty FindStoredProperty(ACClass configClass, string propertyACIdentifier, int depth)
+        {
+            if (configClass == null || depth > MaxPropertySearchDepth)
+                return null;
+            ACClassProperty own = configClass.ACClassProperty_ACClass
+                .Where(c => c.ACIdentifier == propertyACIdentifier && !String.IsNullOrEmpty(c.XMLValue))
+                .FirstOrDefault();
+            if (own != null)
+                return own;
+            ACClass parent = configClass.ACClass1_ParentACClass;
+            return parent == null ? null : FindStoredProperty(parent, propertyACIdentifier, depth + 1);
+        }
+
+        /// <summary>Deserializes like ACProperty.RestoreValue: strings as-is, enums/convertibles via ACConvert.</summary>
+        private static object DeserializeStoredValue(string xmlValue, Type targetType)
+        {
+            if (targetType == null)
+                return xmlValue;
+            if (targetType == typeof(string))
+                return xmlValue;
+            if (targetType.IsEnum)
+            {
+                if (Enum.TryParse(targetType, xmlValue, true, out object parsedEnum))
+                    return parsedEnum;
+                // stored as numeric value
+                return Enum.ToObject(targetType, Convert.ChangeType(xmlValue, Enum.GetUnderlyingType(targetType)));
+            }
+            return ACConvert.ChangeType(xmlValue, targetType, true, gip.core.datamodel.Database.GlobalDatabase);
+        }
+
         private void AutoSelectSession()
         {
             if (_SessionList == null || !_SessionList.Any())
                 return;
 
-            // Prefer the session that owns a subscription instance of the selected class
+            // Prefer the session to which the selected subscription class belongs
             if (CurrentSubscriptionClass != null)
             {
-                foreach (OPCUAClientACSession session in _SessionList)
+                foreach (OPCUASessionConfig sessionConfig in _SessionList)
                 {
-                    if (session.ACComponentChilds == null)
-                        continue;
-                    foreach (IACComponent child in session.ACComponentChilds)
+                    // Prefer the session whose live instance owns the subscription component
+                    if (sessionConfig.RealSession != null && sessionConfig.RealSession.ACComponentChilds != null)
                     {
-                        ACClass childACClass = child.ACType as ACClass;
-                        if (childACClass != null && childACClass.ACClassID == CurrentSubscriptionClass.ACClassID)
+                        foreach (IACComponent child in sessionConfig.RealSession.ACComponentChilds)
                         {
-                            CurrentSession = session;
-                            return;
+                            ACClass childACClass = child.ACType as ACClass;
+                            if (childACClass != null && childACClass.ACClassID == CurrentSubscriptionClass.ACClassID)
+                            {
+                                CurrentSession = sessionConfig;
+                                return;
+                            }
                         }
+                    }
+                    // Metadata fallback: the subscription class is configured as child class of the session class
+                    if (sessionConfig.ConfigClass != null
+                        && IsChildClassOf(CurrentSubscriptionClass, sessionConfig.ConfigClass))
+                    {
+                        CurrentSession = sessionConfig;
+                        return;
                     }
                 }
             }
             CurrentSession = _SessionList.FirstOrDefault();
+        }
+
+        private static bool IsChildClassOf(ACClass acClass, ACClass parentClass, int maxDepth = 64)
+        {
+            int depth = 0;
+            ACClass current = acClass;
+            while (current != null && depth < maxDepth)
+            {
+                if (current.ACClassID == parentClass.ACClassID)
+                    return true;
+                current = current.ACClass1_ParentACClass;
+                depth++;
+            }
+            return false;
         }
 
         /// <summary>
@@ -221,55 +453,52 @@ namespace gip.core.communication
         private Session GetBrowseSession(out string error)
         {
             error = null;
-            OPCUAClientACSession acSession = CurrentSession;
-            if (acSession == null)
+            OPCUASessionConfig sessionConfig = CurrentSession;
+            if (sessionConfig == null)
             {
-                error = "en{'No OPC UA session selected.'}de{'Keine OPC-UA-Session ausgewählt.'}";
+                error = Root.Environment.TranslateMessage(this, "Error50410");
                 return null;
             }
-
-            if (acSession.UASession != null && !acSession.UASession.Disposed
-                && acSession.IsConnected != null && acSession.IsConnected.ValueT)
-                return acSession.UASession;
+            if (String.IsNullOrEmpty(sessionConfig.EndpointURL))
+            {
+                error = Root.Environment.TranslateMessage(this, "Error50411");
+                return null;
+            }
 
             if (_TempSession != null && !_TempSession.Disposed)
                 return _TempSession;
 
-            ApplicationInstance appInstance = acSession.AppInstance;
-            if (appInstance == null || appInstance.ApplicationConfiguration == null)
+            OPCUAClientACSession realSession = sessionConfig.RealSession;
+            // 1. If the real session is connected in this process, browse on it
+            if (realSession != null && realSession.UASession != null && !realSession.UASession.Disposed
+                && realSession.IsConnected != null && realSession.IsConnected.ValueT)
+                return realSession.UASession;
+
+            // 2. Configuration of a running OPCUAClientACService (also if the session is a proxy)
+            ApplicationConfiguration appConfiguration = null;
+            if (realSession != null && realSession.AppInstance != null)
+                appConfiguration = realSession.AppInstance.ApplicationConfiguration;
+            if (appConfiguration == null)
             {
-                error = "en{'The OPC UA client application is not started. Start the OPC UA client service first.'}de{'Die OPC-UA-Client-Anwendung ist nicht gestartet. Zuerst den OPC-UA-Client-Dienst starten.'}";
-                return null;
-            }
-            if (String.IsNullOrEmpty(acSession.EndpointURL))
-            {
-                error = "en{'The session has no endpoint URL configured.'}de{'Die Session hat keine Endpoint-URL konfiguriert.'}";
-                return null;
+                appConfiguration = EnsureLocalAppConfiguration(out error);
+                if (appConfiguration == null)
+                {
+                    error = Root.Environment.TranslateMessage(this, "Error50412", error);
+                    return null;
+                }
             }
 
             try
             {
-                bool useSecurity = acSession.ParentOPCUAClientACService != null && acSession.ParentOPCUAClientACService.HasAppCertificate;
+                bool useSecurity = appConfiguration.SecurityConfiguration?.ApplicationCertificate?.Certificate != null;
                 EndpointDescription endpointDescription = CoreClientUtils
-                    .SelectEndpointAsync(appInstance.ApplicationConfiguration, acSession.EndpointURL, useSecurity, 15000, (ITelemetryContext)null, default)
+                    .SelectEndpointAsync(appConfiguration, sessionConfig.EndpointURL, useSecurity, 15000, (ITelemetryContext)null, default)
                     .GetAwaiter().GetResult();
-                EndpointConfiguration endpointConfiguration = EndpointConfiguration.Create(appInstance.ApplicationConfiguration);
+                EndpointConfiguration endpointConfiguration = EndpointConfiguration.Create(appConfiguration);
                 ConfiguredEndpoint endpoint = new ConfiguredEndpoint(null, endpointDescription, endpointConfiguration);
 
-                _TempSession = OPCUAClientACSession.CreateSession(appInstance.ApplicationConfiguration, endpoint, false, false);
-
-                UserIdentity userIdentity;
-                switch (acSession.UserAuthenticationMode)
-                {
-                    case OPCUserAuthenticationMode.Username:
-                        userIdentity = new UserIdentity(acSession.Username, System.Text.Encoding.UTF8.GetBytes(acSession.Password ?? String.Empty));
-                        break;
-                    default:
-                        // Certificate authentication is not supported for the temporary browse session
-                        userIdentity = new UserIdentity(new AnonymousIdentityToken());
-                        break;
-                }
-                _TempSession.OpenAsync(ClassName, 0, userIdentity, null, true, true, default).GetAwaiter().GetResult();
+                _TempSession = OPCUAClientACSession.CreateSession(appConfiguration, endpoint, false, false);
+                _TempSession.OpenAsync(ClassName, 0, BuildUserIdentity(sessionConfig), null, true, true, default).GetAwaiter().GetResult();
                 return _TempSession;
             }
             catch (Exception e)
@@ -300,6 +529,116 @@ namespace gip.core.communication
         }
 
         private Session _TempSession;
+
+        ApplicationInstance _LocalAppInstance;
+        /// <summary>Loads the OPC UA client application configuration in this process when no
+        /// real OPCUAClientACService instance is running (client mode). Config path is read from
+        /// the configured OPCUAClientACService classes (ACClassConfig), default "OPCUAClient".</summary>
+        private ApplicationConfiguration EnsureLocalAppConfiguration(out string error)
+        {
+            error = null;
+            if (_LocalAppInstance != null)
+                return _LocalAppInstance.ApplicationConfiguration;
+
+            string configSectionName = ResolveClientConfigSectionName();
+            _LocalAppInstance = new ApplicationInstance((ITelemetryContext)null)
+            {
+                ApplicationName = ClassName,
+                ApplicationType = Opc.Ua.ApplicationType.Client,
+                ConfigSectionName = configSectionName,
+            };
+            try
+            {
+                ApplicationConfiguration appConfiguration = _LocalAppInstance
+                    .LoadApplicationConfigurationAsync(true, default).GetAwaiter().GetResult();
+                if (appConfiguration == null)
+                {
+                    _LocalAppInstance = null;
+                    error = Root.Environment.TranslateMessage(this, "Error50413", configSectionName);
+                    return null;
+                }
+                // Create the application certificate if it does not exist yet (needed for SignAndEncrypt)
+                try
+                {
+                    _LocalAppInstance.CheckApplicationInstanceCertificatesAsync(true, null, default).GetAwaiter().GetResult();
+                }
+                catch (Exception ex)
+                {
+                    Messages.LogException(GetACUrl(), ClassName + ".EnsureLocalAppConfiguration", ex);
+                }
+                if (appConfiguration.SecurityConfiguration != null
+                    && appConfiguration.SecurityConfiguration.AutoAcceptUntrustedCertificates)
+                {
+                    // Debug settings like in OPCUAClientACService: accept untrusted certificates
+                    appConfiguration.CertificateValidator.CertificateValidation += (validator, e) =>
+                    {
+                        if (e.Error != null && e.Error.StatusCode == StatusCodes.BadCertificateUntrusted)
+                            e.Accept = true;
+                    };
+                    appConfiguration.CertificateValidator.UpdateAsync(appConfiguration, default).GetAwaiter().GetResult();
+                }
+                return appConfiguration;
+            }
+            catch (Exception e)
+            {
+                Messages.LogException(GetACUrl(), ClassName + ".EnsureLocalAppConfiguration", e);
+                _LocalAppInstance = null;
+                error = "en{'" + e.Message + "'}de{'" + e.Message + "'}";
+                return null;
+            }
+        }
+
+        private string ResolveClientConfigSectionName()
+        {
+            ACComponent root = Root as ACComponent;
+            if (root != null)
+            {
+                foreach (IACComponent component in root.FindChildComponents<IACComponent>(
+                    c => IsClassOfComponent(c, OPCUAClientACService.ClassName), maxChildDepth: MaxSessionSearchDepth))
+                {
+                    OPCUAClientACService realService = component as OPCUAClientACService;
+                    if (realService != null && !String.IsNullOrEmpty(realService.ClientApplicationConfigrationPath))
+                        return realService.ClientApplicationConfigrationPath;
+                    ACClass acType = component.ACType as ACClass;
+                    if (acType != null)
+                    {
+                        string configured = GetConfigValue(acType, nameof(OPCUAClientACService.ClientApplicationConfigrationPath), typeof(string)) as string;
+                        if (!String.IsNullOrEmpty(configured))
+                            return configured;
+                    }
+                }
+            }
+            // example => config file name: OPCUAClient.Config.xml (relative to exe directory)
+            return "OPCUAClient";
+        }
+
+        private static bool IsClassOfComponent(IACComponent component, string classACIdentifier)
+        {
+            ACClass acType = component?.ACType as ACClass;
+            if (acType == null)
+                return false;
+            OPCUAClientACService realService = component as OPCUAClientACService;
+            if (realService != null)
+                return true;
+            if (!component.IsProxy)
+                return false;
+            return acType.ClassHierarchy != null
+                && acType.ClassHierarchy.Any(c => c != null && c.ACIdentifier == classACIdentifier);
+        }
+
+        private UserIdentity BuildUserIdentity(OPCUASessionConfig sessionConfig)
+        {
+            switch (sessionConfig.AuthMode)
+            {
+                case OPCUserAuthenticationMode.Username:
+                    return new UserIdentity(sessionConfig.Username, System.Text.Encoding.UTF8.GetBytes(sessionConfig.Password ?? String.Empty));
+                case OPCUserAuthenticationMode.Certificate:
+                    // Certificate authentication is not supported for the temporary browse session
+                    return new UserIdentity(new AnonymousIdentityToken());
+                default:
+                    return new UserIdentity(new AnonymousIdentityToken());
+            }
+        }
         #endregion
 
         #region Methods => Browse
@@ -321,6 +660,7 @@ namespace gip.core.communication
                 }
 
                 OPCUANodeItem root = new OPCUANodeItem("en{'Objects'}de{'Objekte'}");
+                HookTreeItem(root);
                 root.SetPresentationOptions(true, new ACClassInfoWithItems.VisibilityFilters(), new ACClassInfoWithItems.CheckHandler()
                 {
                     IsCheckboxVisible = true,
@@ -429,6 +769,7 @@ namespace gip.core.communication
                 caption = nodeIdString;
 
             OPCUANodeItem item = new OPCUANodeItem(caption);
+            HookTreeItem(item);
             item.UANodeId = nodeIdString;
             item.UANodeClass = reference.NodeClass;
             item.BrowseName = reference.BrowseName != null ? reference.BrowseName.Name : caption;
@@ -479,7 +820,7 @@ namespace gip.core.communication
                 ACClassProperty pointProperty = FindOPCItemConfigPointProperty();
                 if (pointProperty == null)
                 {
-                    ShowMsg("en{'The selected class has no configuration point of type OPCItemConfig. Drag an OPCUAClientACSubscr into the project tree and select it.'}de{'Die ausgewählte Klasse hat keinen Konfigurationspunkt vom Typ OPCItemConfig. Zuerst einen OPCUAClientACSubscr in den Projektbaum ziehen und diesen auswählen.'}", eMsgLevel.Error);
+                    ShowTranslMsg(eMsgLevel.Error, "Error50417");
                     return;
                 }
 
@@ -511,18 +852,39 @@ namespace gip.core.communication
                 }
 
                 if (added > 0)
-                    OnPropertyChanged(nameof(CurrentSubscriptionClass));
+                {
+                    // Same context as BSOiPlusStudio (Database.ContextIPlus). Persist immediately, so the
+                    // new ACClassProperty rows (and their ACClassConfig with the OPCAddr) are visible in
+                    // BSOiPlusStudio's ConfigACClassPropertyList after re-selecting the subscription class.
+                    MsgWithDetails saveResult = Database.ContextIPlus.ACSaveChanges();
+                    if (saveResult == null || saveResult.IsSucceded())
+                        OnPropertyChanged(nameof(CurrentSubscriptionClass));
+                    else
+                    {
+                        string saveErrors = saveResult.MsgDetails != null
+                            ? String.Join(" ", saveResult.MsgDetails.Select(m => m.Message))
+                            : null;
+                        ShowTranslMsg(eMsgLevel.Error, "Error50418", saveErrors);
+                        return;
+                    }
+                }
 
-                string resultMsg;
+                string translId;
                 if (added == 1)
-                    resultMsg = "en{'Added 1 variable to '" + CurrentSubscriptionClass.ACIdentifier + "'. Skipped: " + skipped + ".}de{'1 Variable zu '" + CurrentSubscriptionClass.ACIdentifier + "' hinzugefügt. Übersprungen: " + skipped + ".}";
+                    translId = "Info50415";
                 else if (added == 0)
-                    resultMsg = "en{'No variable added to '" + CurrentSubscriptionClass.ACIdentifier + "'. Skipped: " + skipped + ".}de{'Keine Variable zu '" + CurrentSubscriptionClass.ACIdentifier + "' hinzugefügt. Übersprungen: " + skipped + ".}";
+                    translId = "Warning50414";
                 else
-                    resultMsg = "en{'Added " + added + " variables to '" + CurrentSubscriptionClass.ACIdentifier + "'. Skipped: " + skipped + ".}de{'" + added + " Variablen zu '" + CurrentSubscriptionClass.ACIdentifier + "' hinzugefügt. Übersprungen: " + skipped + ".}";
+                    translId = "Info50416";
+                // Info50416 has three placeholders: {0}=count, {1}=class, {2}=skipped
+                object[] formatArgs = added > 1
+                    ? new object[] { added, CurrentSubscriptionClass.ACIdentifier, skipped }
+                    : new object[] { CurrentSubscriptionClass.ACIdentifier, skipped };
+                Msg resultMsg = new Msg(this, added > 0 ? eMsgLevel.Info : eMsgLevel.Warning, ClassName, "AddToSubscription", 0,
+                    translId, formatArgs);
                 if (skippedNames.Length > 0)
-                    resultMsg += " (" + skippedNames.ToString() + ")";
-                ShowMsg(resultMsg, added > 0 ? eMsgLevel.Info : eMsgLevel.Warning);
+                    resultMsg.Message += " (" + skippedNames.ToString() + ")";
+                Messages.MsgAsync(resultMsg);
             }
             catch (Exception e)
             {
@@ -555,6 +917,34 @@ namespace gip.core.communication
                          && c.ConfigACClass != null
                          && c.ConfigACClass.ACIdentifier == nameof(OPCItemConfig))
                 .FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Returns true if a subscription variable with the same OPC UA NodeId (OPCItemConfig.OPCAddr)
+        /// is already configured in the class hierarchy of the selected subscription class.
+        /// The config value of such "virtual extended properties" is serialized into the ACClassProperty
+        /// row's own XMLConfig column (ACPropertyManager.Serialize), NOT into ACClassConfig rows.
+        /// Only properties with a non-empty XMLConfig are probed via the indexer, because a plain
+        /// indexer get could try to create a config entry as a side effect (autoCreate=true).
+        /// </summary>
+        private bool IsOPCAddrAlreadySubscribed(ACClassProperty pointProperty, string uaNodeId)
+        {
+            if (String.IsNullOrEmpty(uaNodeId) || CurrentSubscriptionClass == null)
+                return false;
+            string configPointName = pointProperty != null && pointProperty.ConfigACClass != null
+                ? pointProperty.ConfigACClass.ACIdentifier
+                : nameof(OPCItemConfig);
+            foreach (ACClassProperty existingProperty in CurrentSubscriptionClass.Properties.Where(
+                c => c.ACPropUsageIndex != (Int16)Global.ACPropUsages.ConfigPointProperty
+                  && c.ConfigACClass != null
+                  && c.ConfigACClass.ACIdentifier == configPointName
+                  && !String.IsNullOrEmpty(c.XMLConfig)))
+            {
+                OPCItemConfig opcItemConfig = existingProperty[configPointName] as OPCItemConfig;
+                if (opcItemConfig != null && String.Equals(opcItemConfig.OPCAddr, uaNodeId, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
         }
 
         private void CollectVariablesRecursive(Session session, OPCUANodeItem folderItem, ACClassProperty pointProperty,
@@ -591,17 +981,17 @@ namespace gip.core.communication
             if (String.IsNullOrEmpty(nodeItem.UANodeId) || !processedNodeIds.Add(nodeItem.UANodeId))
                 return;
 
-            string identifier = SanitizeIdentifier(nodeItem.BrowseName);
-            if (String.IsNullOrEmpty(identifier))
-                identifier = SanitizeIdentifier(nodeItem.ACCaption);
+            string identifier = BuildIdentifierFromTree(nodeItem);
             if (String.IsNullOrEmpty(identifier))
             {
                 skipped++;
                 return;
             }
 
-            // Skip if a property with this identifier already exists on the class hierarchy
-            if (CurrentSubscriptionClass.Properties.Any(c => String.Compare(c.ACIdentifier, identifier, StringComparison.OrdinalIgnoreCase) == 0))
+            // Skip if the same OPC UA variable (NodeId) is already configured on the subscription
+            // class. Identifier suffixes cannot help here: they would silently create duplicate
+            // subscriptions for the same variable when AddToSubscription is executed repeatedly.
+            if (IsOPCAddrAlreadySubscribed(pointProperty, nodeItem.UANodeId))
             {
                 skipped++;
                 if (skippedNames.Length < 500)
@@ -611,6 +1001,26 @@ namespace gip.core.communication
                     skippedNames.Append(identifier);
                 }
                 return;
+            }
+
+            // Skip if a property with this identifier already exists on the class hierarchy
+            string baseIdentifier = identifier;
+            int suffix = 1;            while (CurrentSubscriptionClass.Properties.Any(c => String.Compare(c.ACIdentifier, identifier, StringComparison.OrdinalIgnoreCase) == 0))
+            {
+                suffix++;
+                if (suffix > 99)
+                {
+                    skipped++;
+                    if (skippedNames.Length < 500)
+                    {
+                        if (skippedNames.Length > 0)
+                            skippedNames.Append(", ");
+                        skippedNames.Append(baseIdentifier);
+                    }
+                    return;
+                }
+                string suffixText = "_" + suffix;
+                identifier = ShortenIdentifierWithHash(baseIdentifier + suffixText);
             }
 
             ACClassProperty acClassProperty = ACClassProperty.NewACObject(Database.ContextIPlus, CurrentSubscriptionClass);
@@ -694,13 +1104,66 @@ namespace gip.core.communication
             }
         }
 
+        /// <summary>Builds the ACIdentifier from the browse-tree hierarchy of the node:
+        /// captions of the parent containers (root node excluded) joined with "_" plus the
+        /// node's own name, e.g. "Trockner_DK_06_RDY_TO_O". This prevents name collisions when
+        /// different folders contain variables with the same browse name.</summary>
+        private string BuildIdentifierFromTree(OPCUANodeItem nodeItem)
+        {
+            string leaf = SanitizeIdentifier(nodeItem.BrowseName) ?? SanitizeIdentifier(nodeItem.ACCaption);
+            if (String.IsNullOrEmpty(leaf))
+                return null;
+
+            List<string> parts = new List<string>();
+            ACClassInfoWithItems current = nodeItem.ParentContainer as ACClassInfoWithItems;
+            while (current != null)
+            {
+                // Exclude the browse-tree root ("en{...}" caption) from the prefix
+                if (current != BrowseTreeRoot)
+                {
+                    string part = SanitizeIdentifier(current.ACCaption);
+                    if (!String.IsNullOrEmpty(part))
+                        parts.Insert(0, part);
+                }
+                current = current.ParentContainerT;
+            }
+            if (parts.Count == 0)
+                return leaf;
+            parts.Add(leaf);
+            string identifier = String.Join("_", parts);
+            identifier = ShortenIdentifierWithHash(identifier);
+            if (Char.IsDigit(identifier[0]))
+                identifier = "_" + identifier;
+            return identifier;
+        }
+
+        /// <summary>Shortens an identifier that exceeds the max length of an ACIdentifier.
+        /// Instead of a blind cut (which can produce collisions) a stable SHA256 hash of the
+        /// full string is appended, so two long identifiers cannot collapse into the same
+        /// shortened name. GetHashCode is NOT used because it is randomized per process.</summary>
+        private static string ShortenIdentifierWithHash(string identifier, int maxLength = 100)
+        {
+            if (String.IsNullOrEmpty(identifier) || identifier.Length <= maxLength)
+                return identifier;
+            using (System.Security.Cryptography.SHA256 sha256 = System.Security.Cryptography.SHA256.Create())
+            {
+                string hash = Convert.ToHexString(
+                    sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(identifier))).ToLowerInvariant();
+                // keep the beginning, append the stable hash - both fit into maxLength
+                string hashSuffix = hash.Substring(0, 16);
+                int keepCount = maxLength - 1 - hashSuffix.Length;
+                if (keepCount < 1)
+                    keepCount = 1;
+                return identifier.Substring(0, keepCount).Trim('_') + "_" + hashSuffix;
+            }
+        }
+
         private static string SanitizeIdentifier(string name)
         {
             if (String.IsNullOrEmpty(name))
                 return null;
             string sanitized = Regex.Replace(name, "[^A-Za-z0-9_]", "_");
-            if (sanitized.Length > 100)
-                sanitized = sanitized.Substring(0, 100);
+            sanitized = ShortenIdentifierWithHash(sanitized);
             if (sanitized.Length == 0)
                 return null;
             if (Char.IsDigit(sanitized[0]))
@@ -714,6 +1177,17 @@ namespace gip.core.communication
             if (Messages == null)
                 return;
             Messages.MsgAsync(new Msg(message, this, level, ClassName, "ShowMsg", 0));
+        }
+
+        /// <summary>
+        /// Shows a translatable message stored in the database (ACClassMessage of this class, e.g. "Error50410").
+        /// The text is resolved via Environment.TranslateMessage in the current UI language.
+        /// </summary>
+        private void ShowTranslMsg(eMsgLevel level, string translID, params object[] parameter)
+        {
+            if (Messages == null)
+                return;
+            Messages.MsgAsync(new Msg(this, level, ClassName, "ShowMsg", 0, translID, parameter));
         }
 
         #endregion
@@ -757,7 +1231,7 @@ namespace gip.core.communication
                 case nameof(IsEnabledBrowse):
                 case nameof(AddToSubscription):
                 case nameof(IsEnabledAddToSubscription):
-                    return new string[] { nameof(CurrentSession), nameof(CurrentSubscriptionClass), nameof(BrowseTreeRoot) };
+                    return new string[] { nameof(CurrentSession), nameof(CurrentSubscriptionClass), nameof(BrowseTreeRoot), nameof(TreeSelectionVersion) };
                 case nameof(RefreshSessionList):
                 case nameof(IsEnabledRefreshSessionList):
                     return new string[] { nameof(InitState) };

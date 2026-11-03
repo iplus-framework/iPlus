@@ -159,7 +159,19 @@ namespace gip.bso.iplus
                 if (acClassProperty.ACPropUsage != Global.ACPropUsages.ConfigPointProperty || acClassProperty.ConfigACClass == null)
                     return null;
 
-                return this.CurrentACClass.ACClassProperty_ACClass.Where(c => c.ParentACClassPropertyID == acClassProperty.ACClassPropertyID).OrderBy(c => c.SortIndex);
+                // Query Database.ContextIPlus directly instead of the tracked navigation collection:
+                // - rows added from another BSO (e.g. BSOOPCUABrowser in client/proxy mode) become visible
+                //   immediately after they are saved, without a SaveChanges in this BSO.
+                // - Entries in EntityState.Deleted (DeleteConfigACClassProperty) have to be filtered
+                //   client-side AFTER materialization (EntityState is unmapped and would break SQL
+                //   translation), so the grid refreshes immediately.
+                return Database.ContextIPlus.ACClassProperty
+                    .Where(c => c.ACClassID == CurrentACClass.ACClassID
+                             && c.ParentACClassPropertyID == acClassProperty.ACClassPropertyID)
+                    .OrderBy(c => c.SortIndex)
+                    .ToList()
+                    .Where(c => c.EntityState != Microsoft.EntityFrameworkCore.EntityState.Deleted)
+                    .ToList();
             }
         }
         #endregion
