@@ -367,7 +367,9 @@ may be shown without them. Derive state from data (e.g. media type from the sele
   * `CloseDesignOnClick="True"`: after the command of the button ran, `VBDesignController.CloseDesign()` navigates back (e.g. `!Delete` on the detail page).
   * Page reload rule (`BSOMaintOrder.ACAction`): the list page reloads when it is entered from any design except the detail page; remembered via `_LastActivatedDesign`.
   Both methods need `IsEnabled<Method>` and a `case` in `HandleExecuteACMethod` like any other ACMethod; new ACMethods must be registered in the DB
-  by starting the server once with class registration.
+  by starting the server once with class registration. Same rule for new properties/classes/enum members (type system): deploy and **log in with Ctrl
+  pressed** so `ACClassManager.RegisterAndUpdateACObjects` re-registers the reflected classes into the ACClass tables — otherwise bindings and
+  `GetPropsToObserveForIsEnabled` observe nothing (see section 8, "Button never re-evaluates...").
 * Mobile conventions (usage `DUMainMobile` 4400 for the explorer, `DULayout` 4210 for pages, no `!New/!Delete/!Save` buttons,
   list pages with 3-5 columns, or a `VBListBox` with `ItemTemplate` and `OpenDesignOnClick` for card lists) are described in `iplus-mobile-design-template.prompt.md` (iPlusUsageDocs/AIPrompts).
 
@@ -395,7 +397,9 @@ Typical bugs and their cause:
 | Grid keeps old rows after Add/Delete | same List instance re-notified |
 | Details/preview keep old object after navigating to another parent object | selection not reset when the new list is empty |
 | Selecting a row does not update the details | `Selected...` setter does not raise the generic `SelectedXxx` property |
-| Button stays disabled/enabled | property missing in `GetPropsToObserveForIsEnabled` |
+| Button stays disabled/enabled | property missing in `GetPropsToObserveForIsEnabled`, **or the property cannot be resolved on the live component** ("GetPropsToObserveForIsEnabled is called, but never re-evaluated" below) |
+| Button never re-evaluates although `GetPropsToObserveForIsEnabled` contains the property | the property/class is **not yet registered in the DB type system**. `ACCommandHelper.ApplyACCommand` resolves each name via `ACUrlTypeInfo` against the live component — a plain `[ACPropertyInfo]` that the class manager has not yet written to the ACClass tables cannot be resolved, no observable is created and the ReactiveCommand never re-fires (silently, only the initial evaluation runs). Log in **with Ctrl pressed** so `ACClassManager.RegisterAndUpdateACObjects` re-registers all reflected classes ([ACClassManager.cs](../../gip.core.autocomponent/ACClassManager/ACClassManager.cs#L2357-L2358)) whenever you added/changed properties, methods or classes in an `[ACClassInfo]` type. |
+| Button does not re-evaluate when a **checkbox in a tree/list** is toggled | item-level changes are invisible to the observer: `ACCommandHelper` can only observe properties that resolve on the *BSO itself*, and the checkboxes live on the item models (e.g. `ACClassInfoWithItems.IsChecked`, cascaded by `VBTreeView`). Use the **version-counter trick**: a plain `[ACPropertyInfo] Int32` property on the BSO that is incremented in the item's `PropertyChanged` handler for `ACClassInfoWithItems.IsCheckedPropName`, and name it in `GetPropsToObserveForIsEnabled`. Reference implementations: `ProdOrderBatchPlanSelectionVersion` (`BSOBatchPlanScheduler`) and `TreeSelectionVersion` (`BSOOPCUABrowser`, incl. `HookTreeItem` for the root + every `CreateNodeItem`). |
 | Image control empty in Avalonia | byte[] bound without `ConverterImagePath`, or the path is not reachable from the client |
 | WCF "TryResolveType" failure on an enum/DTO | type missing `[ACSerializeableInfo]` (+ `[ACClassInfo(..., TACEnum)]` for enums) |
 

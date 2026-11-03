@@ -132,13 +132,40 @@ row (e.g. `BSOiPlusExport.ExportTree`). Plus `UPDATE` of `BSOiPlusStudio.TabConf
 ### Implementation notes (deviations from original plan)
 - `ACClass.Properties` **does** return inherited properties (verified ACClass.cs ~1790) — the
   `OPCProperties` row from base `OPCClientACSubscr` is found.
+- **Sessions are discovered proxy-safe** (client mode): a nested `OPCUASessionConfig` model was replaced by
+  [Model/OPCUASessionConfig.cs](../Model/OPCUASessionConfig.cs), a plain `[ACClassInfo(TACSimpleClass)]` model whose
+  `VBContent`/`VBShowColumns` the layout engine can resolve. `RefreshSessionList` collects real
+  `OPCUAClientACSession` instances **and** proxies (type check via `ACType.ClassHierarchy` by name, never calling
+  anything on the proxy), and reads `EndpointURL`/`UserAuthenticationMode`/`Username`/`Password` from the instance's
+  `ACClassProperty.XMLValue` rows. See `iplus-property-persistence.md` — **`ACClassConfig` is the WRONG table for
+  plain `[ACPropertyInfo]` properties** (that is the `ACPropertyConfig` pattern, e.g. `S7TCPSession`).
+- If no real `OPCUAClientACService` runs in this process, the browser loads `OPCUAClient.Config.xml` itself
+  (`EnsureLocalAppConfiguration`); the config section name is read from the configured client-service classes'
+  `ClientApplicationConfigrationPath` (`ACClassProperty.XMLValue`), default `"OPCUAClient"`.
 - `Root.FindChildComponents<OPCUAClientACSession>()` works (ACComponent.cs:727, depth 0 = unlimited).
 - `Database.ContextIPlus.GetACType(Type)` exists (Database.cs:1828).
 - UA API used: `session.ManagedBrowseAsync(...)` (returns `(IList<ReferenceDescriptionCollection>,
   IList<ServiceResult>)`), `session.ReadNodeAsync(id, NodeClass.Variable, true, ct)`,
   static `ExpandedNodeId.ToNodeId(expandedNodeId, session.NamespaceUris)`.
 - `SortIndex` is set manually via a `NextSortIndex` helper (NewACObject does not set it).
+- User-visible messages are stored as **ACClassMessage** rows (`Error50410`–`Error50417`, `Warning50414`,
+  `Info50415/50416`) and resolved via `new Msg(this, level, ClassName, method, 0, translID, args)` /
+  helper `ShowTranslMsg`. Script: `docs/sql-scripts/BSOOPCUABrowser_Messages.sql` (already applied to
+  IPCDrivesV5; export via VBControlScripts before importing to iPlusV5). Pattern and pitfalls (tuple quotes,
+  apostrophe-before-`{`): see `iplus-messages-and-translations.md`.
 - `MISort` enum has no `Refresh` member — plain numbers used (499/502/510/511/520).
 - Duplicate identifiers are skipped (OrdinalIgnoreCase against `CurrentSubscriptionClass.Properties`),
   folders resolved recursively (`CollectVariablesRecursive`, depth 32, max 10000 nodes).
+- **The same OPC UA variable (NodeId) is added only once**, even across repeated `AddToSubscription` runs:
+  `IsOPCAddrAlreadySubscribed` compares `OPCItemConfig.OPCAddr` of all existing config properties.
+  Important: the `OPCItemConfig` value of these virtual extended properties lives in the **`ACClassProperty.XMLConfig`
+  column** (`ACPropertyManager.Serialize`), *not* in `ACClassConfig` rows — so the probe gates the indexer read on
+  `!String.IsNullOrEmpty(c.XMLConfig)` (see `iplus-property-persistence.md` §1). The check happens BEFORE the
+  `_2`/`_3` suffix loop, so a duplicate NodeId is reported as "Skipped" instead of silently creating a second
+  subscription for the same variable.
+- `AddToSubscription` persists via `Database.ContextIPlus.ACSaveChanges()` (returns **null** on success!) and
+  raises `OnPropertyChanged(nameof(CurrentSubscriptionClass))`; on failure shows `Error50418` and returns.
+- `DeleteConfigACClassProperty` (BSOiPlusStudio) only `Remove`s (state `Deleted`); the deleted row stays in the
+  tracked `ACClassProperty_ACClass` navigation until a later save — the studio's `ConfigACClassPropertyList`
+  getter therefore excludes rows with `EntityState == EntityState.Deleted` so the grid refreshes immediately.
 - Temp session is closed in `ACDeInit` via `CloseTempSession()`.
