@@ -2329,7 +2329,7 @@ namespace gip.core.reporthandlerwpf
             }
         }
 
-        [ACMethodInfo("", "en{'Apply configuration'}de{Konfiguration anwenden}", 9999)]
+        [ACMethodInfo("", "en{'Apply configuration'}de{'Konfiguration anwenden'}", 9999)]
         public void ApplyConfig()
         {
             CreateOrUpdateConfigs();

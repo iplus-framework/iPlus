@@ -25,7 +25,7 @@ namespace gip.core.layoutengine
     /// <summary xml:lang="de">
     /// Steuerelemet zur Anzeige der Anlage- und Aktualisierungsdaten eines Datensatzes.
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'VBUpdateInfo'}de{VBUpdateInfo''}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'VBUpdateInfo'}de{'VBUpdateInfo'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public partial class VBUpdateInfo : UserControl, IVBContent, IACObject
     {
         string _VBContent;
