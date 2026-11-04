@@ -320,7 +320,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        List<ACChildInstanceInfo> tempList = null;
+        List<ACChildInstanceInfo> _UnfilteredInstanceInfoList = null;
 
         bool _UpdateInstanceInfoList;
 
@@ -344,17 +344,24 @@ namespace gip.core.autocomponent
                 _UpdateInstanceInfoList = false;
             }
 
+            if (_UnfilteredInstanceInfoList == null)
+            {
+                _InstanceInfoList = null;
+                OnPropertyChanged("InstanceInfoList");
+                return;
+            }
+
             if (!string.IsNullOrEmpty(ACIdentifierSearch) && string.IsNullOrEmpty(ACClassSearch))
-                InstanceInfoList = tempList.Where(c => c.ACIdentifier.ToLower().Contains(ACIdentifierSearch.ToLower()));
+                InstanceInfoList = _UnfilteredInstanceInfoList.Where(c => c.ACIdentifier.ToLower().Contains(ACIdentifierSearch.ToLower()));
 
             else if (!string.IsNullOrEmpty(ACClassSearch) && string.IsNullOrEmpty(ACIdentifierSearch))
-                InstanceInfoList = tempList.Where(c => ((ACClass)c.ACType.Value).InheritedASQN.ToLower().Contains(ACClassSearch.ToLower()));
+                InstanceInfoList = _UnfilteredInstanceInfoList.Where(c => ((ACClass)c.ACType.Value).InheritedASQN.ToLower().Contains(ACClassSearch.ToLower()));
 
             else if (!string.IsNullOrEmpty(ACClassSearch) && !string.IsNullOrEmpty(ACIdentifierSearch))
-                InstanceInfoList = tempList.Where(c => c.ACIdentifier.ToLower().Contains(ACIdentifierSearch.ToLower())
+                InstanceInfoList = _UnfilteredInstanceInfoList.Where(c => c.ACIdentifier.ToLower().Contains(ACIdentifierSearch.ToLower())
                                                   && ((ACClass)c.ACType.Value).InheritedASQN.ToLower().Contains(ACClassSearch.ToLower()));
             else
-                InstanceInfoList = tempList;
+                InstanceInfoList = _UnfilteredInstanceInfoList;
         }
 
         public bool IsEnabledSearch()
@@ -387,13 +394,13 @@ namespace gip.core.autocomponent
                                                                                                                         WithWorkflows = WorkflowNodesShow,
                                                                                                                         ReturnLocalProperties = ShowLocalProp
             });
-            tempList = _RootACComponent.GetChildInstanceInfo(searchDepth, new ChildInstanceInfoSearchParam() { ReturnAsFlatList = true, 
+            _UnfilteredInstanceInfoList = _RootACComponent.GetChildInstanceInfo(searchDepth, new ChildInstanceInfoSearchParam() { ReturnAsFlatList = true, 
                                                                                                                 ContainsPropertyName = searchPropertyName,
                                                                                                                 WithWorkflows = WorkflowNodesShow,
                                                                                                                 ReturnLocalProperties = ShowLocalProp
-            }).ToList();
+            })?.ToList() ?? new List<ACChildInstanceInfo>();
             if (root != null && root.Any())
-                tempList.Insert(0, root.FirstOrDefault());
+                _UnfilteredInstanceInfoList.Insert(0, root.FirstOrDefault());
         }
 
 #endregion
@@ -454,7 +461,7 @@ namespace gip.core.autocomponent
                 searchDepth = int.Parse(SearchDepth);
                 UpdateInstanceInfoList(PropertyNameSearch);
                 acMemberList.Clear();
-                foreach (ACChildInstanceInfo instanceInfo in tempList)
+                foreach (ACChildInstanceInfo instanceInfo in _UnfilteredInstanceInfoList ?? Enumerable.Empty<ACChildInstanceInfo>())
                 {
                     if (instanceInfo.MemberValues != null && instanceInfo.MemberValues.Any())
                     {
