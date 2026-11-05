@@ -156,6 +156,30 @@ namespace gip.core.communication
             {
                 _CurrentBrowseItem = value;
                 OnPropertyChanged();
+                UpdateNodeDataType(_CurrentBrowseItem);
+            }
+        }
+
+        /// <summary>Loads the data type of an OPC UA variable lazily (on first selection) for the info panel.</summary>
+        private void UpdateNodeDataType(OPCUANodeItem nodeItem)
+        {
+            if (nodeItem == null || !nodeItem.IsVariable || !String.IsNullOrEmpty(nodeItem.DataTypeText))
+                return;
+            try
+            {
+                Session session = GetBrowseSession(out string error);
+                if (session == null)
+                {
+                    ShowMsg(error, eMsgLevel.Error);
+                    return;
+                }
+                Type systemType = ReadVariableSystemType(session, nodeItem.UANodeId);
+                if (systemType != null)
+                    nodeItem.DataTypeText = systemType.Name;
+            }
+            catch (Exception e)
+            {
+                ShowMsg(e.Message, eMsgLevel.Error);
             }
         }
 
@@ -1245,7 +1269,10 @@ namespace gip.core.communication
     /// Tree item model for the OPC UA address space. Inherits the checkbox behaviour of
     /// ACClassInfoWithItems (VBTreeView renders a checkbox and cascades checks to all loaded
     /// children automatically).
+    /// Declared as ACClass with ACPropertyInfo-attributes so that the layout engine can resolve
+    /// VBContent/VBTextBox bindings such as <c>CurrentBrowseItem\UANodeId</c> for the info panel.
     /// </summary>
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'OPC UA Node'}de{'OPC UA Knoten'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, true)]
     public class OPCUANodeItem : ACClassInfoWithItems
     {
         public OPCUANodeItem()
@@ -1257,26 +1284,86 @@ namespace gip.core.communication
         {
         }
 
+        string _UANodeId;
         /// <summary>Node id of the OPC UA node, e.g. "ns=2;s=SPS_W4_4PA_Trockner.DK_06.RDY_TO_O".</summary>
+        [ACPropertyInfo(400, "", "en{'Node id'}de{'Knoten-ID'}")]
         public string UANodeId
         {
-            get;
-            set;
+            get { return _UANodeId; }
+            set
+            {
+                _UANodeId = value;
+                OnPropertyChanged();
+            }
         }
 
+        string _BrowseName;
         /// <summary>Browse name of the OPC UA node (used to derive the ACIdentifier).</summary>
+        [ACPropertyInfo(401, "", "en{'Browse name'}de{'Browse-Name'}")]
         public string BrowseName
         {
-            get;
-            set;
+            get { return _BrowseName; }
+            set
+            {
+                _BrowseName = value;
+                OnPropertyChanged();
+            }
         }
 
+        NodeClass _UANodeClass;
         public NodeClass UANodeClass
         {
-            get;
-            set;
+            get { return _UANodeClass; }
+            set
+            {
+                _UANodeClass = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(UANodeClassText));
+                OnPropertyChanged(nameof(IsVariable));
+            }
         }
 
+        /// <summary>Node class as display text (the Opc.Ua enum has no TACEnum declaration).</summary>
+        [ACPropertyInfo(402, "", "en{'Node class'}de{'Knotenklasse'}")]
+        public string UANodeClassText
+        {
+            get
+            {
+                switch (UANodeClass)
+                {
+                    case NodeClass.Variable:
+                        return Translator.GetTranslation("en{'Variable'}de{'Variable'}");
+                    case NodeClass.Object:
+                        return Translator.GetTranslation("en{'Object'}de{'Objekt'}");
+                    case NodeClass.Method:
+                        return Translator.GetTranslation("en{'Method'}de{'Methode'}");
+                    case NodeClass.ObjectType:
+                        return Translator.GetTranslation("en{'Object type'}de{'Objekttyp'}");
+                    case NodeClass.VariableType:
+                        return Translator.GetTranslation("en{'Variable type'}de{'Variablentyp'}");
+                    case NodeClass.DataType:
+                        return Translator.GetTranslation("en{'Data type'}de{'Datentyp'}");
+                    default:
+                        return UANodeClass.ToString();
+                }
+            }
+        }
+
+        string _DataTypeText;
+        /// <summary>Data type of an OPC UA variable ("Int16", "Boolean", ...) - lazy loaded by
+        /// the browser when the node gets selected.</summary>
+        [ACPropertyInfo(403, "", "en{'Data type'}de{'Datentyp'}")]
+        public string DataTypeText
+        {
+            get { return _DataTypeText; }
+            set
+            {
+                _DataTypeText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        [ACPropertyInfo(404, "", "en{'Is variable'}de{'Ist Variable'}")]
         public bool IsVariable
         {
             get
