@@ -4021,7 +4021,7 @@ namespace gip.bso.iplus
                     result = IsEnabledNewConfigACClassProperty();
                     return true;
                 case nameof(StartOPCUABrowser):
-                    StartOPCUABrowser();
+                    result = StartOPCUABrowser();
                     return true;
                 case nameof(IsEnabledStartOPCUABrowser):
                     result = IsEnabledStartOPCUABrowser();
