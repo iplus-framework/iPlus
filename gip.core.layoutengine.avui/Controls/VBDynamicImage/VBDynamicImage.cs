@@ -46,11 +46,12 @@ namespace gip.core.layoutengine.avui
                 if (DataContext is IACObject acObject)
                 {
                     IACObject objForDesign = acObject;
-                    
+                    object cmdResult = null;
+
                     // Resolve VBContent path if specified
                     if (!string.IsNullOrEmpty(VBContent))
                     {
-                        object cmdResult = acObject.ACUrlCommand(VBContent);
+                        cmdResult = acObject.ACUrlCommand(VBContent);
                         if (cmdResult is IACObject acResult)
                             objForDesign = acResult;
                         else if (cmdResult is string strResult && !string.IsNullOrEmpty(strResult))
@@ -59,6 +60,19 @@ namespace gip.core.layoutengine.avui
                             LoadFromResourceKey(strResult.Replace(Const.ContextDatabase + "\\", ""));
                             return;
                         }
+                    }
+
+                    // VBContent is set, but ACUrlCommand returned no result:
+                    // Treat VBContent itself as the name of a global resource in the
+                    // application resources (e.g. a DrawingImage stored by a consumer
+                    // XAML in AppResourceDict). VBDynamicImage is the Avalonia
+                    // equivalent of WPF's Image + {vb:VBStaticResource ResourceKey=...}.
+                    // Do NOT fall back to the DataContext's icon design, which would
+                    // load an unrelated icon.
+                    if (cmdResult == null && !string.IsNullOrEmpty(VBContent))
+                    {
+                        LoadFromResourceKey(VBContent);
+                        return;
                     }
 
                     if (objForDesign is DesignManagerToolItem designManagerToolItem)
@@ -95,11 +109,12 @@ namespace gip.core.layoutengine.avui
                             acClassDesign = objForDesign as ACClassDesign;
                         else
                             acClassDesign = objForDesign.ACType.GetDesign(objForDesign, Global.ACUsages.DUIcon, Global.ACKinds.DSBitmapResource);
-                        
+
                         if (acClassDesign != null)
                         {
                             string resourceKey = acClassDesign.GetACUrl().Replace(Const.ContextDatabase + "\\", "");
                             LoadFromResourceKey(resourceKey, acClassDesign);
+                            return;
                         }
                     }
                 }
@@ -143,9 +158,10 @@ namespace gip.core.layoutengine.avui
                 // First, check if already cached in application resources
                 if (wpfApplication != null && wpfApplication.Resources.TryGetResource(resourceKey, null, out var cachedResource))
                 {
-                    if (cachedResource is Bitmap cachedBitmap)
+                    // Accept any IImage (Bitmap, DrawingImage from e.g. AppResourceDict,...)
+                    if (cachedResource is IImage cachedImage)
                     {
-                        Source = cachedBitmap;
+                        Source = cachedImage;
                         return;
                     }
                 }

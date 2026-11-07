@@ -99,14 +99,17 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                if (Header is IACObject headerAsACObject)
+                if (Header is Control headerAsControl)
+                {
+                    // Legacy mode: Header is a generated control (VBTextBlock/Grid with
+                    // VBShowColumns). Keep the explicitly assigned ContentACObject —
+                    // replacing it with the control would break drag&drop payload
+                    // resolution (ACContentList must yield the bound data item).
+                }
+                else if (Header is IACObject headerAsACObject)
                 {
                     if (!ReferenceEquals(_ACObject, headerAsACObject))
                         _ACObject = headerAsACObject;
-                }
-                else if (_ACObject == null)
-                {
-                    _ACObject = Header as IACObject;
                 }
                 return _ACObject;
             }

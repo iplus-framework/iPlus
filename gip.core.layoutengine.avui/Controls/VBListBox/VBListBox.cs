@@ -63,7 +63,14 @@ namespace gip.core.layoutengine.avui
 
         private void EnsureContextChangeTracking()
         {
-            string rootSegment = ExtractRootBindingSegment(VBContent);
+            // Track the root segment of VBSource (the list), NOT VBContent (the
+            // selected item). VBContent changes on every selection click (TwoWay
+            // SelectedValue write-back); a rebind there would wipe the selection.
+            // VBSource only changes when BSO code replaces the list (iPlus
+            // null-trick), and the _lastObservedRootValue reference-compare in
+            // ContextRoot_PropertyChanged filters no-op notifications.
+            string trackingContent = !string.IsNullOrEmpty(VBSource) ? VBSource : VBContent;
+            string rootSegment = ExtractRootBindingSegment(trackingContent);
             if (string.IsNullOrEmpty(rootSegment))
             {
                 DetachContextChangeTracking();
@@ -131,8 +138,25 @@ namespace gip.core.layoutengine.avui
                 if (!IsLoaded)
                     return;
 
+                // The BSO mutates the watched list in place and re-publishes the same
+                // reference (iPlus null-trick). Avalonia coalesces identity-equal binding
+                // pushes, so re-binding ItemsSource with the same list would not reset
+                // the item containers. Clear the value first so the reinstated binding
+                // performs a null -> list transition that actually raises.
+                // The selection must be released BEFORE clearing ItemsSource: Avalonia
+                // keeps the realized, still-selected ListBoxItem container alive even
+                // when its source item is gone (orphaned container remains visible).
+                SelectedIndex = -1;
+                SelectedItem = null;
+                ItemsSource = null;
                 _Initialized = false;
                 InitVBControl();
+                // The VirtualizingStackPanel does not reliably unrealize the orphaned
+                // container of a removed, selected item during a same-reference
+                // ItemsSource re-assignment (iPlus null-trick). Force a full
+                // container refresh: unrealizes everything and re-realizes from
+                // the current items.
+                RefreshContainers();
             }
 
             Dispatcher.UIThread.Post(RebindAction, DispatcherPriority.Normal);
@@ -439,12 +463,11 @@ namespace gip.core.layoutengine.avui
             if (_Initialized || DataContext == null || ContextACObject == null)
                 return;
 
-            //EnsureContextChangeTracking();
-
             if (DisableContextMenu)
                 ContextFlyout = null;
 
             _Initialized = true;
+            UpdateDragDropHandlers();
             LoadCyclicDataRefreshProperty();
             if (String.IsNullOrEmpty(VBContent))
                 return;
@@ -508,6 +531,19 @@ namespace gip.core.layoutengine.avui
 
             if (!String.IsNullOrEmpty(VBAccess))
                 acAccess = VBAccess;
+
+            // Arm the PropertyChanged-based rebind now that VBSource is resolved
+            // (see GetACSource above): iPlus BSO code refreshes lists by setting the
+            // list property to null and back to the SAME list instance
+            // (e.g. RemoveSource/RemoveTarget). Avalonia coalesces both notifications
+            // to the same reference, so the plain ItemsSource binding never updates.
+            // EnsureContextChangeTracking subscribes to the PropertyChanged of the
+            // VBSource binding root and triggers InitVBControl again
+            // (see ContextRoot_PropertyChanged). It must NOT track VBContent (the
+            // selected-item property), otherwise every selection click would wipe
+            // the selection through a rebind.
+            EnsureContextChangeTracking();
+
             if (string.IsNullOrEmpty(acAccess))
             {
                 ACClass navQueryClass = dsACTypeInfo.ValueTypeACClass.PrimaryNavigationquery();
@@ -726,6 +762,15 @@ namespace gip.core.layoutengine.avui
             if (!_Initialized)
                 return;
             _Initialized = false;
+            if (_DragDropHandlersAttached)
+            {
+                _DragDropHandlersAttached = false;
+                DragDrop.SetAllowDrop(this, false);
+                RemoveHandler(DragDrop.DragEnterEvent, OnDragEnter);
+                RemoveHandler(DragDrop.DragOverEvent, OnDragOver);
+                RemoveHandler(DragDrop.DropEvent, OnDrop);
+                RemoveHandler(DragDrop.DragLeaveEvent, OnDragLeave);
+            }
             DetachContextChangeTracking();
             if (bso != null && bso is IACBSO)
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
@@ -941,23 +986,20 @@ namespace gip.core.layoutengine.avui
 
         private void UpdateDragDropHandlers()
         {
-            if (DragEnabled == DragMode.Enabled)
-            {
-                DragDrop.SetAllowDrop(this, true);
-                AddHandler(DragDrop.DragEnterEvent, OnDragEnter);
-                AddHandler(DragDrop.DragOverEvent, OnDragOver);
-                AddHandler(DragDrop.DropEvent, OnDrop);
-                AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
-            }
-            else
-            {
-                DragDrop.SetAllowDrop(this, false);
-                RemoveHandler(DragDrop.DragEnterEvent, OnDragEnter);
-                RemoveHandler(DragDrop.DragOverEvent, OnDragOver);
-                RemoveHandler(DragDrop.DropEvent, OnDrop);
-                RemoveHandler(DragDrop.DragLeaveEvent, OnDragLeave);
-            }
+            // VBListBox_PointerPressed (drag *out*) stays gated on DragEnabled,
+            // but the *drop* side must always be attached: WPF overrode OnDrop
+            // unconditionally (parity). DragEnabled is only about initiating drags.
+            if (_DragDropHandlersAttached)
+                return;
+            _DragDropHandlersAttached = true;
+            DragDrop.SetAllowDrop(this, true);
+            AddHandler(DragDrop.DragEnterEvent, OnDragEnter);
+            AddHandler(DragDrop.DragOverEvent, OnDragOver);
+            AddHandler(DragDrop.DropEvent, OnDrop);
+            AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
         }
+
+        private bool _DragDropHandlersAttached;
 
         void VB_SourceUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
         {
@@ -1461,10 +1503,16 @@ namespace gip.core.layoutengine.avui
             }
 
             IACInteractiveObject item = VBDragDrop.GetDropObject(e);
-            if (item != null && BSOACComponent != null && e.Source != null && e.Source is IACInteractiveObject)
+            // e.Source may be a template child (e.g. VBTextBlock inside the ItemTemplate)
+            // which is not an IACInteractiveObject. Walk up to the VBListBox whose VBContent
+            // is the drop target (WPF parity: WPF routed the Drop back to the ListBox itself).
+            IACInteractiveObject target = e.Source as IACInteractiveObject
+                ?? (e.Source as Visual)?.GetSelfAndVisualAncestors().OfType<IACInteractiveObject>().FirstOrDefault()
+                ?? this;
+            if (item != null && BSOACComponent != null)
             {
                 ACActionArgs args = new ACActionArgs(item, 0, 0, Global.ElementActionType.Drop);
-                BSOACComponent.ACActionToTarget(e.Source as IACInteractiveObject, args);
+                BSOACComponent.ACActionToTarget(target, args);
             }
         }
 

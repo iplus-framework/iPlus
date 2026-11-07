@@ -209,6 +209,12 @@ namespace gip.core.datamodel
             // Xaml.Behaviors-based triggers and copy default Setter values to owner attributes.
             avaloniaXAML = ConvertControlThemeTriggersToBehaviors(avaloniaXAML);
 
+            // WPF triggers revert their setters when the trigger condition becomes false.
+            // The Xaml.Behaviors DataTriggerBehavior/MultiDataTriggerBehavior only revert
+            // their reversible actions when RevertOnFalse=true, which must therefore be forced
+            // on every converted trigger behavior (auto-detected property availability).
+            avaloniaXAML = ForceRevertOnFalseOnBehaviors(avaloniaXAML);
+
             // Convert WPF ControlTemplate.Triggers blocks into Avalonia nested styles
             // (ControlTemplate has no Triggers property in Avalonia).
             avaloniaXAML = ConvertControlTemplateTriggers(avaloniaXAML);
@@ -565,6 +571,114 @@ namespace gip.core.datamodel
 
             root.SetAttribute("xmlns:" + prefix, namespaceUri);
             return prefix;
+        }
+
+        /// <summary>
+        /// Cached result of the runtime check whether the loaded Xaml.Behaviors assembly
+        /// supports the RevertOnFalse property of DataTriggerBehavior (shipped with newer
+        /// package versions). Mirrors the TriggerRevertCompatibilityMode.Auto behavior of
+        /// the designer: only emit the attribute when the property actually exists, so
+        /// layouts stay loadable with older package versions.
+        /// </summary>
+        private static bool? _BehaviorsSupportRevertOnFalse;
+
+        private static bool BehaviorsSupportRevertOnFalse
+        {
+            get
+            {
+                if (_BehaviorsSupportRevertOnFalse.HasValue)
+                    return _BehaviorsSupportRevertOnFalse.Value;
+
+                bool supported = false;
+                try
+                {
+                    // Fork builds merge all behaviors into Xaml.Behaviors.dll, NuGet packages
+                    // ship core behaviors in Xaml.Behaviors.Interactions.dll.
+                    string[] candidateAssemblies = new[] { "Xaml.Behaviors", "Xaml.Behaviors.Interactions" };
+                    foreach (string assemblyName in candidateAssemblies)
+                    {
+                        System.Reflection.Assembly assembly = AppDomain.CurrentDomain.GetAssemblies()
+                            .FirstOrDefault(a => string.Equals(a.GetName().Name, assemblyName, StringComparison.OrdinalIgnoreCase));
+                        if (assembly == null)
+                        {
+                            try
+                            {
+                                assembly = System.Reflection.Assembly.Load(new System.Reflection.AssemblyName(assemblyName));
+                            }
+                            catch
+                            {
+                                try
+                                {
+                                    string dllPath = System.IO.Path.Combine(AppContext.BaseDirectory, assemblyName + ".dll");
+                                    if (System.IO.File.Exists(dllPath))
+                                        assembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyPath(dllPath);
+                                }
+                                catch
+                                {
+                                    continue;
+                                }
+                            }
+                        }
+                        var dataTriggerType = assembly?.GetType("Avalonia.Xaml.Interactions.Core.DataTriggerBehavior", false);
+                        var revertProperty = dataTriggerType?.GetProperty("RevertOnFalse");
+                        if (revertProperty != null && revertProperty.PropertyType == typeof(bool))
+                        {
+                            supported = true;
+                            break;
+                        }
+                    }
+                }
+                catch
+                {
+                    supported = false;
+                }
+                _BehaviorsSupportRevertOnFalse = supported;
+                return supported;
+            }
+        }
+
+        /// <summary>
+        /// Adds RevertOnFalse="True" to every DataTriggerBehavior / MultiDataTriggerBehavior
+        /// element that does not specify it explicitly. WPF triggers revert their setters
+        /// when the condition becomes false - without RevertOnFalse the converted
+        /// ChangePropertyActions would never be undone. Behaviors written with an explicit
+        /// RevertOnFalse="False" are left untouched.
+        /// </summary>
+        private static string ForceRevertOnFalseOnBehaviors(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+            if (!BehaviorsSupportRevertOnFalse)
+                return xaml;
+            if (xaml.IndexOf("DataTriggerBehavior", StringComparison.OrdinalIgnoreCase) < 0)
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument { PreserveWhitespace = true };
+                doc.LoadXml(xaml);
+
+                var behaviors = doc.SelectNodes(
+                    "//*[local-name() = 'DataTriggerBehavior' or local-name() = 'MultiDataTriggerBehavior']");
+                if (behaviors == null)
+                    return xaml;
+
+                bool changed = false;
+                foreach (var behavior in behaviors.OfType<XmlElement>())
+                {
+                    if (behavior.HasAttribute("RevertOnFalse"))
+                        continue;
+                    behavior.SetAttribute("RevertOnFalse", "True");
+                    changed = true;
+                }
+
+                return changed ? doc.OuterXml : xaml;
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
         }
 
         private static string ConvertControlThemeTriggersToBehaviors(string xaml)
@@ -4224,6 +4338,12 @@ namespace gip.core.datamodel
         {
             if (String.IsNullOrEmpty(xmlLayout))
                 return xmlLayout;
+
+            // Force RevertOnFalse="True" on trigger behaviors, also for already-converted
+            // layouts that were stored before the property existed. WPF triggers revert
+            // their setters when the condition becomes false, so RevertOnFalse is required
+            // for WPF-parity on every runtime/designer load.
+            xmlLayout = ForceRevertOnFalseOnBehaviors(xmlLayout);
             // Beispiel XAML-Layout
             // <StackPanel>
             //      <Button x:Name="BtnKlick">Klick mich</Button>
