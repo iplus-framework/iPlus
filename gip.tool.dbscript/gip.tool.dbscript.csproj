@@ -31,7 +31,7 @@
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework initial install script generator</Title>
     <Description>Generates an idempotent initial-install.sql (schema + seed data) from a reference database</Description>
-    <PackageLicenseExpression>GPL-3.0-or-later OR LicenseRef-Commercial</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageTags>iplus-framework;database;tool</PackageTags>
     <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>

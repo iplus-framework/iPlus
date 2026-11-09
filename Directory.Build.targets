@@ -41,8 +41,16 @@
 		<!-- Fallback license for projects that don't declare one themselves.
 		     gip holds the copyright on its own packages, so they are dual-licensed:
 		     usable under the open (GPL-3) edition and under a commercial runtime
-		     license. See docs/HANDOVER-dual-licensing-distribution.md, section 7. -->
-		<PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == '' and '$(PackageLicenseFile)' == '' and '$(PackageLicenseUrl)' == ''">GPL-3.0-or-later OR LicenseRef-Commercial</PackageLicenseExpression>
+		     license. See docs/HANDOVER-dual-licensing-distribution.md, section 7.
+		     IMPORTANT: the *public* NuGet expression must stay 'GPL-3.0-or-later'.
+		     nuget.org only accepts SPDX identifiers approved by OSI/FSF and rejects
+		     'LicenseRef-*' with HTTP 400 ("Invalid license metadata"). The commercial
+		     half of the dual license is therefore carried in the package description
+		     and in the runtime metadata (IPlusLicenseExpression below), not in the
+		     nuspec expression. -->
+		<PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == '' and '$(PackageLicenseFile)' == '' and '$(PackageLicenseUrl)' == ''">GPL-3.0-or-later</PackageLicenseExpression>
+		<DualLicensed Condition="'$(DualLicensed)' == '' and '$(PackageLicenseExpression)' == 'GPL-3.0-or-later' and '$(PackageLicenseFile)' == '' and '$(PackageLicenseUrl)' == ''">true</DualLicensed>
+		<PackageDescription Condition="'$(DualLicensed)' == 'true'">Dual-licensed: usable under GPL-3.0-or-later or under a commercial license from iplus-framework (https://iplus-framework.com/).$(PackageDescription)</PackageDescription>
 		<RepositoryType>git</RepositoryType>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -188,7 +196,11 @@
         -->
         <PropertyGroup>
                 <!-- Derive from the NuGet license expression so that no csproj needs editing.
-                     gip.ext.opctoolbox declares MIT and therefore stays MIT. -->
+                     The public nuspec expression is 'GPL-3.0-or-later' (nuget.org rejects
+                     'LicenseRef-*'), but the gip/iPlusMES packages remain dual-licensed at
+                     runtime, so remap it to the internal dual expression here. Projects that
+                     declare another SPDX identifier (e.g. gip.ext.opctoolbox = MIT) keep it. -->
+                <IPlusLicenseExpression Condition="'$(IPlusLicenseExpression)' == '' and '$(DualLicensed)' == 'true'">GPL-3.0-or-later OR LicenseRef-Commercial</IPlusLicenseExpression>
                 <IPlusLicenseExpression Condition="'$(IPlusLicenseExpression)' == '' and '$(PackageLicenseExpression)' != ''">$(PackageLicenseExpression)</IPlusLicenseExpression>
                 <IPlusLicenseExpression Condition="'$(IPlusLicenseExpression)' == ''">GPL-3.0-or-later</IPlusLicenseExpression>
         </PropertyGroup>

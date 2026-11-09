@@ -31,7 +31,7 @@
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework software licensing</Title>
     <Description>Offline, signed license files for iPlus (replaces USB dongle validation)</Description>
-    <PackageLicenseExpression>GPL-3.0-or-later OR LicenseRef-Commercial</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageTags>iplus-framework;licensing</PackageTags>
     <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>

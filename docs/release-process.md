@@ -420,15 +420,26 @@ embedded in `gip.core.licensing` (`FrameworkPublicKey.pem`).
 
 ### Package license metadata
 
-Every gip package is **dual-licensed** and declares it in NuGet and in the
-assembly:
+Every gip package is **dual-licensed** and declares it in the assembly metadata.
+The *public* NuGet expression is `GPL-3.0-or-later` — **nuget.org only accepts
+SPDX identifiers approved by OSI/FSF and rejects `LicenseRef-*` with HTTP 400**
+("Invalid license metadata"). The commercial half of the dual license is carried
+in the package description instead:
 
 ```xml
-<PackageLicenseExpression>GPL-3.0-or-later OR LicenseRef-Commercial</PackageLicenseExpression>
+<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+<!-- Appended by Directory.Build.targets: -->
+<PackageDescription>Dual-licensed: usable under GPL-3.0-or-later or under a
+commercial license from iplus-framework (https://iplus-framework.com/).</PackageDescription>
 ```
 
-`Directory.Build.targets` derives `IPlusLicenseExpression` from that property and
-generates an assembly attribute:
+Do **not** put `LicenseRef-Commercial` into `PackageLicenseExpression` — pushing
+such a package to nuget.org fails with HTTP 400. Commercial-only modules use
+`<PackageLicenseFile>` (embedded EULA text) instead of an expression, because
+they can never have a valid SPDX identifier.
+
+`Directory.Build.targets` remaps the public expression to the internal dual
+expression via the `DualLicensed` property and generates an assembly attribute:
 
 ```csharp
 [assembly: AssemblyMetadata("iPlusLicense", "GPL-3.0-or-later OR LicenseRef-Commercial")]
@@ -440,7 +451,8 @@ projects set `<GenerateAssemblyInfo>false</GenerateAssemblyInfo>`; the custom
 to `Compile` instead.
 
 At runtime `ACClassManager.RegisterAssemblyTypes` reads the attribute into
-`PackageLicenseRegistry`, and `License.IsPackageLicensed` applies the mixing rule:
+`PackageLicenseRegistry`, and `License.IsPackageLicensed` applies the mixing rule
+(this is the *runtime* `iPlusLicense` metadata expression, not the nuspec one):
 
 | Package expression | Commercial runtime | Open runtime |
 |---|---|---|
@@ -458,14 +470,15 @@ to resolve the license issue.
 
 All packages are published on **nuget.org** under the
 [iplus-framework organisation profile](https://www.nuget.org/profiles/iplus-framework).
-There is no private feed — commercial modules are separate packages that carry the
-`LicenseRef-Commercial` expression.
+There is no private feed — commercial modules are separate packages that carry a
+`PackageLicenseFile` (embedded EULA text), because nuget.org rejects
+`LicenseRef-*` license expressions.
 
 ```bash
 # 1. Pack (writes to ./local-packages)
 ./build/pack-local.sh Release
 
-# 2. Verify the license metadata before pushing
+# 2. Verify the license metadata before pushing (must NOT contain LicenseRef-*)
 for pkg in local-packages/*.nupkg; do
   unzip -p "$pkg" '*.nuspec' | grep -o '<license[^/]*/>' | head -1
 done

@@ -19,7 +19,7 @@
 | 9 | Build and verify new projects | ✅ done | `dotnet build` + `dotnet test` + `publish-release.sh` for `desktop-linux`, `service` and `browser` |
 | 10 | Package license metadata mechanism (decided) | ✅ done | see [§7](#7-license-metadata--gplcommercial-mixing-decided-2026-10-25) |
 | 11 | `IPlusLicenseExpression` → `AssemblyMetadata` MSBuild target | ✅ done | [Directory.Build.targets](../Directory.Build.targets) |
-| 12 | Dual-license gip's own packages (`GPL-3.0-or-later OR LicenseRef-Commercial`) | ✅ done | 43 gip + 24 iPlusMES csproj files + [Directory.Build.targets](../Directory.Build.targets) |
+| 12 | Dual-license gip's own packages — public NuGet expression `GPL-3.0-or-later`, internal runtime expression `GPL-3.0-or-later OR LicenseRef-Commercial` (nuget.org rejects `LicenseRef-*`: [§7.2](#72-vocabulary--reuse-spdx-do-not-invent-one)) | ✅ done | 43 gip + 24 iPlusMES csproj files + [Directory.Build.targets](../Directory.Build.targets) |
 | 13 | `PackageLicenseRegistry` (package → expression, classification) | ✅ done | [PackageLicenseRegistry.cs](../gip.core.datamodel/ACHelperclasses/ACLicense/PackageLicenseRegistry.cs) |
 | 14 | Re-enable `License.IsPackageLicensed` / `IsComponentLicensed` + mixing rule | ✅ done | [License.cs](../gip.core.datamodel/ACHelperclasses/ACLicense/License.cs) |
 | 15 | Multi-issuer PKI chain (`IssuerPublicKey` in `DeveloperIssuer`, `IssuerKeyId` in `Product`) | ✅ done | `gip.core.licensing` + [LicenseVerifier.cs](../gip.core.licensing/LicenseVerifier.cs) |
@@ -253,14 +253,15 @@ rule already exist. It only has to follow six conventions:
 |---|---|---|---|
 | 1 | Source location | **Separate private repository** — never the public repo, or the module becomes GPL | — |
 | 2 | NuGet `PackageId` | `iPlus.Commercial.<Module>` | `.csproj` |
-| 3 | `PackageLicenseExpression` | `LicenseRef-Commercial` | `.csproj` — the `GenerateIPlusLicenseAttribute` target turns it into the assembly metadata automatically |
+| 3 | License metadata | `PackageLicenseExpression=LicenseRef-Commercial` for local/feed-internal use, **`PackageLicenseFile` (embedded EULA) for packages published to nuget.org** — nuget.org rejects `LicenseRef-*` expressions with HTTP 400; set `IPlusLicenseExpression=Commercial` in both cases | `.csproj` + [Directory.Build.targets](../Directory.Build.targets) |
 | 4 | `ACPackageName` | `gip.Commercial.<Module>` | `[ACClassInfo(...)]` on every class |
 | 5 | Assembly name | `gip.commercial.<module>.dll` | `.csproj` — matched by `*.commercial.*.dll` in `ACClassManager.AssemblyNameSearchPattern` |
 | 6 | Delivery | NuGet reference (bundled at publish) **or** a module-pack zip dropped into the app base dir | — |
 
 **Why this works without new code:**
 
-1. `PackageLicenseExpression` → `AssemblyMetadata("iPlusLicense", "LicenseRef-Commercial")`
+1. `PackageLicenseExpression` (`LicenseRef-Commercial`) or `IPlusLicenseExpression=Commercial`
+   → `AssemblyMetadata("iPlusLicense", "LicenseRef-Commercial")`
    via the existing `GenerateIPlusLicenseAttribute` target in
    [Directory.Build.targets](../Directory.Build.targets).
 2. `ACClassManager.RegisterAssemblyTypes` reads the metadata into
@@ -426,10 +427,16 @@ party cannot relicense their GPL code, so combining it with commercially license
 violate the GPL. This is exactly the "no mixing" constraint.
 
 **Decision (a):** gip's own packages are marked **dual-licensed**. Legally sound because gip
-holds the copyright. Verified that `dotnet pack` accepts the expression and emits
-`<license type="expression">GPL-3.0-or-later OR LicenseRef-Commercial</license>` into the
-`.nuspec` (probe project, 2026-10-25). `LicenseRef-Commercial` is the SPDX-correct form for a
-non-standard license; `Commercial` alone is also accepted by NuGet but is not a valid SPDX id.
+holds the copyright. `dotnet pack` emits the expression into the `.nuspec`, **but nuget.org
+rejects `LicenseRef-*` at upload with HTTP 400** ("Invalid license metadata: The license
+identifier(s) 'LicenseRef-Commercial' is(are) not recognized", 2026-11-09) — nuget.org only
+accepts SPDX identifiers approved by OSI/FSF, and `licenses.nuget.org` does not host custom
+licenses. The public nuspec expression is therefore `GPL-3.0-or-later`, the commercial offer
+is stated in `PackageDescription` (both set up in
+[Directory.Build.targets](../Directory.Build.targets) via the `DualLicensed` property), and
+the **runtime** metadata keeps the full `GPL-3.0-or-later OR LicenseRef-Commercial`
+expression through the `IPlusLicenseExpression` remap. `Commercial` alone is also not a
+valid SPDX id — commercial-only modules use `<PackageLicenseFile>` (embedded EULA text).
 
 #### 7.3 How the attribute gets into the DLL — and the gotcha
 

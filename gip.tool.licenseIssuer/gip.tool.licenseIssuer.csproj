@@ -28,7 +28,7 @@
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework license issuer</Title>
     <Description>Command line tool to create and verify signed iPlus license files</Description>
-    <PackageLicenseExpression>GPL-3.0-or-later OR LicenseRef-Commercial</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageTags>iplus-framework;licensing;tool</PackageTags>
     <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>

@@ -35,7 +35,7 @@
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework installer and updater</Title>
     <Description>Cross-platform installer and updater for iPlus (Windows, Linux, macOS)</Description>
-    <PackageLicenseExpression>GPL-3.0-or-later OR LicenseRef-Commercial</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageTags>iplus-framework;installer;updater;tool</PackageTags>
     <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
