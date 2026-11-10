@@ -858,30 +858,30 @@ namespace gip.core.layoutengine
             }
 
             DataGridCell cell = null;
-            // Wähle Zeile aus wenn rechte Maustaste geklickt wird
-            if (SelectionUnit == DataGridSelectionUnit.FullRow)
-            {
-                DependencyObject dep = (DependencyObject)e.OriginalSource;
+            DependencyObject dep = (DependencyObject)e.OriginalSource;
 
-                while ((dep != null) && !(dep is DataGridCell) && !(dep is DataGridColumnHeader))
+            while ((dep != null) && !(dep is DataGridCell) && !(dep is DataGridColumnHeader))
+            {
+                dep = VisualTreeHelper.GetParent(dep);
+            }
+
+            if (dep == null)
+                return;
+
+            // Merkt die Zelle, auf welche die rechte Maustaste geklickt wurde (für "Copy cell to clipboard")
+            cell = dep as DataGridCell;
+            _RightClickedCellInfo = cell != null ? new DataGridCellInfo(cell) : new DataGridCellInfo();
+
+            // Wähle Zeile aus wenn rechte Maustaste geklickt wird
+            if (cell != null && SelectionUnit == DataGridSelectionUnit.FullRow)
+            {
+                while ((dep != null) && !(dep is DataGridRow))
                 {
                     dep = VisualTreeHelper.GetParent(dep);
                 }
-
-                if (dep == null)
-                    return;
-
-                if (dep is DataGridCell)
-                {
-                    cell = dep as DataGridCell;
-                    while ((dep != null) && !(dep is DataGridRow))
-                    {
-                        dep = VisualTreeHelper.GetParent(dep);
-                    }
-                    DataGridRow row = dep as DataGridRow;
-                    if (row != null)
-                        this.SelectedIndex = FindRowIndex(row);
-                }
+                DataGridRow row = dep as DataGridRow;
+                if (row != null)
+                    this.SelectedIndex = FindRowIndex(row);
             }
 
             UIElement uiElement = e.OriginalSource as UIElement;
@@ -3010,6 +3010,7 @@ namespace gip.core.layoutengine
         }
 
         private bool _CopyToClipboard = false;
+        private DataGridCellInfo _RightClickedCellInfo = new DataGridCellInfo();
         /// <summary>
         /// Copies the content of selected area to clipboard.
         /// </summary>
@@ -3070,6 +3071,49 @@ namespace gip.core.layoutengine
 
                 if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
                     datamodel.Database.Root.Messages.LogException("VBDataGrid", "CopyToClipboard", msg);
+            }
+            _CopyToClipboard = false;
+        }
+
+        /// <summary>
+        /// Copies the content of the cell on which the context menu was opened to the clipboard.
+        /// </summary>
+        /// <summary xml:lang="de">
+        /// Kopiert den Inhalt der Zelle, auf welche die rechte Maustaste geklickt wurde, in die Zwischenablage.
+        /// </summary>
+        [ACMethodInteraction("", "en{'Copy cell to clipboard'}de{'Zelle in Zwischenablage kopieren'}", (short)102, false)]
+        public virtual void CopyCellToClipboard()
+        {
+            DataGridCellInfo cellInfo = _RightClickedCellInfo.IsValid ? _RightClickedCellInfo : CurrentCell;
+            if (!cellInfo.IsValid || cellInfo.Column == null || cellInfo.Item == null || cellInfo.Item is CollectionViewGroup)
+                return;
+            _CopyToClipboard = true;
+            try
+            {
+                DataGridClipboardCopyMode lastMode = ClipboardCopyMode;
+                ClipboardCopyMode = DataGridClipboardCopyMode.ExcludeHeader;
+                object content;
+                try
+                {
+                    content = cellInfo.Column.OnCopyingCellClipboardContent(cellInfo.Item);
+                }
+                finally
+                {
+                    ClipboardCopyMode = lastMode;
+                }
+                if (content != null)
+                    Clipboard.SetText(content.ToString());
+                else
+                    Clipboard.Clear();
+            }
+            catch (Exception e)
+            {
+                string msg = e.Message;
+                if (e.InnerException != null && e.InnerException.Message != null)
+                    msg += " Inner:" + e.InnerException.Message;
+
+                if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
+                    datamodel.Database.Root.Messages.LogException("VBDataGrid", "CopyCellToClipboard", msg);
             }
             _CopyToClipboard = false;
         }
