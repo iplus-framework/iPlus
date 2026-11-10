@@ -195,6 +195,11 @@ namespace gip.bso.iplus
                 OnPropertyChanged("GroupList");
                 OnPropertyChanged("UserGroupList");
 
+                if (_SelectedDesignTargetUsers == null || _SelectedDesignTargetUsers.Count > 0)
+                    SelectedDesignTargetUsers = new List<VBUser>();
+                OnPropertyChanged(nameof(DesignTargetUserList));
+                OnPropertyChanged(nameof(CurrentUserDesignList));
+
                 OnPropertyChanged("VBUserACProjectList");
                 OnPropertyChanged("ACProjectList");
             }
@@ -894,7 +899,7 @@ namespace gip.bso.iplus
         }
 
 
-        [ACMethodInfo("CleanUserDesign", "en{'Clean user designs'}de{'Klar Benutzerdesigns'}", 999)]
+        [ACMethodInfo("CleanUserDesign", "en{'Delete designs of current user'}de{'Designs von aktuellem Benutzer löschen'}", 999)]
         public void CleanUserDesign()
         {
             if (!IsEnabledCleanUserDesign())
@@ -904,6 +909,8 @@ namespace gip.bso.iplus
             {
                 userClassDesign.DeleteACObject(Database, false);
             }
+            ACSaveChanges();
+            OnPropertyChanged(nameof(CurrentUserDesignList));
         }
 
         public bool IsEnabledCleanUserDesign()
@@ -911,12 +918,109 @@ namespace gip.bso.iplus
             return CurrentUser != null;
         }
 
+        #region Methods -> User Design copies
+
+        ///////////////////////////////////////////////////////////////////////
+        /// <summary>
+        /// The _ selected design target users
+        /// </summary>
+        List<VBUser> _SelectedDesignTargetUsers = null;
+        /// <summary>
+        /// Gets or sets the list of users to whom the personalized designs of the current user are copied.
+        /// Bound as VBContent of a VBDataGrid: because this property is enumerable, the grid
+        /// automatically selects multiple rows and pushes the List&lt;VBUser&gt; of selected rows back here.
+        /// </summary>
+        [ACPropertySelected(513, "DesignTargetUser")]
+        public List<VBUser> SelectedDesignTargetUsers
+        {
+            get
+            {
+                return _SelectedDesignTargetUsers;
+            }
+            set
+            {
+                _SelectedDesignTargetUsers = value;
+                OnPropertyChanged(nameof(SelectedDesignTargetUsers));
+            }
+        }
+
+        /// <summary>
+        /// Gets the list of users (except the current one) to whom the personalized designs can be copied.
+        /// </summary>
+        [ACPropertyList(514, "DesignTargetUser")]
+        public IEnumerable<VBUser> DesignTargetUserList
+        {
+            get
+            {
+                if (CurrentUser == null)
+                    return null;
+                return Db.VBUser.Where(c => c.VBUserID != CurrentUser.VBUserID).OrderBy(c => c.VBUserName).Select(c => c);
+            }
+        }
+
+        /// <summary>
+        /// Gets the personalized designs (VBUserACClassDesign) of the current user,
+        /// so the UI can show whether and which ones exist.
+        /// </summary>
+        [ACPropertyList(515, "CurrentUserDesign")]
+        public IEnumerable<VBUserACClassDesign> CurrentUserDesignList
+        {
+            get
+            {
+                if (CurrentUser == null)
+                    return null;
+                return CurrentUser.VBUserACClassDesign_VBUser.OrderBy(c => c.ACClassDesign != null ? c.ACClassDesign.ACIdentifier : c.ACIdentifier);
+            }
+        }
+
+        /// <summary>
+        /// For every selected target user: deletes all personalized designs (VBUserACClassDesign)
+        /// and copies the personalized designs of the current user with fresh entity keys.
+        /// </summary>
+        [ACMethodCommand("CopyUserDesign", "en{'Copy designs of current user to selected users'}de{'Designs aktuellem Benutzer auf ausgewählte Benutzer kopieren'}", 999)]
+        public void CopyUserDesign()
+        {
+            if (!IsEnabledCopyUserDesign())
+                return;
+            List<VBUser> targetUsers = SelectedDesignTargetUsers.Where(c => c.VBUserID != CurrentUser.VBUserID).ToList();
+            foreach (VBUser targetUser in targetUsers)
+            {
+                VBUserACClassDesign[] targetDesigns = targetUser.VBUserACClassDesign_VBUser.ToArray();
+                foreach (VBUserACClassDesign targetDesign in targetDesigns)
+                {
+                    targetDesign.DeleteACObject(Db, false);
+                }
+
+                VBUserACClassDesign[] sourceDesigns = CurrentUser.VBUserACClassDesign_VBUser.ToArray();
+                foreach (VBUserACClassDesign sourceDesign in sourceDesigns)
+                {
+                    VBUserACClassDesign newDesign = VBUserACClassDesign.NewACObject(Db, targetUser);
+                    if (sourceDesign.ACClassDesignID.HasValue)
+                        newDesign.ACClassDesignID = sourceDesign.ACClassDesignID;
+                    newDesign.ACIdentifier = sourceDesign.ACIdentifier;
+                    newDesign.XMLDesign = sourceDesign.XMLDesign;
+                }
+            }
+            ACSaveChanges();
+            OnPropertyChanged(nameof(DesignTargetUserList));
+            OnPropertyChanged(nameof(CurrentUserDesignList));
+            SelectedDesignTargetUsers = new List<VBUser>();
+        }
+
+        public bool IsEnabledCopyUserDesign()
+        {
+            return CurrentUser != null && SelectedDesignTargetUsers != null
+                && SelectedDesignTargetUsers.Any(c => c.VBUserID != CurrentUser.VBUserID);
+        }
+
+        #endregion
+
         #region Methods -> User Design replaces
 
         /// <summary>
         /// Source Property: ReplaceBSO
         /// </summary>
-        [ACMethodInfo("ReplaceBSO", "en{'Replace'}de{'Ersetzen'}", 500, true)]
+        [ACMethodCommand("ReplaceBSO", "en{'Replace'}de{'Ersetzen'}", 500, true)]
         public void ReplaceBSO()
         {
             if (!IsEnabledReplaceBSO())
@@ -1052,6 +1156,24 @@ namespace gip.bso.iplus
                 case nameof(TestMethod):
                     result = TestMethod();
                     return true;
+                case nameof(CleanUserDesign):
+                    CleanUserDesign();
+                    return true;
+                case nameof(IsEnabledCleanUserDesign):
+                    result = IsEnabledCleanUserDesign();
+                    return true;
+                case nameof(ReplaceBSO):
+                    ReplaceBSO();
+                    return true;
+                case nameof(IsEnabledReplaceBSO):
+                    result = IsEnabledReplaceBSO();
+                    return true;
+                case nameof(CopyUserDesign):
+                    CopyUserDesign();
+                    return true;
+                case nameof(IsEnabledCopyUserDesign):
+                    result = IsEnabledCopyUserDesign();
+                    return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
@@ -1068,7 +1190,12 @@ namespace gip.bso.iplus
                 case nameof(IsEnabledDelete):
                 case nameof(UserClone):
                 case nameof(TestMethod):
+                case nameof(CleanUserDesign):
+                case nameof(IsEnabledCleanUserDesign):
                     return new string[] { nameof(CurrentUser), nameof(SelectedUser) };
+                case nameof(ReplaceBSO):
+                case nameof(IsEnabledReplaceBSO):
+                    return new string[] { nameof(SourceBSO), nameof(TargetBSO) };
                 case nameof(AssignGroup):
                 case nameof(IsEnabledAssignGroup):
                     return new string[] { nameof(CurrentUser), nameof(SelectedGroup) };
@@ -1085,6 +1212,9 @@ namespace gip.bso.iplus
                 case nameof(UnassignAllACProject):
                 case nameof(IsEnabledUnassignAllACProject):
                     return new string[] { nameof(CurrentUserInstance), nameof(SelectedAssignedVBUserACProject) };
+                case nameof(CopyUserDesign):
+                case nameof(IsEnabledCopyUserDesign):
+                    return new string[] { nameof(CurrentUser), nameof(SelectedDesignTargetUsers) };
 
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName);
