@@ -620,6 +620,12 @@ namespace gip.bso.iplus
         [ACMethodInteraction("VBUser", Const.Delete, (short)MISort.Delete, true, "CurrentUser")]
         public void Delete()
         {
+            if (CurrentUser != null && CurrentUser.VBUserACProject_VBUser.Where(c => c.IsServer).Any())
+            {
+                // Error50801
+                Messages.Msg(new Msg(this, eMsgLevel.Error, nameof(BSOUser), nameof(Delete), 625, "Error50801"));
+                return;
+            }
             Msg msg = CurrentUser.DeleteACObject(Db, true);
             if (msg != null)
             {
