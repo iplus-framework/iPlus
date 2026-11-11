@@ -85,6 +85,11 @@ while [ "$#" -gt 0 ]; do
 	esac
 done
 
+# archive() cd's into the publish folder before zipping, so a relative OUT
+# would resolve the zip target against that subfolder (CI passes
+# `-o ./artifacts/release`). Normalize to an absolute path up front.
+OUT="$(mkdir -p "$OUT" && cd "$OUT" && pwd)"
+
 if [ -z "$VERSION" ]; then
 	VERSION="$(sed -n 's/.*<IPlusPackageVersion Condition=.*>\([^<]*\)<\/IPlusPackageVersion>.*/\1/p' \
 		"$ROOT/build/iPlus.Package.props" | head -1)"
