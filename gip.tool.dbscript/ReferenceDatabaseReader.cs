@@ -120,6 +120,63 @@ ORDER BY c.column_id;";
         }
 
         /// <summary>
+        /// Returns all self-referencing foreign keys as (referencingColumn, referencedColumn).
+        /// Tables like ACClass have several (BasedOnACClassID AND ParentACClassID) — every
+        /// one must be satisfied by the emitted row order.
+        /// </summary>
+        public async Task<List<(string ReferencingColumn, string ReferencedColumn)>> GetSelfReferencesAsync(
+            string schema, string table)
+        {
+            const string sql = @"
+SELECT fc.name, rc.name
+FROM sys.foreign_keys fk
+INNER JOIN sys.foreign_key_columns fkc ON fkc.constraint_object_id = fk.object_id
+INNER JOIN sys.columns fc ON fc.object_id = fkc.parent_object_id AND fc.column_id = fkc.parent_column_id
+INNER JOIN sys.columns rc ON rc.object_id = fkc.referenced_object_id AND rc.column_id = fkc.referenced_column_id
+WHERE fk.parent_object_id = fk.referenced_object_id
+  AND fk.parent_object_id = OBJECT_ID(@qualifiedTable);";
+
+            List<(string, string)> result = new List<(string, string)>();
+            await using SqlConnection connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+            await using SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.Add(new SqlParameter("@qualifiedTable", SqlDbType.NVarChar, 384)
+                { Value = SqlLiteralWriter.QuoteIdentifier(schema) + "." + SqlLiteralWriter.QuoteIdentifier(table) });
+            await using SqlDataReader reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+                result.Add((reader.GetString(0), reader.GetString(1)));
+            return result;
+        }
+
+        /// <summary>
+        /// Returns all rowversion (timestamp) columns of a table. These are
+        /// system-generated and read-only — they must never be INSERTed and are
+        /// excluded from the export.
+        /// </summary>
+        public async Task<List<string>> GetRowVersionColumnsAsync(string schema, string table)
+        {
+            const string sql = @"
+SELECT c.name
+FROM sys.columns c
+INNER JOIN sys.tables t ON c.object_id = t.object_id
+INNER JOIN sys.schemas s ON t.schema_id = s.schema_id
+WHERE s.name = @schema AND t.name = @table
+  AND c.system_type_id = TYPE_ID('timestamp')
+ORDER BY c.column_id;";
+
+            List<string> columns = new List<string>();
+            await using SqlConnection connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+            await using SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.Add(new SqlParameter("@schema", SqlDbType.NVarChar, 128) { Value = schema });
+            command.Parameters.Add(new SqlParameter("@table", SqlDbType.NVarChar, 128) { Value = table });
+            await using SqlDataReader reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+                columns.Add(reader.GetString(0));
+            return columns;
+        }
+
+        /// <summary>
         /// Returns the identity columns of a table (needed for SET IDENTITY_INSERT).
         /// </summary>
         public async Task<List<string>> GetIdentityColumnsAsync(string schema, string table)

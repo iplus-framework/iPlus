@@ -36,6 +36,7 @@ namespace gip.tool.installerAndUpdater.Services
             CancellationToken cancellationToken)
         {
             string stagingFolder = string.Empty;
+            GitHubRelease? downloadedRelease = null;
 
             try
             {
@@ -53,6 +54,8 @@ namespace gip.tool.installerAndUpdater.Services
 
                     if (release == null)
                         return InstallResult.Fail("No release found in " + options.GitHubRepository + ".");
+
+                    downloadedRelease = release;
 
                     string productPrefix = options.Product == ProductKind.Mes ? "imes-" : "iplus-";
                     GitHubAsset? asset = GitHubReleaseService.SelectAsset(
@@ -113,6 +116,15 @@ namespace gip.tool.installerAndUpdater.Services
                     }
 
                     string scriptPath = ResolveInitialInstallScript(options, payloadRoot);
+                    if (string.IsNullOrEmpty(scriptPath) && downloadedRelease != null)
+                    {
+                        // The release zips do not contain the initial-install script (CI
+                        // generates it in a separate stage and uploads it as its own asset).
+                        // Download it into the target folder, which the resolver also scans
+                        // and which keeps it available for later reinstallations.
+                        scriptPath = await TryDownloadSqlAssetAsync(
+                            downloadedRelease, options.TargetPath, options.Product, progress, cancellationToken);
+                    }
                     if (!string.IsNullOrEmpty(scriptPath))
                     {
                         progress?.Report(new ProgressReport(
@@ -211,6 +223,41 @@ namespace gip.tool.installerAndUpdater.Services
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Downloads the <c>initial-install-*.sql</c> asset of the release into
+        /// <paramref name="targetPath"/> and returns the local path, or an empty
+        /// string when the release has no matching script asset.
+        /// </summary>
+        /// <remarks>
+        /// The release zips never contain the initial-install script — CI generates
+        /// it in a separate stage and uploads it as its own release asset. This
+        /// makes a "create database + apply script" install from a GitHub release
+        /// work without the user having to download the script by hand.
+        /// </remarks>
+        private async Task<string> TryDownloadSqlAssetAsync(
+            GitHubRelease release,
+            string targetPath,
+            ProductKind product,
+            IProgress<ProgressReport>? progress,
+            CancellationToken cancellationToken)
+        {
+            string prefix = product == ProductKind.Mes ? "initial-install-mes" : "initial-install-iplus";
+            GitHubAsset? asset = release.Assets.FirstOrDefault(a =>
+                a.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) &&
+                a.Name.EndsWith(".sql", StringComparison.OrdinalIgnoreCase))
+                ?? release.Assets.FirstOrDefault(a =>
+                    a.Name.StartsWith("initial-install", StringComparison.OrdinalIgnoreCase) &&
+                    a.Name.EndsWith(".sql", StringComparison.OrdinalIgnoreCase));
+
+            if (asset == null)
+                return string.Empty;
+
+            string localPath = Path.Combine(targetPath, asset.Name);
+            progress?.Report(new ProgressReport("Downloading " + asset.Name + "…", -1));
+            await _github.DownloadAsync(asset, localPath, progress, cancellationToken);
+            return localPath;
         }
 
         /// <summary>

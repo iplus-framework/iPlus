@@ -27,6 +27,23 @@ namespace gip.tool.dbscript
             return root.Parse(args).InvokeAsync();
         }
 
+        /// <summary>
+        /// Replaces the initial catalog in a connection string with a database name that
+        /// must not exist on the server, so sqlpackage's Script action generates a full
+        /// create script instead of an empty diff.
+        /// </summary>
+        private static string DummyTargetConnectionString(string connectionString)
+        {
+            System.Data.Common.DbConnectionStringBuilder builder =
+                new System.Data.Common.DbConnectionStringBuilder
+                {
+                    ConnectionString = connectionString
+                };
+            builder["Initial Catalog"] = "iPlusSchemaScriptDummy";
+            builder.Remove("AttachDbFilename");
+            return builder.ConnectionString;
+        }
+
         private static Command GenerateCommand()
         {
             Option<string> connectionString = new Option<string>("--connection-string", "-c")
@@ -116,7 +133,19 @@ namespace gip.tool.dbscript
                     await extractor.ExtractDacpacAsync(cs, dacpacPath);
 
                     Console.WriteLine("Generating schema script ...");
-                    await extractor.GenerateSchemaScriptAsync(dacpacPath, schemaScriptPath);
+                    // The target must point to a *non-existent* database on the reachable
+                    // reference server: sqlpackage connects to it to determine the target
+                    // state and scripts a full CREATE when the database is absent. Using the
+                    // reference database itself would diff to an empty script; an unreachable
+                    // dummy address would block for minutes in connection retries.
+                    string dummyTarget = DummyTargetConnectionString(cs);
+                    await extractor.GenerateSchemaScriptAsync(dacpacPath, schemaScriptPath, dummyTarget);
+                    // The schema section is embedded into the initial-install script, which
+                    // runs inside an already created database (the installer creates it and
+                    // the script header forbids re-applying). Remove sqlpackage's SQLCMD
+                    // prelude (sqlcmd-mode check, USE [master], DROP/CREATE DATABASE) so the
+                    // section only contains schema statements.
+                    SchemaExtractor.StripSqlCmdPrelude(schemaScriptPath);
                 }
 
                 Console.WriteLine("Reading seed data ...");

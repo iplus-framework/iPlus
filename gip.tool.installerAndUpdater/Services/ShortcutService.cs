@@ -87,11 +87,16 @@ namespace gip.tool.installerAndUpdater.Services
 
             try
             {
+                // UseShellExecute must be false on Linux: it routes through
+                // xdg-open/KIO, which classifies files by extension — an
+                // executable named "gip.iplus.client.avui.Desktop" is mistaken
+                // for a freedesktop .desktop entry ("has no Type=... entry")
+                // instead of being executed. Direct exec avoids that.
                 ProcessStartInfo startInfo = new ProcessStartInfo
                 {
                     FileName = executable,
                     WorkingDirectory = targetPath,
-                    UseShellExecute = true
+                    UseShellExecute = !OperatingSystem.IsLinux()
                 };
                 Process.Start(startInfo);
                 return true;

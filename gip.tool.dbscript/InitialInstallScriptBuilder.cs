@@ -125,9 +125,24 @@ namespace gip.tool.dbscript
                 return string.Empty;
             }
 
+            // Rowversion (timestamp) columns are system-generated and read-only:
+            // inserting them always fails with "Cannot insert an explicit value
+            // into a timestamp column.", so they must not be exported.
+            List<string> rowVersionColumns = await _reader.GetRowVersionColumnsAsync(schema, table);
+            List<string> removedRowVersions = rowVersionColumns
+                .Where(rv => columns.RemoveAll(c => string.Equals(c, rv, StringComparison.OrdinalIgnoreCase)) > 0)
+                .ToList();
+            if (removedRowVersions.Count > 0)
+                warnings.Add("Table " + schema + "." + table + ": excluded rowversion column(s) "
+                             + string.Join(", ", removedRowVersions) + ".");
+
             List<IReadOnlyList<object?>> rows = await _reader.ReadRowsAsync(schema, table, columns, seedTable.Filter);
             if (rows.Count == 0)
                 return string.Empty;
+
+            List<(string, string)> selfReferences = await _reader.GetSelfReferencesAsync(schema, table);
+            if (selfReferences.Count > 0)
+                rows = OrderRowsBySelfReferences(rows, columns, selfReferences, table, warnings);
 
             List<string> identityColumns = await _reader.GetIdentityColumnsAsync(schema, table);
             bool hasIdentity = identityColumns.Count > 0;
@@ -149,8 +164,6 @@ namespace gip.tool.dbscript
                 schema, table, columns, rows,
                 emitBatchSeparators: !seedTable.InsertOnlyWhenEmpty);
             if (seedTable.InsertOnlyWhenEmpty)
-                sb.Append(Indent(insert, "    "));
-            else
                 sb.Append(insert);
 
             if (hasIdentity)
@@ -161,6 +174,128 @@ namespace gip.tool.dbscript
 
             sb.Append("GO\n");
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Stable topological sort of rows satisfying ALL self-referencing FKs of the
+        /// table (e.g. ACClass has BasedOnACClassID AND ParentACClassID): no row is
+        /// emitted while any of its self-FK parent rows is still pending, so the
+        /// inserts pass the constraints without disabling them. Rows whose parent is
+        /// not part of the exported set (or NULL parents) impose no constraint.
+        /// Cycles are left in original order and reported as a warning.
+        /// </summary>
+        private List<IReadOnlyList<object?>> OrderRowsBySelfReferences(
+            List<IReadOnlyList<object?>> rows,
+            List<string> columns,
+            List<(string ReferencingColumn, string ReferencedColumn)> selfReferences,
+            string table,
+            List<string> warnings)
+        {
+            List<(int ReferencingIndex, int ReferencedIndex)> edges = new List<(int, int)>();
+            foreach (var (referencing, referenced) in selfReferences)
+            {
+                int referencingIndex = columns.FindIndex(
+                    c => string.Equals(c, referencing, StringComparison.OrdinalIgnoreCase));
+                int referencedIndex = columns.FindIndex(
+                    c => string.Equals(c, referenced, StringComparison.OrdinalIgnoreCase));
+                edges.Add((referencingIndex, referencedIndex));
+            }
+            if (edges.Any(e => e.ReferencingIndex < 0 || e.ReferencedIndex < 0))
+            {
+                warnings.Add("Table " + table + ": self-FK columns not exported, rows left unordered.");
+                return rows;
+            }
+
+            // Map every FK key -> all row indexes owning that key (one edge may match several rows).
+            List<Dictionary<string, int>> positionsByKey = new List<Dictionary<string, int>>();
+            foreach ((_, int referencedIndex) in edges)
+            {
+                Dictionary<string, int> positions = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                for (int i = 0; i < rows.Count; i++)
+                    positions[SqlLiteralWriter.ToKeyString(rows[i][referencedIndex])] = i;
+                positionsByKey.Add(positions);
+            }
+
+            bool[] visited = new bool[rows.Count];
+            bool[] inStack = new bool[rows.Count];
+            List<IReadOnlyList<object?>> result = new List<IReadOnlyList<object?>>(rows.Count);
+            var stack = new Stack<int>();
+
+            void Visit(int index)
+            {
+                if (visited[index] || inStack[index])
+                    return;
+
+                inStack[index] = true;
+                stack.Push(index);
+                try
+                {
+                    // Visit all self-FK parents first (depth first along every FK edge).
+                    for (int e = 0; e < edges.Count; e++)
+                    {
+                        object? parentKey = rows[index][edges[e].ReferencingIndex];
+                        if (parentKey != null
+                            && positionsByKey[e].TryGetValue(SqlLiteralWriter.ToKeyString(parentKey), out int parentIndex)
+                            && parentIndex != index)
+                        {
+                            Visit(parentIndex);
+                        }
+                    }
+                }
+                finally
+                {
+                    stack.Pop();
+                    inStack[index] = false;
+                    visited[index] = true;
+                    result.Add(rows[index]);
+                }
+            }
+
+            for (int i = 0; i < rows.Count; i++)
+                Visit(i);
+
+            // Verification: every self-FK parent row must precede its child row.
+            int violations = 0;
+            Dictionary<IReadOnlyList<object?>, int> resultPosition = new Dictionary<IReadOnlyList<object?>, int>();
+            for (int i = 0; i < result.Count; i++)
+                resultPosition[result[i]] = i;
+            HashSet<string> reportedCycles = new HashSet<string>();
+            for (int i = 0; i < rows.Count; i++)
+            {
+                foreach ((int referencingIndex, _) in edges)
+                {
+                    object? parentKey = rows[i][referencingIndex];
+                    if (parentKey == null)
+                        continue;
+                    string key = SqlLiteralWriter.ToKeyString(parentKey);
+                    for (int e = 0; e < edges.Count; e++)
+                    {
+                        if (!positionsByKey[e].TryGetValue(key, out int parentIndex))
+                            continue;
+                        if (parentIndex == i)
+                            continue;
+                        int childPos = resultPosition[rows[i]];
+                        int parentPos = resultPosition[rows[parentIndex]];
+                        if (parentPos > childPos)
+                        {
+                            // Cycle between the two FK edges: cannot be satisfied by ordering.
+                            string cycleKey = key;
+                            if (reportedCycles.Add(cycleKey))
+                                violations++;
+                        }
+                    }
+                }
+            }
+            int reordered = 0;
+            for (int i = 0; i < result.Count; i++)
+                if (!ReferenceEquals(result[i], rows[i]))
+                    reordered++;
+            if (reordered > 0)
+                warnings.Add("Table " + table + ": " + reordered + " row(s) reordered by self-referencing hierarchy.");
+            if (violations > 0)
+                warnings.Add("Table " + table + ": " + violations
+                             + " self-FK cycle(s) detected — rows left in original order (manual check needed).");
+            return result;
         }
 
         private List<(string Schema, string Table)> ResolveTables(
@@ -208,26 +343,10 @@ namespace gip.tool.dbscript
             sb.Append("SET XACT_ABORT ON;\n");
             sb.Append("GO\n\n");
         }
-
-        private static string Indent(string text, string indent)
-        {
-            if (string.IsNullOrEmpty(text))
-                return text;
-
-            string[] lines = text.Replace("\r\n", "\n").Split('\n');
-            StringBuilder sb = new StringBuilder(text.Length + lines.Length * indent.Length);
-            for (int i = 0; i < lines.Length; i++)
-            {
-                if (lines[i].Length > 0)
-                    sb.Append(indent).Append(lines[i]);
-                sb.Append('\n');
-            }
-            return sb.ToString();
-        }
     }
 
     /// <summary>
-    /// Result of an initial install script generation.
+    /// Result of the initial-install script generation.
     /// </summary>
     public sealed class InitialInstallResult
     {

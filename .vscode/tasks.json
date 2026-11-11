@@ -82,6 +82,18 @@
             ],
             "group": "build",
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Build Gip Tool Installer And Updater Debug",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "build",
+                "${workspaceFolder}/gip.tool.installerAndUpdater/gip.tool.installerAndUpdater.csproj",
+                "/p:Configuration=Debug"
+            ],
+            "group": "build",
+            "problemMatcher": "$msCompile"
         }
     ]
 }

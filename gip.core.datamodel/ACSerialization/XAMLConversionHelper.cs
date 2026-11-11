@@ -4641,6 +4641,9 @@ namespace gip.core.datamodel
             // Remove obsolete Shape property not available in Avalonia.
             (@"\s+StrokeMiterLimit=""[^""]*""", "", true),
 
+            // Remove obsolete Shape property not available in Avalonia (no Pen.DashCap exists).
+            (@"\s+StrokeDashCap=""[^""]*""", "", true),
+
             // Pen property mapping: StartLineCap -> LineCap, removal of EndLineCap
             (@"<Pen\s+([^>]*?)StartLineCap=""([^""]*)""([^>]*?)", @"<Pen $1LineCap=""$2""$3", true),
             (@"<Pen\s+([^>]*?)\s+EndLineCap=""[^""]*""([^>]*?)", @"<Pen $1$2", true),

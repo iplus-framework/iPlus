@@ -4,6 +4,142 @@ This document describes how iPlus V5 is built, packaged and published under the
 dual-licensing model. It is the operational counterpart of
 [HANDOVER-dual-licensing-distribution.md](./HANDOVER-dual-licensing-distribution.md).
 
+## Release runbook (checklist)
+
+This is the step-by-step checklist for producing a release. It is the condensed,
+do-this-then-that version of the rest of this document — the sections referenced
+along the way explain the *why*.
+
+There are two fundamentally different release paths:
+
+| Path | When to use | Who builds the binaries |
+|---|---|---|
+| **A — CI builds everything** | official releases, repeatable | GitHub Actions (push a `v*` tag) |
+| **B — local build, manual upload** | prereleases, quick tests, when CI cannot reach the reference DB | your machine (`publish-release.sh`) |
+
+### Common preparation (both paths)
+
+1. **Decide the version.** Preview releases use semver prerelease suffixes
+   (`5.0.0-preview.6`); the tag gets a `v` prefix (`v5.0.0-preview.6`). The tag
+   *must* match the suite version in [build/iPlus.Package.props](../build/iPlus.Package.props)
+   (`IPlusSuitePackageVersion`) — the CI release title and the NuGet packages come from it.
+2. **Finish and merge.** All changes (code, [build/iPlus.Package.props](../build/iPlus.Package.props)
+   version bump, docs) committed and pushed to `main`.
+3. **Reference databases are current.** iPlusV5 (and iPlusMESV5 for the MES script)
+   must contain the final schema + master data *before* step "database scripts".
+4. **Tools available:**
+   - `dotnet` SDK 10 + workloads (`android` for the APK, wasi for browser)
+   - `sqlpackage`: `dotnet tool install -g microsoft.sqlpackage`
+   - `gh` (GitHub CLI): `sudo apt install gh && gh auth login` — one-time setup
+5. **Repository variables/secrets** (only path A): see the
+   [CI configuration table](#repository-configuration). At minimum
+   `IPLUS_REFERENCE_DB_CONNECTION` must be set, otherwise CI produces no SQL script.
+
+### Path A — official release via CI (recommended for 5.0.0)
+
+1. **Tag and push:**
+   ```bash
+   git tag v5.0.0
+   git push originV5 v5.0.0
+   ```
+   This triggers [.github/workflows/release.yml](../.github/workflows/release.yml)
+   automatically.
+2. **Watch the run:** <https://github.com/iplus-framework/iPlus/actions>. The
+   `build` matrix (10–20 min/job, runs in parallel) and the `database-script` job
+   must both succeed; then the `release` job assembles everything.
+3. **Check the draft release:** <https://github.com/iplus-framework/iPlus/releases>.
+   CI creates it as a **draft** — it is invisible to users until published. Verify:
+   - all expected assets are there (zip/apk/sql/`SHA256SUMS`, see the
+     [artifact table](#artifacts-per-release)),
+   - the SQL script was regenerated from the current reference DB,
+   - the release notes (`generate_release_notes: true`) look sensible.
+4. **Publish** the draft (Edit → *Publish release*) — only now it is visible and
+   the installer can find it.
+5. **Publish the NuGet packages** (separate step, see
+   [NuGet publishing](#nuget-publishing)) — CI does *not* do this.
+
+Because the tag push *is* the trigger, there is no manual upload and no
+`gh release create` for this path — the same tag would collide with CI's
+own release creation.
+
+### Path B — local build and manual upload (prereleases / testing)
+
+Use this when you already built and tested locally (as done for
+5.0.0-preview.5). The CI workflow *still triggers* on the tag push and creates a
+draft for the same tag — it cannot overwrite a published release, so either
+publish before pushing the tag, or delete the CI draft afterwards.
+
+1. **Build the binaries** (see [Local release build](#local-release-build)):
+   ```bash
+   ./build/publish-release.sh --version 5.0.0-preview.6 --platform all
+   ```
+   Output: `artifacts/release/iplus-<ver>-<platform>.zip`, `-all.zip`, `-android.apk`.
+2. **Generate the database scripts** (see the commands in the same section):
+   ```bash
+   dotnet run --project gip.tool.dbscript -c Release -- \
+     generate \
+     --connection-string "data source=gipDLVmSQL1.incus;initial catalog=iPlusV5;user id=...;password=..." \
+     --output ./artifacts/release/initial-install-iplus.sql \
+     --seed-config ./gip.tool.dbscript/seed-tables.json \
+     --suite-version 5.0.0-preview.6
+   ```
+   Repeat with iPlusMESV5 + `seed-tables-mes.json` → `initial-install-mes.sql`.
+3. **Compute checksums:**
+   ```bash
+   cd artifacts/release
+   find . -maxdepth 1 -type f \( -name '*.zip' -o -name '*.apk' -o -name '*.sql' \) \
+     | sort | xargs sha256sum > SHA256SUMS
+   ```
+4. **Create the release and upload (one command, no web UI needed):**
+   ```bash
+   gh release create v5.0.0-preview.6 \
+     ./artifacts/release/iplus-5.0.0-preview.6-*.zip \
+     ./artifacts/release/iplus-5.0.0-preview.6-android.apk \
+     ./artifacts/release/initial-install-iplus.sql \
+     ./artifacts/release/SHA256SUMS \
+     --repo iplus-framework/iPlus \
+     --title "iPlus 5.0.0-preview.6" \
+     --prerelease \
+     --generate-notes
+   ```
+   `gh release create` **creates the tag *and* the release *and* uploads the
+   assets in one step** — there is no separate "new release" web page visit
+   required. If the tag already exists it reuses it; otherwise it tags `HEAD`.
+   Use `--draft` instead of `--prerelease` if you still want to review notes first.
+5. **Clean up the CI draft** (if you pushed a `v*` tag and CI ran): compare tag
+   assets, <https://github.com/iplus-framework/iPlus/actions>, and delete the
+   CI-generated draft if it duplicates yours.
+6. **Publish NuGet packages** if this release also publishes packages (see
+   [NuGet publishing](#nuget-publishing)).
+
+### First official V 5.0.0 — extra checklist
+
+Everything from **Path A**, plus:
+
+| # | Step | Notes |
+|---|---|---|
+| 1 | Version is exactly `5.0.0` | no `-preview` suffix; tag `v5.0.0`; release is *not* a prerelease automatically |
+| 2 | Update `build/iPlus.Package.props` and run `./build/pack-local.sh Release` | NuGet packages must carry the release version |
+| 3 | Regenerate both SQL scripts from the final reference DBs | customers will run these on production systems — review them (`grep -c 'CREATE TABLE'` etc.) |
+| 4 | Consider `SIGNING_MODE=self-signed`/`azure` | see [Code signing](#code-signing); unsigned releases work but trigger SmartScreen warnings |
+| 5 | Consider a stable Android keystore | `ANDROID_KEYSTORE_BASE64` & co; without it updated APKs won't install over old ones |
+| 6 | Publish NuGet packages after the GitHub release is live | `dotnet nuget push` per [NuGet publishing](#nuget-publishing); NuGet versions are immutable — verify the `.nupkg` metadata *before* pushing |
+| 7 | Smoke-test the installer | download the release locally, run [gip.tool.installerAndUpdater](../gip.tool.installerAndUpdater/), install against a fresh SQL Server |
+| 8 | Write the announcement | release notes are auto-generated; add manual highlights in the draft before publishing (breaking changes, migration from V4, licensing model) |
+
+Two things that repeatedly cause confusion, worth repeating:
+
+- **The release zips do not contain the SQL script by default.** CI generates it
+  in a separate stage and uploads it as its own asset, and the installer searches
+  only local folders (`InitialInstallScript` field → payload folder → target
+  folder). Since the workflow bundles the script into the `-all` zip *and* the
+  installer downloads the `.sql` asset into the target folder automatically, a
+  fresh install from a release works without manual steps — but only from the
+  `-all` bundle or a CI release that has the `.sql` asset. Locally built
+  per-platform zips need the script passed explicitly.
+- **NuGet versions are immutable.** A wrong version pushed to nuget.org cannot be
+  fixed, only superseded. Always pack fresh, inspect one `.nuspec`, then push.
+
 ## Two channels, two audiences
 
 | Channel | Content | Audience | Tooling |
@@ -113,6 +249,16 @@ dotnet run --project gip.tool.dbscript -c Release -- \
 ```
 
 Output lands in `artifacts/release/` (git-ignored).
+
+The schema part is generated by `sqlpackage /Action:Script` against a temporary
+non-existent database (`iPlusSchemaScriptDummy`) on the same server, because a
+reachable target is required (an unreachable dummy makes sqlpackage retry for
+minutes) and the reference database itself would diff to an empty script.
+Database users and role memberships are removed from the dacpac model before
+scripting (their server logins do not exist at the customer and would abort the
+plan with SQL74502), and sqlpackage's SQLCMD prelude (CREATE/DROP DATABASE,
+`:setvar`) is stripped — the installer creates the database itself and applies
+the schema inside it.
 
 ### Environment switches
 
@@ -225,8 +371,7 @@ controlled by two configurations:
 
 Review both whenever the EF model gains a new master-data table.
 
-**SQL Server baseline: 2019.** `gip.tool.dbscript` extracts with
-`/TargetServerVersion:Sql150`, and the docker bundle uses
+**SQL Server baseline: 2019.** The docker bundle uses
 `mcr.microsoft.com/mssql/server:2019-latest`.
 
 ## Evaluation bundle (docker-compose)

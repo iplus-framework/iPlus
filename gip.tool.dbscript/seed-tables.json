@@ -31,6 +31,15 @@
     { "name": "ACClassDesign" },
     { "name": "ACClassWF" },
     { "name": "ACClassWFEdge" },
+    // Startup node and its live instance tree: ACStartUpRoot builds the ACRoot
+    // instance from the top-level task; ACComponent.Construct then resolves the
+    // child components (Environment, Communications, Businessobjects, Messages,
+    // DataAccess, Service, Queries, LocalServiceObjects) as tasks *nested under
+    // their parent task* (ACClassTask.ParentACClassTaskID). Missing child tasks
+    // make Construct fail with "content == null". Machine-specific subtrees
+    // (S7Service/PLC1/… on the reference DB) are exported too — they stay
+    // dormant unless their project is started. Testmode tasks are excluded.
+    { "name": "ACClassTask", "filter": "IsTestmode = 0" },
     { "name": "ACAssembly" },
 
     // Framework configuration and security.
@@ -41,12 +50,15 @@
     { "name": "VBNoConfiguration" },
     { "name": "VBSystem" },
     { "name": "VBUserGroup" },
-    { "name": "VBUserACProject" },
-    { "name": "VBUserACClassDesign" },
 
     // Only superusers are exported; customer users must not leak into the
     // distribution. The installer creates the initial admin account.
+    // NOTE: VBUser must be listed BEFORE its children VBUserACProject /
+    // VBUserACClassDesign (FK_VBUserACProject_VBUserID and
+    // FK_VBUserACClassDesign_VBUserID) — sections are applied in list order.
     { "name": "VBUser", "filter": "IsSuperuser = 1" },
+    { "name": "VBUserACProject" },
+    { "name": "VBUserACClassDesign" },
 
     // Schema-sync bookkeeping (needed so dbsyncer knows what is already applied).
     { "name": "DbSyncerInfoContext" },
@@ -57,6 +69,10 @@
 
   "excludeTables": [
     // Runtime / log tables that must never be part of a fresh install.
+    // NOTE: ACClassTask is intentionally NOT excluded: the ACRoot task below the
+    // Root project's root class is the application's startup node — ACStartUpRoot
+    // needs it (taskTypeACClass) to build the ACRoot instance. ACClassTaskValue /
+    // ACClassTaskValuePos stay excluded (runtime state).
     "dbo.ACChangeLog",
     "dbo.ACProgram",
     "dbo.ACProgramConfig",
@@ -65,7 +81,6 @@
     "dbo.ACProgramLogTask",
     "dbo.ACPropertyLog",
     "dbo.ACPropertyLogRule",
-    "dbo.ACClassTask",
     "dbo.ACClassTaskValue",
     "dbo.ACClassTaskValuePos",
     "dbo.ACClassRouteUsage",

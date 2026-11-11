@@ -297,6 +297,18 @@ namespace gip.core.autocomponent
                 using (ACMonitor.Lock(gip.core.datamodel.Database.GlobalDatabase.QueryLock_1X000))
                 {
                     _UserInstance = _VBUser.VBUserInstance_VBUser.FirstOrDefault();
+                    if (_UserInstance == null)
+                    {
+                        // Fresh install: no VBUserInstance row yet. Create one with the
+                        // VBUserInstance.NewACObject defaults (localhost, service hosting
+                        // disabled). Without it Environment.UserInstance is null and
+                        // WCFServiceManager.ACInit / Communications crash with NRE.
+                        gip.core.datamodel.Database db = gip.core.datamodel.Database.GlobalDatabase;
+                        _UserInstance = VBUserInstance.NewACObject(db, _VBUser);
+                        db.VBUserInstance.Add(_UserInstance);
+                        _VBUser.VBUserInstance_VBUser.Add(_UserInstance);
+                        db.ACSaveChanges();
+                    }
                 }
                 if (_UserInstance != null)
                 {

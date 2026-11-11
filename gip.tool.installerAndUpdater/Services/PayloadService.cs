@@ -66,6 +66,27 @@ namespace gip.tool.installerAndUpdater.Services
                     targetPath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, useAsync: true);
                 await source.CopyToAsync(target, cancellationToken);
 
+                // Preserve the unix permission bits stored in the archive (e.g.
+                // 0755 for apphost executables like gip.iplus.client.avui.Desktop).
+                // Without this every entry lands as 0644 and direct exec fails
+                // with "Permission denied" on Linux/macOS.
+                UnixFileMode mode = ToUnixFileMode((entry.ExternalAttributes >> 16) & 0xFFF);
+                if (mode != 0)
+                {
+                    File.SetUnixFileMode(targetPath, mode);
+                }
+                else if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
+                {
+                    // Zip archives created without unix metadata (e.g. Windows
+                    // tools): guess executables from the extension.
+                    string extension = Path.GetExtension(targetPath);
+                    if (string.IsNullOrEmpty(extension))
+                        File.SetUnixFileMode(targetPath,
+                            UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                            UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
+                            UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
+                }
+
                 doneBytes += entry.Length;
                 if (totalBytes > 0)
                 {
@@ -302,6 +323,22 @@ namespace gip.tool.installerAndUpdater.Services
                     await source.CopyToAsync(target, cancellationToken);
                 }
 
+                // Carry the executable bit over from the payload (Linux/macOS),
+                // otherwise apphost binaries lose the permission when updated.
+                if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
+                {
+                    try
+                    {
+                        UnixFileMode mode = File.GetUnixFileMode(sourceFile);
+                        if (mode.HasFlag(UnixFileMode.UserExecute))
+                            File.SetUnixFileMode(targetFile, mode);
+                    }
+                    catch
+                    {
+                        // Payloads without unix metadata: leave default mode.
+                    }
+                }
+
                 index++;
                 progress?.Report(new ProgressReport(
                     "Copying " + relative,
@@ -326,6 +363,29 @@ namespace gip.tool.installerAndUpdater.Services
                 return true;
 
             return false;
+        }
+
+        /// <summary>
+        /// Maps the unix mode bits stored in a zip entry's external attributes
+        /// to <see cref="UnixFileMode"/>. Returns 0 when the archive carries no
+        /// unix metadata.
+        /// </summary>
+        private static UnixFileMode ToUnixFileMode(int mode)
+        {
+            if (mode == 0)
+                return 0;
+
+            UnixFileMode result = 0;
+            if ((mode & 0x100) != 0) result |= UnixFileMode.UserRead;
+            if ((mode & 0x080) != 0) result |= UnixFileMode.UserWrite;
+            if ((mode & 0x040) != 0) result |= UnixFileMode.UserExecute;
+            if ((mode & 0x020) != 0) result |= UnixFileMode.GroupRead;
+            if ((mode & 0x010) != 0) result |= UnixFileMode.GroupWrite;
+            if ((mode & 0x008) != 0) result |= UnixFileMode.GroupExecute;
+            if ((mode & 0x004) != 0) result |= UnixFileMode.OtherRead;
+            if ((mode & 0x002) != 0) result |= UnixFileMode.OtherWrite;
+            if ((mode & 0x001) != 0) result |= UnixFileMode.OtherExecute;
+            return result;
         }
     }
 }

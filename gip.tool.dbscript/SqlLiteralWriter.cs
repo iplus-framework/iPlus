@@ -89,6 +89,21 @@ namespace gip.tool.dbscript
         }
 
         /// <summary>
+        /// Stable string form of a raw column value for dictionary keys (GUIDs, strings, numbers).
+        /// </summary>
+        public static string ToKeyString(object? value)
+        {
+            return value switch
+            {
+                null => string.Empty,
+                Guid g => g.ToString("D"),
+                byte[] bytes => Convert.ToHexString(bytes),
+                IFormattable f => f.ToString(null, System.Globalization.CultureInfo.InvariantCulture),
+                _ => value.ToString() ?? string.Empty
+            };
+        }
+
+        /// <summary>
         /// Builds a multi-row INSERT statement.
         /// </summary>
         /// <param name="schema">Table schema.</param>

@@ -52,15 +52,28 @@ namespace gip.tool.installerAndUpdater.Services
                 document = CreateEmptyDocument();
             }
 
-            XElement root = document.Root ?? new XElement("configuration");
+            XElement root = document.Root ?? new XElement("connectionStrings");
             if (document.Root == null)
                 document.Add(root);
 
-            XElement? connectionStrings = root.Element("connectionStrings");
+            // Accept both shapes on read, but always write the configSource-valid
+            // shape (<connectionStrings> as root element).
+            XElement? connectionStrings = root.Name.LocalName == "connectionStrings"
+                ? root
+                : root.Element("connectionStrings");
             if (connectionStrings == null)
             {
                 connectionStrings = new XElement("connectionStrings");
-                root.Add(connectionStrings);
+                if (root.Name.LocalName == "configuration")
+                    root.Add(connectionStrings);
+                else
+                    document.ReplaceNodes(connectionStrings);
+            }
+            else if (root.Name.LocalName == "configuration")
+            {
+                // Legacy file written with a <configuration> wrapper: unwrap so
+                // ConfigurationManager accepts it as a configSource file.
+                document.ReplaceNodes(connectionStrings);
             }
 
             XElement? existing = connectionStrings
@@ -111,10 +124,14 @@ namespace gip.tool.installerAndUpdater.Services
 
         private static XDocument CreateEmptyDocument()
         {
+            // The file is referenced via <connectionStrings configSource="…" /> in
+            // the app config. A configSource file must have the section element
+            // as its ROOT element — wrapping it in <configuration> makes
+            // ConfigurationManager fail with "The format of a configSource file
+            // must be an element containing the name of the section".
             return new XDocument(
                 new XDeclaration("1.0", "utf-8", null),
-                new XElement("configuration",
-                    new XElement("connectionStrings")));
+                new XElement("connectionStrings"));
         }
     }
 }
