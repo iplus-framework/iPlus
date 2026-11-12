@@ -55,6 +55,8 @@ Related: [iplus-client-server-components.md](./iplus-client-server-components.md
 
 Special design names: `Mainlayout` (main design of a BSO), `Messages`, `MediaDialog`-style names
 used by `ShowDialogAsync(this, "DesignName")` (see BSO code: `DesignNameProgressBar` etc.).
+When to use `ShowDialog` vs. `ShowDialogAsync` (and how a design becomes a modal window) is described
+in section 7, "Modal dialogs".
 
 Property metadata of a BSO also lives in the DB: `ACClassProperty` (ACIdentifier, `ACGroup`,
 `ACPropUsageIndex`, `ValueTypeACClassID`, `GenericType`). It appears to be synchronised from the
@@ -372,6 +374,44 @@ may be shown without them. Derive state from data (e.g. media type from the sele
   `GetPropsToObserveForIsEnabled` observe nothing (see section 8, "Button never re-evaluates...").
 * Mobile conventions (usage `DUMainMobile` 4400 for the explorer, `DULayout` 4210 for pages, no `!New/!Delete/!Save` buttons,
   list pages with 3-5 columns, or a `VBListBox` with `ItemTemplate` and `OpenDesignOnClick` for card lists) are described in `iplus-mobile-design-template.prompt.md` (iPlusUsageDocs/AIPrompts).
+
+### Modal dialogs (`ShowDialog` / `ShowDialogAsync`)
+
+A design of a BSO can also be opened as a **modal dialog window** instead of being hosted or docked
+(container `VBDesignContainer.ModalDialog`). Both entry points exist on `ACComponent` and resolve
+the GUI of the active UI variant (WPF `VBDockingManager` and Avalonia `VBDockingManager`):
+
+```csharp
+ShowDialog(this, "ExportDlg");                      // synchronous
+await ShowDialogAsync(this, "ExportDlg");           // asynchronous
+// parameters: forObject (null = this), design name, caption,
+//              isClosableBSORoot, ribbonVisibility (default Hidden), closeButtonVisibility (default Enabled)
+// with a child BSO: create it, show its design, stop it afterwards:
+await ShowDialogAsync(childBSO, "Mainlayout");
+await childBSO.Stop();
+```
+
+**Prefer `await ShowDialogAsync(...)`. It is the only variant with identical semantics on both UI
+variants:**
+
+| | WPF | Avalonia |
+|---|---|---|
+| `await ShowDialogAsync(...)` | returns after the dialog closed (`Window.ShowDialog` blocks its caller) | returns after the dialog closed (`await Window.ShowDialog`) |
+| `ShowDialog(...)` | returns after the dialog closed (blocking call) | **returns immediately**, while the dialog is still open (fire-and-forget, `Window.ShowDialog` cannot block a sync caller) |
+
+Consequences of the sync variant in an Avalonia client:
+
+* Code after `ShowDialog(...)` runs while the dialog is still open (e.g. reading results the user
+  has not confirmed yet). Code that must run after the dialog closes has to go behind an
+  `await ShowDialogAsync(...)`.
+* In an `async Task` ACMethod never call the sync variant: the caller of `HandleExecuteACMethod`
+  awaits the returned `Task`, so the method stays suspended until the dialog closed only with the
+  async variant.
+
+The dialog design is an ordinary design row of the BSO (section 1/2): create **both** the WPF
+(`XMLDesign`) and Avalonia (`XMLDesign2`) variant. If the dialog only shows a progress bar, use the
+shared `DesignNameProgressBar` name like other BSOs. A child BSO shown this way keeps running after
+the dialog closed until you `Stop()` it.
 
 ---
 
