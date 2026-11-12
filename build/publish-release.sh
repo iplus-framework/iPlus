@@ -111,7 +111,31 @@ archive() {
 	local target="$OUT/$name.zip"
 	log "Archiving $name"
 	rm -f "$target"
-	(cd "$(dirname "$source")" && zip -qr "$target" "$(basename "$source")")
+	if command -v zip >/dev/null 2>&1; then
+		(cd "$(dirname "$source")" && zip -qr "$target" "$(basename "$source")")
+	elif command -v powershell.exe >/dev/null 2>&1 && command -v cygpath >/dev/null 2>&1; then
+		# shellcheck disable=SC2016
+		IPLUS_ARCHIVE_SOURCE="$(cygpath -w "$source")" \
+		IPLUS_ARCHIVE_TARGET="$(cygpath -w "$target")" \
+			powershell.exe -NoProfile -NonInteractive -Command '
+				$ErrorActionPreference = "Stop"
+				Add-Type -AssemblyName System.IO.Compression.FileSystem
+				try {
+					[IO.Compression.ZipFile]::CreateFromDirectory(
+						$env:IPLUS_ARCHIVE_SOURCE,
+						$env:IPLUS_ARCHIVE_TARGET,
+						[IO.Compression.CompressionLevel]::Optimal,
+						$true
+					)
+				} catch {
+					Write-Error $_
+					exit 1
+				}
+			'
+	else
+		echo "ERROR: zip or a Windows PowerShell archive utility is required" >&2
+		return 1
+	fi
 	if [ "$KEEP_INTERMEDIATE" != "true" ]; then
 		rm -rf "$source"
 	fi
