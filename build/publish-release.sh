@@ -111,7 +111,18 @@ archive() {
 	local target="$OUT/$name.zip"
 	log "Archiving $name"
 	rm -f "$target"
-	(cd "$(dirname "$source")" && zip -qr "$target" "$(basename "$source")")
+	if command -v zip >/dev/null 2>&1; then
+		(cd "$(dirname "$source")" && zip -qr "$target" "$(basename "$source")")
+	elif command -v pwsh >/dev/null 2>&1; then
+		local source_path target_path
+		source_path="$(cygpath -w "$source")"
+		target_path="$(cygpath -w "$target")"
+		SOURCE_PATH="$source_path" TARGET_PATH="$target_path" pwsh -NoLogo -NoProfile -NonInteractive -Command \
+			"\$ErrorActionPreference = 'Stop'; Compress-Archive -Path \$env:SOURCE_PATH -DestinationPath \$env:TARGET_PATH -Force"
+	else
+		echo "ERROR: zip or PowerShell (pwsh) is required to create release archives" >&2
+		return 1
+	fi
 	if [ "$KEEP_INTERMEDIATE" != "true" ]; then
 		rm -rf "$source"
 	fi
