@@ -494,6 +494,13 @@ namespace gip.core.autocomponent
                 case nameof(NavigateNext):
                 case nameof(IsEnabledNavigateNext):
                     return AccessNav.GetPropsToObserveForIsEnabled(acMethodName, Const.BSOAccessPrimaryName);
+                case nameof(DataExportDialog):
+                case nameof(IsEnabledDataExportDialog):
+                    return AccessNav.GetPropsToObserveForIsEnabled(acMethodName, Const.BSOAccessPrimaryName);
+                case nameof(DataExportOk):
+                case nameof(IsEnabledDataExportOk):
+                    var navProps = AccessNav.GetPropsToObserveForIsEnabled(acMethodName, Const.BSOAccessPrimaryName);
+                    return navProps != null ? navProps.Concat(new string[] { nameof(DataExportFilePath) }) : base.GetPropsToObserveForIsEnabled(acMethodName);
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName);
         }

@@ -22,8 +22,8 @@ namespace gip.core.datamodel.Licensing
     /// </summary>
     /// <remarks>
     /// V5 is purely software based: licenses are offline signed <c>*.gip</c> files
-    /// that are validated with asymmetric cryptography (see
-    /// <see cref="License.FileLicensing"/>). The V4 USB dongle support
+    /// that are validated with asymmetric cryptography (see the
+    /// <c>FileLicensing</c> partial implementation). The V4 USB dongle support
     /// (TDi Matrix32/Matrix64) has been removed — it required a native Windows
     /// driver that does not exist on Linux/macOS and aborted startup with a
     /// <c>DllNotFoundException</c>.

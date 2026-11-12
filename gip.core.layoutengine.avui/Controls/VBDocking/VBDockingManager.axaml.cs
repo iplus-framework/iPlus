@@ -774,8 +774,9 @@ namespace gip.core.layoutengine.avui
             DocumentDock documentDock = null; 
             EnsureDocumentDockStructure(out horizontalArea, out documentDock);
 
-            if (   containerType == Global.VBDesignContainer.TabItem
-                || dockState == Global.VBDesignDockState.Tabbed)
+            if (   containerType != Global.VBDesignContainer.ModalDialog
+                && (   containerType == Global.VBDesignContainer.TabItem
+                    || dockState == Global.VBDesignDockState.Tabbed))
             {
                 DockableBase doc = null;
                 if (isCloseable)
@@ -987,66 +988,7 @@ namespace gip.core.layoutengine.avui
             }
             else if ((uiElementAsDataContent != null) && (containerType == Global.VBDesignContainer.ModalDialog))
             {
-                // TODO:
-                //VBWindowDialogRoot vbDialogRoot = new VBWindowDialogRoot(uiElementAsDataContent.ContextACObject, uiElement, this);
-                ////vbDialogRoot.WindowStyle = System.Windows.WindowStyle.None;
-                //if (vbDialogRoot.Owner == null)
-                //{
-                //    StyledElement dp = this;
-                //    while (dp != null)
-                //    {
-                //        var foundParent = VBLogicalTreeHelper.FindParentObjectInLogicalTree(dp, typeof(Window));
-                //        dp = foundParent as StyledElement;
-                //        if (dp != null)
-                //        {
-                //            Window ownerWindow = dp as Window;
-                //            if (ownerWindow != null && ownerWindow.IsLoaded)
-                //            {
-                //                //vbDialogRoot.Owner = ownerWindow;
-                //                vbDialogRoot.Show(ownerWindow);
-                //                break;
-                //            }
-                //            var parent = LogicalTreeHelper.GetParent(dp);
-                //            dp = parent as StyledElement;
-                //        }
-                //    }
-                //}
-                //vbDialogRoot.Resources = this.Resources;
-
-                //ACClassDesign acClassDesign = null;
-                //if (string.IsNullOrEmpty(uiElementAsDataContent.VBContent))
-                //{
-                //    acClassDesign = (uiElementAsDataContent.ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
-                //}
-                //else if (uiElementAsDataContent.VBContent[0] == '*')
-                //{
-                //    acClassDesign = (uiElementAsDataContent.ContextACObject as IACComponent).GetDesign(uiElementAsDataContent.VBContent.Substring(1));
-                //}
-                //if (acClassDesign == null)
-                //    acClassDesign = (uiElementAsDataContent.ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
-
-                //if (acClassDesign != null)
-                //{
-                //    vbDialogRoot.Title = string.IsNullOrEmpty(acCaption) ? acClassDesign.ACCaption : acCaption;
-                //    if (acClassDesign.VisualHeight > 0)
-                //        vbDialogRoot.Height = acClassDesign.VisualHeight;
-                //    if (acClassDesign.VisualWidth > 0)
-                //        vbDialogRoot.Width = acClassDesign.VisualWidth;
-
-                //    if (acClassDesign.VisualHeight > 0 || acClassDesign.VisualWidth > 0)
-                //        vbDialogRoot.CanResize = false;
-                //}
-                //IRoot root = this.Root();
-                //if (root != null && root.RootPageWPF != null && root.RootPageWPF.InFullscreen)
-                //    vbDialogRoot.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                //else
-                //    vbDialogRoot.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                //DialogStack.Add(vbDialogRoot);
-                //if (root != null && root.RootPageWPF != null && root.RootPageWPF is Window && vbDialogRoot.Owner == null)
-                //    vbDialogRoot.Show(root.RootPageWPF as Window);
-                //else
-                //    vbDialogRoot.Show();
-                //vbDialogRoot.ShowDialog();
+                _ = ShowVBDesignModalDialogAsync(uiElementAsDataContent, uiElement, acCaption);
             }
         }
 
@@ -1387,75 +1329,80 @@ namespace gip.core.layoutengine.avui
             }
             else if ((uiElementAsDataContent != null) && (containerType == Global.VBDesignContainer.ModalDialog))
             {
-                VBWindowDialogRoot vbDialogRoot = new VBWindowDialogRoot(uiElementAsDataContent.ContextACObject, uiElement, this);
-                //vbDialogRoot.WindowStyle = System.Windows.WindowStyle.None;
-                if (vbDialogRoot.Owner == null)
+                await ShowVBDesignModalDialogAsync(uiElementAsDataContent, uiElement, acCaption);
+            }
+        }
+
+        private async Task ShowVBDesignModalDialogAsync(IVBContent uiElementAsDataContent, Control uiElement, string acCaption)
+        {
+            VBWindowDialogRoot vbDialogRoot = new VBWindowDialogRoot(uiElementAsDataContent.ContextACObject, uiElement, this);
+            //vbDialogRoot.WindowStyle = System.Windows.WindowStyle.None;
+            if (vbDialogRoot.Owner == null)
+            {
+                StyledElement dp = this;
+                while (dp != null)
                 {
-                    StyledElement dp = this;
-                    while (dp != null)
+                    var foundParent = VBLogicalTreeHelper.FindParentObjectInLogicalTree(dp, typeof(Window));
+                    dp = foundParent as StyledElement;
+                    if (dp != null)
                     {
-                        var foundParent = VBLogicalTreeHelper.FindParentObjectInLogicalTree(dp, typeof(Window));
-                        dp = foundParent as StyledElement;
-                        if (dp != null)
+                        Window ownerWindow = dp as Window;
+                        if (ownerWindow != null && ownerWindow.IsLoaded)
                         {
-                            Window ownerWindow = dp as Window;
-                            if (ownerWindow != null && ownerWindow.IsLoaded)
-                            {
-                                //vbDialogRoot.Owner = ownerWindow;
-                                vbDialogRoot.Show(ownerWindow);
-                                break;
-                            }
-                            var parent = LogicalTreeHelper.GetParent(dp);
-                            dp = parent as StyledElement;
+                            //vbDialogRoot.Owner = ownerWindow;
+                            vbDialogRoot.Show(ownerWindow);
+                            break;
                         }
+                        var parent = LogicalTreeHelper.GetParent(dp);
+                        dp = parent as StyledElement;
                     }
                 }
+            }
 
-                ACClassDesign acClassDesign = null;
-                if (string.IsNullOrEmpty(uiElementAsDataContent.VBContent))
-                {
-                    acClassDesign = (uiElementAsDataContent.ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
-                }
-                else if (uiElementAsDataContent.VBContent[0] == '*')
-                {
-                    acClassDesign = (uiElementAsDataContent.ContextACObject as IACComponent).GetDesign(uiElementAsDataContent.VBContent.Substring(1));
-                }
-                if (acClassDesign == null)
-                    acClassDesign = (uiElementAsDataContent.ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
+            ACClassDesign acClassDesign = null;
+            if (string.IsNullOrEmpty(uiElementAsDataContent.VBContent))
+            {
+                acClassDesign = (uiElementAsDataContent.ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
+            }
+            else if (uiElementAsDataContent.VBContent[0] == '*')
+            {
+                acClassDesign = (uiElementAsDataContent.ContextACObject as IACComponent).GetDesign(uiElementAsDataContent.VBContent.Substring(1));
+            }
+            if (acClassDesign == null)
+                acClassDesign = (uiElementAsDataContent.ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
 
-                if (acClassDesign != null)
-                {
-                    vbDialogRoot.Title = string.IsNullOrEmpty(acCaption) ? acClassDesign.ACCaption : acCaption;
-                    if (acClassDesign.VisualHeight > 0)
-                        vbDialogRoot.Height = acClassDesign.VisualHeight;
-                    if (acClassDesign.VisualWidth > 0)
-                        vbDialogRoot.Width = acClassDesign.VisualWidth;
+            if (acClassDesign != null)
+            {
+                vbDialogRoot.Title = string.IsNullOrEmpty(acCaption) ? acClassDesign.ACCaption : acCaption;
+                if (acClassDesign.VisualHeight > 0)
+                    vbDialogRoot.Height = acClassDesign.VisualHeight;
+                if (acClassDesign.VisualWidth > 0)
+                    vbDialogRoot.Width = acClassDesign.VisualWidth;
 
-                    if (acClassDesign.VisualHeight > 0 || acClassDesign.VisualWidth > 0)
-                        vbDialogRoot.CanResize = false;
-                }
+                if (acClassDesign.VisualHeight > 0 || acClassDesign.VisualWidth > 0)
+                    vbDialogRoot.CanResize = false;
+            }
 
-                // Compensate dialog size for zoom scaling:
-                // When LayoutTransformControl.UseRenderTransform=True, dialog content carries RenderTransform
-                // that scales it visually. We need to enlarge the dialog window to avoid clipping.
-                double scale = GetLayoutTransformScale(this);
-                if (scale > 1.0)
-                {
-                    vbDialogRoot.Width *= scale;
-                    vbDialogRoot.Height *= scale;
-                }
+            // Compensate dialog size for zoom scaling:
+            // When LayoutTransformControl.UseRenderTransform=True, dialog content carries RenderTransform
+            // that scales it visually. We need to enlarge the dialog window to avoid clipping.
+            double scale = GetLayoutTransformScale(this);
+            if (scale > 1.0)
+            {
+                vbDialogRoot.Width *= scale;
+                vbDialogRoot.Height *= scale;
+            }
 
-                IRoot root = this.Root();
-                if (root != null && root.RootPageWPF != null && root.RootPageWPF.InFullscreen)
-                    vbDialogRoot.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                else
-                    vbDialogRoot.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                DialogStack.Add(vbDialogRoot);
-                
-                if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime classicDesktop && classicDesktop.MainWindow != null)
-                {
-                    await vbDialogRoot.ShowDialog(classicDesktop.MainWindow);
-                }
+            IRoot root = this.Root();
+            if (root != null && root.RootPageWPF != null && root.RootPageWPF.InFullscreen)
+                vbDialogRoot.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            else
+                vbDialogRoot.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            DialogStack.Add(vbDialogRoot);
+
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime classicDesktop && classicDesktop.MainWindow != null)
+            {
+                await vbDialogRoot.ShowDialog(classicDesktop.MainWindow);
             }
         }
 

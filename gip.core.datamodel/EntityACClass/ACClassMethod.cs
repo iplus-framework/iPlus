@@ -1670,6 +1670,8 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="database">The database.</param>
         /// <param name="edge"></param>
+        /// <param name="node">The workflow node whose connection is being removed.</param>
+        /// <param name="nodeIsTargetElseSource">Whether <paramref name="node"/> is the target rather than the source.</param>
         public void DeleteEdge(IACEntityObjectContext database, IACWorkflowEdge edge, IACWorkflowNode node, bool nodeIsTargetElseSource)
         {
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))

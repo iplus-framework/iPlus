@@ -150,7 +150,7 @@ namespace gip.core.layoutengine.avui
         /// Called after any edge was resolved, so containers can invalidate rendering.
         /// Edges invalidate themselves; this hook exists for potential future use.
         /// </summary>
-        internal static Action edgeRedrawInvalidation;
+        internal static Action edgeRedrawInvalidation = null;
 
         /// <summary>
         /// Walks the visual tree of <paramref name="container"/> once and collects all

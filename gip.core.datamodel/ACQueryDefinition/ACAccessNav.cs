@@ -376,6 +376,11 @@ namespace gip.core.datamodel
                 case nameof(IsEnabledNavigateNext):
                     return new string[] { acAccessPropertyName + ACUrlHelper.Delimiter_DirSeperator + nameof(NavRowCurrent),
                                           acAccessPropertyName + ACUrlHelper.Delimiter_DirSeperator + nameof(NavRowCount)};
+                case "DataExportDialog":
+                case "IsEnabledDataExportDialog":
+                case "DataExportOk":
+                case "IsEnabledDataExportOk":
+                    return new string[] { acAccessPropertyName + ACUrlHelper.Delimiter_DirSeperator + nameof(NavRowCount) };
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName, acAccessPropertyName);
         }

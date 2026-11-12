@@ -1277,7 +1277,7 @@ namespace gip.core.autocomponent
                 _browserWorkingScheme = endpoint.Scheme;
                 return socket;
             }
-            catch (Exception primaryEx)
+            catch (Exception)
             {
                 socket.Dispose();
                 string altScheme = AlternateScheme(endpoint.Scheme);

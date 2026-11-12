@@ -62,6 +62,8 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="database">Database-Context</param>
         /// <param name="edge">Workflow-Edge</param>
+        /// <param name="node">The workflow node whose connection is being removed.</param>
+        /// <param name="nodeIsTargetElseSource">Whether <paramref name="node"/> is the target rather than the source.</param>
         void DeleteEdge(IACEntityObjectContext database, IACWorkflowEdge edge, IACWorkflowNode node, bool nodeIsTargetElseSource);
 
 

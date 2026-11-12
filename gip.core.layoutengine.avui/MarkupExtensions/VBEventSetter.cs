@@ -55,7 +55,7 @@ namespace gip.core.layoutengine.avui
 
 
         // Property kann nicht ACUrlCommand heissen, da ACUrlCommand bereits eine Methode ist.
-        private string _ACUrlCmd;
+        private string _ACUrlCmd = null;
         /// <summary>
         /// Name of Method which should be called
         /// </summary>

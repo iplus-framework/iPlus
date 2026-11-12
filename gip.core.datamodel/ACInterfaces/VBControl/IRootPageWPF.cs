@@ -122,6 +122,7 @@ namespace gip.core.datamodel
         /// Shows the MSG box.
         /// </summary>
         /// <param name="msg">The MSG.</param>
+        /// <param name="defaultResult">The result returned when the message box is dismissed without an explicit choice.</param>
         /// <param name="msgButton">The MSG button.</param>
         /// <returns>Global.MsgResult.</returns>
         Task<Global.MsgResult> ShowMsgBoxAsync(Msg msg, Global.MsgResult defaultResult, eMsgButton msgButton);

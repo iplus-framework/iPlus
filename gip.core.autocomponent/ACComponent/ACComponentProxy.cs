@@ -264,8 +264,6 @@ namespace gip.core.autocomponent
             pos = acMethodName1.IndexOf(ACUrlHelper.Delimiter_AsyncMethodInvocation);
             if (pos == 0)
                 acMethodName1 = acMethodName1.Substring(1);
-            else
-                acMethodName1 = acMethodName1;                
 
             ACClassMethod acClassMethod = ComponentClass.GetMethod(acMethodName1);
             if (acClassMethod == null)
@@ -345,7 +343,7 @@ namespace gip.core.autocomponent
                                     acParameter = null;
                             }
 
-                            object? invokeResult = mi.Invoke(this, acParamWithThis);
+                            object invokeResult = mi.Invoke(this, acParamWithThis);
 
                             if (invokeResult != null)
                             {

@@ -1465,6 +1465,7 @@ In business objects, ACQueryDefinitions are stateful because each business objec
         /// </summary>
         /// <param name="filterItem">The filter item.</param>
         /// <param name="filterValueList">The filter value list.</param>
+        /// <param name="joinExpressions">The joins accumulated while building the filter expression.</param>
         /// <param name="forEntitySQL">The search word.</param>
         /// <returns>System.String.</returns>
         private string CreateFilterExpression(ACFilterItem filterItem, ref List<ObjectParameter> filterValueList, ref JoinBuilder joinExpressions, bool forEntitySQL = false)
@@ -1862,6 +1863,7 @@ In business objects, ACQueryDefinitions are stateful because each business objec
         /// <summary>
         /// Gets the order expression.
         /// </summary>
+        /// <param name="joinExpressions">The joins accumulated for navigation properties in the sort expression.</param>
         /// <param name="forEntitySQL">The query definition.</param>
         /// <returns>System.String.</returns>
         private string GetOrderExpression(ref JoinBuilder joinExpressions, bool forEntitySQL = false)

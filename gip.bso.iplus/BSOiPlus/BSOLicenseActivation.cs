@@ -492,7 +492,7 @@ namespace gip.bso.iplus
         /// </summary>
         /// <remarks>
         /// V5 path: signed <c>*.gip</c> license files are validated offline and
-        /// stored in the database (<see cref="License.ActivateLicenseFile"/>).
+        /// stored in the database (<c>License.ActivateLicenseFile</c>).
         /// </remarks>
         [ACMethodInfo("", "en{'Activate'}de{'Freischalten'}", 404, true)]
         public void ActivateProduct()

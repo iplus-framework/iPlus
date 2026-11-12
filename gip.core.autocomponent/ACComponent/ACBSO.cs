@@ -101,7 +101,7 @@ namespace gip.core.autocomponent
                     this.Database.ChangeTracker.Tracked -= ChangeTracker_Tracked;
                 }
             }
-            catch (ObjectDisposedException ex)
+            catch (ObjectDisposedException)
             {
             }
 
@@ -1433,6 +1433,7 @@ namespace gip.core.autocomponent
                     return new string[] { nameof(DbChangeCount) };
 
                 case nameof(DataExportOk):
+                case nameof(IsEnabledDataExportOk):
                     return new string[] { nameof(DataExportFilePath) };
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName);
