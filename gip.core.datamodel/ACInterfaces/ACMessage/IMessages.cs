@@ -124,7 +124,7 @@ namespace gip.core.datamodel
         /// <param name="value">The default-value in the Input-Field</param>
         /// <param name="designXML">XAML-String for a individual layout of the the Input-Form.</param>
         /// <returns>System.String.</returns>
-        string InputBox(String header, string value, string designXML = null);
+        Task<string> InputBox(String header, string value, string designXML = null);
 
 
         /// <summary>Opens a Input-Box for mupltiple values.</summary>

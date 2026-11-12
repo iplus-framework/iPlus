@@ -171,16 +171,16 @@ namespace gip.core.autocomponent
         /// <param name="designXML">XAML-String for a individual layout of the the Input-Form.</param>
         /// <returns>System.String.</returns>
         [ACMethodInfo("Input", "en{'String-Inputbox'}de{'Zeichen-Eingabebox'}", 9999)]
-        public string InputBox(String header, string value, string designXML = null)
+        public async Task<string> InputBox(String header, string value, string designXML = null)
         {
             if (Root.RootPageWPF != null)
             {
                 // TODO: Aufruf wird ersetzt durch BSO mit generischem Layout
                 IACComponent acComponent = Root.ACUrlCommand("Businessobjects#VBBSOInputBox") as IACComponent;
-                var result = acComponent.ACUrlCommand("!ShowInputBox", new object[] { header, value, designXML }) as string;
-                acComponent.Stop();
+                Task<string> result = acComponent.ACUrlCommand("!ShowInputBox", new object[] { header, value, designXML }) as Task<string>;
+                await acComponent.Stop();
                 acComponent = null;
-                return result;
+                return await result;
             }
             // Falls kein WPF-Client, dann wird Originalwert zurückgegeben
             return value;

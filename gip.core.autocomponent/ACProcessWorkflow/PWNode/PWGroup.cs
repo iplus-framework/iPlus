@@ -1510,7 +1510,7 @@ namespace gip.core.autocomponent
         }
 
         [ACMethodInteractionClient("", "en{'Change Priority'}de{'Priorität ändern'}", 298, true)]
-        public static void SetPriorityClient(IACComponent acComponent)
+        public static async void SetPriorityClient(IACComponent acComponent)
         {
             if (acComponent == null)
                 return;
@@ -1520,7 +1520,7 @@ namespace gip.core.autocomponent
             string questionID = "Question50064";
             string header = acComponent.Root.Environment.TranslateMessage(acComponent, questionID);
             short priority = -1;
-            string sPriority = acComponent.Messages.InputBox(header, "");
+            string sPriority = await acComponent.Messages.InputBox(header, "");
             if (String.IsNullOrWhiteSpace(sPriority))
                 priority = -1;
             else

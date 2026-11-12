@@ -833,12 +833,12 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInfo("", "en{'Duplicate'}de{'Duplizieren'}", 9999, false, false, true)]
-        public void WFClone()
+        public async void WFClone()
         {
             if (!IsEnabledWFClone())
                 return;
             int nextWFNo = (this.Database as Database).ACClassMethod.Where(c => c.ACClassID == CurrentACClassMethod.ACClassID && c.ACIdentifier.StartsWith(CurrentACClassMethod.ACIdentifier)).Count() + 1;
-            string newACIdentifier = Messages.InputBox("New Workflow-No.:", String.Format("{0}_{1}", CurrentACClassMethod.ACIdentifier, nextWFNo));
+            string newACIdentifier = await Messages.InputBox("New Workflow-No.:", String.Format("{0}_{1}", CurrentACClassMethod.ACIdentifier, nextWFNo));
             if (String.IsNullOrWhiteSpace(newACIdentifier))
                 return;
             var newWF = CurrentACClassMethod.WorkflowClone(newACIdentifier);

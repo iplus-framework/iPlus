@@ -713,10 +713,10 @@ namespace gip.core.autocomponent
 
         #region Client-Methods
         [ACMethodInteractionClient("", "en{'Restart Delegate-Queue'}de{'Restart Delegate-Queue'}", 111, false, "", false)]
-        public static void RestartDelegateQueueC(IACComponent acComponent)
+        public static async void RestartDelegateQueueC(IACComponent acComponent)
         {
             ACComponent _this = acComponent as ACComponent;
-            string id = _this.Messages.InputBox("Enter ID of Delegate-Queue for restarting", "");
+            string id = await _this.Messages.InputBox("Enter ID of Delegate-Queue for restarting", "");
             if (String.IsNullOrWhiteSpace(id))
                 return;
             _this.ACUrlCommand("!RestartDelegateQueue", id);
