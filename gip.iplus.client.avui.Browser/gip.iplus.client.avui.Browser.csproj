@@ -127,6 +127,18 @@
     </ItemGroup>
   </Target>
 
+  <!-- The browser publish keeps managed reference DLLs under wwwroot/scriptrefs for
+       Roslyn's script editor. .NET's WASM publish glob also treats those copies as
+       application assemblies, duplicating assemblies already included at the publish
+       root (for example AvaloniaEdit) and failing MetadataLoadContext loading. Keep the
+       script references as static web assets, but omit them from the WASM bundle. -->
+  <Target Name="ExcludeScriptReferencesFromWasmBundle" AfterTargets="_GetDefaultWasmAssembliesToBundle">
+    <ItemGroup>
+      <WasmAssembliesToBundle Remove="@(WasmAssembliesToBundle)"
+                              Condition="$([System.String]::Copy('%(WasmAssembliesToBundle.Identity)').Replace('\','/').Contains('/wwwroot/scriptrefs/'))" />
+    </ItemGroup>
+  </Target>
+
   <!-- Register the fork's Avalonia.Browser JS assets (avalonia.js, storage.js) as static
        web assets; the NuGet package would normally do this via its build targets. -->
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(AvaloniaRootDir)/src/Browser/Avalonia.Browser/build/iPlus.Avalonia.Browser.targets" />
