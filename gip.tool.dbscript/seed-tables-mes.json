@@ -56,6 +56,14 @@
     { "name": "DBSyncerVersion" },
     { "name": "ControlScriptSyncInfo" },
 
+    // Startup node and its live instance tree: ACStartUpRoot builds the ACRoot
+    // instance from the top-level task; ACComponent.Construct then resolves the
+    // child components (Environment, Communications, Businessobjects, Messages,
+    // DataAccess, Service, Queries, LocalServiceObjects) as tasks nested under
+    // their parent task (ACClassTask.ParentACClassTaskID). Missing child tasks
+    // make Construct fail with "content == null" on a fresh install.
+    { "name": "ACClassTask", "filter": "IsTestmode = 0" },
+
     // ------------------------------------------------------------- iPlusMES
     // All MD* tables are master data by definition (units, material groups,
     // facility types, process types, ...). Customer data (Material, Facility,
@@ -73,7 +81,6 @@
     "dbo.ACProgramLogTask",
     "dbo.ACPropertyLog",
     "dbo.ACPropertyLogRule",
-    "dbo.ACClassTask",
     "dbo.ACClassTaskValue",
     "dbo.ACClassTaskValuePos",
     "dbo.ACClassRouteUsage",

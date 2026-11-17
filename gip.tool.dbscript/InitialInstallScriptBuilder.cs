@@ -61,6 +61,14 @@ namespace gip.tool.dbscript
             sb.Append("   SECTION 2: SEED / MASTER DATA\n");
             sb.Append("   ============================================================ */\n");
 
+            // Collect every table that the configuration resolves and orders the
+            // sections by cross-table foreign keys (parents before children).
+            // The per-table row order is already handled inside
+            // BuildTableSectionAsync (self-referencing FKs); this step fixes the
+            // section order, which the alphabetical sys.tables order does not
+            // guarantee (e.g. MDCountry -> MDCurrency, VBUserGroup -> VBUser).
+            List<(string Schema, string Table)> exportTables = new List<(string, string)>();
+            Dictionary<(string, string), SeedTable> exportSeedTables = new Dictionary<(string, string), SeedTable>();
             foreach (SeedTable seedTable in _configuration.Tables)
             {
                 List<(string Schema, string Table)> matches = ResolveTables(seedTable, tables);
@@ -74,14 +82,24 @@ namespace gip.tool.dbscript
                 {
                     if (IsExcluded(schema, table))
                         continue;
-
-                    string section = await BuildTableSectionAsync(schema, table, seedTable, warnings);
-                    if (string.IsNullOrEmpty(section))
-                        continue;
-
-                    sb.Append(section);
-                    exportedTables.Add(schema + "." + table);
+                    if (exportTables.Any(t => t.Schema == schema && t.Table == table))
+                        continue; // first configured entry wins (matches previous behavior)
+                    exportTables.Add((schema, table));
+                    exportSeedTables[(schema, table)] = seedTable;
                 }
+            }
+
+            List<(string ReferencingSchema, string ReferencingTable, string ReferencedSchema, string ReferencedTable, bool IsConstraining)> dependencies =
+                await _reader.GetTableDependenciesAsync();
+            exportTables = OrderTablesByDependencies(exportTables, dependencies, warnings);
+
+            foreach ((string schema, string table) in exportTables)
+            {
+                string section = await BuildTableSectionAsync(schema, table, exportSeedTables[(schema, table)], warnings);
+                if (string.IsNullOrEmpty(section))
+                    continue;
+                sb.Append(section);
+                exportedTables.Add(schema + "." + table);
             }
 
             sb.Append("\n/* ============================================================\n");
@@ -174,6 +192,84 @@ namespace gip.tool.dbscript
 
             sb.Append("GO\n");
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Stable topological sort of table sections by cross-table foreign keys.
+        /// FKs with at least one NOT NULL column are hard constraints: a parent is
+        /// never emitted after its child. All-nullable FKs are soft preferences —
+        /// they are respected where possible but may be violated to resolve
+        /// circular references (ACClass &lt;-&gt; ACProject). Ties keep the
+        /// configuration order. Cycles of hard FKs are left in original order and
+        /// reported as warnings.
+        /// </summary>
+        private List<(string Schema, string Table)> OrderTablesByDependencies(
+            List<(string Schema, string Table)> tables,
+            List<(string ReferencingSchema, string ReferencingTable, string ReferencedSchema, string ReferencedTable, bool IsConstraining)> dependencies,
+            List<string> warnings)
+        {
+            HashSet<string> exported = new HashSet<string>(
+                tables.Select(t => t.Schema + "." + t.Table), StringComparer.OrdinalIgnoreCase);
+
+            var hardParents = exported.ToDictionary(key => key, _ => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+            var softParents = exported.ToDictionary(key => key, _ => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+            foreach (var dep in dependencies)
+            {
+                string child = dep.ReferencingSchema + "." + dep.ReferencingTable;
+                string parent = dep.ReferencedSchema + "." + dep.ReferencedTable;
+                if (!exported.Contains(child) || !exported.Contains(parent) || child == parent)
+                    continue;
+                if (dep.IsConstraining)
+                    hardParents[child].Add(parent);
+                else
+                    softParents[child].Add(parent);
+            }
+
+            List<(string Schema, string Table)> result = new List<(string, string)>(tables.Count);
+            HashSet<string> emitted = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            bool progress = true;
+            while (result.Count < tables.Count && progress)
+            {
+                progress = false;
+                foreach ((string schema, string table) in tables)
+                {
+                    string key = schema + "." + table;
+                    if (emitted.Contains(key))
+                        continue;
+                    if (hardParents[key].Any(p => !emitted.Contains(p)))
+                        continue;
+                    // Soft (nullable-FK) parents: wait for them only while at least
+                    // one table can still make progress in this sweep.
+                    if (softParents[key].Any(p => !emitted.Contains(p)))
+                    {
+                        bool anyEmitWithoutSoftWait = tables.Any(t =>
+                        {
+                            string k2 = t.Schema + "." + t.Table;
+                            return !emitted.Contains(k2) && k2 != key
+                                && !hardParents[k2].Any(p => !emitted.Contains(p))
+                                && !softParents[k2].Any(p => !emitted.Contains(p));
+                        });
+                        if (anyEmitWithoutSoftWait)
+                            continue;
+                    }
+                    result.Add((schema, table));
+                    emitted.Add(key);
+                    progress = true;
+                }
+            }
+
+            if (result.Count < tables.Count)
+            {
+                string[] remaining = tables
+                    .Where(t => !emitted.Contains(t.Schema + "." + t.Table))
+                    .Select(t => t.Schema + "." + t.Table)
+                    .ToArray();
+                warnings.Add("Circular table dependencies detected; sections left in configuration order: "
+                             + string.Join(", ", remaining));
+                result.AddRange(tables.Where(t => !emitted.Contains(t.Schema + "." + t.Table)));
+            }
+
+            return result;
         }
 
         /// <summary>
