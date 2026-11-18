@@ -57,7 +57,7 @@ namespace gip.tool.installerAndUpdater.Services
 
                     downloadedRelease = release;
 
-                    string productPrefix = options.Product == ProductKind.Mes ? "imes-" : "iplus-";
+                    string productPrefix = options.Product == ProductKind.Mes ? "iplus-mes-" : "iplus-";
                     GitHubAsset? asset = GitHubReleaseService.SelectAsset(
                         release, productPrefix, options.PlatformFolder);
 
