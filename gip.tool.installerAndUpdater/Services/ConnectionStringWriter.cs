@@ -26,13 +26,25 @@ namespace gip.tool.installerAndUpdater.Services
         }
 
         /// <summary>
+        /// The MES application hosts two EF contexts: the iPlus core context reads
+        /// <c>iPlusV5_Entities</c> (<see cref="gip.core.datamodel.Database"/>), the MES
+        /// context reads <c>iPlusMESV5_Entities</c> (<see cref="gip.mes.datamodel.DatabaseApp"/>).
+        /// Both use the same SQL server, so the installer always writes both entries.
+        /// </summary>
+        public static IReadOnlyList<string> GetEntityNames(ProductKind product)
+        {
+            return product == ProductKind.Mes
+                ? new[] { "iPlusV5_Entities", "iPlusMESV5_Entities" }
+                : new[] { "iPlusV5_Entities" };
+        }
+
+        /// <summary>
         /// Writes (or updates) <c>ConnectionStrings.config</c> in
         /// <paramref name="targetPath"/>.
         /// </summary>
         public static void Write(string targetPath, ProductKind product, SqlConnectionSettings settings)
         {
             string filePath = Path.Combine(targetPath, FileName);
-            string entityName = GetEntityName(product);
             string connectionString = settings.BuildApplicationConnectionString();
 
             XDocument document;
@@ -76,19 +88,22 @@ namespace gip.tool.installerAndUpdater.Services
                 document.ReplaceNodes(connectionStrings);
             }
 
-            XElement? existing = connectionStrings
-                .Elements("add")
-                .FirstOrDefault(e => string.Equals(
-                    (string?)e.Attribute("name"), entityName, StringComparison.OrdinalIgnoreCase));
-
-            if (existing == null)
+            foreach (string entityName in GetEntityNames(product))
             {
-                existing = new XElement("add", new XAttribute("name", entityName));
-                connectionStrings.Add(existing);
-            }
+                XElement? existing = connectionStrings
+                    .Elements("add")
+                    .FirstOrDefault(e => string.Equals(
+                        (string?)e.Attribute("name"), entityName, StringComparison.OrdinalIgnoreCase));
 
-            existing.SetAttributeValue("connectionString", connectionString);
-            existing.SetAttributeValue("providerName", "Microsoft.Data.SqlClient");
+                if (existing == null)
+                {
+                    existing = new XElement("add", new XAttribute("name", entityName));
+                    connectionStrings.Add(existing);
+                }
+
+                existing.SetAttributeValue("connectionString", connectionString);
+                existing.SetAttributeValue("providerName", "Microsoft.Data.SqlClient");
+            }
 
             document.Save(filePath);
         }
