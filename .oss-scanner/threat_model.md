@@ -16,8 +16,19 @@ authenticated session:
 - The WCF/web services (`gip.core.webservices`, HTTP listeners in the service
   and console hosts, typically ports 8750/8751/8001). Remote without
   authentication where anonymous access is configured.
-- The SQL Tunnel host (`PASqlTunnelHost`, port 8751) through which browser and
-  mobile clients relay database traffic.
+- The SQL Tunnel host (`PASqlTunnelHost`, `gip.core.webservices/Components/SqlTunnel`,
+  WebSocket endpoint `/sqltunnel` on port 8751): browser and mobile clients
+  relay raw TDS database traffic through it after a two-stage auth (OAuth
+  bearer token in the WebSocket handshake plus the iPlus login). It is a
+  byte relay between the WebSocket and a TcpClient to SQL Server. Attack
+  surface: the OAuth token validation (`RequireOAuth` / `TokenIssuer`
+  Entra-vs-issuer modes, `ValidateToken` before any byte is relayed), the
+  WebSocket handshake upgrade handling, the connection-string resolution
+  done server-side (credentials must never leak into the tunnel), and the
+  relay loop itself (partial reads, connection cleanup, resource exhaustion
+  per authenticated user). Any bypass that lets an unauthenticated client
+  reach the byte relay is critical. Docs: `docs/SqlTunnel-EndUser-Setup.md`,
+  `docs/SqlTunnel-OptionB-Implementation.md`.
 - The EF Core / SQL access layer (`gip.core.datamodel`, `gip.core.sql`,
   `gip.core.dbsyncer`): SQL injection through report/AC-method queries, dynamic
   SQL and script generation.
