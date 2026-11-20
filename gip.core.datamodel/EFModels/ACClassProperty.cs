@@ -679,7 +679,27 @@ public partial class ACClassProperty : VBEntityObject , IInsertInfo, IUpdateInfo
     private ACClass _ValueTypeACClass;
     public virtual ACClass ValueTypeACClass
     { 
-        get { return LazyLoader.Load(this, ref _ValueTypeACClass); }
+        get
+        {
+            if (_ValueTypeACClass != null || Database == null)
+                return LazyLoader.Load(this, ref _ValueTypeACClass);
+
+            const int MaxRetries = 100;
+            for (int retry = 0; ; retry++)
+            {
+                try
+                {
+                    using (ACMonitor.Lock(Database.QueryLock_1X000))
+                    {
+                        return LazyLoader.Load(this, ref _ValueTypeACClass);
+                    }
+                }
+                catch (InvalidOperationException) when (retry < MaxRetries)
+                {
+                    System.Threading.Thread.Sleep(10);
+                }
+            }
+        }
         set { SetProperty<ACClass>(ref _ValueTypeACClass, value); }
     }
 

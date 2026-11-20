@@ -292,166 +292,174 @@ namespace gip.core.autocomponent
 
                 Type typeOfThis = GetType();
 
-                foreach (ACClassProperty acClassProperty in properties)
+                using (ACMonitor.Lock(ComponentClass.Database.QueryLock_1X000))
                 {
-                    if (acClassProperty.ACPropUsage == Global.ACPropUsages.ConnectionPoint ||
-                        acClassProperty.ACPropUsage == Global.ACPropUsages.EventPoint ||
-                        acClassProperty.ACPropUsage == Global.ACPropUsages.EventPointSubscr ||
-                        acClassProperty.ACPropUsage == Global.ACPropUsages.AsyncMethodPoint)
+                    foreach (ACClassProperty acClassProperty in properties)
                     {
-                        ACInitACPoint(acClassProperty, typeOfThis);
-                        continue;
-                    }
-                    //if (!acClassProperty.IsBroadcast)
-                    //    continue;
-                    //bool memberAssigned = true;
-                    IACPropertyBase acProperty = null;
-                    IACMember acMember = GetMember(acClassProperty.ACIdentifier);
-                    if (acMember != null)
-                    {
-                        if (!(acMember is IACPropertyBase))
-                            continue;
-                        acProperty = (IACPropertyBase)acMember;
-                    }
-
-                    // Falls Property noch nicht instanziert wurde im Konstruktor oder ACInit oder durch Skript, 
-                    // dann erzeuge ein neues
-                    if (acProperty == null)
-                    {
-                        Type typeT = acClassProperty.ObjectFullType;
-                        if (typeT == null)
+                        if (acClassProperty.ACPropUsage == Global.ACPropUsages.ConnectionPoint ||
+                            acClassProperty.ACPropUsage == Global.ACPropUsages.EventPoint ||
+                            acClassProperty.ACPropUsage == Global.ACPropUsages.EventPointSubscr ||
+                            acClassProperty.ACPropUsage == Global.ACPropUsages.AsyncMethodPoint)
                         {
-                            // ErrorMessage
+                            ACInitACPoint(acClassProperty, typeOfThis);
                             continue;
                         }
-                        //if (typeT.IsEnum)
-                        //{
-                        //typeT = typeof(Int16);
-                        //}
-
-                        Type genericType = null;
-                        if (!IsProxy) // Falls kein IsProxy
+                        //if (!acClassProperty.IsBroadcast)
+                        //    continue;
+                        //bool memberAssigned = true;
+                        IACPropertyBase acProperty = null;
+                        IACMember acMember = GetMember(acClassProperty.ACIdentifier);
+                        if (acMember != null)
                         {
-                            // !(acProperty is IACPropertyNetServer)
-                            if (!acClassProperty.IsBroadcast)
+                            if (!(acMember is IACPropertyBase))
+                                continue;
+                            acProperty = (IACPropertyBase)acMember;
+                        }
+
+                        // Falls Property noch nicht instanziert wurde im Konstruktor oder ACInit oder durch Skript,
+                        // dann erzeuge ein neues
+                        if (acProperty == null)
+                        {
+                            PropertyInfo propertyInfo = GetType().GetProperty(acClassProperty.ACIdentifier);
+                            Type typeT = propertyInfo != null
+                                && !propertyInfo.PropertyType.Name.StartsWith(Const.IACPropertyPrefix)
+                                && !propertyInfo.PropertyType.Name.StartsWith(Const.IACContainerTNetPrefix)
+                                ? propertyInfo.PropertyType
+                                : acClassProperty.ObjectFullType;
+                            if (typeT == null)
                             {
-                                genericType = ACClassProperty.GetGenericACPropertyType(typeof(ACProperty<>), typeT);
-                                acProperty = (IACPropertyBase)Activator.CreateInstance(genericType, new Object[] { this, acClassProperty, false });
-                                acProperty.ACInit();
+                                // ErrorMessage
+                                continue;
                             }
-                            else
+                            //if (typeT.IsEnum)
+                            //{
+                            //typeT = typeof(Int16);
+                            //}
+
+                            Type genericType = null;
+                            if (!IsProxy) // Falls kein IsProxy
                             {
-                                // acProperty is IACPropertyNetSource
-                                if (!acClassProperty.IsProxyProperty)
+                                // !(acProperty is IACPropertyNetServer)
+                                if (!acClassProperty.IsBroadcast)
                                 {
-                                    genericType = ACClassProperty.GetGenericACPropertyType(typeof(ACPropertyNetSource<>), typeT);
-                                    acProperty = (IACPropertyNetBase)Activator.CreateInstance(genericType, new Object[] { this, acClassProperty });
+                                    genericType = ACClassProperty.GetGenericACPropertyType(typeof(ACProperty<>), typeT);
+                                    acProperty = (IACPropertyBase)Activator.CreateInstance(genericType, new Object[] { this, acClassProperty, false });
                                     acProperty.ACInit();
-                                    BindPropertyToSource(acProperty as IACPropertyNetSource, targetsBound, PropBindingMode.BindOnly);
                                 }
-                                else if (acClassProperty.IsProxyProperty)
+                                else
                                 {
-                                    ACClassPropertyRelation propertyBinding = acClassProperty.TopBaseACClassProperty.GetMyPropertyBindingToSource(this.ComponentClass);
-
-                                    if (propertyBinding != null)// -> Property ist ein Target und hat einen Source-Wert
+                                    // acProperty is IACPropertyNetSource
+                                    if (!acClassProperty.IsProxyProperty)
                                     {
-                                        if (propertyBinding.SourceACClass == null || propertyBinding.SourceACClassProperty == null || propertyBinding.SourceACClassProperty.ObjectType == null)
-                                        {
-                                            // ErrorMeldung
-                                            continue;
-                                        }
+                                        genericType = ACClassProperty.GetGenericACPropertyType(typeof(ACPropertyNetSource<>), typeT);
+                                        acProperty = (IACPropertyNetBase)Activator.CreateInstance(genericType, new Object[] { this, acClassProperty });
+                                        acProperty.ACInit();
+                                        BindPropertyToSource(acProperty as IACPropertyNetSource, targetsBound, PropBindingMode.BindOnly);
+                                    }
+                                    else if (acClassProperty.IsProxyProperty)
+                                    {
+                                        ACClassPropertyRelation propertyBinding = acClassProperty.TopBaseACClassProperty.GetMyPropertyBindingToSource(this.ComponentClass);
 
-                                        bool isMemberLive = false;
-                                        // Finde Objekt das die Source-Property beeinhaltet
-                                        IACComponent sourceACComponent = (IACComponent)ACUrlCommand("?" + propertyBinding.SourceACClass.GetACUrlComponent(), null);
-                                        if (sourceACComponent != null)
+                                        if (propertyBinding != null)// -> Property ist ein Target und hat einen Source-Wert
                                         {
-                                            IACMember acPropertySource = sourceACComponent.GetMember(propertyBinding.SourceACClassProperty.ACIdentifier);
-                                            if ((acPropertySource != null) && (acPropertySource is IACPropertyNetSource))
+                                            if (propertyBinding.SourceACClass == null || propertyBinding.SourceACClassProperty == null || propertyBinding.SourceACClassProperty.ObjectType == null)
                                             {
-                                                Type typeTSource = acPropertySource.GetType().GetGenericArguments()[0];
-                                                bool needsConverter = propertyBinding.AreUnitConversionParamsSet || typeTSource != typeT;
+                                                // ErrorMeldung
+                                                continue;
+                                            }
+
+                                            bool isMemberLive = false;
+                                            // Finde Objekt das die Source-Property beeinhaltet
+                                            IACComponent sourceACComponent = (IACComponent)ACUrlCommand("?" + propertyBinding.SourceACClass.GetACUrlComponent(), null);
+                                            if (sourceACComponent != null)
+                                            {
+                                                IACMember acPropertySource = sourceACComponent.GetMember(propertyBinding.SourceACClassProperty.ACIdentifier);
+                                                if ((acPropertySource != null) && (acPropertySource is IACPropertyNetSource))
+                                                {
+                                                    Type typeTSource = acPropertySource.GetType().GetGenericArguments()[0];
+                                                    bool needsConverter = propertyBinding.AreUnitConversionParamsSet || typeTSource != typeT;
+                                                    Type acPropertyType = needsConverter ? typeof(ACPropertyNetTargetConverter<,>) : typeof(ACPropertyNetTarget<>);
+                                                    if (!needsConverter)
+                                                    {
+                                                        genericType = ACClassProperty.GetGenericACPropertyType(acPropertyType, typeT);
+                                                        acProperty = (IACPropertyNetBase)Activator.CreateInstance(genericType, new Object[] { acPropertySource, this, acClassProperty });
+                                                    }
+                                                    else
+                                                    {
+                                                        genericType = ACClassProperty.GetConvertibleACPropertyType(acPropertyType, typeT, typeTSource);
+                                                        acProperty = (IACPropertyNetBase)Activator.CreateInstance(genericType, new Object[] { acPropertySource, this, acClassProperty, propertyBinding });
+                                                    }
+                                                    acProperty.ACInit(Global.ACStartTypes.Automatic);
+                                                    isMemberLive = true;
+                                                }
+                                            }
+                                            // Falls Objekt nicht gefunden, dann ist Root-Knoten des entsprechenden Models nicht geladen =>
+                                            // Das PropertyBinding muss später stattfinden
+                                            // => Models sollten am besten in einer bestimmten Reiheinfolge geladen werden
+                                            if (!isMemberLive)
+                                            {
+                                                bool needsConverter = propertyBinding.AreUnitConversionParamsSet || propertyBinding.SourceACClassProperty.ObjectType != typeT;
                                                 Type acPropertyType = needsConverter ? typeof(ACPropertyNetTargetConverter<,>) : typeof(ACPropertyNetTarget<>);
                                                 if (!needsConverter)
                                                 {
                                                     genericType = ACClassProperty.GetGenericACPropertyType(acPropertyType, typeT);
-                                                    acProperty = (IACPropertyNetBase)Activator.CreateInstance(genericType, new Object[] { acPropertySource, this, acClassProperty });
+                                                    // Ohne Source-Objekt instantieren, aber später Binden
+                                                    acProperty = (IACPropertyNetBase)Activator.CreateInstance(genericType, new Object[] { this, acClassProperty });
                                                 }
                                                 else
                                                 {
-                                                    genericType = ACClassProperty.GetConvertibleACPropertyType(acPropertyType, typeT, typeTSource);
-                                                    acProperty = (IACPropertyNetBase)Activator.CreateInstance(genericType, new Object[] { acPropertySource, this, acClassProperty, propertyBinding });
+                                                    genericType = ACClassProperty.GetConvertibleACPropertyType(acPropertyType, typeT, propertyBinding.SourceACClassProperty.ObjectType);
+                                                    // Ohne Source-Objekt instantieren, aber später Binden
+                                                    acProperty = (IACPropertyNetBase)Activator.CreateInstance(genericType, new Object[] { this, acClassProperty, propertyBinding });
                                                 }
-                                                acProperty.ACInit(Global.ACStartTypes.Automatic);
-                                                isMemberLive = true;
+                                                acProperty.ACInit();
+                                                // Merke, dass Source-Objekt bei Instanzierung das Late-Binding herstellen soll
+                                                propertyBinding.LateBindingNeedDuringACInit = true;
+                                                _LateBindingNeedAtACPostInit = true;
                                             }
                                         }
-                                        // Falls Objekt nicht gefunden, dann ist Root-Knoten des entsprechenden Models nicht geladen => 
-                                        // Das PropertyBinding muss später stattfinden
-                                        // => Models sollten am besten in einer bestimmten Reiheinfolge geladen werden
-                                        if (!isMemberLive)
+                                        else
                                         {
-                                            bool needsConverter = propertyBinding.AreUnitConversionParamsSet || propertyBinding.SourceACClassProperty.ObjectType != typeT;
-                                            Type acPropertyType = needsConverter ? typeof(ACPropertyNetTargetConverter<,>) : typeof(ACPropertyNetTarget<>);
-                                            if (!needsConverter)
-                                            {
-                                                genericType = ACClassProperty.GetGenericACPropertyType(acPropertyType, typeT);
-                                                // Ohne Source-Objekt instantieren, aber später Binden
-                                                acProperty = (IACPropertyNetBase)Activator.CreateInstance(genericType, new Object[] { this, acClassProperty });
-                                            }
-                                            else
-                                            {
-                                                genericType = ACClassProperty.GetConvertibleACPropertyType(acPropertyType, typeT, propertyBinding.SourceACClassProperty.ObjectType);
-                                                // Ohne Source-Objekt instantieren, aber später Binden
-                                                acProperty = (IACPropertyNetBase)Activator.CreateInstance(genericType, new Object[] { this, acClassProperty, propertyBinding });
-                                            }
+                                            genericType = ACClassProperty.GetGenericACPropertyType(typeof(ACPropertyNetTarget<>), typeT);
+                                            acProperty = (IACPropertyNetBase)Activator.CreateInstance(genericType, new Object[] { this, acClassProperty });
                                             acProperty.ACInit();
-                                            // Merke, dass Source-Objekt bei Instanzierung das Late-Binding herstellen soll
-                                            propertyBinding.LateBindingNeedDuringACInit = true;
-                                            _LateBindingNeedAtACPostInit = true;
                                         }
                                     }
                                     else
+                                        continue;
+                                }
+                            }
+                            else // Falls IsProxy
+                            {
+                                if (!acClassProperty.IsBroadcast)
+                                {
+                                    genericType = ACClassProperty.GetGenericACPropertyType(typeof(ACProperty<>), typeT);
+                                    acProperty = (IACPropertyBase)Activator.CreateInstance(genericType, new Object[] { this, acClassProperty, true });
+                                    acProperty.ACInit();
+                                }
+                                else
+                                {
+                                    if (Root.HasACModelServer && (!acClassProperty.IsProxyProperty))
                                     {
-                                        genericType = ACClassProperty.GetGenericACPropertyType(typeof(ACPropertyNetTarget<>), typeT);
-                                        acProperty = (IACPropertyNetBase)Activator.CreateInstance(genericType, new Object[] { this, acClassProperty });
+                                        genericType = ACClassProperty.GetGenericACPropertyType(typeof(ACPropertyNetSource<>), typeT);
+                                        acProperty = (IACPropertyNetBase)Activator.CreateInstance(genericType, new Object[] { this, acClassProperty, true });
+                                        acProperty.ACInit();
+                                        BindPropertyToSource(acProperty as IACPropertyNetSource, targetsBound, PropBindingMode.BindOnly);
+                                    }
+                                    else
+                                    {
+                                        genericType = ACClassProperty.GetGenericACPropertyType(typeof(ACPropertyNet<>), typeT);
+                                        acProperty = (IACPropertyBase)Activator.CreateInstance(genericType, new Object[] { this, acClassProperty });
                                         acProperty.ACInit();
                                     }
                                 }
-                                else
-                                    continue;
                             }
                         }
-                        else // Falls IsProxy
+                        // Falls Property nicht vorher in Member-Liste war, füge hinzu
+                        if (acMember == null)
                         {
-                            if (!acClassProperty.IsBroadcast)
-                            {
-                                genericType = ACClassProperty.GetGenericACPropertyType(typeof(ACProperty<>), typeT);
-                                acProperty = (IACPropertyBase)Activator.CreateInstance(genericType, new Object[] { this, acClassProperty, true });
-                                acProperty.ACInit();
-                            }
-                            else
-                            {
-                                if (Root.HasACModelServer && (!acClassProperty.IsProxyProperty))
-                                {
-                                    genericType = ACClassProperty.GetGenericACPropertyType(typeof(ACPropertyNetSource<>), typeT);
-                                    acProperty = (IACPropertyNetBase)Activator.CreateInstance(genericType, new Object[] { this, acClassProperty, true });
-                                    acProperty.ACInit();
-                                    BindPropertyToSource(acProperty as IACPropertyNetSource, targetsBound, PropBindingMode.BindOnly);
-                                }
-                                else
-                                {
-                                    genericType = ACClassProperty.GetGenericACPropertyType(typeof(ACPropertyNet<>), typeT);
-                                    acProperty = (IACPropertyBase)Activator.CreateInstance(genericType, new Object[] { this, acClassProperty });
-                                    acProperty.ACInit();
-                                }
-                            }
+                            AddOrReplaceACMember(acProperty);
                         }
-                    }
-                    // Falls Property nicht vorher in Member-Liste war, füge hinzu
-                    if (acMember == null)
-                    {
-                        AddOrReplaceACMember(acProperty);
                     }
                 }
             }

@@ -1678,6 +1678,14 @@ namespace gip.core.datamodel
         bool bRefreshConfig = false;
         protected override void OnPropertyChanging<T>(T newValue, string propertyName, bool afterChange)
         {
+            if (propertyName == nameof(GenericType)
+                || propertyName == nameof(ValueTypeACClass)
+                || propertyName == nameof(ValueTypeACClassID))
+            {
+                _ObjectType = null;
+                _ObjectFullType = null;
+            }
+
             if (propertyName == nameof(XMLConfig))
             {
                 string xmlConfig = newValue as string;
@@ -1751,17 +1759,28 @@ namespace gip.core.datamodel
         {
             get
             {
-                ACClass sc = null;
-                if (ValueTypeACClass_IsLoaded)
-                    sc = this.ValueTypeACClass;
-                if (sc == null)
+                const int MaxRetries = 100;
+                for (int retry = 0; ; retry++)
                 {
-                    using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                    try
                     {
-                        sc = this.ValueTypeACClass;
+                        ACClass sc = null;
+                        if (ValueTypeACClass_IsLoaded)
+                            sc = this.ValueTypeACClass;
+                        if (sc == null)
+                        {
+                            using (ACMonitor.Lock(this.Database.QueryLock_1X000))
+                            {
+                                sc = this.ValueTypeACClass;
+                            }
+                        }
+                        return sc;
+                    }
+                    catch (InvalidOperationException) when (retry < MaxRetries)
+                    {
+                        System.Threading.Thread.Sleep(10);
                     }
                 }
-                return sc;
             }
         }
 

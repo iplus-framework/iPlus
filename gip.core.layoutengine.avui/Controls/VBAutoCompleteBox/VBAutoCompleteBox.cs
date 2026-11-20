@@ -110,6 +110,12 @@ namespace gip.core.layoutengine.avui
 
         private void ContextRoot_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            if (!Dispatcher.UIThread.CheckAccess())
+            {
+                Dispatcher.UIThread.Post(() => ContextRoot_PropertyChanged(sender, e), DispatcherPriority.Normal);
+                return;
+            }
+
             if (!_IsInitialized || string.IsNullOrEmpty(_rootBindingSegment))
                 return;
 
