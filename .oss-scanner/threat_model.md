@@ -74,9 +74,24 @@ Most important (server side, in scope):
 - Inside `gip.core.webservices` the individually hosted endpoints matter
   most: the SQL Tunnel host (`PASqlTunnelHost`), the MCP Server host
   (`PAMcpServerHost` — LLM-agent access to the application tree with iPlus
-  user rights), and the JSON/REST service hosts with their authorization
-  managers (`ApiKeyAuthorizationManager`, `OAuthBearerAuthorizationManager`,
-  `WSRestAuthorizationManager`).
+  user rights), and the JSON/REST service host (`PAJsonServiceHost`,
+  Kestrel/CoreWCF, **default port 8730**). The JSON host serves the REST
+  endpoints used by the mobile MAUI client (`iplus-framework/iPlusMobile`,
+  `gip.vbm.mobile`) and browser clients: it hosts `CoreWebService` /
+  `ICoreWebService` with `WSRestAuthorizationManager` (HTTP **Basic**
+  auth: Base64 `user:password` in the Authorization header -> iPlus
+  `CheckLogin`), a session cookie set on first successful login
+  (`CurrentSessionID` short-circuits later checks), and an optional OAuth
+  bearer variant (`OAuthBearerAuthorizationManager` when an
+  `IOAuthTokenValidator` child is configured). Attack surface: the Basic
+  header parsing in `WSRestAuthorizationManager` (`Substring(6)`,
+  `Split(':')` — array index errors, `:` in passwords, malformed Base64),
+  the session-cookie handling (forgery/fixation, session never bound to
+  the authenticated user), the port-based `FindPAWebService` resolution,
+  the web-endpoint content mapping (`WSJsonServiceContentTypeMapper`),
+  Swagger exposure, and the fact that Basic auth sends credentials with
+  every request over plain HTTP unless `UseHTTPS`/a reverse proxy is
+  configured.
 - MES business objects in the `iplus-framework/iPlusMES` repository (enrolled
   as a separate project) build on top of these.
 

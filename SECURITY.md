@@ -25,8 +25,9 @@ impact. Do not open a public issue for a security problem.
 - iPlus runs in industrial production environments; issues that are
   reachable remotely on the server components (`gip.iplus.service`,
   `gip.iplus.console`, `gip.core.webservices` incl. the MCP Server host
-  on port 8750 and the SQL Tunnel host on port 8751) are treated with
-  the highest priority.
+  on port 8750, the JSON/REST host on port 8730 (Basic-auth REST backend
+  of the mobile MAUI client), and the SQL Tunnel host on port 8751) are
+  treated with the highest priority.
 - The framework and the MES application are two repositories:
   github.com/iplus-framework/iPlus (this one) and
   github.com/iplus-framework/iPlusMES. Report issues in the repository
