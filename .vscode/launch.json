@@ -110,6 +110,16 @@
                 "/": "${workspaceFolder}",
                 "/../SqlClient": "/home/damir/SHARED/Devel/iPlusGit/V5/SqlClient"
             }
+        },
+        {
+            "name": "Launch Gip Tool Installer And Updater Debug",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build Gip Tool Installer And Updater Debug",
+            "program": "${workspaceFolder}/bin/Debug/${config:iplus.defaultNetCoreTargetFramework}/gip.tool.installerAndUpdater.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/gip.tool.installerAndUpdater",
+            "console": "integratedTerminal"
         }
     ]
 }
