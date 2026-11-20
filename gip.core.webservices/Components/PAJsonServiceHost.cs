@@ -13,11 +13,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Policy;
@@ -63,6 +65,12 @@ namespace gip.core.webservices
             get => _UseHTTPS.ValueT;
             set => _UseHTTPS.ValueT = value;
         }
+
+        #endregion
+
+        #region Properties
+        [ACPropertyBindingSource(210, "Error", "en{'Import Alarm'}de{'Import Alarm'}", "", false, false)]
+        public IACContainerTNet<PANotifyState> IsImportAlarm { get; set; }
         #endregion
 
         #region Implementation

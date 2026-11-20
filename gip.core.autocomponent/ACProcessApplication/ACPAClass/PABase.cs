@@ -66,7 +66,14 @@ namespace gip.core.autocomponent
             }
             _ACStateMethod = null;
             _LastACStateMethod = null;
+            _ACStateMethodRecursionDepth = 0;
             return result;
+        }
+
+        public override void Recycle(IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
+        {
+            _ACStateMethodRecursionDepth = 0;
+            base.Recycle(content, parentACObject, parameter, acIdentifier);
         }
 
         #endregion
@@ -75,6 +82,25 @@ namespace gip.core.autocomponent
 
         #region Common Properties
         protected readonly ACMonitorObject _20200_LockExecuteACStateMethod = new ACMonitorObject(20200);
+        /// <summary>
+        /// Counts how many state-methods of this instance are currently invoked synchronously on the same call stack.
+        /// Only modified while holding _20200_LockExecuteACStateMethod, therefore no dedicated synchronization needed.
+        /// </summary>
+        int _ACStateMethodRecursionDepth = 0;
+        /// <summary>
+        /// Maximum allowed depth of reentrant, synchronous state-method invocations on one call stack.
+        /// Every state transition that is executed synchronously inside another state-method (CurrentACState = ... -> ACState_PropertyChanged -> SyncACStateWithACStateMethod) increases this depth by one.
+        /// Normal state-chains are usually less than 5 levels deep. If the depth reaches this limit, the workflow configuration most probably causes a cyclic state-transition
+        /// (e.g. a dosing-loop that re-starts the same workflow node). Without this guard such a cycle would exhaust the thread stack and crash the whole process with a StackOverflowException.
+        /// Override this property in derived classes if a special workflow needs a higher depth.
+        /// </summary>
+        public virtual int MaxStateMethodRecursionDepth { get { return 16; } }
+        /// <summary>
+        /// Gets the number of state-methods of this instance that are currently invoked synchronously on the same call stack.
+        /// Derived classes can use this value to detect cyclic state-transitions early (see MaxStateMethodRecursionDepth)
+        /// and raise a specific alarm instead of letting the generic guard in DelegateInvokeACStateMethod abort the invocation.
+        /// </summary>
+        protected int CurrentACStateMethodRecursionDepth { get { return _ACStateMethodRecursionDepth; } }
         /// <summary>
         /// Lock for accessing local fields that are entity framework objects and were materialized from ACClassTaskQueue.TaskQueue.Context
         /// Use this whenever you want to read a entity framework object
@@ -248,6 +274,14 @@ namespace gip.core.autocomponent
         {
             using (ACMonitor.Lock(_20200_LockExecuteACStateMethod))
             {
+                if (_ACStateMethodRecursionDepth >= MaxStateMethodRecursionDepth)
+                {
+                    // Reentrant state-transition-cycle detected: refuse executing the state-method instead of exhausting the thread stack (StackOverflowException).
+                    Messages.LogError(this.GetACUrl(), "DelegateInvokeACStateMethod(2)",
+                        String.Format("Cyclic state-transition detected: state method '{0}' wasn't invoked, because {1} state-methods of this instance are already invoked synchronously on the same call stack (max. depth {2}). This is mostly caused by a workflow configuration, whose nodes repeatedly re-trigger themselves (e.g. a dosing loop re-starting the same node). Reset this workflow node and check the workflow configuration.",
+                        acClassMethod.ACIdentifier, _ACStateMethodRecursionDepth, MaxStateMethodRecursionDepth));
+                    return;
+                }
                 _LastACStateMethod = _ACStateMethod;
                 _ACStateMethod = acClassMethod;
                 _InconsistentACState = 0;
@@ -258,12 +292,14 @@ namespace gip.core.autocomponent
                 Regex rgx = new Regex("\\((.*?)\\)");
                 string loggerInstance = String.Format("{0}_{1}", rgx.Replace(this.GetACUrl(), ""), _ACStateMethod.ACIdentifier);
                 PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLoggerStart(loggerInstance, 101) : null;
+                _ACStateMethodRecursionDepth++;
                 try
                 {
                     InvokeACStateMethod(acClassMethod);
                 }
                 finally
                 {
+                    _ACStateMethodRecursionDepth--;
                     if (perfEvent != null)
                         vbDump.PerfLoggerStop(loggerInstance, 101, perfEvent);
                 }
@@ -674,21 +710,32 @@ namespace gip.core.autocomponent
                         && ACStateConst.GetEnum(_ACStateMethod.ACIdentifier) == paStateBeforeLock
                         && IsSubscribedToWorkCycle)
                     {
-                        var vbDump = Root.VBDump;
-                        Regex rgx = new Regex("\\((.*?)\\)");
-                        string loggerInstance = String.Format("{0}_{1}", rgx.Replace(this.GetACUrl(), ""), _ACStateMethod.ACIdentifier);
-                        PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLoggerStart(loggerInstance, 100) : null;
-
-                        _LastACStateMethod = _ACStateMethod;
-
-                        try
+                        if (_ACStateMethodRecursionDepth >= MaxStateMethodRecursionDepth)
                         {
-                            InvokeACStateMethod(_ACStateMethod);
+                            Messages.LogError(this.GetACUrl(), "DoWork(3)",
+                                String.Format("Cyclic state-transition detected: periodic state method '{0}' wasn't invoked by work-cycle, because {1} state-methods of this instance are already invoked synchronously on the same call stack (max. depth {2}).",
+                                _ACStateMethod.ACIdentifier, _ACStateMethodRecursionDepth, MaxStateMethodRecursionDepth));
                         }
-                        finally
+                        else
                         {
-                            if (perfEvent != null)
-                                vbDump.PerfLoggerStop(loggerInstance, 100, perfEvent);
+                            var vbDump = Root.VBDump;
+                            Regex rgx = new Regex("\\((.*?)\\)");
+                            string loggerInstance = String.Format("{0}_{1}", rgx.Replace(this.GetACUrl(), ""), _ACStateMethod.ACIdentifier);
+                            PerformanceEvent perfEvent = vbDump != null ? vbDump.PerfLoggerStart(loggerInstance, 100) : null;
+
+                            _LastACStateMethod = _ACStateMethod;
+
+                            _ACStateMethodRecursionDepth++;
+                            try
+                            {
+                                InvokeACStateMethod(_ACStateMethod);
+                            }
+                            finally
+                            {
+                                _ACStateMethodRecursionDepth--;
+                                if (perfEvent != null)
+                                    vbDump.PerfLoggerStop(loggerInstance, 100, perfEvent);
+                            }
                         }
                     }
                 }
