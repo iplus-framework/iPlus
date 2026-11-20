@@ -175,7 +175,6 @@ namespace gip.core.layoutengine.avui
         {
             base.OnApplyTemplate(e);
             _boxBorder = e.NameScope.Find<Border>("PART_Border");
-            Console.WriteLine($"VBCheckBox.OnApplyTemplate: PART_Border found={_boxBorder != null}");
             InitVBControl();
         }
 
@@ -734,7 +733,6 @@ namespace gip.core.layoutengine.avui
             double boxSize = baseHeight * BoxSizeFactor;
             if (Math.Abs(boxSize - BoxSize) > 0.1)
             {
-                Console.WriteLine($"VBCheckBox.Measure: avail={availableSize} desired={desiredSize} boxSize={boxSize} borderNull={_boxBorder == null}");
                 SetCurrentValue(BoxSizeProperty, boxSize);
                 if (_boxBorder != null)
                 {
