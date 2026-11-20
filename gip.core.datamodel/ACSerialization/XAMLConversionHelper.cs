@@ -760,11 +760,12 @@ namespace gip.core.datamodel
                                               string.Equals(e.LocalName, "Style.Triggers", StringComparison.OrdinalIgnoreCase));
 
                     // Copy default setter values from ControlTheme root and optional ControlTheme.Setters block.
-                    // Only promote setters to owner attributes when the style targets the owner itself.
-                    // If TargetType differs from the owner (e.g. GraphEdgeStyle targets VBGraphEdge,
-                    // not VBGraphSurface), keep setters inside the ControlTheme.
+                    // A direct Owner.Style/Owner.Theme property always styles its owner, including
+                    // when TargetType names a compatible base type. For properties such as
+                    // GraphEdgeStyle, which target another object type, keep setters in the theme.
                     var targetTypeAttr = controlTheme.GetAttribute("TargetType");
-                    bool targetsOwner = string.IsNullOrEmpty(targetTypeAttr) ||
+                    bool targetsOwner = IsDirectOwnerStyleProperty(ownerElement, styleProperty) ||
+                                        string.IsNullOrEmpty(targetTypeAttr) ||
                                         OwnerMatchesTargetType(ownerElement, targetTypeAttr);
 
                     var defaultSetters = new List<XmlElement>();
@@ -837,9 +838,13 @@ namespace gip.core.datamodel
                             if (!ownerElement.HasAttribute(propertyName))
                             {
                                 ownerElement.SetAttribute(propertyName, propertyValue);
+                                setter.ParentNode?.RemoveChild(setter);
                                 movedDefaultSetterCount++;
                             }
                         }
+
+                        if (settersContainer != null && !settersContainer.ChildNodes.OfType<XmlElement>().Any())
+                            controlTheme.RemoveChild(settersContainer);
                     }
 
                     if (triggersElement == null)
@@ -1152,22 +1157,19 @@ namespace gip.core.datamodel
                         ownerElement.AppendChild(interactionBehaviors);
 
                         // Remove the triggers element (already converted). Keep the ControlTheme
-                        // itself so the BasedOn resource reference and default setters still apply.
+                        // when it still carries meaningful content such as a BasedOn reference.
                         controlTheme.RemoveChild(triggersElement);
 
-                        // If the ControlTheme no longer carries setters or triggers, the Theme
-                        // property element only wraps a BasedOn reference - keep it, it is still
-                        // valid Avalonia XAML.
+                        if (IsRedundantOwnerControlTheme(controlTheme))
+                            ownerElement.RemoveChild(styleProperty);
                     }
                     else
                     {
-                        // Style targets a different type than the owner (e.g. *.GraphEdgeStyle
-                        // property elements). Inject behaviors INTO the ControlTheme instead of
-                        // replacing the entire style property. This preserves the property
-                        // assignment and its TargetType.
-                        controlTheme.AppendChild(interactionBehaviors);
-
-                        // Remove the original triggers element since we've converted it to behaviors.
+                        // The property style targets objects other than its owner (e.g.
+                        // ListBox.ItemContainerStyle). Interaction.Behaviors cannot be attached
+                        // to a ControlTheme because ChangePropertyAction would then target the
+                        // ControlTheme instance rather than an item it styles. Keep the valid
+                        // theme and discard only the unsupported trigger conversion.
                         controlTheme.RemoveChild(triggersElement);
                     }
                 }
@@ -4700,7 +4702,8 @@ namespace gip.core.datamodel
         /// <summary>
         /// Checks whether the owner element's tag name matches the TargetType of a Style/ControlTheme.
         /// Returns true if they match or if TargetType is empty (meaning the style applies to the owner).
-        /// Used to decide whether default setters can be safely promoted to owner attributes.
+        /// Direct Owner.Style/Owner.Theme properties are handled separately because their assignment
+        /// target remains the owner when TargetType names a compatible base type.
         /// </summary>
         private static bool OwnerMatchesTargetType(XmlElement ownerElement, string targetType)
         {
@@ -4741,6 +4744,29 @@ namespace gip.core.datamodel
             string ownerLocalName = ownerElement.LocalName;
 
             return string.Equals(ownerLocalName, targetTypeName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsDirectOwnerStyleProperty(XmlElement ownerElement, XmlElement styleProperty)
+        {
+            string propertyName = styleProperty.LocalName;
+            string ownerName = ownerElement.LocalName;
+
+            return string.Equals(propertyName, ownerName + ".Style", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(propertyName, ownerName + ".Theme", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsRedundantOwnerControlTheme(XmlElement controlTheme)
+        {
+            if (controlTheme.ChildNodes.OfType<XmlElement>().Any())
+                return false;
+
+            foreach (var attribute in controlTheme.Attributes.OfType<XmlAttribute>())
+            {
+                if (!string.Equals(attribute.LocalName, "TargetType", StringComparison.OrdinalIgnoreCase))
+                    return false;
+            }
+
+            return true;
         }
 
         /// <summary>
