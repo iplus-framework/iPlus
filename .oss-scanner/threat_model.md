@@ -15,7 +15,30 @@ authenticated session:
 
 - The WCF/web services (`gip.core.webservices`, HTTP listeners in the service
   and console hosts, typically ports 8750/8751/8001). Remote without
-  authentication where anonymous access is configured.
+  authentication where anonymous access is configured. The MCP server host
+  (`PAMcpServerHost`, port 8750) and the SQL tunnel host
+  (`PASqlTunnelHost`, port 8751) run on HTTP/Kestrel and are covered in
+  their own bullets below.
+- The MCP Server host (`PAMcpServerHost`, `gip.core.webservices/Components/MCP`,
+  Kestrel/ASP.NET **HTTP** endpoint, configured port 8750, default config 0 =
+  disabled): a Model Context Protocol server that exposes iPlus tools
+  (`MCPIPlusTools`, `MCPIPlusDevTools`, `MCPIPlusPrompts`) to LLM agents —
+  thesaurus/type/instance-tree navigation plus AC-method execution helpers.
+  Every request must authenticate via the `Authorization` header in
+  `username#password` form (`ApiKeyAuthenticationHandler` /
+  `ApiKeyValidator` -> iPlus `CheckLogin`), and every tool call runs with the
+  rights of that iPlus user (`VBUserContextService` session). Attack surface:
+  the credential parsing in `ApiKeyAuthorizationFilter`/`ApiKeyValidator`
+  (separator handling, array indexes, error paths), the port-based
+  `FindPAWebService` host resolution (local-port confusion between hosts),
+  per-request session add/cleanup (`AddSession`/`RemoveSession`,
+  `CleanupExpiredSessions`), the tool input handling in
+  `MCPToolBase`/`MCPToolAppTree` (attacker-controlled strings reach the AC
+  query methods and the application tree), and the fact that the endpoint
+  itself is plain HTTP (credentials and tool payloads are transmitted
+  unencrypted — TLS termination is expected to happen in front of it;
+  transport-level interception therefore depends on deployment, but logic
+  flaws in auth and tool handling are always in scope).
 - The SQL Tunnel host (`PASqlTunnelHost`, `gip.core.webservices/Components/SqlTunnel`,
   WebSocket endpoint `/sqltunnel` on port 8751): browser and mobile clients
   relay raw TDS database traffic through it after a two-stage auth (OAuth
@@ -48,6 +71,12 @@ Most important (server side, in scope):
   method execution), `gip.core.licensing`, `gip.core.archiver`,
   `gip.core.reporthandler`, `gip.core.processapplication`,
   `gip.iplus.service`, `gip.iplus.console`, `gip.iplus.startup`.
+- Inside `gip.core.webservices` the individually hosted endpoints matter
+  most: the SQL Tunnel host (`PASqlTunnelHost`), the MCP Server host
+  (`PAMcpServerHost` — LLM-agent access to the application tree with iPlus
+  user rights), and the JSON/REST service hosts with their authorization
+  managers (`ApiKeyAuthorizationManager`, `OAuthBearerAuthorizationManager`,
+  `WSRestAuthorizationManager`).
 - MES business objects in the `iplus-framework/iPlusMES` repository (enrolled
   as a separate project) build on top of these.
 
