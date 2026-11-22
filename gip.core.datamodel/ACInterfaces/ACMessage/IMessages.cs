@@ -133,7 +133,7 @@ namespace gip.core.datamodel
         /// <param name="captionList">List of labels for the input fields.</param>
         /// <param name="designXML">XAML-String for a individual layout of the the Input-Form.</param>
         /// <returns>System.Object[][].</returns>
-        object[] InputBoxValues(String header, object[] valueList, string[] captionList, string designXML = null);
+        Task<object[]> InputBoxValues(String header, object[] valueList, string[] captionList, string designXML = null);
 
         #endregion
 

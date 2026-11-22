@@ -1186,7 +1186,7 @@ namespace gip.bso.iplus
         /// News the point state info.
         /// </summary>
         [ACMethodInteraction("PointStateInfo", "en{'New Point stateinfo'}de{'Neue Statusinformation'}", (short)MISort.New, true, "CurrentPointStateInfo", Global.ACKinds.MSMethodPrePost)]
-        public void NewPointStateInfo()
+        public async void NewPointStateInfo()
         {
             if (!IsEnabledNewPointStateInfo())
                 return;
@@ -1197,7 +1197,7 @@ namespace gip.bso.iplus
 
             object[] valueList = new object[] { "", "", false };
             string[] captionList = new string[] { "Relative Url", Const.Value, "logical OR" };
-            object[] resultList = Messages.InputBoxValues("Info00018", valueList, captionList);
+            object[] resultList = await Messages.InputBoxValues("Info00018", valueList, captionList);
 
             if (resultList == null)
                 return;

@@ -194,13 +194,13 @@ namespace gip.core.autocomponent
         /// <param name="designXML">XAML-String for a individual layout of the the Input-Form.</param>
         /// <returns>System.Object[][].</returns>
         [ACMethodInfo("Input", "en{'Inputbox'}de{'Eingabebox'}", 9999)]
-        public object[] InputBoxValues(String header, object[] valueList, string[] captionList, string designXML = null)
+        public async Task<object[]> InputBoxValues(String header, object[] valueList, string[] captionList, string designXML = null)
         {
             IACComponent acComponent = Root.ACUrlCommand("Businessobjects#VBBSOInputBox") as IACComponent;
-            var result = acComponent.ACUrlCommand("!ShowInputBoxValues", new object[] { header, valueList, captionList, designXML }) as object[];
-            acComponent.Stop();
+            var result = acComponent.ACUrlCommand("!ShowInputBoxValues", new object[] { header, valueList, captionList, designXML }) as Task<object[]>;
+            await acComponent.Stop();
             acComponent = null;
-            return result;
+            return await result;
         }
 
         #endregion

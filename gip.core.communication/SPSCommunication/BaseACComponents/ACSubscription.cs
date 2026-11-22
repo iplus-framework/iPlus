@@ -228,13 +228,13 @@ namespace gip.core.communication
 
         #region Configuration
         [ACMethodAttached("", "en{'Create variables autom.'}de{'Variablen autom. anlegen'}", 1000, typeof(BSOiPlusStudio), true, "", false, Global.ContextMenuCategory.NoCategory)]
-        public static void AutoInsertVariables(IACComponent acComponent)
+        public async static void AutoInsertVariables(IACComponent acComponent)
         {
             BSOiPlusStudio _this = acComponent as BSOiPlusStudio;
             if (!IsEnabledAutoInsertVariables(_this))
                 return;
 
-            object[] result = acComponent.Messages.InputBoxValues("Wertebereich", new object[] { "1", "1", "A", "", "", "0", "0", "" }, new string[] { "Von", "Bis", "Prefix", "Postfix", "SPSAddr-Prefix", "SPS-Startaddr.", "SPS-Offset to next", "Bemerkung" });
+            object[] result = await acComponent.Messages.InputBoxValues("Wertebereich", new object[] { "1", "1", "A", "", "", "0", "0", "" }, new string[] { "Von", "Bis", "Prefix", "Postfix", "SPSAddr-Prefix", "SPS-Startaddr.", "SPS-Offset to next", "Bemerkung" });
 
             if (result == null)
             {
@@ -292,13 +292,13 @@ namespace gip.core.communication
 
 
         [ACMethodAttached("", "en{'Rename variables'}de{'Variablen umbenennen'}", 1001, typeof(BSOiPlusStudio), true, "", false, Global.ContextMenuCategory.NoCategory)]
-        public static void AutoRenameVariables(IACComponent acComponent)
+        public async static void AutoRenameVariables(IACComponent acComponent)
         {
             BSOiPlusStudio _this = acComponent as BSOiPlusStudio;
             if (!IsEnabledAutoRenameVariables(_this))
                 return;
 
-            object[] result = acComponent.Messages.InputBoxValues("Wertebereich", new object[] { "1", "1", "A", "", "", "0", "0", "" }, new string[] { "Von", "Bis", "Prefix", "Postfix", "SPSAddr-Prefix", "SPS-Startaddr.", "SPS-Offset to next", "Bemerkung" });
+            object[] result = await acComponent.Messages.InputBoxValues("Wertebereich", new object[] { "1", "1", "A", "", "", "0", "0", "" }, new string[] { "Von", "Bis", "Prefix", "Postfix", "SPSAddr-Prefix", "SPS-Startaddr.", "SPS-Offset to next", "Bemerkung" });
 
             if (result == null)
             {
