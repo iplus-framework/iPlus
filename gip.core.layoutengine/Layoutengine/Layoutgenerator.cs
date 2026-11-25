@@ -187,6 +187,9 @@ namespace gip.core.layoutengine
             }
         }
 
+        [ThreadStatic]
+        static public string CurrentLayoutName;
+
         static public IACComponent CurrentACComponent
         {
             get
@@ -220,9 +223,9 @@ namespace gip.core.layoutengine
 
         [ThreadStatic]
         static protected IRoot _Root;
-        // Global fallback of the last known root. Binding finalizers (~VBBinding) run on
-        // the finalizer thread and cannot see the ThreadStatic root - without this
-        // fallback their WPF-ref cleanup (FindAndRemoveWPFRef) would be lost.
+        // Global fallback of the last known root. Binding finalizers (~VBBinding /
+        // ~VBBindingClone) run on the finalizer thread and cannot see the ThreadStatic
+        // root - without this fallback their WPF-ref cleanup (RemoveWPFRef) would be lost.
         static IRoot _RootGlobalFallback;
 
         static void SetThreadRoot(IRoot root)
@@ -346,7 +349,7 @@ namespace gip.core.layoutengine
                 object result;
                 bool cacheDisabled = Environment.GetEnvironmentVariable("IPLUS_XAML_DEBUG_NOCACHE") == "1";
                 DataTemplate cachedTemplate = cacheDisabled ? null : GetOrCompileTemplate(converted);
-                XamlCacheDbg.Log($"LoadXAML '{layoutName}' -> {(cacheDisabled ? "CACHE DISABLED (A/B)" : cachedTemplate != null ? "CACHE HIT" : "FALLBACK Parse")}");
+                XamlCacheDbg.Log($"LoadXAML '{layoutName}' ctx={(dataContext?.GetACUrl() ?? "<null>")} bso={(bso?.ACIdentifier ?? "<null>")} -> {(cacheDisabled ? "CACHE DISABLED (A/B)" : cachedTemplate != null ? "CACHE HIT" : "FALLBACK Parse")}");
                 if (cachedTemplate != null)
                 {
                     result = cachedTemplate.LoadContent();
@@ -392,7 +395,7 @@ namespace gip.core.layoutengine
             {
                 if (!_enabled)
                     return;
-                string line = DateTime.Now.ToString("HH:mm:ss.fff") + " [XamlCacheDbg] " + message;
+                string line = DateTime.Now.ToString("HH:mm:ss.fff") + " [XamlCacheDbg][T" + Environment.CurrentManagedThreadId + "] " + message;
                 System.Diagnostics.Debug.WriteLine(line);
                 System.Diagnostics.Trace.WriteLine(line);
                 try
@@ -421,7 +424,10 @@ namespace gip.core.layoutengine
         /// non-DependencyObject target (DataTrigger.Binding, Setter.Value, ...). Such
         /// bindings are stored shared inside a compiled DataTemplate and would be frozen
         /// to the compile-time ACComponent - these designs must not be cached.
+        /// Per-thread: concurrent compilations on different threads must not clear each
+        /// other's flag.
         /// </summary>
+        [ThreadStatic]
         internal static bool TemplateHasSharedBindings;
 
         /// <summary>

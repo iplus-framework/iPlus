@@ -184,6 +184,11 @@ namespace gip.core.datamodel
             // Convert DataGridTextColumn.ElementStyle to supported VBDataGridTextColumn attributes.
             avaloniaXAML = ConvertDataGridTextColumnElementStyle(avaloniaXAML);
 
+            // WPF permits namespace-qualified regular properties in styles, e.g.
+            // Property="vb:WidthContent". Avalonia resolves Setter properties against
+            // the TargetType and expects the unqualified regular property name.
+            avaloniaXAML = NormalizeStylePropertyReferences(avaloniaXAML);
+
             // Rename WPF DataGrid column *.EditingElementStyle property elements so they
             // resolve on the VBDataGridTextColumn type instead of the WPF owner type.
             avaloniaXAML = ConvertDataGridColumnEditingElementStyle(avaloniaXAML);
@@ -1482,10 +1487,78 @@ namespace gip.core.datamodel
             if (string.IsNullOrWhiteSpace(propertyName))
                 return propertyName;
 
+            propertyName = RemoveRegularPropertyNamespaceQualifier(propertyName);
+
             if (string.Equals(propertyName, "Visibility", StringComparison.OrdinalIgnoreCase))
                 return "IsVisible";
 
             return propertyName;
+        }
+
+        /// <summary>
+        /// Removes XML namespace qualifiers from regular properties used by styles and
+        /// triggers. WPF accepts values such as <c>vb:WidthContent</c>, while Avalonia
+        /// resolves regular setter properties against the target type without a prefix.
+        /// Dotted attached-property names are intentionally preserved.
+        /// </summary>
+        private static string NormalizeStylePropertyReferences(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml) || xaml.IndexOf(':') < 0)
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                bool modified = false;
+                foreach (XmlElement element in doc.GetElementsByTagName("*").OfType<XmlElement>())
+                {
+                    string attributeName = null;
+                    if (string.Equals(element.LocalName, "Setter", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(element.LocalName, "Trigger", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(element.LocalName, "Condition", StringComparison.OrdinalIgnoreCase))
+                    {
+                        attributeName = "Property";
+                    }
+                    else if (string.Equals(element.LocalName, "ChangePropertyAction", StringComparison.OrdinalIgnoreCase))
+                    {
+                        attributeName = "PropertyName";
+                    }
+
+                    if (attributeName == null || !element.HasAttribute(attributeName))
+                        continue;
+
+                    string propertyName = element.GetAttribute(attributeName);
+                    string normalizedName = RemoveRegularPropertyNamespaceQualifier(propertyName);
+                    if (string.Equals(propertyName, normalizedName, StringComparison.Ordinal))
+                        continue;
+
+                    element.SetAttribute(attributeName, normalizedName);
+                    modified = true;
+                }
+
+                return modified ? doc.OuterXml : xaml;
+            }
+            catch
+            {
+                return xaml;
+            }
+        }
+
+        private static string RemoveRegularPropertyNamespaceQualifier(string propertyName)
+        {
+            if (string.IsNullOrWhiteSpace(propertyName))
+                return propertyName;
+
+            int colonIndex = propertyName.IndexOf(':');
+            if (colonIndex <= 0 || propertyName.IndexOf('.', colonIndex + 1) >= 0)
+                return propertyName;
+
+            return propertyName.Substring(colonIndex + 1);
         }
 
         private static string ConvertStoryboardTargetProperty(string targetProperty)
@@ -4184,6 +4257,7 @@ namespace gip.core.datamodel
         /// </summary>
         private static readonly string[] WpfOnlyAttributes = new[]
         {
+            "OverridesDefaultStyle",
             "SnapsToDevicePixels",
             "TextOptions.TextFormattingMode",
             "TextOptions.TextRenderingMode",
@@ -4196,8 +4270,8 @@ namespace gip.core.datamodel
         };
 
         /// <summary>
-        /// Removes WPF-only attributes (and their property-element forms) that have no
-        /// Avalonia equivalent, e.g. SnapsToDevicePixels.
+        /// Removes WPF-only properties that have no Avalonia equivalent, including
+        /// attributes, property elements, setters, and converted change actions.
         /// </summary>
         private static string RemoveWpfOnlyAttributes(string xaml)
         {
@@ -4218,18 +4292,26 @@ namespace gip.core.datamodel
                     if (elements[i] is not XmlElement element)
                         continue;
 
-                    foreach (var attributeName in WpfOnlyAttributes)
+                    foreach (var attribute in element.Attributes.OfType<XmlAttribute>().ToList())
                     {
-                        if (element.HasAttribute(attributeName))
-                            element.RemoveAttribute(attributeName);
+                        if (IsWpfOnlyPropertyName(attribute.Name))
+                            element.RemoveAttribute(attribute.Name);
                     }
 
                     // Remove property-element forms like <Border.SnapsToDevicePixels>...</Border.SnapsToDevicePixels>
                     foreach (var child in element.ChildNodes.OfType<XmlElement>().ToList())
                     {
-                        if (WpfOnlyAttributes.Any(a => string.Equals(child.LocalName, a, StringComparison.OrdinalIgnoreCase)))
+                        if (IsWpfOnlyPropertyName(child.LocalName))
                             element.RemoveChild(child);
                     }
+
+                    bool isUnsupportedSetter = string.Equals(element.LocalName, "Setter", StringComparison.OrdinalIgnoreCase)
+                        && IsWpfOnlyPropertyName(element.GetAttribute("Property"));
+                    bool isUnsupportedAction = string.Equals(element.LocalName, "ChangePropertyAction", StringComparison.OrdinalIgnoreCase)
+                        && IsWpfOnlyPropertyName(element.GetAttribute("PropertyName"));
+
+                    if (isUnsupportedSetter || isUnsupportedAction)
+                        element.ParentNode?.RemoveChild(element);
                 }
 
                 return FormatXaml(doc.OuterXml);
@@ -4239,6 +4321,16 @@ namespace gip.core.datamodel
                 // Keep conversion resilient: if this pass fails, return the original text.
                 return xaml;
             }
+        }
+
+        private static bool IsWpfOnlyPropertyName(string propertyName)
+        {
+            if (string.IsNullOrWhiteSpace(propertyName))
+                return false;
+
+            return WpfOnlyAttributes.Any(attributeName =>
+                string.Equals(propertyName, attributeName, StringComparison.OrdinalIgnoreCase)
+                || propertyName.EndsWith("." + attributeName, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>

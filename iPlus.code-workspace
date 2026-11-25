@@ -10,7 +10,7 @@
 			"path": "../Avalonia"
 		},
 		{
-			"path": "../Xaml.Behaviors"
+			"path": "../../Misc/UA-.NETStandard"
 		}
 	],
 	"settings": {
