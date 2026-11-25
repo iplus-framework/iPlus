@@ -1336,7 +1336,7 @@ namespace gip.core.layoutengine.avui
         private async Task ShowVBDesignModalDialogAsync(IVBContent uiElementAsDataContent, Control uiElement, string acCaption)
         {
             VBWindowDialogRoot vbDialogRoot = new VBWindowDialogRoot(uiElementAsDataContent.ContextACObject, uiElement, this);
-            //vbDialogRoot.WindowStyle = System.Windows.WindowStyle.None;
+            Window owner = vbDialogRoot.Owner as Window;
             if (vbDialogRoot.Owner == null)
             {
                 StyledElement dp = this;
@@ -1349,8 +1349,7 @@ namespace gip.core.layoutengine.avui
                         Window ownerWindow = dp as Window;
                         if (ownerWindow != null && ownerWindow.IsLoaded)
                         {
-                            //vbDialogRoot.Owner = ownerWindow;
-                            vbDialogRoot.Show(ownerWindow);
+                            owner = ownerWindow;
                             break;
                         }
                         var parent = LogicalTreeHelper.GetParent(dp);
@@ -1400,10 +1399,14 @@ namespace gip.core.layoutengine.avui
                 vbDialogRoot.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             DialogStack.Add(vbDialogRoot);
 
-            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime classicDesktop && classicDesktop.MainWindow != null)
-            {
-                await vbDialogRoot.ShowDialog(classicDesktop.MainWindow);
-            }
+            if (owner == null
+                && Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime classicDesktop)
+                owner = classicDesktop.MainWindow;
+
+            if (owner == null)
+                throw new InvalidOperationException("Cannot show a modal dialog without an owner window.");
+
+            await vbDialogRoot.ShowDialog(owner);
         }
 
         private static void EnableCanCloseLastDockable(ToolDock toolDock)

@@ -86,7 +86,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
         /// <param name="executeDelegate">Delegate for command execution (optional, uses DefaultExecuteHandler if null)</param>
         /// <param name="canExecuteDelegate">Delegate for checking if command can execute (optional, uses DefaultCanExecuteHandler if null)</param>
         /// <returns>If Command was applied, then Result is not null</returns>
-        public static Result? ApplyACCommand(IACCommandControl control, IACComponent? interactiveObject, string methodNameForCommand, ACCommand acCommmand, ILogical? logical, 
+        public static Result? ApplyACCommand(IACCommandControl control, IACComponent? interactiveObject, string methodNameForCommand, ACCommand acCommmand, ILogical? logical,
             EventHandler<ExecutedRoutedEventArgs>? executeDelegate = null, EventHandler<CanExecuteRoutedEventArgs>? canExecuteDelegate = null)
         {
             if (interactiveObject == null)
@@ -179,13 +179,40 @@ namespace gip.core.layoutengine.avui.Helperclasses
 
                 CommandBinding cb = new CommandBinding();
                 cb.Command = iCommand;
-                        
-                // Use default handlers if not provided
-                cb.Executed += executeDelegate ?? DefaultExecuteHandler;
-                if (canExecuteDelegate != null)
-                    cb.CanExecute += canExecuteDelegate;
-                else
-                    cb.CanExecute += isBuiltInGesture ? DefaultCannotExecuteHandler : DefaultCanExecuteHandler;
+
+                var commandControl = new WeakReference<IACCommandControl>(control);
+                var commandComponent = new WeakReference<IACComponent>(interactiveObject);
+                cb.Executed += (_, args) =>
+                {
+                    if (commandControl.TryGetTarget(out IACCommandControl? commandTarget))
+                    {
+                        if (executeDelegate != null)
+                            executeDelegate(commandTarget, args);
+                        else
+                        {
+                            commandComponent.TryGetTarget(out IACComponent? componentTarget);
+                            _ = DefaultExecuteHandlerAsync(commandTarget, args, componentTarget);
+                        }
+                    }
+                };
+
+                cb.CanExecute += (_, args) =>
+                {
+                    if (commandControl.TryGetTarget(out IACCommandControl? commandTarget))
+                    {
+                        if (canExecuteDelegate != null)
+                            canExecuteDelegate(commandTarget, args);
+                        else if (isBuiltInGesture)
+                            DefaultCannotExecuteHandler(commandTarget, args);
+                        else
+                        {
+                            commandComponent.TryGetTarget(out IACComponent? componentTarget);
+                            DefaultCanExecuteHandler(commandTarget, args, componentTarget);
+                        }
+                    }
+                    else
+                        args.CanExecute = false;
+                };
 
                 if (!isBuiltInGesture)
                 {
@@ -708,6 +735,11 @@ namespace gip.core.layoutengine.avui.Helperclasses
         /// </summary>
         public static void DefaultExecuteHandler(object? sender, ExecutedRoutedEventArgs e)
         {
+            DefaultExecuteHandler(sender, e, null);
+        }
+
+        private static void DefaultExecuteHandler(object? sender, ExecutedRoutedEventArgs e, IACComponent? boundComponent)
+        {
             if (sender is not IACCommandControl control)
                 return;
 
@@ -733,7 +765,9 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 {
                     var parameterList = GetOrCreateParameterList(control);
 
-                    if (vbContent.ContextACObject is IACInteractiveObject interactiveObject)
+                    IACInteractiveObject? interactiveObject = vbContent.ContextACObject as IACInteractiveObject
+                                                             ?? boundComponent as IACInteractiveObject;
+                    if (interactiveObject != null)
                     {
                         actionArgs = new ACActionArgs(control, 0, 0, Global.ElementActionType.ACCommand);
                         interactiveObject.ACAction(actionArgs);
@@ -742,10 +776,61 @@ namespace gip.core.layoutengine.avui.Helperclasses
             }
         }
 
+        private static async Task DefaultExecuteHandlerAsync(object? sender, ExecutedRoutedEventArgs e, IACComponent? boundComponent)
+        {
+            try
+            {
+                if (sender is not IACCommandControl control)
+                    return;
+
+                if (e.Command is RoutedUICommandEx vbCommand
+                    && vbCommand.ACCommand.HandlerACElement != null
+                    && vbCommand.ACCommand.HandlerACElement != control)
+                {
+                    var actionArgs = new ACActionArgs(control, 0, 0, Global.ElementActionType.ACCommand);
+                    if (vbCommand.ACCommand.HandlerACElement is IACInteractiveObjectAsync asyncHandler)
+                        await asyncHandler.ACActionAsync(actionArgs);
+                    else
+                        vbCommand.ACCommand.HandlerACElement.ACAction(actionArgs);
+                    return;
+                }
+
+                if (control is IVBContent vbContent)
+                {
+                    GetOrCreateParameterList(control);
+
+                    IACInteractiveObject? interactiveObject = vbContent.ContextACObject as IACInteractiveObject
+                                                             ?? boundComponent as IACInteractiveObject;
+                    if (interactiveObject == null)
+                        return;
+
+                    var actionArgs = new ACActionArgs(control, 0, 0, Global.ElementActionType.ACCommand);
+                    if (interactiveObject is IACInteractiveObjectAsync asyncInteractiveObject)
+                        await asyncInteractiveObject.ACActionAsync(actionArgs);
+                    else
+                        interactiveObject.ACAction(actionArgs);
+                }
+            }
+            catch (Exception ex)
+            {
+                var messages = Database.Root?.Messages;
+                if (messages == null)
+                    return;
+                messages.LogException(nameof(ACCommandHelper), nameof(DefaultExecuteHandlerAsync), ex);
+                if (boundComponent != null)
+                    await messages.ErrorAsync(boundComponent, ex.Message, true);
+            }
+        }
+
         /// <summary>
         /// Default canExecute handler for AC commands via CommandBinding
         /// </summary>
         public static void DefaultCanExecuteHandler(object? sender, CanExecuteRoutedEventArgs e)
+        {
+            DefaultCanExecuteHandler(sender, e, null);
+        }
+
+        private static void DefaultCanExecuteHandler(object? sender, CanExecuteRoutedEventArgs e, IACComponent? boundComponent)
         {
             if (sender is not IACCommandControl control)
             {
@@ -763,8 +848,11 @@ namespace gip.core.layoutengine.avui.Helperclasses
             if (control is IVBContent vbContent)
                 acComponent = vbContent.ContextACObject as IACComponent;
 
-            if (control is IACCommandControl cmdControl && cmdControl.Command != null)
-                acComponent = cmdControl as IACComponent;
+            if (acComponent == null && control is IACComponent componentControl)
+                acComponent = componentControl;
+
+            if (acComponent == null)
+                acComponent = boundComponent;
 
             if (acComponent != null)
             {
@@ -841,7 +929,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
 
             return parameterList;
         }
-        
+
         #endregion
 
     }

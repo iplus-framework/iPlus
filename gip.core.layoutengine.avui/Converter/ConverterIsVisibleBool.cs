@@ -1,3 +1,4 @@
+using Avalonia.Data;
 using Avalonia.Data.Converters;
 using System;
 using System.Globalization;
@@ -37,7 +38,7 @@ namespace gip.core.layoutengine.avui
 
         object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return null;
+            return BindingOperations.DoNothing;
         }
 
         public object ProvideValue(IServiceProvider serviceProvider)
