@@ -162,6 +162,12 @@ namespace gip.core.layoutengine
         }
 
 
+        // The layout context must be per-thread: two windows/panels loading designs
+        // concurrently on different threads (or the finalizer thread running binding
+        // cleanup) otherwise interleave these statics and bindings/converters capture
+        // the WRONG ACComponent - which shows up as e.g. all visibility Borders becoming
+        // visible (script converters fall back to Visible on error).
+        [ThreadStatic]
         static protected IACObject _CurrentDataContext;
         static public IACObject CurrentDataContext
         {
@@ -172,11 +178,11 @@ namespace gip.core.layoutengine
             set
             {
                 _CurrentDataContext = value;
-                if ((_CurrentDataContext != null) 
-                    && (_CurrentDataContext is IACComponent) 
+                if ((_CurrentDataContext != null)
+                    && (_CurrentDataContext is IACComponent)
                     && (_Root == null))
                 {
-                    _Root = (_CurrentDataContext as IACComponent).Root;
+                    SetThreadRoot((_CurrentDataContext as IACComponent).Root);
                 }
             }
         }
@@ -194,6 +200,7 @@ namespace gip.core.layoutengine
         }
 
 
+        [ThreadStatic]
         static protected IACBSO _CurrentBSO;
         static public IACBSO CurrentBSO
         {
@@ -206,17 +213,32 @@ namespace gip.core.layoutengine
                 _CurrentBSO = value;
                 if (_CurrentBSO != null && _Root == null)
                 {
-                    _Root = _CurrentBSO.Root;
+                    SetThreadRoot(_CurrentBSO.Root);
                 }
             }
         }
-        
+
+        [ThreadStatic]
         static protected IRoot _Root;
+        // Global fallback of the last known root. Binding finalizers (~VBBinding) run on
+        // the finalizer thread and cannot see the ThreadStatic root - without this
+        // fallback their WPF-ref cleanup (FindAndRemoveWPFRef) would be lost.
+        static IRoot _RootGlobalFallback;
+
+        static void SetThreadRoot(IRoot root)
+        {
+            _Root = root;
+            if (root != null)
+                _RootGlobalFallback = root;
+        }
+
         static public IRoot Root
         {
             get
             {
-                return _Root;
+                if (_Root != null)
+                    return _Root;
+                return _RootGlobalFallback;
             }
         }
 
