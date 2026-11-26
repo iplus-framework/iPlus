@@ -407,6 +407,10 @@ Consequences of the sync variant in an Avalonia client:
 * In an `async Task` ACMethod never call the sync variant: the caller of `HandleExecuteACMethod`
   awaits the returned `Task`, so the method stays suspended until the dialog closed only with the
   async variant.
+* If a runtime script starts a child BSO and invokes one of its async methods via
+  `ExecuteMethod`, cast the returned object to `Task` and await it **before** calling
+  `childBSO.Stop()`. `async void` assembly methods cannot be awaited by the script
+  engine and must be changed to `async Task`.
 
 The dialog design is an ordinary design row of the BSO (section 1/2): create **both** the WPF
 (`XMLDesign`) and Avalonia (`XMLDesign2`) variant. If the dialog only shows a progress bar, use the
@@ -438,9 +442,13 @@ Typical bugs and their cause:
 | Details/preview keep old object after navigating to another parent object | selection not reset when the new list is empty |
 | Selecting a row does not update the details | `Selected...` setter does not raise the generic `SelectedXxx` property |
 | Button stays disabled/enabled | property missing in `GetPropsToObserveForIsEnabled`, **or the property cannot be resolved on the live component** ("GetPropsToObserveForIsEnabled is called, but never re-evaluated" below) |
+| Runtime script command needs reactive IsEnabled updates | declare three exact ACClassMethod identifiers on the class: `CommandName`, `IsEnabledCommandName`, and `GetPropsToObserveForIsEnabledCommandName`. Use `MSMethodExt` for server scripts or `MSMethodExtClient` for client scripts. The observer receives the component as its first parameter and returns `string`, `IEnumerable<string>`, or `null`; its result is merged with the compiled override. |
+| Script has `IsEnabled...` but it is not invoked | older/default script metadata may still have `IsAutoenabled=true`. For `MSMethodExt` / `MSMethodExtClient`, presence of the registered `IsEnabled...` script takes precedence; if it is absent, the command is auto-enabled. |
+| Same method works on several instances, but all buttons target one instance | do not rely on a globally cached non-hotkey `RoutedUICommandEx` or on a component captured by the first command binding. `ACCommandHelper` must resolve `ContextACObject` from the clicked control; only genuine application/hotkey commands should be shared. |
 | Button never re-evaluates although `GetPropsToObserveForIsEnabled` contains the property | the property/class is **not yet registered in the DB type system**. `ACCommandHelper.ApplyACCommand` resolves each name via `ACUrlTypeInfo` against the live component — a plain `[ACPropertyInfo]` that the class manager has not yet written to the ACClass tables cannot be resolved, no observable is created and the ReactiveCommand never re-fires (silently, only the initial evaluation runs). Log in **with Ctrl pressed** so `ACClassManager.RegisterAndUpdateACObjects` re-registers all reflected classes ([ACClassManager.cs](../../gip.core.autocomponent/ACClassManager/ACClassManager.cs#L2357-L2358)) whenever you added/changed properties, methods or classes in an `[ACClassInfo]` type. |
 | Button does not re-evaluate when a **checkbox in a tree/list** is toggled | item-level changes are invisible to the observer: `ACCommandHelper` can only observe properties that resolve on the *BSO itself*, and the checkboxes live on the item models (e.g. `ACClassInfoWithItems.IsChecked`, cascaded by `VBTreeView`). Use the **version-counter trick**: a plain `[ACPropertyInfo] Int32` property on the BSO that is incremented in the item's `PropertyChanged` handler for `ACClassInfoWithItems.IsCheckedPropName`, and name it in `GetPropsToObserveForIsEnabled`. Reference implementations: `ProdOrderBatchPlanSelectionVersion` (`BSOBatchPlanScheduler`) and `TreeSelectionVersion` (`BSOOPCUABrowser`, incl. `HookTreeItem` for the root + every `CreateNodeItem`). |
 | Image control empty in Avalonia | byte[] bound without `ConverterImagePath`, or the path is not reachable from the client |
+| A `VBBinding` to a visibility/tooltip converter writes `"System.Object"` or clears its source | `VBBinding` can become `TwoWay` for an input AC property. Presentation-only bindings must use `Mode=OneWay`; visibility converters must return `BindingOperations.DoNothing` from `ConvertBack`, never a placeholder `new object()`. |
 | WCF "TryResolveType" failure on an enum/DTO | type missing `[ACSerializeableInfo]` (+ `[ACClassInfo(..., TACEnum)]` for enums) |
 
 ---

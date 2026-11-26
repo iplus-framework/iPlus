@@ -457,6 +457,31 @@ For files, images, PDFs etc. return `byte[]` plus format metadata — **not** a
 > There is **no** `ACMethodExt` attribute. Script/extension methods are ordinary
 > methods whose `ACClassMethod.ACKind` is set to `MSMethodExt` / `MSMethodExtClient`
 > in the database (e.g. created in the development environment).
+>
+> A script command and its UI support methods are separate `ACClassMethod` rows.
+> For command `StartBunkerEmptying`, declare exact, case-sensitive identifiers
+> `StartBunkerEmptying`, `IsEnabledStartBunkerEmptying`, and
+> `GetPropsToObserveForIsEnabledStartBunkerEmptying`. Use `MSMethodExt` when the
+> complete trio belongs on the server; use `MSMethodExtClient` when it must run in
+> the client process. The support scripts follow the same proxy/local dispatch
+> rules as ordinary script methods.
+
+For MCP-driven creation, call `dev_add_method` three times with the exact
+case-sensitive identifiers. For every row use `methodType=Script` for a server
+trio or `methodType=ScriptClient` for a client trio, then call
+`dev_update_method_sourcecode` with the complete source:
+
+```text
+StartBunkerEmptying
+IsEnabledStartBunkerEmptying
+GetPropsToObserveForIsEnabledStartBunkerEmptying
+```
+
+The C# declaration name in `Sourcecode` must equal the ACIdentifier. Prefer
+`IsEnabled...` to return `bool`, and the observer to return `string`,
+`IEnumerable<string>`, or `null`. The first script parameter is the concrete
+class type for `MSMethodExt`, or `IACComponent acComponent` for
+`MSMethodExtClient`.
 
 ```csharp
 [ACMethodInfo(string acGroup,
@@ -720,14 +745,19 @@ needs to know **which properties to observe** so it can re-evaluate the state.
 
 ```text
 ACCommandHelper.ApplyACCommand(...)
-  → interactiveObject.GetPropsToObserveForIsEnabled(methodName)
+  → interactiveObject.GetPropsToObserveForIsEnabledWithScripts(methodName)
+      ├─ compiled GetPropsToObserveForIsEnabled(methodName)
+      ├─ optional script GetPropsToObserveForIsEnabled<methodName>
+      └─ distinct union of both results
       ├─ non-empty  → ReactiveCommand observing those properties
       └─ empty/null → CommandBinding / CanExecuteRoutedEventHandler fallback
 ```
 
 `ACComponent.GetPropsToObserveForIsEnabled` returns `null` by default.
-`ACComponentProxy` forwards the call to the server via
-`RMInvoker.ExecuteMethod(nameof(GetPropsToObserveForIsEnabled), ...)`.
+The combined method first invokes the compiled virtual method, then resolves
+an optional database script. On a proxy, the compiled call is forwarded to the
+server; the optional `MSMethodExt` script is also dispatched to the server,
+while an `MSMethodExtClient` script runs locally.
 
 ### 11.2 Override it in your BSO
 
@@ -765,9 +795,57 @@ public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMetho
    *version counter* property that you bump whenever the list changes, and that
    counter must be in the observed list. Example: `ProdOrderBatchPlanSelectionVersion`.
 4. **`IsEnabled` convention:** `Const.IsEnabledPrefix = "IsEnabled"`. If a method
-   `IsEnabledX` exists, `ACClassManager` sets `IsAutoenabled = false` for `X`.
-5. **On a proxy** the observed-property query goes to the server — the properties
-   must therefore exist on the server class, not only on the client.
+   `IsEnabledX` exists, `ACClassManager` normally sets `IsAutoenabled = false`
+   for `X`. Runtime scripts can retain the default `IsAutoenabled=true`; for
+   script commands the registered `IsEnabledX` script is authoritative. It is
+   invoked when present, otherwise the command is auto-enabled.
+5. **Script observer convention:** for script command `X`, declare
+   `GetPropsToObserveForIsEnabledX` as `MSMethodExt` or `MSMethodExtClient`.
+   Its first parameter is the owning `IACComponent` and it may return a
+   `string`, `IEnumerable<string>`, or `null`:
+
+   ```csharp
+   public IEnumerable<string> GetPropsToObserveForIsEnabledStartBunkerEmptying(
+       IACComponent acComponent)
+   {
+       return new[] { "OrderInfo", "ReservationInfo" };
+   }
+   ```
+
+   The script result is merged with the compiled override; one set does not
+   replace the other.
+6. **Exact names:** the observer script is derived from the command identifier,
+   after removing a leading `!` and `IsEnabled`. For `!StartBunkerEmptying`,
+   use `IsEnabledStartBunkerEmptying` and
+   `GetPropsToObserveForIsEnabledStartBunkerEmptying`. Do not use
+   `IsEnabledBunkerEmptying`.
+7. **On a proxy** server-side dependencies must exist on the server class.
+   Client-script dependencies are evaluated on the client class/proxy.
+8. **Registration is required:** new script methods and observed properties
+   must exist in the ACClass tables. Deploy/register the changes; with reflected
+   classes, log in with Ctrl pressed to refresh the type system.
+
+### 11.4 Invoking task-returning script methods
+
+`ExecuteMethod` returns the method result as `object`. If that result is a `Task`,
+the caller must inspect and await it:
+
+```csharp
+Task task = childBSO.ExecuteMethod(
+    "StartBunkerEmptying", bunkerACUrl, bunkerFacilityNo) as Task;
+
+if (task != null)
+    await task;
+
+await childBSO.Stop();
+```
+
+Do not stop/de-initialize a child BSO while its task is pending. In particular,
+stopping it before an awaited `ShowDialogAsync` completes closes the dialog.
+Use `async Task` for AC methods that await dialogs/workflows; avoid `async void`
+because reflection cannot return and await it. The Avalonia command pipeline
+uses `ACActionAsync` and awaits task results returned by compiled and script
+methods.
 
 ---
 

@@ -244,12 +244,17 @@ namespace gip.core.webservices
         }
 
         [McpServerTool(Name = "dev_add_method"), Description("(D8) Development: Adds a new method (ACClassMethod) to a class, " +
-            "equivalent to 'New Method' in BSOiPlusStudio. " +
-            "methodType: 'Script' = virtual method with C# source code skeleton (MSMethodExt, server-side), " +
-            "'ScriptClient' = client-side trigger method (MSMethodExtClient), " +
+            "equivalent to 'New Method' in BSOiPlusStudio. For an Avalonia/WPF button backed by a runtime script, create THREE " +
+            "separate methods with the same type: CommandName, IsEnabledCommandName (returns bool), and " +
+            "GetPropsToObserveForIsEnabledCommandName (returns string/IEnumerable<string>/null). ACIdentifiers are case-sensitive. " +
+            "methodType: 'Script' = C# script executed server-side (MSMethodExt); " +
+            "'ScriptClient' = C# script executed in the client process (MSMethodExtClient); " +
             "'Workflow' = workflow method (MSWorkflow), " +
             "'Pre'/'Post' = pre/post method attached to an existing method (attachToMethodName required). " +
-            "Script methods get a generated C# skeleton in Sourcecode which can later be edited via dev_update_method_sourcecode.")]
+            "A script's declared C# function name must exactly equal the ACIdentifier. ScriptClient receives IACComponent acComponent " +
+            "as its first parameter; server scripts receive the concrete class type as the framework-generated first parameter. " +
+            "Each script gets a generated C# skeleton; replace it with the complete implementation through dev_update_method_sourcecode. " +
+            "Do this for all three methods of a command, then save/restart or re-register as required so clients receive the updated metadata.")]
         public static string dev_add_method(
             McpServer server,
             RequestContext<CallToolRequestParams> context,
@@ -258,9 +263,11 @@ namespace gip.core.webservices
             string i18nLangTag,
             [Description("(required) ACIdentifier of the class (ACClass) to which the method is added.")]
             string classIdentifier,
-            [Description("(optional) Name of the new method. If empty, a unique name ('Script1', 'Script2', ...) is generated.")]
+            [Description("(optional) Exact, case-sensitive ACIdentifier. If empty, a unique 'MethodName...' identifier is generated. " +
+                "The generated C# function name is synchronized with this value.")]
             string methodName = null,
-            [Description("Method type: 'Script' (default), 'ScriptClient', 'Workflow', 'Pre' or 'Post'.")]
+            [Description("Method type: 'Script' (server-side, MSMethodExt, default), 'ScriptClient' (client-side, MSMethodExtClient), " +
+                "'Workflow', 'Pre' or 'Post'. For a script-command trio, use the same Script/ScriptClient type for all three methods.")]
             string methodType = "Script",
             [Description("(optional, for 'Pre'/'Post') Name of the existing method to which the pre/post method is attached.")]
             string attachToMethodName = null,
@@ -273,8 +280,12 @@ namespace gip.core.webservices
             return GetDevTools(mcpHost).dev_add_method(mcpHost, userRights, classIdentifier, methodName, methodType, attachToMethodName, saveChanges);
         }
 
-        [McpServerTool(Name = "dev_update_method_sourcecode"), Description("(D9) Development: Updates the C# source code of a script method (ACClassMethod with ACKind MSMethodExt/MSMethodExtClient). " +
-            "Use get_property_info on the method to read the current Sourcecode first. The code is compiled by the framework's precompiler at runtime.")]
+        [McpServerTool(Name = "dev_update_method_sourcecode"), Description("(D9) Development: Updates the complete C# source code of a script method " +
+            "(ACClassMethod with ACKind MSMethodExt/MSMethodExtClient). The declared function name must exactly match methodName. " +
+            "For command Foo use: Foo(...), IsEnabledFoo(...) : bool, and GetPropsToObserveForIsEnabledFoo(...) : string/IEnumerable<string>/null. " +
+            "ScriptClient functions receive IACComponent acComponent first; server scripts receive the concrete component type first. " +
+            "Include the full /// <Precompiler> block and required using/refassembly directives. Use get_property_info on the method to read " +
+            "the generated skeleton first. The code is compiled by the framework's precompiler at runtime.")]
         public static string dev_update_method_sourcecode(
             McpServer server,
             RequestContext<CallToolRequestParams> context,
@@ -1126,7 +1137,16 @@ namespace gip.core.webservices
                     {
                         if (acClass.ACClassMethod_ACClass.Where(c => c.ACIdentifier == methodName).Any())
                             return Error($"A method with name '{methodName}' already exists on class '{classIdentifier}'.");
+                        string generatedMethodName = acClassMethod.ACIdentifier;
                         acClassMethod.ACIdentifier = methodName;
+                        if ((acClassMethod.ACKind == Global.ACKinds.MSMethodExt
+                            || acClassMethod.ACKind == Global.ACKinds.MSMethodExtClient)
+                            && !String.IsNullOrEmpty(acClassMethod.Sourcecode))
+                        {
+                            acClassMethod.Sourcecode = acClassMethod.Sourcecode.Replace(
+                                " " + generatedMethodName + "(",
+                                " " + methodName + "(");
+                        }
                     }
                     acClassMethod.SortIndex = (short)(acClass.ACClassMethod_ACClass.Count + 1);
                     acClass.AddNewACClassMethod(acClassMethod);
