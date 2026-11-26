@@ -249,7 +249,7 @@ namespace gip.ext.designer.avui.Xaml
                 if (_xamlObject.ParentProperty == null)
                     return null;
                 else
-                    return ComponentService.GetDesignItem(_xamlObject.ParentProperty.ParentObject.Instance);
+                    return ComponentService.GetDesignItem(_xamlObject.ParentProperty.ParentObject);
             }
         }
 

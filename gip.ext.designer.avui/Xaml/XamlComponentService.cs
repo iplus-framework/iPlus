@@ -51,6 +51,8 @@ namespace gip.ext.designer.avui.Xaml
         // however, this isn't critical because our design items will stay alive for the lifetime of the
         // designer anyway if we don't limit the Undo stack.
         Dictionary<object, XamlDesignItem> _sites = new Dictionary<object, XamlDesignItem>(IdentityEqualityComparer.Instance);
+        readonly Dictionary<XamlObject, XamlDesignItem> _xamlSites =
+            new Dictionary<XamlObject, XamlDesignItem>(IdentityEqualityComparer.Instance);
 
         public DesignItem GetDesignItem(object component)
         {
@@ -68,6 +70,15 @@ namespace gip.ext.designer.avui.Xaml
             {
                 site = site ?? _sites.Values.FirstOrDefault(x => Equals(x.View, component));
             }
+            return site;
+        }
+
+        internal XamlDesignItem GetDesignItem(XamlObject xamlObject)
+        {
+            if (xamlObject == null)
+                throw new ArgumentNullException(nameof(xamlObject));
+
+            _xamlSites.TryGetValue(xamlObject, out var site);
             return site;
         }
 
@@ -105,9 +116,11 @@ namespace gip.ext.designer.avui.Xaml
             if (parent != null)
                 parentXamlObject = ((XamlDesignItem)parent).XamlObject;
 
-            XamlDesignItem item = new XamlDesignItem(_context.Document.CreateObject(parentXamlObject, component), _context);
+            XamlObject xamlObject = _context.Document.CreateObject(parentXamlObject, component);
+            XamlDesignItem item = new XamlDesignItem(xamlObject, _context);
             _context.Services.ExtensionManager.ApplyDesignItemInitializers(item);
 
+            _xamlSites.Add(xamlObject, item);
             if (!(component is string))
                 _sites.Add(component, item);
             if (ComponentRegistered != null)
@@ -144,7 +157,9 @@ namespace gip.ext.designer.avui.Xaml
         {
             if (obj == null) return null;
 
-            if (_sites.TryGetValue(obj.Instance, out var existingSite))
+            if (_xamlSites.TryGetValue(obj, out var existingSite))
+                return existingSite;
+            if (obj.Instance != null && _sites.TryGetValue(obj.Instance, out existingSite))
                 return existingSite;
 
             foreach (XamlProperty prop in obj.Properties)
@@ -159,7 +174,9 @@ namespace gip.ext.designer.avui.Xaml
             XamlDesignItem site = new XamlDesignItem(obj, _context);
             _context.Services.ExtensionManager.ApplyDesignItemInitializers(site);
 
-            _sites.Add(site.Component, site);
+            _xamlSites.Add(obj, site);
+            if (site.Component != null)
+                _sites.Add(site.Component, site);
             if (ComponentRegistered != null)
             {
                 ComponentRegistered(this, new DesignItemEventArgs(site));
@@ -202,7 +219,8 @@ namespace gip.ext.designer.avui.Xaml
                         site.Name = newName;
                     }
 
-                    nameScope.Register(newName, obj.Instance);
+                    if (obj.Instance != null)
+                        nameScope.Register(newName, obj.Instance);
                 }
             }
             return site;
@@ -238,7 +256,7 @@ namespace gip.ext.designer.avui.Xaml
         {
             get 
             {
-                return _sites.Values;
+                return _xamlSites.Values;
             }
         }
     }

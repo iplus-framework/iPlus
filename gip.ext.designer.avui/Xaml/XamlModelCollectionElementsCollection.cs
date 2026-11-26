@@ -104,7 +104,7 @@ namespace gip.ext.designer.avui.Xaml
 		DesignItem GetItem(XamlPropertyValue val)
 		{
 			if (val is XamlObject) {
-				return context._componentService.GetDesignItem( ((XamlObject)val).Instance );
+				return context._componentService.GetDesignItem((XamlObject)val);
 			} else {
                 return null;
                 //throw new NotImplementedException();

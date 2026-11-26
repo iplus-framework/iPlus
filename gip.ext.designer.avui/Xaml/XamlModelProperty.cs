@@ -178,7 +178,7 @@ namespace gip.ext.designer.avui.Xaml
                 var xamlObject = _property.PropertyValue as XamlObject;
                 if (xamlObject != null)
                 {
-                    return _designItem.ComponentService.GetDesignItem(xamlObject.Instance);
+                    return _designItem.ComponentService.GetDesignItem(xamlObject);
                 }
 
                 return null;
