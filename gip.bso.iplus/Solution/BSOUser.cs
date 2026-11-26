@@ -337,7 +337,7 @@ namespace gip.bso.iplus
             {
                 if (CurrentUser == null)
                     return null;
-                return CurrentUser.VBUserGroup_VBUser.OrderBy(c => c.VBGroup.VBGroupName).Select(c => c);
+                return CurrentUser.VBUserGroup_VBUser.OrderBy(c => c.VBGroup.VBGroupName).Select(c => c).ToList();
             }
         }
 
@@ -422,7 +422,7 @@ namespace gip.bso.iplus
             {
                 if (SelectedUser == null)
                     return null;
-                return SelectedUser.VBUserACProject_VBUser.OrderBy(c => c.ACProject.ACProjectName).Select(c => c);
+                return SelectedUser.VBUserACProject_VBUser.OrderBy(c => c.ACProject.ACProjectName).Select(c => c).ToList();
                 /*if (CurrentUserInstance == null)
                     return null;
                 return CurrentUserInstance.User.UserACProject_User.OrderBy(c => c.ACProject.ACProjectName).Select(c => c);*/
@@ -954,7 +954,7 @@ namespace gip.bso.iplus
             {
                 if (CurrentUser == null)
                     return null;
-                return Db.VBUser.Where(c => c.VBUserID != CurrentUser.VBUserID).OrderBy(c => c.VBUserName).Select(c => c);
+                return Db.VBUser.Where(c => c.VBUserID != CurrentUser.VBUserID).OrderBy(c => c.VBUserName).Select(c => c).ToList();
             }
         }
 
@@ -969,7 +969,7 @@ namespace gip.bso.iplus
             {
                 if (CurrentUser == null)
                     return null;
-                return CurrentUser.VBUserACClassDesign_VBUser.OrderBy(c => c.ACClassDesign != null ? c.ACClassDesign.ACIdentifier : c.ACIdentifier);
+                return CurrentUser.VBUserACClassDesign_VBUser.OrderBy(c => c.ACClassDesign != null ? c.ACClassDesign.ACIdentifier : c.ACIdentifier).ToList();
             }
         }
 
