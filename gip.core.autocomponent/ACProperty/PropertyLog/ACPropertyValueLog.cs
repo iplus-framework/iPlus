@@ -26,7 +26,17 @@ namespace gip.core.autocomponent
 
     public static class ACPropertyValueLogSettings
     {
-        public static ACPropertyLogStorageBackend StorageBackend { get; set; } = ACPropertyLogStorageBackend.PersistentDictionary;
+        private static ACPropertyLogStorageBackend _storageBackend = ACPropertyLogStorageBackend.PersistentDictionary;
+
+        public static ACPropertyLogStorageBackend StorageBackend
+        {
+            get => OperatingSystem.IsWindows()
+                ? _storageBackend
+                : ACPropertyLogStorageBackend.FasterLog;
+            set => _storageBackend = OperatingSystem.IsWindows()
+                ? value
+                : ACPropertyLogStorageBackend.FasterLog;
+        }
     }
 
     public class ACPropertyValueLog<T>
