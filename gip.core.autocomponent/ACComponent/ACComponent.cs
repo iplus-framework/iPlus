@@ -3117,9 +3117,19 @@ namespace gip.core.autocomponent
                 return false;
             }
 
-            // Falls AutoEnabled, dann gibt es keine IsEnabled-Methode und das 
-            // Komando ist immer verfügbar
-            if (acClassMethod.IsAutoenabled)
+            bool isScriptMethod = acClassMethod.ACKind == Global.ACKinds.MSMethodExt
+                                  || acClassMethod.ACKind == Global.ACKinds.MSMethodExtClient;
+            string isEnabledScriptName = acMethodName1.StartsWith(Const.IsEnabledPrefix)
+                ? acMethodName1
+                : Const.IsEnabledPrefix + acMethodName1;
+
+            // Script methods created at runtime can have stale IsAutoenabled metadata.
+            // The registered scripts are authoritative for whether a matching
+            // IsEnabled script exists.
+            if (acClassMethod.IsAutoenabled
+                || (isScriptMethod
+                    && ScriptEngine != null
+                    && !ScriptEngine.ExistsScript(isEnabledScriptName)))
             {
                 if (acClassMethod != null && CurrentRightsOfInvoker != null)
                 {
@@ -3160,7 +3170,7 @@ namespace gip.core.autocomponent
                         }
                         acParameter = acParamWithThis;
                     }
-                    resultOfReflectionCall = (bool)ScriptEngine.Execute(Const.IsEnabledPrefix + acMethodName1, acParameter);
+                    resultOfReflectionCall = (bool)ScriptEngine.Execute(isEnabledScriptName, acParameter);
                     break;
                 default:
                     resultOfReflectionCall = true;

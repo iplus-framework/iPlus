@@ -417,7 +417,7 @@ namespace gip.core.layoutengine
             {
                 if (!_enabled)
                     return;
-                string line = DateTime.Now.ToString("HH:mm:ss.fff") + " [VBBindingDbg] " + message;
+                string line = DateTime.Now.ToString("HH:mm:ss.fff") + " [VBBindingDbg][T" + Environment.CurrentManagedThreadId + "] " + message;
                 System.Diagnostics.Debug.WriteLine(line);
                 System.Diagnostics.Trace.WriteLine(line);
                 try

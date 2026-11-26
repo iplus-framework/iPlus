@@ -1,3 +1,4 @@
+using Avalonia.Data;
 using Avalonia.Data.Converters;
 using System;
 using System.Globalization;
@@ -37,12 +38,13 @@ namespace gip.core.layoutengine.avui
 
         object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            bool isVisible = (bool)value;
-            bool invertedLogic = parameter != null && parameter.ToString().Contains("invert");
-            bool retVal = isVisible ^ invertedLogic;
-            if (retVal)
-                return new object(); // Return a non-null object to indicate visibility
-            return null; // Return null to indicate invisibility
+            // bool isVisible = (bool)value;
+            // bool invertedLogic = parameter != null && parameter.ToString().Contains("invert");
+            // bool retVal = isVisible ^ invertedLogic;
+            // if (retVal)
+            //     return new object(); // Return a non-null object to indicate visibility
+            // return null; // Return null to indicate invisibility
+            return BindingOperations.DoNothing;
         }
 
         public object ProvideValue(IServiceProvider serviceProvider)
