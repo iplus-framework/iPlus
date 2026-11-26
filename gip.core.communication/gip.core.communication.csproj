@@ -73,12 +73,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NModbus"  />
-    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client"  />
-    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Configuration"  />
-    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core"  />
-    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Security.Certificates"  />
-    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Server"  />
+    <PackageReference Include="NModbus" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Configuration" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Security.Certificates" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Server" />
     <Folder Include="VBControlScripts\" />
   </ItemGroup>
   <ItemGroup>
@@ -91,6 +91,9 @@
       <PackagePath>\</PackagePath>
     </None>
     <None Update="OPCUAServer.Config.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="VBControlScripts\2026-11-26 11-00_ihrastinski.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
