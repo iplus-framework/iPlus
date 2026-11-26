@@ -164,6 +164,7 @@ namespace gip.core.datamodel
             // explicit x:Key, so add x:Key="{x:Type ...}" to keyless ControlTheme elements
             // inside *.Resources property elements.
             avaloniaXAML = AddImplicitKeysToResourceControlThemes(avaloniaXAML);
+            avaloniaXAML = AddBasedOnToKeyedResourceControlThemes(avaloniaXAML);
 
             // Avalonia parser is strict for VBBinding argument names.
             // Convert {vb:VBBinding vb:VBContent=...} -> {vb:VBBinding VBContent=...}.
@@ -232,6 +233,7 @@ namespace gip.core.datamodel
 
             // WPF RenderTransformOrigin is always relative (0..1); Avalonia interprets plain
             // numbers as absolute pixels, so the value must be written with '%' units.
+            avaloniaXAML = SetWpfRenderTransformOriginDefaults(avaloniaXAML);
             avaloniaXAML = ConvertRenderTransformOrigin(avaloniaXAML);
 
             // Convert WPF InputScope / InputMethod.InputScope attributes to Avalonia's
@@ -2062,6 +2064,90 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
+        /// Sets WPF's top-left transform origin explicitly where Avalonia would otherwise
+        /// use its center default.
+        /// </summary>
+        private static string SetWpfRenderTransformOriginDefaults(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml)
+                || xaml.IndexOf("RenderTransform", StringComparison.OrdinalIgnoreCase) < 0)
+            {
+                return xaml;
+            }
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                bool modified = false;
+                foreach (var element in doc.SelectNodes("//*")
+                    .OfType<XmlElement>()
+                    .ToList())
+                {
+                    bool hasRenderTransformAttribute = element.HasAttribute("RenderTransform");
+                    bool hasRenderTransformPropertyElement = element.ChildNodes
+                        .OfType<XmlElement>()
+                        .Any(child => child.LocalName.EndsWith(".RenderTransform", StringComparison.OrdinalIgnoreCase));
+
+                    if ((hasRenderTransformAttribute || hasRenderTransformPropertyElement)
+                        && !element.HasAttribute("RenderTransformOrigin"))
+                    {
+                        element.SetAttribute("RenderTransformOrigin", "0%,0%");
+                        modified = true;
+                    }
+                }
+
+                var setters = doc.SelectNodes("//*[local-name()='Setter']")
+                    ?.OfType<XmlElement>()
+                    .Where(setter => setter.GetAttribute("Property")
+                        .EndsWith("RenderTransform", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                if (setters != null)
+                {
+                    foreach (var setter in setters)
+                    {
+                        XmlNode parent = setter.ParentNode;
+                        string targetName = setter.GetAttribute("TargetName");
+                        bool hasOriginSetter = parent?.ChildNodes
+                            .OfType<XmlElement>()
+                            .Any(sibling =>
+                                string.Equals(sibling.LocalName, "Setter", StringComparison.OrdinalIgnoreCase)
+                                && sibling.GetAttribute("Property")
+                                    .EndsWith("RenderTransformOrigin", StringComparison.OrdinalIgnoreCase)
+                                && string.Equals(
+                                    sibling.GetAttribute("TargetName"),
+                                    targetName,
+                                    StringComparison.Ordinal))
+                            == true;
+
+                        if (hasOriginSetter)
+                            continue;
+
+                        XmlElement originSetter = doc.CreateElement("Setter", setter.NamespaceURI);
+                        originSetter.SetAttribute("Property", "RenderTransformOrigin");
+                        originSetter.SetAttribute("Value", "0%,0%");
+                        if (!string.IsNullOrEmpty(targetName))
+                            originSetter.SetAttribute("TargetName", targetName);
+
+                        parent?.InsertAfter(originSetter, setter);
+                        modified = true;
+                    }
+                }
+
+                return modified ? doc.OuterXml : xaml;
+            }
+            catch
+            {
+                return xaml;
+            }
+        }
+
+        /// <summary>
         /// Converts WPF RenderTransformOrigin (always relative 0..1 coordinates) to the
         /// Avalonia RelativePoint percentage form: "0.5, 0.5" -> "50%,50%". Avalonia
         /// interprets plain numbers as absolute pixels, so relative origins must be
@@ -2814,6 +2900,73 @@ namespace gip.core.datamodel
                 // Keep conversion resilient: if this pass fails, return the original text.
                 return xaml;
             }
+        }
+
+        private static string AddBasedOnToKeyedResourceControlThemes(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                var resourcesNodes = doc.SelectNodes("//*[contains(local-name(), '.Resources')]");
+                if (resourcesNodes == null || resourcesNodes.Count == 0)
+                    return xaml;
+
+                bool modified = false;
+
+                foreach (var resourcesElement in resourcesNodes.OfType<XmlNode>().OfType<XmlElement>())
+                {
+                    foreach (var controlTheme in resourcesElement.ChildNodes
+                        .OfType<XmlElement>()
+                        .Where(e => string.Equals(e.LocalName, "ControlTheme", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        if (controlTheme.HasAttribute("BasedOn"))
+                            continue;
+
+                        string key = controlTheme.GetAttribute("x:Key");
+                        string targetType = NormalizeControlThemeTargetType(controlTheme.GetAttribute("TargetType"));
+                        if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(targetType))
+                            continue;
+
+                        string implicitKey = $"{{x:Type {targetType}}}";
+                        if (string.Equals(key, implicitKey, StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        controlTheme.SetAttribute("BasedOn", $"{{StaticResource {{x:Type {targetType}}}}}");
+                        modified = true;
+                    }
+                }
+
+                return modified ? doc.OuterXml : xaml;
+            }
+            catch
+            {
+                return xaml;
+            }
+        }
+
+        private static string NormalizeControlThemeTargetType(string targetType)
+        {
+            targetType = targetType?.Trim();
+            if (string.IsNullOrWhiteSpace(targetType))
+                return targetType;
+
+            if (targetType.StartsWith("{", StringComparison.Ordinal) &&
+                targetType.EndsWith("}", StringComparison.Ordinal))
+            {
+                targetType = targetType.Substring(1, targetType.Length - 2).Trim();
+                if (targetType.StartsWith("x:Type", StringComparison.OrdinalIgnoreCase))
+                    targetType = targetType.Substring("x:Type".Length).Trim();
+            }
+
+            return targetType;
         }
 
         /// <summary>
@@ -4886,7 +5039,8 @@ namespace gip.core.datamodel
         }
 
         /// <summary>
-        /// Wraps content of Setter.Value in ToolTip.Tip setters into a Template element.
+        /// Wraps content of Setter.Value in ToolTip.Tip setters into a Template element
+        /// and removes WPF-only PlacementTarget DataContext bindings from tooltips.
         /// </summary>
         private static string WrapToolTipTipInTemplate(string xaml)
         {
@@ -4925,6 +5079,8 @@ namespace gip.core.datamodel
                     if (valueElement == null)
                         continue;
 
+                    RemoveWpfToolTipPlacementTargetDataContext(valueElement);
+
                     var childElements = valueElement.ChildNodes.OfType<XmlElement>().ToList();
                     if (childElements.Count == 0)
                         continue;
@@ -4960,6 +5116,65 @@ namespace gip.core.datamodel
             catch
             {
                 return xaml;
+            }
+        }
+
+        private static void RemoveWpfToolTipPlacementTargetDataContext(XmlElement valueElement)
+        {
+            var toolTips = valueElement.SelectNodes(".//*[local-name()='ToolTip']")
+                ?.OfType<XmlElement>()
+                .ToList();
+            if (toolTips == null)
+                return;
+
+            foreach (var toolTip in toolTips)
+            {
+                string dataContext = toolTip.GetAttribute("DataContext");
+                if (string.IsNullOrWhiteSpace(dataContext)
+                    || dataContext.IndexOf("PlacementTarget", StringComparison.OrdinalIgnoreCase) < 0
+                    || dataContext.IndexOf("RelativeSource", StringComparison.OrdinalIgnoreCase) < 0
+                    || dataContext.IndexOf("Self", StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    continue;
+                }
+
+                // WPF ToolTip exposes PlacementTarget on the tooltip itself. Avalonia resolves
+                // the popup's DataContext from its adorned control, so this binding must be
+                // removed to retain the inherited VBVisual/component DataContext.
+                toolTip.RemoveAttribute("DataContext");
+                RemoveToolTipContentACComponentPrefix(toolTip);
+            }
+        }
+
+        private static void RemoveToolTipContentACComponentPrefix(XmlElement toolTip)
+        {
+            foreach (var element in toolTip.SelectNodes(".//*")
+                .OfType<XmlElement>()
+                .Prepend(toolTip))
+            {
+                foreach (var attribute in element.Attributes.OfType<XmlAttribute>().ToList())
+                {
+                    if (string.Equals(element.LocalName, "Binding", StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(attribute.LocalName, "Path", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (attribute.Value.StartsWith("ContentACComponent.", StringComparison.Ordinal))
+                            attribute.Value = attribute.Value.Substring("ContentACComponent.".Length);
+                    }
+                    else if (attribute.Value.IndexOf("Binding", StringComparison.OrdinalIgnoreCase) >= 0
+                        && attribute.Value.IndexOf("ContentACComponent.", StringComparison.Ordinal) >= 0)
+                    {
+                        attribute.Value = Regex.Replace(
+                            attribute.Value,
+                            @"(\{\s*Binding\b[^}]*?\bPath\s*=\s*)ContentACComponent\.",
+                            "$1",
+                            RegexOptions.IgnoreCase);
+                        attribute.Value = Regex.Replace(
+                            attribute.Value,
+                            @"(\{\s*Binding\s+)ContentACComponent\.",
+                            "$1",
+                            RegexOptions.IgnoreCase);
+                    }
+                }
             }
         }
 

@@ -466,6 +466,15 @@ namespace gip.core.layoutengine.avui
         /// Determines is control initialized or not.
         /// </summary>
         protected bool _Initialized = false;
+
+        private void BindText(BindingBase binding)
+        {
+            if (Inlines != null && Inlines.Count > 0)
+                Inlines.Clear();
+
+            this.Bind(TextBlock.TextProperty, binding);
+        }
+
         /// <summary>
         /// Initializes the VB control.
         /// </summary>
@@ -488,7 +497,7 @@ namespace gip.core.layoutengine.avui
                     {
                         Path = VBContent
                     };
-                    this.Bind(TextBlock.TextProperty, binding);
+                    BindText(binding);
                 }
                 return;
             }
@@ -550,7 +559,7 @@ namespace gip.core.layoutengine.avui
 
                 if (!String.IsNullOrEmpty(StringFormat))
                     ((Binding)binding).StringFormat = StringFormat;
-                this.Bind(TextBlock.TextProperty, binding);
+                BindText(binding);
             }
             else
             {
