@@ -3122,14 +3122,15 @@ namespace gip.core.autocomponent
             string isEnabledScriptName = acMethodName1.StartsWith(Const.IsEnabledPrefix)
                 ? acMethodName1
                 : Const.IsEnabledPrefix + acMethodName1;
+            ScriptEngine scriptEngine = isScriptMethod ? ScriptEngine : null;
+            bool hasIsEnabledScript = scriptEngine != null
+                                      && scriptEngine.ExistsScript(isEnabledScriptName);
 
-            // Script methods created at runtime can have stale IsAutoenabled metadata.
-            // The registered scripts are authoritative for whether a matching
-            // IsEnabled script exists.
-            if (acClassMethod.IsAutoenabled
-                || (isScriptMethod
-                    && ScriptEngine != null
-                    && !ScriptEngine.ExistsScript(isEnabledScriptName)))
+            // For runtime script commands, the registered IsEnabled script is
+            // authoritative. Script command metadata commonly retains its
+            // IsAutoenabled=true default even when an IsEnabled script exists.
+            if ((!isScriptMethod && acClassMethod.IsAutoenabled)
+                || (isScriptMethod && !hasIsEnabledScript))
             {
                 if (acClassMethod != null && CurrentRightsOfInvoker != null)
                 {
@@ -3150,7 +3151,7 @@ namespace gip.core.autocomponent
                     break;
                 case Global.ACKinds.MSMethodExt:
                 case Global.ACKinds.MSMethodExtClient:
-                    if (ScriptEngine == null)
+                    if (scriptEngine == null)
                         return false;
                     if (acParameter == null)
                         acParameter = new object[] { this };
@@ -3170,7 +3171,7 @@ namespace gip.core.autocomponent
                         }
                         acParameter = acParamWithThis;
                     }
-                    resultOfReflectionCall = (bool)ScriptEngine.Execute(isEnabledScriptName, acParameter);
+                    resultOfReflectionCall = scriptEngine.Execute(isEnabledScriptName, acParameter) is true;
                     break;
                 default:
                     resultOfReflectionCall = true;
@@ -4428,6 +4429,53 @@ namespace gip.core.autocomponent
                 return new string[] { nameof(InitState) };
 
             return null;
+        }
+
+        /// <summary>
+        /// Combines property dependencies from compiled overrides with an optional
+        /// script method named GetPropsToObserveForIsEnabled{MethodName}.
+        /// </summary>
+        public IEnumerable<string> GetPropsToObserveForIsEnabledWithScripts(string acMethodName)
+        {
+            string normalizedMethodName = acMethodName;
+            if (!String.IsNullOrEmpty(normalizedMethodName)
+                && normalizedMethodName[0] == ACUrlHelper.Delimiter_InvokeMethod)
+                normalizedMethodName = normalizedMethodName.Substring(1);
+            if (!String.IsNullOrEmpty(normalizedMethodName)
+                && normalizedMethodName.StartsWith(Const.IsEnabledPrefix, StringComparison.Ordinal))
+                normalizedMethodName = normalizedMethodName.Substring(Const.IsEnabledPrefix.Length);
+
+            IEnumerable<string> compiledProperties = GetPropsToObserveForIsEnabled(acMethodName);
+            if (String.IsNullOrEmpty(normalizedMethodName))
+                return compiledProperties;
+
+            string scriptMethodName = nameof(GetPropsToObserveForIsEnabled) + normalizedMethodName;
+            ACClassMethod scriptMethod = ComponentClass?.GetMethod(scriptMethodName);
+            if (scriptMethod == null
+                || (scriptMethod.ACKind != Global.ACKinds.MSMethodExt
+                    && scriptMethod.ACKind != Global.ACKinds.MSMethodExtClient))
+                return compiledProperties;
+
+            object scriptResult = ExecuteMethod(scriptMethodName);
+            IEnumerable<string> scriptProperties;
+            if (scriptResult is string propertyName)
+                scriptProperties = new string[] { propertyName };
+            else
+                scriptProperties = scriptResult as IEnumerable<string>;
+
+            if (scriptProperties == null)
+            {
+                if (scriptResult != null)
+                    Messages?.LogError(this.GetACUrl(), nameof(GetPropsToObserveForIsEnabledWithScripts),
+                        $"{scriptMethodName} must return string or IEnumerable<string>.");
+                return compiledProperties;
+            }
+
+            return (compiledProperties ?? Enumerable.Empty<string>())
+                .Concat(scriptProperties)
+                .Where(property => !String.IsNullOrWhiteSpace(property))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
         }
         #endregion
 

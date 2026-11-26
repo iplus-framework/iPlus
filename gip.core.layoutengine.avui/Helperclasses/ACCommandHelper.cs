@@ -97,6 +97,9 @@ namespace gip.core.layoutengine.avui.Helperclasses
             Result? result = null;
             bool isBuiltInGesture = false;
             System.Windows.Input.ICommand? iCommand = AppCommands.FindVBApplicationCommand(acCommmand.ACUrl);
+            if (iCommand is RoutedUICommandEx cachedCommand
+                && (cachedCommand.Gestures == null || !cachedCommand.Gestures.Any()))
+                iCommand = new RoutedUICommandEx(acCommmand);
             KeyGesture? keyGesture = null;
             if (control.HotKey == null)
             {
@@ -115,7 +118,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
 
             // Determine observable properties for ReactiveCommand
             methodNameForCommand = methodNameForCommand.Replace(ACUrlHelper.Delimiter_InvokeMethod.ToString(), string.Empty);
-            IEnumerable<string> observableProperties = interactiveObject.GetPropsToObserveForIsEnabled(methodNameForCommand);
+            IEnumerable<string> observableProperties = interactiveObject.GetPropsToObserveForIsEnabledWithScripts(methodNameForCommand);
             // If there are observable properties, create a ReactiveCommand
             if (observableProperties != null && observableProperties.Any())
             {
@@ -184,13 +187,16 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 var commandComponent = new WeakReference<IACComponent>(interactiveObject);
                 cb.Executed += (_, args) =>
                 {
-                    if (commandControl.TryGetTarget(out IACCommandControl? commandTarget))
+                    IACCommandControl? commandTarget = args.Source as IACCommandControl;
+                    if (commandTarget != null || commandControl.TryGetTarget(out commandTarget))
                     {
                         if (executeDelegate != null)
                             executeDelegate(commandTarget, args);
                         else
                         {
-                            commandComponent.TryGetTarget(out IACComponent? componentTarget);
+                            IACComponent? componentTarget = (commandTarget as IVBContent)?.ContextACObject as IACComponent;
+                            if (componentTarget == null)
+                                commandComponent.TryGetTarget(out componentTarget);
                             _ = DefaultExecuteHandlerAsync(commandTarget, args, componentTarget);
                         }
                     }
@@ -198,7 +204,8 @@ namespace gip.core.layoutengine.avui.Helperclasses
 
                 cb.CanExecute += (_, args) =>
                 {
-                    if (commandControl.TryGetTarget(out IACCommandControl? commandTarget))
+                    IACCommandControl? commandTarget = args.Source as IACCommandControl;
+                    if (commandTarget != null || commandControl.TryGetTarget(out commandTarget))
                     {
                         if (canExecuteDelegate != null)
                             canExecuteDelegate(commandTarget, args);
@@ -206,7 +213,9 @@ namespace gip.core.layoutengine.avui.Helperclasses
                             DefaultCannotExecuteHandler(commandTarget, args);
                         else
                         {
-                            commandComponent.TryGetTarget(out IACComponent? componentTarget);
+                            IACComponent? componentTarget = (commandTarget as IVBContent)?.ContextACObject as IACComponent;
+                            if (componentTarget == null)
+                                commandComponent.TryGetTarget(out componentTarget);
                             DefaultCanExecuteHandler(commandTarget, args, componentTarget);
                         }
                     }

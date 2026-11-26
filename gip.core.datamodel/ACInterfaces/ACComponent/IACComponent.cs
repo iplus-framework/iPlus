@@ -694,6 +694,14 @@ namespace gip.core.datamodel
         /// If IsEnabledMethod exsits an the returned collections is empty than the IsEnabledMethod is called via CommandBinding CanExecuteRoutedEventHandler (old standard behaviour) </returns>
         IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName);
 
+        /// <summary>
+        /// Returns the combined compiled and script-provided property dependencies for an IsEnabled method.
+        /// The optional script method is named GetPropsToObserveForIsEnabled{MethodName}.
+        /// </summary>
+        /// <param name="acMethodName">Name of the command method.</param>
+        /// <returns>The distinct property names that trigger IsEnabled re-evaluation.</returns>
+        IEnumerable<string> GetPropsToObserveForIsEnabledWithScripts(string acMethodName);
+
         /// <summary>Occurs when ACAction(ACActionArgs actionArgs) is invoked.</summary>
         event ACActionEventHandler ACActionEvent;
 
