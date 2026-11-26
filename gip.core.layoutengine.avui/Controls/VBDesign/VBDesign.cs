@@ -47,7 +47,7 @@ namespace gip.core.layoutengine.avui
     [TemplatePart(Name = "PART_BorderFreeze", Type = typeof(Control))]
     [TemplatePart(Name = "PART_VisualLayerManager", Type = typeof(VisualLayerManager))]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBDesign'}de{'VBDesign'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBDesign : VBDesignBase, IVBContent, IVBSerialize, IACMenuBuilderWPFTree
+    public class VBDesign : VBDesignBase, IVBContent, IVBSerialize, IACMenuBuilderWPFTree, IVBDialog
     {
         #region c'tors
         /// <summary>
@@ -1325,12 +1325,20 @@ namespace gip.core.layoutengine.avui
             this.Root().RootPageWPF.VBDesignEditingActivated(this);
         }
 
+        internal VBDockingManager OwningDockingManager { get; set; }
+
         public VBDockingManager DockingManager
         {
             get
             {
-                return VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBDockingManager)) as VBDockingManager;
+                return OwningDockingManager
+                    ?? VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBDockingManager)) as VBDockingManager;
             }
+        }
+
+        public void CloseDialog()
+        {
+            DockingManager?.CloseControl(this);
         }
 
         /// <summary>

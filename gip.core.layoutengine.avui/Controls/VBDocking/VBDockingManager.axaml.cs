@@ -175,6 +175,7 @@ namespace gip.core.layoutengine.avui
             var map = DesignToolMap.Where(c => c.Dockable == e.Dockable).FirstOrDefault();
             if (map != null)
             {
+                map.Design.OwningDockingManager = null;
                 VBDesignList.Remove(map.Design);
                 DesignToolMap.Remove(map);
             }
@@ -262,6 +263,7 @@ namespace gip.core.layoutengine.avui
                 foreach (var map in _DesignToolMap)
                 {
                     map.Design.OnContextACObjectChanged -= UiElementAsDataDesign_OnContextACObjectChanged;
+                    map.Design.OwningDockingManager = null;
                 }
                 _DesignToolMap = null;
             }
@@ -1608,11 +1610,13 @@ namespace gip.core.layoutengine.avui
             if (map == null)
             {
                 design.OnContextACObjectChanged += UiElementAsDataDesign_OnContextACObjectChanged;
+                design.OwningDockingManager = this;
                 map = new DockedDesignInfo { Design = design, Dockable = dockable };
                 DesignToolMap.Add(map);
             }
             else
             {
+                design.OwningDockingManager = this;
                 map.Dockable = dockable;
             }
 
@@ -2087,6 +2091,7 @@ namespace gip.core.layoutengine.avui
                 Factory.CloseDockable(c.Dockable);
                 DesignToolMap.Remove(c);
                 VBDesignList.Remove(c.Design);
+                c.Design.OwningDockingManager = null;
                 return true;
             }
             return false;

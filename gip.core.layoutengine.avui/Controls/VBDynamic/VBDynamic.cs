@@ -63,7 +63,7 @@ namespace gip.core.layoutengine.avui
             }
 
             _LastSelectionActive = false;
-            if (!string.IsNullOrEmpty(LastSelectionProperty) && BSOACComponent.GetType().GetProperty(LastSelectionProperty) != null  && (bool)BSOACComponent.ACUrlCommand(LastSelectionProperty))
+            if (!string.IsNullOrEmpty(LastSelectionProperty) && BSOACComponent != null && BSOACComponent.GetType().GetProperty(LastSelectionProperty) != null  && (bool)BSOACComponent.ACUrlCommand(LastSelectionProperty))
                 _LastSelectionActive = true;
         }
 
