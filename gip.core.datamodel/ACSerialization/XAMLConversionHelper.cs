@@ -4094,13 +4094,16 @@ namespace gip.core.datamodel
 
                     if (!line.HasAttribute("StartPoint") && line.HasAttribute("X1") && line.HasAttribute("Y1"))
                     {
-                        line.SetAttribute("StartPoint", $"{x1},{y1}");
+                        SetConvertedLinePoint(line, "StartPoint", x1, y1);
                     }
 
                     if (!line.HasAttribute("EndPoint") && line.HasAttribute("X2") && line.HasAttribute("Y2"))
                     {
-                        line.SetAttribute("EndPoint", $"{x2},{y2}");
+                        SetConvertedLinePoint(line, "EndPoint", x2, y2);
                     }
+
+                    RepairConvertedLinePoint(line, "StartPoint");
+                    RepairConvertedLinePoint(line, "EndPoint");
 
                     // Remove obsolete WPF line coordinate attributes after conversion.
                     line.RemoveAttribute("X1");
@@ -4116,6 +4119,319 @@ namespace gip.core.datamodel
                 // Keep conversion resilient: if this pass fails, return the original text.
                 return xaml;
             }
+        }
+
+        private static void SetConvertedLinePoint(XmlElement line, string propertyName, string x, string y)
+        {
+            string pointBinding = CreateSingleCoordinatePointBinding(x, y);
+            if (pointBinding != null)
+            {
+                line.SetAttribute(propertyName, pointBinding);
+                return;
+            }
+
+            if (IsBindingMarkupExtension(x) || IsBindingMarkupExtension(y))
+            {
+                CreatePointMultiBinding(line, propertyName, x, y);
+                return;
+            }
+
+            line.SetAttribute(propertyName, $"{x},{y}");
+        }
+
+        private static void RepairConvertedLinePoint(XmlElement line, string propertyName)
+        {
+            string value = line.GetAttribute(propertyName);
+            if (string.IsNullOrWhiteSpace(value))
+                return;
+
+            if (TryNormalizePercentLinePoint(value, out string normalized))
+            {
+                line.SetAttribute(propertyName, normalized);
+                value = normalized;
+            }
+
+            if (TrySplitMarkupExtensionAndLiteral(value, out string binding, out string fixedX, out string fixedY))
+            {
+                line.RemoveAttribute(propertyName);
+                if (fixedX != null)
+                    line.SetAttribute(propertyName, AddPointConverter(binding, "FixedX", fixedX));
+                else
+                    line.SetAttribute(propertyName, AddPointConverter(binding, "FixedY", fixedY));
+            }
+        }
+
+        private static string CreateSingleCoordinatePointBinding(string x, string y)
+        {
+            if (IsBindingMarkupExtension(x) && !IsBindingMarkupExtension(y))
+                return AddPointConverter(x, "FixedY", y);
+            if (!IsBindingMarkupExtension(x) && IsBindingMarkupExtension(y))
+                return AddPointConverter(y, "FixedX", x);
+            return null;
+        }
+
+        private static bool IsBindingMarkupExtension(string value)
+        {
+            string trimmed = value?.Trim();
+            if (string.IsNullOrEmpty(trimmed)
+                || !trimmed.StartsWith("{", StringComparison.Ordinal)
+                || !trimmed.EndsWith("}", StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            string inner = trimmed.Substring(1, trimmed.Length - 2).TrimStart();
+            int separator = inner.IndexOfAny(new[] { ' ', '\t', '\r', '\n' });
+            string extensionName = separator < 0 ? inner : inner.Substring(0, separator);
+            return string.Equals(extensionName, "Binding", StringComparison.OrdinalIgnoreCase)
+                || extensionName.EndsWith(":Binding", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(extensionName, "VBBinding", StringComparison.OrdinalIgnoreCase)
+                || extensionName.EndsWith(":VBBinding", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string AddPointConverter(string binding, string fixedCoordinate, string fixedValue)
+        {
+            string trimmed = binding.Trim();
+            if (!IsBindingMarkupExtension(trimmed))
+                return binding;
+
+            return trimmed.Insert(
+                trimmed.Length - 1,
+                $", Converter={{vb:ConverterPoint {fixedCoordinate}={EscapeMarkupExtensionValue(fixedValue)}}}");
+        }
+
+        private static bool TryNormalizePercentLinePoint(string value, out string normalized)
+        {
+            normalized = null;
+            string[] coordinates = value.Split(',');
+            if (coordinates.Length != 2
+                || !coordinates[0].Trim().EndsWith("%", StringComparison.Ordinal)
+                || !coordinates[1].Trim().EndsWith("%", StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            string x = NormalizePercentLineCoordinate(coordinates[0]);
+            string y = NormalizePercentLineCoordinate(coordinates[1]);
+            if (x == null || y == null)
+                return false;
+
+            normalized = x + "," + y;
+            return true;
+        }
+
+        private static string NormalizePercentLineCoordinate(string value)
+        {
+            string number = value.Trim().TrimEnd('%');
+            if (!double.TryParse(
+                number,
+                System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out double coordinate))
+            {
+                return null;
+            }
+
+            return (coordinate / 100d).ToString(
+                "0.###",
+                System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        private static bool TrySplitMarkupExtensionAndLiteral(
+            string value,
+            out string binding,
+            out string fixedX,
+            out string fixedY)
+        {
+            binding = null;
+            fixedX = null;
+            fixedY = null;
+            int end = FindOuterMarkupExtensionEnd(value);
+            if (end < 0)
+                return false;
+
+            string prefix = value.Substring(0, end + 1).Trim();
+            string suffix = value.Substring(end + 1).Trim();
+            if (IsBindingMarkupExtension(prefix) && suffix.StartsWith(",", StringComparison.Ordinal))
+            {
+                binding = prefix;
+                fixedY = suffix.Substring(1).Trim();
+                return fixedY.Length > 0;
+            }
+
+            int comma = value.IndexOf(',');
+            if (comma > 0 && comma < value.Length - 1)
+            {
+                string possibleX = value.Substring(0, comma).Trim();
+                string possibleBinding = value.Substring(comma + 1).Trim();
+                if (!possibleX.StartsWith("{", StringComparison.Ordinal) && IsBindingMarkupExtension(possibleBinding))
+                {
+                    binding = possibleBinding;
+                    fixedX = possibleX;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static int FindOuterMarkupExtensionEnd(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return -1;
+
+            int start = value.IndexOf('{');
+            if (start < 0)
+                return -1;
+
+            int depth = 0;
+            bool inString = false;
+            char quote = '\0';
+            for (int i = start; i < value.Length; i++)
+            {
+                char current = value[i];
+                if (inString)
+                {
+                    if (current == quote && (i == 0 || value[i - 1] != '\\'))
+                        inString = false;
+                    continue;
+                }
+
+                if (current == '\'' || current == '"')
+                {
+                    inString = true;
+                    quote = current;
+                }
+                else if (current == '{')
+                {
+                    depth++;
+                }
+                else if (current == '}' && --depth == 0)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private static void CreatePointMultiBinding(XmlElement line, string propertyName, string x, string y)
+        {
+            XmlDocument doc = line.OwnerDocument;
+            XmlElement pointProperty = doc.CreateElement($"{line.LocalName}.{propertyName}", line.NamespaceURI);
+            XmlElement multiBinding = doc.CreateElement("MultiBinding", line.GetNamespaceOfPrefix(string.Empty) == null
+                ? line.NamespaceURI
+                : line.NamespaceURI);
+            multiBinding.SetAttribute("Converter", "{vb:ConverterPoint}");
+            AppendPointBinding(multiBinding, x);
+            AppendPointBinding(multiBinding, y);
+            pointProperty.AppendChild(multiBinding);
+            line.AppendChild(pointProperty);
+        }
+
+        private static void AppendPointBinding(XmlElement multiBinding, string value)
+        {
+            XmlDocument doc = multiBinding.OwnerDocument;
+            XmlElement binding;
+            string trimmed = value?.Trim();
+            if (TryParseBindingMarkupExtension(trimmed, out string extensionName, out List<KeyValuePair<string, string>> arguments))
+            {
+                if (extensionName.Contains(':'))
+                {
+                    string prefix = extensionName.Substring(0, extensionName.IndexOf(':'));
+                    binding = doc.CreateElement(prefix, extensionName.Substring(extensionName.IndexOf(':') + 1), multiBinding.GetNamespaceOfPrefix(prefix));
+                }
+                else
+                {
+                    binding = doc.CreateElement(extensionName, multiBinding.NamespaceURI);
+                }
+
+                foreach (var argument in arguments)
+                    binding.SetAttribute(argument.Key, argument.Value);
+            }
+            else
+            {
+                binding = doc.CreateElement("Binding", multiBinding.NamespaceURI);
+                binding.SetAttribute("Source", trimmed ?? string.Empty);
+            }
+
+            multiBinding.AppendChild(binding);
+        }
+
+        private static bool TryParseBindingMarkupExtension(
+            string value,
+            out string extensionName,
+            out List<KeyValuePair<string, string>> arguments)
+        {
+            extensionName = null;
+            arguments = new List<KeyValuePair<string, string>>();
+            if (!IsBindingMarkupExtension(value))
+                return false;
+
+            string inner = value.Substring(1, value.Length - 2).Trim();
+            int separator = inner.IndexOfAny(new[] { ' ', '\t', '\r', '\n' });
+            extensionName = separator < 0 ? inner : inner.Substring(0, separator);
+            string argText = separator < 0 ? string.Empty : inner.Substring(separator).Trim();
+
+            foreach (string argument in SplitTopLevelMarkupArguments(argText))
+            {
+                int equals = argument.IndexOf('=');
+                if (equals > 0)
+                {
+                    arguments.Add(new KeyValuePair<string, string>(
+                        argument.Substring(0, equals).Trim(),
+                        argument.Substring(equals + 1).Trim()));
+                }
+                else if (!string.IsNullOrWhiteSpace(argument) && arguments.Count == 0)
+                {
+                    arguments.Add(new KeyValuePair<string, string>("Path", argument.Trim()));
+                }
+            }
+
+            return true;
+        }
+
+        private static IEnumerable<string> SplitTopLevelMarkupArguments(string text)
+        {
+            var result = new List<string>();
+            int start = 0;
+            int depth = 0;
+            bool inString = false;
+            char quote = '\0';
+            for (int i = 0; i < text.Length; i++)
+            {
+                char current = text[i];
+                if (inString)
+                {
+                    if (current == quote && (i == 0 || text[i - 1] != '\\'))
+                        inString = false;
+                }
+                else if (current == '\'' || current == '"')
+                {
+                    inString = true;
+                    quote = current;
+                }
+                else if (current == '{')
+                {
+                    depth++;
+                }
+                else if (current == '}')
+                {
+                    depth--;
+                }
+                else if (current == ',' && depth == 0)
+                {
+                    result.Add(text.Substring(start, i - start).Trim());
+                    start = i + 1;
+                }
+            }
+            result.Add(text.Substring(start).Trim());
+            return result;
+        }
+
+        private static string EscapeMarkupExtensionValue(string value)
+        {
+            return value?.Replace("'", "\\'", StringComparison.Ordinal) ?? string.Empty;
         }
 
         private static string ConvertStrokeStartEndLineCapToStrokeLineCap(string xaml)

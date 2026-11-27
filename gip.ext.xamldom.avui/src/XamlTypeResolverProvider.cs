@@ -51,6 +51,10 @@ namespace gip.ext.xamldom.avui
 
         public Type Resolve(string typeName)
         {
+            typeName = NormalizeTypeReference(typeName);
+            if (string.IsNullOrWhiteSpace(typeName))
+                throw new XamlMarkupExtensionParseException("Type name cannot be null or empty");
+
             Type result = null;
             string typeNamespaceUri;
             string typeLocalName;
@@ -81,7 +85,7 @@ namespace gip.ext.xamldom.avui
             }
             if (string.IsNullOrEmpty(typeNamespaceUri))
             {
-                var documentResolver = this.document.RootElement.ServiceProvider.Resolver;
+                var documentResolver = this.document.RootElement?.ServiceProvider?.Resolver;
                 if (documentResolver != null && documentResolver != this)
                 {
                     return documentResolver.Resolve(typeName);

@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
@@ -152,9 +153,49 @@ namespace gip.core.layoutengine.avui
         public VBChartPlotter()
         {
             PropertyLogItems = new ObservableCollection<IVBChartItem>();
+            this[!BackgroundProperty] = new DynamicResourceExtension("AppDark");
+            this[!ForegroundProperty] = new DynamicResourceExtension("CtrlTxtEnabled");
+            this[!TextColorProperty] = new DynamicResourceExtension("ColorCtrlTxtEnabled");
+#pragma warning disable CS0618
+            ActualModel.Axes.CollectionChanged += OnActualAxesChanged;
+#pragma warning restore CS0618
         }
 
         protected override Type StyleKeyOverride => typeof(Plot);
+
+        private void OnActualAxesChanged(object sender, ElementCollectionChangedEventArgs<OxyPlot.Axes.Axis> e)
+        {
+            ApplyDefaultAxisColors();
+        }
+
+        private void ApplyDefaultAxisColors()
+        {
+            var color = TextColor.ToOxyColor();
+            for (int index = 0; index < ActualModel.Axes.Count; index++)
+            {
+                OxyPlot.Axes.Axis modelAxis = ActualModel.Axes[index];
+                OxyPlot.Avalonia.Axis axis = index < Axes.Count ? Axes[index] : null;
+
+                if (axis == null || !axis.IsSet(OxyPlot.Avalonia.Axis.AxislineColorProperty))
+                    modelAxis.AxislineColor = color;
+                if (axis == null || !axis.IsSet(OxyPlot.Avalonia.Axis.TextColorProperty))
+                    modelAxis.TextColor = color;
+                if (axis == null || !axis.IsSet(OxyPlot.Avalonia.Axis.TicklineColorProperty))
+                    modelAxis.TicklineColor = color;
+                if (axis == null || !axis.IsSet(OxyPlot.Avalonia.Axis.TitleColorProperty))
+                    modelAxis.TitleColor = color;
+            }
+        }
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+            if (change.Property == TextColorProperty)
+            {
+                ApplyDefaultAxisColors();
+                InvalidatePlot(false);
+            }
+        }
 
         VBPropertyLogChart _VBPropertyLogChart = null;
 
@@ -460,6 +501,8 @@ namespace gip.core.layoutengine.avui
             if (logListInfo == null && chartSeries == null)
                 return;
 
+            EnsureDateTimeXAxis(typeOfXAxis);
+
             bool bExists = false;
             LineSeries line = CreateOrGetLine(chartItem, out bExists);
             if (line == null)
@@ -611,6 +654,7 @@ namespace gip.core.layoutengine.avui
             if (!DisplayAsArchive || PropertyLogItems == null)
                 return;
 
+            EnsureDateTimeXAxis(typeof(DateTime));
             _Initialized = true;
 
             bool bForceRedraw = false;
@@ -695,6 +739,14 @@ namespace gip.core.layoutengine.avui
             {
                 return this.Axes.Where(c => c.Position == OxyPlot.Axes.AxisPosition.Bottom || c.Position == OxyPlot.Axes.AxisPosition.Top);
             }
+        }
+
+        private void EnsureDateTimeXAxis(Type xAxisType)
+        {
+            if (xAxisType != typeof(DateTime) || XAxes.Any())
+                return;
+
+            Axes.Add(new OxyPlot.Avalonia.DateTimeAxis());
         }
 
         /// <summary>
