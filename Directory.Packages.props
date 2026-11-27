@@ -92,8 +92,7 @@
 		<PackageVersion Include="iPlus.RoslynPad.Roslyn.Avalonia" Version="$(RoslynVersionIPlus)" /> -->
     <PackageVersion Include="RoslynPad.Editor.Avalonia" Version="5.0.0" />
     <PackageVersion Include="RoslynPad.Roslyn.Avalonia" Version="5.0.0" />
-    <PackageVersion Include="OxyPlot.Avalonia" Version="2.1.0" />
-    <PackageVersion Include="Oxyplot.Avalonia12" Version="2.1.2" />
+    <PackageVersion Include="OxyPlot.Avalonia" Version="2.2.0" />
     <PackageVersion Include="MessageBox.Avalonia" Version="12.0.0" />
     <PackageVersion Include="Markdown.Avalonia" Version="12.0.0-a3" />
     <PackageVersion Include="Dock.Avalonia" Version="12.1.0.6" />
